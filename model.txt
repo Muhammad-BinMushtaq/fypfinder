@@ -1,0 +1,11 @@
+models/
+  ├── student.model.js
+  ├── section.model.js
+  ├── course.model.js
+  ├── sectionCourse.model.js
+  ├── attendance.model.js
+  └── semester.model.js
+routes/
+  ├── assignTeacher.js
+  ├── markAttendance.js
+  └── getStudentDashboard.js
