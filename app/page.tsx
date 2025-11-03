@@ -35,7 +35,13 @@ export default function StudentLoginPage() {
 
       const result = await res.json();
       console.log(result)
-      if (!res.ok) throw new Error(result);
+
+      if (!res.ok) {
+        
+        setServerError(result.message || "An error occurred during login.");
+        return;
+
+       }
 
       setSuccessMessage("✅ Login successful! Redirecting...");
 
