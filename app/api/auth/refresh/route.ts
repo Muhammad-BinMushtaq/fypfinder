@@ -1,11 +1,10 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
 import dbConnect from "@/lib/mongoDb";
 import User from "@/models/User";
 import { createAccessToken, findRefreshTokenByRaw } from "@/lib/auth";
 
-const JWT_SECRET = process.env.JWT_SECRET!;
+
 
 
 export async function POST() {
@@ -40,7 +39,16 @@ export async function POST() {
 
         // 6️⃣ Send new access token back
         return NextResponse.json(
-            { accessToken: newAccessToken, message: "Access token refreshed" },
+            {
+                accessToken: newAccessToken,
+                message: "Access token refreshed",
+                user: {
+                    _id: user._id,
+                    institutionalEmail: user.institutionalEmail,
+                    role: user.role,
+                    linkedId: user.linkedId,
+                }
+            },
             { status: 200 }
         );
     } catch (err: any) {

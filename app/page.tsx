@@ -5,12 +5,18 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { loginSchema } from "@/lib/loginValidation";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+
 
 
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function StudentLoginPage() {
+  const router = useRouter()
+
+  const { setUser, user, setAccessToken } = useAuth();
   const {
     register,
     handleSubmit,
@@ -18,13 +24,11 @@ export default function StudentLoginPage() {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
-
-  const [serverError, setServerError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+  const [sucess, setSucess] = useState(false)
+  const [message, setMessage] = useState("")
 
   const onSubmit = async (data: LoginFormData) => {
-    setServerError("");
-    setSuccessMessage("");
+    setMessage("")
 
     try {
       const res = await fetch("/api/login/students", {
@@ -37,16 +41,22 @@ export default function StudentLoginPage() {
       console.log(result)
 
       if (!res.ok) {
-        
-        setServerError(result.message || "An error occurred during login.");
+
+        setMessage(result.message || "An error occurred during login.");
         return;
 
-       }
+      }
 
-      setSuccessMessage("✅ Login successful! Redirecting...");
+      setMessage("✅ Login successful! Redirecting...");
+      setAccessToken(result.accessToken);
+      setUser(result.user);
+      setSucess(true);
+
+      if (result.user.role === "student") router.push("/student/Myprofile");
+      else if (result.user.role === "teacher") router.push("/teacher/dashboard");
 
     } catch (err: any) {
-      setServerError(err.message);
+      setMessage(err.message);
     }
   };
 
@@ -96,8 +106,8 @@ export default function StudentLoginPage() {
           </button>
 
           {/* Server messages */}
-          {serverError && <p className="text-red-600 text-center mt-3">{serverError}</p>}
-          {successMessage && <p className="text-green-600 text-center mt-3">{successMessage}</p>}
+          {!sucess && <p className="text-red-600 text-center mt-3">{message}</p>}
+          {sucess && <p className="text-green-600 text-center mt-3">{message}</p>}
         </form>
 
         <p className="text-center text-sm text-gray-500 mt-6">

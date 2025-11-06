@@ -35,11 +35,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 if (res.ok) {
                     const data = await res.json();
                     setAccessToken(data.accessToken);
-
-                    const decoded: any = verifyAccessToken(data.accessToken);
-                    const user = await User.findById(decoded.user._d);
-                    if (!user) throw new Error('User not found');
-                    setUser(user);
+                    setUser(data.user);
                 } else {
                     setAccessToken(null);
                     setUser(null);

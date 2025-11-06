@@ -5,20 +5,20 @@ import { IStudent } from "@/types/student";
 const StudentSchema = new Schema<IStudent>(
   {
     // Basic & Academic
-    regNo: { type: String, required: true },
+    regNo: { type: String  },
     batch: { type: String },
     sectionId: { type: Schema.Types.ObjectId, ref: "Section" },
     enrolledCourses: [{ type: Schema.Types.ObjectId, ref: "SectionCourse" }],
 
 
     // Personal
-    name: { type: String },
+    name: { type: String  },
     gender: { type: String, enum: ["Male", "Female", "Other"] },
     dob: { type: Date },
     religion: { type: String },
     nationality: { type: String },
     bloodGroup: { type: String },
-    cnic: { type: String },
+    cnic: { type: String required: true },
     passportNo: { type: String },
 
 
@@ -26,7 +26,7 @@ const StudentSchema = new Schema<IStudent>(
     // Contact
     personalPhone: { type: String },
     guardianMobile: { type: String },
-    personalEmail: { type: String },
+    personalEmail: { type: String  },
     institutionalEmail: { type: String, required: true },
 
 

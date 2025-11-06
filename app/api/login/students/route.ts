@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { clearRefreshCookieHeader, createAccessToken, generateRawRefreshToken, saveRefreshToken, setRefreshCookieHeader } from "@/lib/auth";
 import { checkRateLimit, recordFailedAttempt, resetAttempts } from "@/lib/rateLimiter";
 import User from "@/models/User";
+import { success } from "zod";
 
 export async function POST(req: Request) {
     const headers = new Headers({
@@ -27,7 +28,11 @@ export async function POST(req: Request) {
 
         if (blocked) {
             return new Response(
-                JSON.stringify({ message, blocked: true }),
+                JSON.stringify({
+                    message,
+                    blocked: true,
+                    success: false,
+                }),
                 { status: 429, headers }
             );
         }
@@ -40,6 +45,7 @@ export async function POST(req: Request) {
             return new Response(
                 JSON.stringify({
                     message: `Invalid credentials. ${remaining} attempts left.`,
+                    success: false,
                 }),
                 { status: 401, headers }
             );
@@ -54,6 +60,7 @@ export async function POST(req: Request) {
                 return new Response(
                     JSON.stringify({
                         message: `Too many failed attempts. Try again later.`,
+                        success: false,
                     }),
                     { status: 429, headers }
                 );
@@ -62,6 +69,8 @@ export async function POST(req: Request) {
             return new Response(
                 JSON.stringify({
                     message: `Invalid credentials. ${remaining} attempts left.`,
+                    success: false,
+
                 }),
                 { status: 401, headers }
             );
@@ -83,13 +92,24 @@ export async function POST(req: Request) {
             JSON.stringify({
                 message: "Login successful",
                 accessToken,
+                sucess: true,
+                user: {
+                    _id: user._id,
+                    institutionalEmail: user.institutionalEmail,
+                    role: user.role,
+                    linkedId: user.linkedId,
+                }
             }),
             { status: 200, headers }
         );
     } catch (error: any) {
         console.error("Login error:", error);
         return new Response(
-            JSON.stringify({ message: error.message || "Server error" }),
+            JSON.stringify({
+                message: error.message || "Server error",
+                success: false,
+
+            }),
             { status: 500, headers }
         );
     }
