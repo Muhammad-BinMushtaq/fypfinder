@@ -1,36 +1,93 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FYP Finder
+
+FYP Finder is a Next.js-based platform designed to help students connect, collaborate, and manage their Final Year Project (FYP) activities efficiently.
+
+## Features
+
+- **Authentication**: Secure login and signup functionality.
+- **Student Profiles**: Create, update, and manage student profiles.
+- **Skill Management**: Add, update, and remove skills.
+- **Project Management**: Add, update, and remove projects.
+- **Group Management**: Create and manage groups, add or remove members, and lock groups.
+- **Messaging**: Send and manage requests and messages between students.
+- **Discovery**: Match students based on skills and interests.
+
+## Technologies Used
+
+- **Next.js**: Framework for building the application.
+- **Prisma**: ORM for database management.
+- **Supabase**: PostgreSQL database hosting.
+- **TypeScript**: For type-safe development.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js (v16 or higher)
+- npm or yarn
+- Supabase account for database setup
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Muhammad-BinMushtaq/fypfinder.git
+   cd fypfinder
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Set up environment variables:
+   - Create a `.env.local` file in the root directory.
+   - Add the following variables:
+     ```
+     DATABASE_URL=your-supabase-database-url
+     DIRECT_URL=your-direct-database-url
+     ```
+
+4. Generate Prisma Client:
+   ```bash
+   npx prisma generate
+   ```
+
+5. Push Prisma schema to the database:
+   ```bash
+   npx prisma db push
+   ```
+
+### Running the Development Server
+
+Start the development server:
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Folder Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **app/**: Contains the Next.js application pages and API routes.
+- **lib/**: Includes Prisma client setup.
+- **modules/**: Modularized code for different features (e.g., auth, messaging, etc.).
+- **prisma/**: Contains the Prisma schema.
 
-## Learn More
+## Deployment
 
-To learn more about Next.js, take a look at the following resources:
+To deploy the application, follow these steps:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Set up environment variables in your hosting platform (e.g., Vercel).
+2. Build the application:
+   ```bash
+   npm run build
+   ```
+3. Start the production server:
+   ```bash
+   npm start
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## License
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is licensed under the MIT License.
