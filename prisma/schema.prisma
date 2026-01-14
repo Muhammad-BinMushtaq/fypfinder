@@ -9,9 +9,199 @@ datasource db {
   provider = "postgresql"
   
 }
-model User{
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
+
+
+// =====================
+// 1️⃣ Enums
+// =====================
+
+enum UserRole {
+  STUDENT
+  ADMIN
 }
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  DELETION_REQUESTED
+}
+
+enum AvailabilityStatus {
+  AVAILABLE
+  BUSY
+  AWAY
+}
+
+enum ExperienceLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum RequestType {
+  MESSAGE
+  PARTNER
+}
+
+enum RequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+// =====================
+// 2️⃣ User (Authentication Only)
+// =====================
+
+model User {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  role      UserRole
+  status    UserStatus @default(ACTIVE)
+  createdAt DateTime   @default(now())
+
+  student   Student?
+  admin     Admin?
+
+
+}
+
+// =====================
+// 3️⃣ Student (Profile & Academic Data)
+// =====================
+
+model Student {
+  id             String           @id @default(uuid())
+  userId         String           @unique
+  name           String
+  department     String
+  currentSemester Int
+  profilePicture String?
+  interests      String?
+  phone          String?
+  linkedinUrl    String?
+  githubUrl      String?
+  availability   AvailabilityStatus @default(AVAILABLE)
+  createdAt      DateTime         @default(now())
+
+  user           User             @relation(fields: [userId], references: [id])
+
+  skills         StudentSkill[]
+  projects       Project[]
+
+  sentRequests   Request[]        @relation("SENTREQUESTS")
+  receivedRequests Request[]      @relation("RECEIVEDREQUESTS")
+
+  groupMember    FYPGroupMember?
+}
+
+// =====================
+// 4️⃣ Admin (Separate Profile)
+// =====================
+
+model Admin {
+  id      String @id @default(uuid())
+  userId  String @unique
+  name    String
+
+  user    User   @relation(fields: [userId], references: [id])
+
+ 
+}
+
+// =====================
+// 5️⃣ Skill
+// =====================
+
+model Skill {
+  id          String         @id @default(uuid())
+  name        String
+  description String?
+
+  students    StudentSkill[]
+}
+
+// =====================
+// 6️⃣ StudentSkill (M–M Relationship)
+// =====================
+
+model StudentSkill {
+  id        String     @id @default(uuid())
+  studentId String
+  skillId   String
+  level     ExperienceLevel
+
+  student   Student    @relation(fields: [studentId], references: [id])
+  skill     Skill      @relation(fields: [skillId], references: [id])
+
+  @@unique([studentId, skillId])
+}
+
+// =====================
+// 7️⃣ Project (Personal Projects)
+// =====================
+
+model Project {
+  id         String   @id @default(uuid())
+  studentId  String
+  name       String
+  description String?
+  liveLink   String?
+  githubLink String?
+
+  student    Student  @relation(fields: [studentId], references: [id])
+}
+
+// =====================
+// 8️⃣ Request (Message + Partner Requests)
+// =====================
+
+model Request {
+  id            String      @id @default(uuid())
+  fromStudentId String
+  toStudentId   String
+  type          RequestType
+  reason        String
+  status        RequestStatus @default(PENDING)
+  createdAt     DateTime      @default(now())
+
+  fromStudent   Student      @relation("SENTREQUESTS", fields: [fromStudentId], references: [id])
+  toStudent     Student      @relation("RECEIVEDREQUESTS", fields: [toStudentId], references: [id])
+
+  // 📌 Messaging rule:
+  // If status = ACCEPTED → messaging allowed
+}
+
+// =====================
+// 9️⃣ FYP Group
+// =====================
+
+model FYPGroup {
+  id          String            @id @default(uuid())
+  projectName String
+  description String?
+  isLocked    Boolean           @default(false)
+  createdAt   DateTime          @default(now())
+
+  members     FYPGroupMember[]
+}
+
+// =====================
+// 10️⃣ FYP Group Member
+// =====================
+
+model FYPGroupMember {
+  id        String   @id @default(uuid())
+  groupId   String
+  studentId String
+  joinedAt  DateTime @default(now())
+
+  group     FYPGroup @relation(fields: [groupId], references: [id])
+  student   Student  @relation(fields: [studentId], references: [id])
+
+  @@unique([studentId])
+  // 📌 Enforces:
+  // A student can only be in one group at a time
+}
+
+
