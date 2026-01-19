@@ -26,15 +26,20 @@ export async function getCurrentUser() {
 // Require login
 export async function requireAuth() {
 
-  if (process.env.NODE_ENV === "development") {
-    // TEMP: return first user for Postman testing 
-    const user = await prisma.user.findFirst()
-    if (!user) throw new Error("No users in database")
-    // console.log('this is user', user)
-    return user
-  }
+  // if (process.env.NODE_ENV === "development") {
+  //   // TEMP: return first user for Postman testing 
+  //   const user = await prisma.user.findFirst()
+  //   if (!user) throw new Error("No users in database")
+  //   // console.log('this is user', user)
+  //   return user
+  // }
+
 
   const user = await getCurrentUser()
+
+  if (user?.status === UserStatus.SUSPENDED) {
+    throw new Error("Account suspended")
+  }
   if (!user) {
     throw new Error("Unauthorized: not logged in")
   }

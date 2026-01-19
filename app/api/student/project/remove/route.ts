@@ -3,33 +3,25 @@ import prisma from "@/lib/db"
 import { UserRole } from "@/lib/generated/prisma/enums"
 import { NextResponse } from "next/server"
 
-export async function POST(req: Request) {
+export async function DELETE(req: Request) {
     try {
         // 🔐 Auth
         const user = await requireRole(UserRole.STUDENT)
 
         const body = await req.json()
-        const { name, description, liveLink, githubLink } = body
+        const { projectId } = body
 
-        if (!name && !description && !githubLink) {
+        if (!projectId) {
             return NextResponse.json(
-                {
-                    success: false,
-                    message: "Name, description and githubLink is required"
-                },
+                { success: false, message: "Project ID is required" },
                 { status: 400 }
             )
         }
 
-
-
-        // 🔗 Get student using userId
+        //  Get student
         const student = await prisma.student.findUnique({
             where: { userId: user.id },
         })
-
-        // console.log('This is student', student)
-        // console.log('This is userID', user.id)
 
         if (!student) {
             return NextResponse.json(
@@ -38,28 +30,37 @@ export async function POST(req: Request) {
             )
         }
 
-        // 📦 Create project
-        const project = await prisma.project.create({
-            data: {
+        //  Ownership check
+        const project = await prisma.project.findFirst({
+            where: {
+                id: projectId,
                 studentId: student.id,
-                name,
-                description,
-                liveLink,
-                githubLink,
             },
         })
 
-        console.log("This is new project", project)
+        if (!project) {
+            return NextResponse.json(
+                { success: false, message: "Project not found or unauthorized" },
+                { status: 404 }
+            )
+        }
+
+        // 🗑 Delete project
+        await prisma.project.delete({
+            where: { id: projectId },
+        })
+
         return NextResponse.json(
             {
                 success: true,
-                message: "Project added successfully",
-                data: project,
+                message: "Project deleted successfully",
             },
-            { status: 201 }
+            { status: 200 }
         )
+
+          
     } catch (error: any) {
-        console.error("Add project error:", error)
+        console.error("Delete project error:", error)
 
         return NextResponse.json(
             {

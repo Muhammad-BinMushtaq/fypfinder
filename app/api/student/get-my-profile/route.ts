@@ -15,9 +15,7 @@ export async function GET() {
             where: { userId: currentUser.id },
             include: {
                 skills: {
-                    include: {
-                        skill: true,
-                    },
+                    
                 },
                 projects: true,
             },
@@ -51,11 +49,7 @@ export async function GET() {
                     linkedinUrl: student.linkedinUrl,
                     githubUrl: student.githubUrl,
                     availability: student.availability,
-                    skills: student.skills.map((s) => ({
-                        id: s.skill.id,
-                        name: s.skill.name,
-                        level: s.level,
-                    })),
+                    skills: student.skills,
                     projects: student.projects,
                 },
             },

@@ -1,30 +1,18 @@
-// app/layout.tsx
+import "./globals.css";
+import { Inter } from "next/font/google";
 
-import { Geist, Geist_Mono } from "next/font/google";
+const inter = Inter({ subsets: ["latin"] });
 
-
-
-const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
-
-
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-
-
-    return (
-        <html lang="en">
-            <head>
-
-            </head>
-            <body className={`${geistSans.variable} ${geistMono.variable} bg-gray-100 text-gray-900 antialiased`}>
-                <div className="flex min-h-screen flex-col">
-
-                    <main className="flex-1">{children}</main>
-
-                </div>
-
-            </body>
-        </html>
-    );
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en" className="light">
+      <body className={`${inter.className} bg-background-light dark:bg-background-dark min-h-screen`}>
+        {children}
+      </body>
+    </html>
+  );
 }

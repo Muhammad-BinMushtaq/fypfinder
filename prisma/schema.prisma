@@ -86,7 +86,7 @@ model Student {
 
   user           User             @relation(fields: [userId], references: [id])
 
-  skills         StudentSkill[]
+  skills         Skill[]
   projects       Project[]
 
   sentRequests   Request[]        @relation("SENTREQUESTS")
@@ -114,28 +114,18 @@ model Admin {
 // =====================
 
 model Skill {
-  id          String         @id @default(uuid())
+  id          String          @id @default(uuid())
+  studentId   String
   name        String
   description String?
+  level       ExperienceLevel @default(BEGINNER)
 
-  students    StudentSkill[]
+  student     Student         @relation(fields: [studentId], references: [id])
+
+  @@unique([studentId, name]) // ✅ one skill name per student
 }
 
-// =====================
-// 6️⃣ StudentSkill (M–M Relationship)
-// =====================
 
-model StudentSkill {
-  id        String     @id @default(uuid())
-  studentId String
-  skillId   String
-  level     ExperienceLevel
-
-  student   Student    @relation(fields: [studentId], references: [id])
-  skill     Skill      @relation(fields: [skillId], references: [id])
-
-  @@unique([studentId, skillId])
-}
 
 // =====================
 // 7️⃣ Project (Personal Projects)

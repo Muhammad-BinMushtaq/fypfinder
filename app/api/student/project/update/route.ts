@@ -3,73 +3,76 @@ import prisma from "@/lib/db"
 import { UserRole } from "@/lib/generated/prisma/enums"
 import { NextResponse } from "next/server"
 
-export async function POST(req: Request) {
-    try {
-        // 🔐 Auth
-        const user = await requireRole(UserRole.STUDENT)
+export async function PATCH(req: Request) {
+  try {
+    // 🔐 Auth
+    const user = await requireRole(UserRole.STUDENT)
 
-        const body = await req.json()
-        const { name, description, liveLink, githubLink } = body
+    const body = await req.json()
+    const { projectId, name, description, liveLink, githubLink } = body
 
-        if (!name && !description && !githubLink) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "Name, description and githubLink is required"
-                },
-                { status: 400 }
-            )
-        }
-
-
-        // 🔗 Get student using userId
-        const student = await prisma.student.findUnique({
-            where: { userId: user.id },
-        })
-
-        // console.log('This is student', student)
-        // console.log('This is userID', user.id)
-
-        if (!student) {
-            return NextResponse.json(
-                { success: false, message: "Student profile not found" },
-                { status: 404 }
-            )
-        }
-
-        // 📦 Create project
-        const project = await prisma.project.update({
-            where: {
-                userId: user.id,
-            },
-
-            data: {
-                studentId: student.id, // ✅ CORRECT
-                name,
-                description,
-                ...(liveLink !== undefined && { liveLink }),
-                githubLink,
-            },
-        })
-
-        console.log("This is new project", project)
-        return NextResponse.json(
-            {
-                success: true,
-                message: "Project added successfully",
-                data: project,
-            },
-            { status: 201 }
-        )
-    } catch (error: any) {
-        console.error("Add project error:", error)
-
-        return NextResponse.json(
-            {
-                success: false,
-                message: error.message || "Internal server error",
-            },
-            { status: 500 }
-        )
+    if (!projectId) {
+      return NextResponse.json(
+        { success: false, message: "Project ID is required" },
+        { status: 400 }
+      )
     }
+
+    // 🔗 Get student
+    const student = await prisma.student.findUnique({
+      where: { userId: user.id },
+    })
+
+    if (!student) {
+      return NextResponse.json(
+        { success: false, message: "Student profile not found" },
+        { status: 404 }
+      )
+    }
+
+    // 🔒 Ownership check
+    const existingProject = await prisma.project.findFirst({
+      where: {
+        id: projectId,
+        studentId: student.id,
+      },
+    })
+
+    if (!existingProject) {
+      return NextResponse.json(
+        { success: false, message: "Project not found or unauthorized" },
+        { status: 404 }
+      )
+    }
+
+    // ✏️ Update project (partial update)
+    const updatedProject = await prisma.project.update({
+      where: { id: projectId },
+      data: {
+        ...(name !== undefined && { name }),
+        ...(description !== undefined && { description }),
+        ...(liveLink !== undefined && { liveLink }),
+        ...(githubLink !== undefined && { githubLink }),
+      },
+    })
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Project updated successfully",
+        data: updatedProject,
+      },
+      { status: 200 }
+    )
+  } catch (error: any) {
+    console.error("Update project error:", error)
+
+    return NextResponse.json(
+      {
+        success: false,
+        message: error.message || "Internal server error",
+      },
+      { status: 500 }
+    )
+  }
 }
