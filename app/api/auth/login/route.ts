@@ -1,7 +1,6 @@
 
 import { NextResponse } from "next/server"
 import { createSupabaseServerClient } from "@/lib/supabase"
-import { getCurrentUser } from "@/lib/auth"
 
 
 
