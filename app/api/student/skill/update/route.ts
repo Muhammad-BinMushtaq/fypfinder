@@ -68,11 +68,11 @@ export async function PATCH(req: Request) {
             )
         }
 
-        // ✏️ 6. Update skill
+        // ✏️ 6. Update skill (normalize name to lowercase like addSkill)
         const updatedSkill = await prisma.skill.update({
             where: { id: skillId },
             data: {
-                ...(name !== undefined && { name: name.trim() }),
+                ...(name !== undefined && { name: name.trim().toLowerCase() }),
                 ...(description !== undefined && { description }),
                 ...(level !== undefined && { level }),
             },

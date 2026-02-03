@@ -8,8 +8,9 @@ export async function DELETE(req: Request) {
         // 🔐 Auth
         const user = await requireRole(UserRole.STUDENT)
 
-        const body = await req.json()
-        const { projectId } = body
+        // Get projectId from query parameters
+        const { searchParams } = new URL(req.url)
+        const projectId = searchParams.get("projectId")
 
         if (!projectId) {
             return NextResponse.json(
@@ -18,37 +19,23 @@ export async function DELETE(req: Request) {
             )
         }
 
-        //  Get student
-        const student = await prisma.student.findUnique({
-            where: { userId: user.id },
-        })
-
-        if (!student) {
-            return NextResponse.json(
-                { success: false, message: "Student profile not found" },
-                { status: 404 }
-            )
-        }
-
-        //  Ownership check
-        const project = await prisma.project.findFirst({
+        // ✅ Optimized: Single query with joined ownership check
+        // Instead of 4 separate queries, use 1 query with relation filter
+        const deletedProject = await prisma.project.deleteMany({
             where: {
                 id: projectId,
-                studentId: student.id,
+                student: {
+                    userId: user.id,  // ✅ Join check ensures ownership
+                },
             },
         })
 
-        if (!project) {
+        if (deletedProject.count === 0) {
             return NextResponse.json(
                 { success: false, message: "Project not found or unauthorized" },
                 { status: 404 }
             )
         }
-
-        // 🗑 Delete project
-        await prisma.project.delete({
-            where: { id: projectId },
-        })
 
         return NextResponse.json(
             {

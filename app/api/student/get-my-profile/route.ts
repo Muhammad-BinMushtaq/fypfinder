@@ -5,22 +5,41 @@ import { UserRole } from "@/lib/generated/prisma/enums"
 
 export async function GET() {
     try {
-
-        // const user= await requireAuth()
-
         const currentUser = await requireRole(UserRole.STUDENT)
 
-        //  Fetch student profile by userId
+        // ✅ Optimized: Single query with select for only needed fields
         const student = await prisma.student.findUnique({
             where: { userId: currentUser.id },
-            include: {
+            select: {
+                id: true,
+                name: true,
+                department: true,
+                currentSemester: true,
+                profilePicture: true,
+                interests: true,
+                phone: true,
+                linkedinUrl: true,
+                githubUrl: true,
+                availability: true,
                 skills: {
-                    
+                    select: {
+                        id: true,
+                        name: true,
+                        description: true,
+                        level: true,
+                    },
                 },
-                projects: true,
+                projects: {
+                    select: {
+                        id: true,
+                        name: true,
+                        description: true,
+                        liveLink: true,
+                        githubLink: true,
+                    },
+                },
             },
         })
-
 
         if (!student) {
             return NextResponse.json(
@@ -33,8 +52,8 @@ export async function GET() {
             )
         }
 
-        //  Return full private profile
-        return NextResponse.json(
+        // ✅ Add cache headers: Allow client to cache for 5 minutes
+        const response = NextResponse.json(
             {
                 success: true,
                 message: "Profile fetched",
@@ -55,6 +74,10 @@ export async function GET() {
             },
             { status: 200 }
         )
+
+        // ✅ No-cache to ensure fresh data after mutations
+        response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate")
+        return response
     } catch (error) {
         // console.error("Get my profile error:", error)
 

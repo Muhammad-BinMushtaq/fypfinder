@@ -1,19 +1,14 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import prisma from "@/lib/db"
-import { requireAuth, requireRole } from "@/lib/auth"
+import { requireRole } from "@/lib/auth"
 import { UserRole } from "@/lib/generated/prisma/enums"
 
-type RouteParams = {
-    params: {
-        studentId: string
-    }
-}
-
-export async function GET(req: Request, { params }: RouteParams) {
+export async function GET(
+    req: NextRequest,
+    { params }: { params: Promise<{ studentId: string }> }
+) {
     try {
-
         const currentUser = await requireRole(UserRole.STUDENT)
-
 
         const { studentId } = await params
 
@@ -28,16 +23,10 @@ export async function GET(req: Request, { params }: RouteParams) {
             )
         }
 
-
-
         const student = await prisma.student.findUnique({
             where: { id: studentId },
             include: {
-                skills: {
-                    include: {
-                        skill: true,
-                    },
-                },
+                skills: true,
                 projects: true,
             },
         })
@@ -67,9 +56,9 @@ export async function GET(req: Request, { params }: RouteParams) {
                     profilePicture: student.profilePicture,
                     interests: student.interests,
                     availability: student.availability,
-                    skills: student.skills.map((s) => ({
-                        id: s.skill.id,
-                        name: s.skill.name,
+                    skills: student.skills.map((s: { id: string; name: string; level: string }) => ({
+                        id: s.id,
+                        name: s.name,
                         level: s.level,
                     })),
                     projects: student.projects,

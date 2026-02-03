@@ -11,11 +11,11 @@ export async function POST(req: Request) {
         const body = await req.json()
         const { name, description, liveLink, githubLink } = body
 
-        if (!name && !description && !githubLink) {
+        if (!name) {
             return NextResponse.json(
                 {
                     success: false,
-                    message: "Name, description and githubLink is required"
+                    message: "Project name is required"
                 },
                 { status: 400 }
             )

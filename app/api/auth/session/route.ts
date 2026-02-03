@@ -6,9 +6,8 @@ export async function GET(req: Request) {
     try {
         const currentUser = await requireAuth();
 
-
         if (currentUser) {
-            return NextResponse.json(
+            const response = NextResponse.json(
                 {
                     success: true,
                     message: "Session active",
@@ -18,10 +17,13 @@ export async function GET(req: Request) {
                 },
                 { status: 200 }
             );
+            
+            // ✅ Cache session for 5 minutes
+            response.headers.set("Cache-Control", "private, max-age=300");
+            return response;
         }
 
-
-        return NextResponse.json(
+        const response = NextResponse.json(
             {
                 success: false,
                 message: "No active session",
@@ -29,6 +31,10 @@ export async function GET(req: Request) {
             },
             { status: 401 }
         );
+        
+        // ✅ Don't cache failed auth
+        response.headers.set("Cache-Control", "no-store");
+        return response;
     }
     catch (error: any) {
         console.error("Session retrieval error:", error);

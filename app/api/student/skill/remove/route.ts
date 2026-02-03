@@ -8,52 +8,39 @@ export async function DELETE(req: Request) {
         // 🔐 Auth
         const user = await requireRole(UserRole.STUDENT)
 
-        const body = await req.json()
-        const { skillId } = body
+        // Get skillId from query parameters
+        const { searchParams } = new URL(req.url)
+        const skillId = searchParams.get("skillId")
 
         if (!skillId) {
             return NextResponse.json(
-                { success: false, message: "Project ID is required" },
+                { success: false, message: "Skill ID is required" },
                 { status: 400 }
             )
         }
 
-        //  Get student
-        const student = await prisma.student.findUnique({
-            where: { userId: user.id },
-        })
-
-        if (!student) {
-            return NextResponse.json(
-                { success: false, message: "Student profile not found" },
-                { status: 404 }
-            )
-        }
-
-        //  Ownership check
-        const skill = await prisma.skill.findFirst({
+        // ✅ Optimized: Single query with joined ownership check
+        // Instead of 4 separate queries, use 1 query with relation filter
+        const deletedSkill = await prisma.skill.deleteMany({
             where: {
-                id: skillId
+                id: skillId,
+                student: {
+                    userId: user.id,  // ✅ Join check ensures ownership
+                },
             },
         })
 
-        if (!skill) {
+        if (deletedSkill.count === 0) {
             return NextResponse.json(
                 { success: false, message: "Skill not found or unauthorized" },
                 { status: 404 }
             )
         }
 
-        // console.log(`${skill?.name}skill deleted successfully`)
-        // 🗑 Delete skill
-        await prisma.skill.delete({
-            where: { id: skillId },
-        })
-
         return NextResponse.json(
             {
                 success: true,
-                message: `${skill.name}skill deleted successfully`,
+                message: "Skill deleted successfully",
             },
             { status: 200 }
         )

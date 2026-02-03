@@ -34,7 +34,7 @@ export async function POST(req: Request) {
             email,
             password,
         })
-
+        // console.log("Supabase signin data:", data, "error:", error);
         if (error || !data.user) {
             return NextResponse.json(
                 { error: error?.message || "Signin failed" },
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
                 message: "Signin successful",
                 success: true,
                 userId: data.user.id,
-               
+
             },
 
             { status: 201 }

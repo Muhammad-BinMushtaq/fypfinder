@@ -14,31 +14,32 @@ export type StudentIDValidationResult =
 
 
 export function validateStudentID(studentId: string): StudentIDValidationResult {
-  const studentIdRegex = /^B\d{2}[FS]\d{4}[A-Z]{2}\d{3}$/
+  // Only accept lowercase letters
+  const studentIdRegex = /^b\d{2}[fs]\d{4}[a-z]{2}\d{3}$/
 
   if (!studentIdRegex.test(studentId)) {
     return {
       valid: false,
-      error: "Invalid student ID format. Expected: B23F0001SE021",
+      error: "Invalid student ID format. Expected: bxxf0001aixxx (lowercase only)",
     }
   }
 
   // Extract components
-  const degree = studentId[0] // B
+  const degree = studentId[0] // b
   const admissionYear = parseInt(studentId.substring(1, 3)) // 23
-  const admissionSession = studentId[3] // F | S
-  const department = studentId.substring(8, 10) // ✅ SE, CY, CS
+  const admissionSession = studentId[3] // f | s
+  const department = studentId.substring(8, 10).toUpperCase() // ✅ SE, CY, CS (convert to uppercase for storage)
 
   // ❌ Only bachelors allowed
-  if (degree !== "B") {
+  if (degree !== "b") {
     return { valid: false, error: "Only bachelor students can signup" }
   }
 
   // ❌ Validate session
-  if (admissionSession !== "F" && admissionSession !== "S") {
+  if (admissionSession !== "f" && admissionSession !== "s") {
     return {
       valid: false,
-      error: "Invalid session. Must be F (Fall) or S (Spring)",
+      error: "Invalid session. Must be f (Fall) or s (Spring)",
     }
   }
 
@@ -67,11 +68,11 @@ export function validateStudentID(studentId: string): StudentIDValidationResult 
 
   let currentSemester = yearsElapsed * 2 + 1
 
-  if (admissionSession === "S" && currentSession === "F") {
+  if (admissionSession === "s" && currentSession === "F") {
     currentSemester += 1
   }
 
-  if (admissionSession === "F" && currentSession === "S") {
+  if (admissionSession === "f" && currentSession === "S") {
     currentSemester += 1
   }
 
