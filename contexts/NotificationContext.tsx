@@ -31,16 +31,26 @@ import { messageRequestKeys } from "@/hooks/request/useMessageRequests";
 import { partnerRequestKeys, groupKeys } from "@/hooks/request/usePartnerRequests";
 import { toast } from "react-toastify";
 
+// Keys for messaging queries
+const messagingKeys = {
+  conversations: ["conversations"] as const,
+  messages: (conversationId: string) => ["messages", conversationId] as const,
+  unreadCount: ["unreadCount"] as const,
+};
+
 // ============ TYPES ============
 
 export interface Notification {
   id: string;
-  type: "MESSAGE_REQUEST" | "PARTNER_REQUEST";
+  type: "MESSAGE_REQUEST" | "PARTNER_REQUEST" | "NEW_MESSAGE";
   title: string;
   message: string;
   timestamp: Date;
   read: boolean;
   requestId: string;
+  // For NEW_MESSAGE type
+  conversationId?: string;
+  senderName?: string;
 }
 
 interface NotificationContextType {
@@ -62,6 +72,9 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const { profile } = useMyProfile();
   const channelRef = useRef<ReturnType<
+    ReturnType<typeof createSupabaseBrowserClient>["channel"]
+  > | null>(null);
+  const messageChannelRef = useRef<ReturnType<
     ReturnType<typeof createSupabaseBrowserClient>["channel"]
   > | null>(null);
 
@@ -207,18 +220,101 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           }
         }
       )
-      .subscribe((status) => {
+      .subscribe((status: string) => {
         console.log("[Notification] Subscription status:", status);
         setIsConnected(status === "SUBSCRIBED");
       });
 
     channelRef.current = channel;
 
+    // Create a separate channel for Message notifications
+    const messageChannel = supabase
+      .channel(`message-notifications-${studentId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "Message",
+        },
+        async (payload) => {
+          console.log("[Notification] New message:", payload);
+
+          const message = payload.new as {
+            id: string;
+            conversationId: string;
+            senderId: string;
+            content: string;
+            isRead: boolean;
+            createdAt: string;
+          } | null;
+
+          // Skip if this is our own message
+          if (!message || message.senderId === studentId) {
+            return;
+          }
+
+          // Invalidate caches to update UI
+          queryClient.invalidateQueries({ queryKey: messagingKeys.conversations });
+          queryClient.invalidateQueries({ queryKey: messagingKeys.unreadCount });
+          queryClient.invalidateQueries({ 
+            queryKey: messagingKeys.messages(message.conversationId) 
+          });
+
+          // Try to get sender info from cache or fetch it
+          let senderName = "Someone";
+          try {
+            // Fetch sender info
+            const response = await fetch(`/api/student/get-public-profile/${message.senderId}`);
+            if (response.ok) {
+              const data = await response.json();
+              senderName = data.student?.name || "Someone";
+            }
+          } catch (error) {
+            console.error("[Notification] Failed to fetch sender info:", error);
+          }
+
+          // Create notification
+          const notification: Notification = {
+            id: `msg-${message.id}-${Date.now()}`,
+            type: "NEW_MESSAGE",
+            title: `New message from ${senderName}`,
+            message: message.content.length > 50 
+              ? message.content.substring(0, 50) + "..." 
+              : message.content,
+            timestamp: new Date(),
+            read: false,
+            requestId: message.id,
+            conversationId: message.conversationId,
+            senderName,
+          };
+
+          setNotifications((prev) => [notification, ...prev].slice(0, 20));
+
+          // Show toast notification
+          toast.info(`💬 ${senderName}: ${notification.message}`, {
+            onClick: () => {
+              window.location.href = `/dashboard/messages/${message.conversationId}`;
+            },
+            autoClose: 5000,
+          });
+        }
+      )
+      .subscribe((status: string) => {
+        console.log("[Notification] Message subscription status:", status);
+      });
+
+    messageChannelRef.current = messageChannel;
+
     return () => {
       console.log("[Notification] Unsubscribing");
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
         channelRef.current = null;
+      }
+      if (messageChannelRef.current) {
+        supabase.removeChannel(messageChannelRef.current);
+        messageChannelRef.current = null;
       }
       setIsConnected(false);
     };

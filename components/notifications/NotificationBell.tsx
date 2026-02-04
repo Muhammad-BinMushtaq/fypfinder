@@ -44,15 +44,26 @@ export function NotificationBell() {
         return <MessageSquare className="w-4 h-4 text-blue-500" />;
       case "PARTNER_REQUEST":
         return <Users className="w-4 h-4 text-purple-500" />;
+      case "NEW_MESSAGE":
+        return <MessageSquare className="w-4 h-4 text-green-500" />;
       default:
         return <Bell className="w-4 h-4 text-gray-500" />;
     }
   };
 
-  const getNotificationLink = (type: string) => {
-    return type === "MESSAGE_REQUEST"
-      ? "/dashboard/requests/messages"
-      : "/dashboard/requests/partner";
+  const getNotificationLink = (type: string, notification?: { conversationId?: string }) => {
+    switch (type) {
+      case "MESSAGE_REQUEST":
+        return "/dashboard/requests/messages";
+      case "PARTNER_REQUEST":
+        return "/dashboard/requests/partner";
+      case "NEW_MESSAGE":
+        return notification?.conversationId 
+          ? `/dashboard/messages/${notification.conversationId}` 
+          : "/dashboard/messages";
+      default:
+        return "/dashboard";
+    }
   };
 
   return (
@@ -125,7 +136,7 @@ export function NotificationBell() {
                 {notifications.map((notification) => (
                   <li key={notification.id}>
                     <Link
-                      href={getNotificationLink(notification.type)}
+                      href={getNotificationLink(notification.type, notification)}
                       onClick={() => {
                         markAsRead(notification.id);
                         setIsOpen(false);
