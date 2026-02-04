@@ -14,7 +14,7 @@ export function useMyProfile() {
     const profileQuery = useQuery({
         queryKey: PROFILE_QUERY_KEY,
         queryFn: studentService.getMyProfile,
-        staleTime: 10 * 60 * 1000, // 10 min
+        staleTime: 20 * 60 * 1000, // 20 min
         gcTime: 30 * 60 * 1000, // 30 min
         refetchOnWindowFocus: false,
         refetchOnReconnect: false,
@@ -71,14 +71,26 @@ export function useMyProfile() {
                 queryClient.setQueryData(PROFILE_QUERY_KEY, context.previous);
             }
         },
-        onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEY });
+        // onSettled: () => {
+        //     queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEY });
+        // },
+
+        onSuccess: (addedSkill) => {
+            // Update the cache with the actual skill returned from the server
+            const previous = queryClient.getQueryData<StudentProfile>(PROFILE_QUERY_KEY);
+            if (previous) {
+                queryClient.setQueryData<StudentProfile>(PROFILE_QUERY_KEY, {
+                    ...previous,
+                    skills: [...(previous.skills ?? []).filter((s) => !s.id.startsWith("temp-")), addedSkill],
+                });
+            }
         },
+
     });
 
     const updateSkill = useMutation({
         mutationFn: ({ skillId, data }: { skillId: string; data: Partial<Skill> }) =>
-            studentService.updateSkill(skillId, data),
+            studentService.updateSkill(skillId, data), // This returns the updated skill
         onMutate: async ({ skillId, data }) => {
             await queryClient.cancelQueries({ queryKey: PROFILE_QUERY_KEY });
             const previous = queryClient.getQueryData<StudentProfile>(PROFILE_QUERY_KEY);
@@ -97,8 +109,17 @@ export function useMyProfile() {
                 queryClient.setQueryData(PROFILE_QUERY_KEY, context.previous);
             }
         },
-        onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEY });
+        onSuccess: (updatedSkill) => {
+            // Update the cache with the actual updated skill returned from the server
+            const previous = queryClient.getQueryData<StudentProfile>(PROFILE_QUERY_KEY);
+            if (previous) {
+                queryClient.setQueryData<StudentProfile>(PROFILE_QUERY_KEY, {
+                    ...previous,
+                    skills: (previous.skills ?? []).map((s) =>
+                        s.id === updatedSkill.id ? updatedSkill : s
+                    ),
+                });
+            }
         },
     });
 
@@ -152,15 +173,23 @@ export function useMyProfile() {
                 queryClient.setQueryData(PROFILE_QUERY_KEY, context.previous);
             }
         },
-        onSettled: () => {
-            // Only invalidate - this marks query as stale and triggers ONE refetch
-            queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEY });
-        },
+
+
+        onSuccess: (addedProject) => {
+            // Update the cache with the actual project returned from the server
+            const previous = queryClient.getQueryData<StudentProfile>(PROFILE_QUERY_KEY);
+            if (previous) {
+                queryClient.setQueryData<StudentProfile>(PROFILE_QUERY_KEY, {
+                    ...previous,
+                    projects: [...(previous.projects ?? []).filter((p) => !p.id.startsWith("temp-")), addedProject],
+                });
+            }
+        }
     });
 
     const updateProject = useMutation({
         mutationFn: ({ projectId, data }: { projectId: string; data: Partial<Project> }) =>
-            studentService.updateProject(projectId, data),
+            studentService.updateProject(projectId, data), // This returns the updated project
         onMutate: async ({ projectId, data }) => {
             await queryClient.cancelQueries({ queryKey: PROFILE_QUERY_KEY });
             const previous = queryClient.getQueryData<StudentProfile>(PROFILE_QUERY_KEY);
@@ -179,8 +208,17 @@ export function useMyProfile() {
                 queryClient.setQueryData(PROFILE_QUERY_KEY, context.previous);
             }
         },
-        onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEY });
+        onSuccess: (updatedProject) => {
+            // Update the cache with the actual updated project returned from the server
+            const previous = queryClient.getQueryData<StudentProfile>(PROFILE_QUERY_KEY);
+            if (previous) {
+                queryClient.setQueryData<StudentProfile>(PROFILE_QUERY_KEY, {
+                    ...previous,
+                    projects: (previous.projects ?? []).map((p) =>
+                        p.id === updatedProject.id ? updatedProject : p
+                    ),
+                });
+            }
         },
     });
 

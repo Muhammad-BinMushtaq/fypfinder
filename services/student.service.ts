@@ -59,6 +59,7 @@ export async function updateMyProfile(data: Partial<{
   githubUrl: string;
   availability: AvailabilityStatus;
   currentSemester: number;
+  profilePicture: string;
 }>): Promise<StudentProfile> {
   const response = await apiClient.patch<ApiResponse<StudentProfile>>(
     "/api/student/update-my-profile",

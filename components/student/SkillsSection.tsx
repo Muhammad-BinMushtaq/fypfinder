@@ -76,7 +76,7 @@ export function SkillsSection({ skills }: SkillsSectionProps) {
       setTimeout(() => setSuccess(""), 2000);
     } catch (error) {
       setError(error instanceof Error ? error.message : "Failed to save skill");
-    }
+    } 
   };
 
   const isBusy = isAddingSkill || isUpdatingSkill || isRemovingSkill;
@@ -160,11 +160,11 @@ export function SkillsSection({ skills }: SkillsSectionProps) {
                   <div className="relative z-10">
                     <div className="flex items-start justify-between mb-3 sm:mb-4">
                       <h3 className="font-bold text-gray-900 text-base sm:text-lg flex-1 pr-2">{skill.name}</h3>
-                      <div className="flex gap-1 sm:gap-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="flex gap-1 sm:gap-2  md:group-hover:opacity-100 transition-opacity duration-300">
                         <button
                           onClick={() => handleEdit(skill)}
                           disabled={isBusy}
-                          className="p-1.5 sm:p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors duration-200 disabled:opacity-50"
+                          className="p-1.5 sm:p-2 text-blue-600  hover:bg-blue-100 rounded-lg transition-colors duration-200 disabled:opacity-50"
                           title="Edit skill"
                         >
                           ✏️

@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     const user = await requireRole(UserRole.STUDENT)
 
     const body = await req.json()
-    const { toStudentId } = body
+    const { toStudentId, reason } = body
 
     if (!toStudentId) {
       return NextResponse.json(
@@ -35,7 +35,8 @@ export async function POST(req: Request) {
     // 📩 Send partner request
     const request = await sendPartnerRequest(
       student.id,
-      toStudentId
+      toStudentId,
+      reason
     )
 
     console.log("Partner request sent:", request)

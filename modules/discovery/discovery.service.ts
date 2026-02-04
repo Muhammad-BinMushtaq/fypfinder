@@ -99,6 +99,7 @@ export async function getMatchedStudents(
         prisma.student.count({ where }),
     ])
 
+    console.log("Studentsa are ", students)
     // 🎁 6. Shape response
     const items = students.map((s) => ({
         id: s.id,

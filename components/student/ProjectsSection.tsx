@@ -4,6 +4,8 @@
 import { useState } from "react";
 import { useMyProfile } from "@/hooks/student/useMyProfile";
 import type { Project } from "@/services/student.service";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface ProjectsSectionProps {
   projects: Project[];
@@ -148,7 +150,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                 <div className="relative z-10">
                   <div className="flex items-start justify-between mb-3 sm:mb-4">
                     <h3 className="font-bold text-gray-900 text-base sm:text-lg flex-1 pr-2">{project.name}</h3>
-                    <div className="flex gap-1 sm:gap-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="flex gap-1 sm:gap-2  md:group-hover:opacity-100 transition-opacity duration-300">
                       <button
                         onClick={() => handleEdit(project)}
                         disabled={isBusy}

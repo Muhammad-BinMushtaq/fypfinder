@@ -94,7 +94,7 @@ export async function getRecievedMessageRequests(studentId: string) {
             createdAt: "desc",
         },
         include: {
-            toStudent: {
+            fromStudent: {
                 select: {
                     id: true,
                     name: true,
@@ -199,6 +199,7 @@ export async function rejectMessageRequest(
 export async function sendPartnerRequest(
     fromStudentId: string,
     toStudentId: string,
+    reason?: string,
 ) {
 
 
@@ -257,7 +258,7 @@ export async function sendPartnerRequest(
             toStudentId,
             type: RequestType.PARTNER,
             status: RequestStatus.PENDING,
-            reason: "Partner request",
+            reason: reason || "",
         },
     })
 
@@ -294,13 +295,13 @@ export async function getRecievedPartnerRequests(studentId: string) {
     return prisma.request.findMany({
         where: {
             toStudentId: studentId,
-            type: RequestType.MESSAGE,
+            type: RequestType.PARTNER,
         },
         orderBy: {
             createdAt: "desc",
         },
         include: {
-            toStudent: {
+            fromStudent: {
                 select: {
                     id: true,
                     name: true,

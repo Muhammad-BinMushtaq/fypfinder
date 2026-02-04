@@ -23,14 +23,25 @@ export async function GET(
             )
         }
 
+        // Fetch student with skills, projects, and group membership
         const student = await prisma.student.findUnique({
             where: { id: studentId },
             include: {
                 skills: true,
                 projects: true,
+                groupMember: {
+                    include: {
+                        group: {
+                            select: {
+                                id: true,
+                                projectName: true,
+                                isLocked: true,
+                            },
+                        },
+                    },
+                },
             },
         })
-        // console.log("student profile", student)
 
         if (!student) {
             return NextResponse.json(
@@ -43,7 +54,22 @@ export async function GET(
             )
         }
 
-        // ✅ Public-safe response
+        // Determine group status
+        const isGrouped = !!student.groupMember
+        const groupInfo = student.groupMember
+            ? {
+                groupId: student.groupMember.group.id,
+                projectName: student.groupMember.group.projectName,
+                isLocked: student.groupMember.group.isLocked,
+            }
+            : null
+
+        // A student is available for group if:
+        // 1. Not in any group, OR
+        // 2. In a group that is NOT locked
+        const availableForGroup = !isGrouped || (isGrouped && !student.groupMember?.group.isLocked)
+
+        // ✅ Public-safe response with group status
         return NextResponse.json(
             {
                 success: true,
@@ -56,6 +82,11 @@ export async function GET(
                     profilePicture: student.profilePicture,
                     interests: student.interests,
                     availability: student.availability,
+                    // Group status
+                    isGrouped,
+                    availableForGroup,
+                    groupInfo,
+                    // Skills & Projects
                     skills: student.skills.map((s: { id: string; name: string; level: string }) => ({
                         id: s.id,
                         name: s.name,
