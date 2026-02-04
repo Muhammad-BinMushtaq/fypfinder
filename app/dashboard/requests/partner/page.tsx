@@ -28,8 +28,6 @@ import {
   useAcceptPartnerRequest,
   useRejectPartnerRequest,
 } from "@/hooks/request/usePartnerRequests";
-import { useRequestRealtime } from "@/hooks/request/useRequestRealtime";
-import { useMyProfile } from "@/hooks/student/useMyProfile";
 import { RequestTabs, RequestList } from "@/components/request";
 import { Users, ArrowLeft, Sparkles, AlertTriangle } from "lucide-react";
 
@@ -37,16 +35,7 @@ export default function PartnerRequestsPage() {
   const [activeTab, setActiveTab] = useState<"sent" | "received">("received");
   const [loadingRequestId, setLoadingRequestId] = useState<string | null>(null);
 
-  // Get current student ID for realtime
-  const { profile } = useMyProfile();
-
-  // Subscribe to realtime updates
-  useRequestRealtime({
-    studentId: profile?.id || null,
-    enabled: !!profile?.id,
-  });
-
-  // Queries
+  // Queries - will auto-refetch on mount due to staleTime:0
   const sentQuery = useSentPartnerRequests();
   const receivedQuery = useReceivedPartnerRequests();
 

@@ -4,6 +4,8 @@
 import { useRequireAuth } from "@/hooks/auth/useRequireAuth";
 import { useSession } from "@/hooks/auth/useSession";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
+import { NotificationBell } from "@/components/notifications";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 import { ReactNode, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -59,18 +61,36 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <DashboardSidebar
-        userEmail={user?.email || "user@example.com"}
-        onLogout={handleLogout}
-        isLoggingOut={isLoggingOut}
-      />
+    <NotificationProvider>
+      <div className="min-h-screen bg-gray-50 flex">
+        {/* Sidebar */}
+        <DashboardSidebar
+          userEmail={user?.email || "user@example.com"}
+          onLogout={handleLogout}
+          isLoggingOut={isLoggingOut}
+        />
 
-      {/* Main content */}
-      <main className="flex-1 lg:ml-72">
-        {children}
-      </main>
-    </div>
+        {/* Main content */}
+        <main className="flex-1 lg:ml-72">
+          {/* Top Header Bar with Notification Bell */}
+          <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-200 px-4 py-3 lg:px-6">
+            <div className="flex items-center justify-end gap-4">
+              {/* Notification Bell */}
+              <NotificationBell />
+              
+              {/* User Avatar (small) */}
+              <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xs">
+                {user?.email?.charAt(0).toUpperCase() || "U"}
+              </div>
+            </div>
+          </div>
+
+          {/* Page Content */}
+          <div>
+            {children}
+          </div>
+        </main>
+      </div>
+    </NotificationProvider>
   );
 }

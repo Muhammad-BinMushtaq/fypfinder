@@ -66,9 +66,10 @@ export function useSentPartnerRequests() {
   return useQuery({
     queryKey: partnerRequestKeys.sent(),
     queryFn: getSentPartnerRequests,
-    staleTime: 1000 * 30, // 30 seconds
+    staleTime: 0, // Always consider stale - refetch on every mount
+    refetchOnMount: "always", // Always refetch when component mounts
     refetchOnWindowFocus: true,
-    refetchInterval: 1000 * 60, // Refetch every minute
+    refetchInterval: 1000 * 30, // Refetch every 30 seconds as backup
   });
 }
 
@@ -78,9 +79,10 @@ export function useReceivedPartnerRequests() {
   return useQuery({
     queryKey: partnerRequestKeys.received(),
     queryFn: getReceivedPartnerRequests,
-    staleTime: 1000 * 30, // 30 seconds
+    staleTime: 0, // Always consider stale - refetch on every mount
+    refetchOnMount: "always", // Always refetch when component mounts
     refetchOnWindowFocus: true,
-    refetchInterval: 1000 * 60, // Refetch every minute
+    refetchInterval: 1000 * 30, // Refetch every 30 seconds as backup
   });
 }
 
