@@ -208,18 +208,23 @@ export async function sendPartnerRequest(
         throw new Error("You cannot send a partner request to yourself")
     }
 
-    // 2️⃣ Fetch both students
+    // 2️⃣ Fetch both students with group info
     const [sender, receiver] = await Promise.all([
         prisma.student.findUnique({
             where: { id: fromStudentId },
             include: {
                 groupMember: {
-                    include: { group: true },
+                    include: { group: { include: { members: true } } },
                 },
             },
         }),
         prisma.student.findUnique({
             where: { id: toStudentId },
+            include: {
+                groupMember: {
+                    include: { group: { include: { members: true } } },
+                },
+            },
         }),
     ])
 
@@ -237,7 +242,17 @@ export async function sendPartnerRequest(
         throw new Error("Your FYP group is already locked")
     }
 
-    // 5️⃣ Prevent duplicate pending partner request
+    // 5️⃣ Prevent sending request if receiver group is locked
+    if (receiver.groupMember?.group?.isLocked) {
+        throw new Error("Target student's group is already locked")
+    }
+
+    // 6️⃣ Check if sender's group is full (max 3 members)
+    if (sender.groupMember?.group?.members && sender.groupMember.group.members.length >= 3) {
+        throw new Error("Your group is already full (max 3 members)")
+    }
+
+    // 7️⃣ Prevent duplicate pending partner request
     const existingRequest = await prisma.request.findFirst({
         where: {
             fromStudentId,
@@ -251,7 +266,7 @@ export async function sendPartnerRequest(
         throw new Error("A pending partner request already exists")
     }
 
-    // 6️⃣ Create partner request
+    // 8️⃣ Create partner request
     const request = await prisma.request.create({
         data: {
             fromStudentId,

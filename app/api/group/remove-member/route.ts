@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { requireRole } from "@/lib/auth"
 import { UserRole } from "@/lib/generated/prisma/enums"
 import { removeGroupMember } from "@/modules/group/group.service"
+import prisma from "@/lib/db"
 
 export async function POST(req: Request) {
   try {
@@ -21,7 +22,23 @@ export async function POST(req: Request) {
       )
     }
 
-    const result = await removeGroupMember(user.id, targetStudentId)
+    // 🔍 Get student ID from user ID
+    const student = await prisma.student.findUnique({
+      where: { userId: user.id },
+      select: { id: true },
+    })
+
+    if (!student) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Student profile not found",
+        },
+        { status: 404 }
+      )
+    }
+
+    const result = await removeGroupMember(student.id, targetStudentId)
 
     return NextResponse.json(
       {

@@ -19,6 +19,7 @@ export async function getMyGroup(studentId: string) {
                                     department: true,
                                     currentSemester: true,
                                     profilePicture: true,
+                                    showGroupOnProfile: true,
                                 },
                             },
                         },
@@ -38,6 +39,8 @@ export async function getMyGroup(studentId: string) {
     // 3️⃣ Shape clean response
     return {
         id: group.id,
+        projectName: group.projectName,
+        description: group.description,
         isLocked: group.isLocked,
         createdAt: group.createdAt,
         members: group.members.map((m) => ({
@@ -46,6 +49,7 @@ export async function getMyGroup(studentId: string) {
             department: m.student.department,
             semester: m.student.currentSemester,
             profilePicture: m.student.profilePicture,
+            showGroupOnProfile: m.student.showGroupOnProfile,
         })),
     }
 }
@@ -160,5 +164,90 @@ export async function removeGroupMember(
 }
 
 
+/**
+ * Update FYP Group Project Details
+ * Rules:
+ * - Student must be a member of the group
+ * - Name and description CAN be edited even when locked
+ */
+export async function updateGroupProject(
+    studentId: string,
+    projectName: string,
+    description?: string
+) {
+    // 1️⃣ Find membership + group
+    const membership = await prisma.fYPGroupMember.findUnique({
+        where: { studentId },
+        include: {
+            group: true,
+        },
+    })
+
+    if (!membership) {
+        throw new Error("Student is not part of any group")
+    }
+
+    // 2️⃣ Validate project name
+    if (!projectName || projectName.trim().length === 0) {
+        throw new Error("Project name is required")
+    }
+
+    if (projectName.trim().length > 100) {
+        throw new Error("Project name must be 100 characters or less")
+    }
+
+    if (description && description.trim().length > 500) {
+        throw new Error("Description must be 500 characters or less")
+    }
+
+    // 3️⃣ Update group
+    const updatedGroup = await prisma.fYPGroup.update({
+        where: { id: membership.group.id },
+        data: {
+            projectName: projectName.trim(),
+            description: description?.trim() || null,
+        },
+    })
+
+    return {
+        id: updatedGroup.id,
+        projectName: updatedGroup.projectName,
+        description: updatedGroup.description,
+        isLocked: updatedGroup.isLocked,
+    }
+}
 
 
+/**
+ * Toggle Group Visibility on Public Profile
+ * Rules:
+ * - Student must exist
+ * - This only affects the student's own visibility preference
+ */
+export async function updateGroupVisibility(
+    studentId: string,
+    showGroupOnProfile: boolean
+) {
+    // 1️⃣ Verify student exists
+    const student = await prisma.student.findUnique({
+        where: { id: studentId },
+    })
+
+    if (!student) {
+        throw new Error("Student not found")
+    }
+
+    // 2️⃣ Update visibility preference
+    const updatedStudent = await prisma.student.update({
+        where: { id: studentId },
+        data: {
+            showGroupOnProfile,
+        },
+        select: {
+            id: true,
+            showGroupOnProfile: true,
+        },
+    })
+
+    return updatedStudent
+}

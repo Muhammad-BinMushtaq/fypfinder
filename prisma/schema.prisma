@@ -82,6 +82,7 @@ model Student {
   linkedinUrl    String?
   githubUrl      String?
   availability   AvailabilityStatus @default(AVAILABLE)
+  showGroupOnProfile Boolean       @default(true) // Visibility preference for public profile
   createdAt      DateTime         @default(now())
 
   user           User             @relation(fields: [userId], references: [id])

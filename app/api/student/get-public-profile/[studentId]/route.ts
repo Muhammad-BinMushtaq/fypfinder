@@ -35,7 +35,22 @@ export async function GET(
                             select: {
                                 id: true,
                                 projectName: true,
+                                description: true,
                                 isLocked: true,
+                                members: {
+                                    select: {
+                                        student: {
+                                            select: {
+                                                id: true,
+                                                name: true,
+                                                department: true,
+                                                currentSemester: true,
+                                                profilePicture: true,
+                                                showGroupOnProfile: true,
+                                            },
+                                        },
+                                    },
+                                },
                             },
                         },
                     },
@@ -55,14 +70,32 @@ export async function GET(
         }
 
         // Determine group status
+        // 🔒 VISIBILITY RULE: Only show group info if the VIEWED student has showGroupOnProfile: true
         const isGrouped = !!student.groupMember
-        const groupInfo = student.groupMember
-            ? {
+        const showGroupInfo = isGrouped && student.showGroupOnProfile
+
+        // Build group info only if student allows visibility
+        let groupInfo = null
+        if (showGroupInfo && student.groupMember) {
+            // Filter out members who have hidden their group visibility
+            const visibleMembers = student.groupMember.group.members
+                .filter((m) => m.student.showGroupOnProfile)
+                .map((m) => ({
+                    id: m.student.id,
+                    name: m.student.name,
+                    department: m.student.department,
+                    semester: m.student.currentSemester,
+                    profilePicture: m.student.profilePicture,
+                }))
+
+            groupInfo = {
                 groupId: student.groupMember.group.id,
                 projectName: student.groupMember.group.projectName,
+                description: student.groupMember.group.description,
                 isLocked: student.groupMember.group.isLocked,
+                members: visibleMembers,
             }
-            : null
+        }
 
         // A student is available for group if:
         // 1. Not in any group, OR

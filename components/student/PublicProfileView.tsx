@@ -258,7 +258,7 @@ export function PublicProfileView({
                   targetSemester={profile.semester}
                   currentSemester={currentSemester}
                   isUserInGroup={isUserInGroup}
-                  isTargetGroupLocked={profile.groupInfo?.isLocked ?? false}
+                  isTargetGroupLocked={!profile.availableForGroup}
                   isUserGroupLocked={isUserGroupLocked}
                   targetAvailability={profile.availability}
                 />
@@ -280,15 +280,18 @@ export function PublicProfileView({
             </div>
           )}
 
-          {/* Group Info (if in a group) */}
+          {/* Group Info (if in a group and visible) */}
           {profile.isGrouped && profile.groupInfo && (
             <div className="mt-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-5 border border-indigo-200">
               <h3 className="text-sm font-bold text-indigo-700 uppercase tracking-wider mb-3 flex items-center gap-2">
                 <span className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center text-lg">🎯</span>
                 Current FYP Project
               </h3>
-              <p className="text-indigo-900 font-bold text-xl">{profile.groupInfo.projectName}</p>
-              <p className="text-indigo-600 text-sm mt-2 flex items-center gap-2">
+              <p className="text-indigo-900 font-bold text-xl">{profile.groupInfo.projectName || "Unnamed Project"}</p>
+              {profile.groupInfo.description && (
+                <p className="text-indigo-700/80 text-sm mt-2 leading-relaxed">{profile.groupInfo.description}</p>
+              )}
+              <div className="flex items-center gap-2 text-indigo-600 text-sm mt-3">
                 {profile.groupInfo.isLocked ? (
                   <>
                     <span className="w-2 h-2 bg-gray-400 rounded-full"></span>
@@ -300,7 +303,35 @@ export function PublicProfileView({
                     Team is open for new members
                   </>
                 )}
-              </p>
+              </div>
+              
+              {/* Team Members */}
+              {profile.groupInfo.members && profile.groupInfo.members.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-indigo-200/50">
+                  <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-3">Team Members</p>
+                  <div className="flex flex-wrap gap-3">
+                    {profile.groupInfo.members.map((member) => (
+                      <div key={member.id} className="flex items-center gap-2 bg-white/70 px-3 py-2 rounded-lg border border-indigo-100">
+                        {member.profilePicture ? (
+                          <img
+                            src={member.profilePicture}
+                            alt={member.name}
+                            className="w-8 h-8 rounded-full object-cover border border-indigo-200"
+                          />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold border border-indigo-200">
+                            {member.name.split(" ").map(n => n[0]).join("").slice(0, 2)}
+                          </div>
+                        )}
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium text-indigo-900">{member.name}</span>
+                          <span className="text-xs text-indigo-500">{member.department}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

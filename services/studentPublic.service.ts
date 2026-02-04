@@ -29,10 +29,20 @@ export interface PublicProject {
   githubLink?: string;
 }
 
+export interface GroupMemberPublic {
+  id: string;
+  name: string;
+  department: string;
+  semester: number;
+  profilePicture?: string | null;
+}
+
 export interface GroupInfo {
   groupId: string;
-  projectName: string;
+  projectName: string | null;
+  description: string | null;
   isLocked: boolean;
+  members: GroupMemberPublic[];
 }
 
 export interface PublicStudentProfile {

@@ -179,11 +179,11 @@ export function SendRequestButtons({
             <Clock className="w-4 h-4" />
             User is Away
           </div>
-        ) : hasAcceptedPartnerRequest || isUserInGroup ? (
-          // Already partnered or in a group
+        ) : hasAcceptedPartnerRequest ? (
+          // Already partnered
           <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-green-50 text-green-700 font-semibold rounded-xl border border-green-200">
             <Check className="w-4 h-4" />
-            {hasAcceptedPartnerRequest ? "Already Partners" : "Already in Group"}
+            Already Partners
           </div>
         ) : isUserGroupLocked ? (
           // Current user's group is locked - cannot send partner requests
