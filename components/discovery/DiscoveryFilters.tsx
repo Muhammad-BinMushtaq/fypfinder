@@ -225,12 +225,12 @@ export function DiscoveryFilters({
               <>
                 {/* Backdrop */}
                 <div
-                  className="fixed inset-0 z-10"
+                  className="fixed inset-0 z-40"
                   onClick={() => setShowSkillsDropdown(false)}
                 />
                 
-                {/* Dropdown */}
-                <div className="absolute z-20 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-xl max-h-64 overflow-hidden">
+                {/* Dropdown - z-50 to appear above student cards */}
+                <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-xl max-h-64 overflow-hidden">
                   {/* Search */}
                   <div className="p-3 border-b border-gray-100 bg-gray-50">
                     <input

@@ -16,6 +16,7 @@
  */
 
 import Link from "next/link";
+import Image from "next/image";
 import { useQueryClient } from "@tanstack/react-query";
 import { prefetchPublicProfile } from "@/hooks/student/usePublicProfile";
 import type { MatchedStudent } from "@/services/discovery.service";
@@ -68,11 +69,18 @@ export function StudentCard({ student }: StudentCardProps) {
             {/* Avatar */}
             <div className="flex-shrink-0">
               {student.profilePicture ? (
-                <img
-                  src={student.profilePicture}
-                  alt={student.name}
-                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border-2 border-gray-100 group-hover:border-blue-200 transition-all shadow-lg group-hover:shadow-xl"
-                />
+                <div className="relative w-14 h-14 sm:w-16 sm:h-16">
+                  <Image
+                    src={student.profilePicture}
+                    alt={student.name}
+                    fill
+                    sizes="(max-width: 640px) 56px, 64px"
+                    className="rounded-2xl object-cover border-2 border-gray-100 group-hover:border-blue-200 transition-all shadow-lg group-hover:shadow-xl"
+                    loading="lazy"
+                    placeholder="blur"
+                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQrJyEwPENBLzMxMTEzQE9AQEBAPT9CT0REWk1NUlZYVlBOUEFOTkFBTlH/2wBDARUXFyAeIBohHRohUTchN1FRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVH/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBEQCEAwEPwAB//9k="
+                  />
+                </div>
               ) : (
                 <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg sm:text-xl border-2 border-transparent group-hover:border-blue-200 transition-all shadow-lg group-hover:shadow-xl">
                   {getInitials(student.name)}

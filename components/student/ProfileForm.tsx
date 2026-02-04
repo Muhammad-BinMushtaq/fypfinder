@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { useMyProfile } from "@/hooks/student/useMyProfile";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import type { StudentProfile, AvailabilityStatus } from "@/services/student.service";
 
 interface ProfileFormProps {
@@ -12,6 +13,7 @@ interface ProfileFormProps {
 export function ProfileForm({ profile }: ProfileFormProps) {
   const { updateProfileAsync, isUpdating } = useMyProfile();
   const [isEditing, setIsEditing] = useState(false);
+  const [isOpen, setIsOpen] = useState(true); // Collapsible state
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
   const [formData, setFormData] = useState({
@@ -80,9 +82,12 @@ export function ProfileForm({ profile }: ProfileFormProps) {
 
   return (
     <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-      {/* Header */}
-      <div className="px-4 sm:px-8 py-4 sm:py-6 bg-gradient-to-r from-indigo-600 to-blue-600 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
-        <div className="text-white">
+      {/* Header - Clickable for collapse */}
+      <div 
+        className="px-4 sm:px-8 py-4 sm:py-6 bg-gradient-to-r from-indigo-600 to-blue-600 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 cursor-pointer hover:from-indigo-700 hover:to-blue-700 transition-colors"
+        onClick={() => !isEditing && setIsOpen(!isOpen)}
+      >
+        <div className="text-white flex items-center gap-2 sm:gap-3">
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-lg flex items-center justify-center text-lg sm:text-xl">👤</div>
             <div>
@@ -90,10 +95,20 @@ export function ProfileForm({ profile }: ProfileFormProps) {
               <p className="text-indigo-100 text-xs sm:text-sm">Manage your profile and preferences</p>
             </div>
           </div>
+          {!isEditing && (
+            isOpen ? (
+              <ChevronUp className="w-5 h-5 sm:w-6 sm:h-6 text-white/80 ml-2" />
+            ) : (
+              <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 text-white/80 ml-2" />
+            )
+          )}
         </div>
-        {!isEditing && (
+        {!isEditing && isOpen && (
           <button
-            onClick={() => setIsEditing(true)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsEditing(true);
+            }}
             className="w-full sm:w-auto px-4 sm:px-5 py-2 sm:py-2.5 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-indigo-50 shadow-md hover:shadow-lg transition-all duration-300 text-center"
           >
             Edit Profile
@@ -101,7 +116,8 @@ export function ProfileForm({ profile }: ProfileFormProps) {
         )}
       </div>
 
-      {/* Form */}
+      {/* Collapsible Form */}
+      {isOpen && (
       <form onSubmit={handleSubmit} className="p-4 sm:p-8">
         {error && (
           <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-xs sm:text-sm">
@@ -308,6 +324,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           </div>
         )}
       </form>
+      )}
     </div>
   );
 }

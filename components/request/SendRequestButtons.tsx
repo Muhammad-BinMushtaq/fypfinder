@@ -16,10 +16,10 @@
  * ⚠️ Backend validates all eligibility. These buttons just trigger the request.
  */
 
-import { useState } from "react";
-import { useSendMessageRequest } from "@/hooks/request/useMessageRequests";
-import { useSendPartnerRequest } from "@/hooks/request/usePartnerRequests";
-import { MessageSquare, Users, Loader2, Check } from "lucide-react";
+import { useState, useMemo } from "react";
+import { useSendMessageRequest, useSentMessageRequests } from "@/hooks/request/useMessageRequests";
+import { useSendPartnerRequest, useSentPartnerRequests } from "@/hooks/request/usePartnerRequests";
+import { MessageSquare, Users, Loader2, Check, Ban } from "lucide-react";
 
 interface SendRequestButtonsProps {
   targetStudentId: string;
@@ -27,6 +27,10 @@ interface SendRequestButtonsProps {
   isSameStudent?: boolean;
   targetSemester?: number;
   currentSemester?: number;
+  /** Is current user already in an FYP group? */
+  isUserInGroup?: boolean;
+  /** Is target student in a locked group? */
+  isTargetGroupLocked?: boolean;
 }
 
 export function SendRequestButtons({
@@ -35,6 +39,8 @@ export function SendRequestButtons({
   isSameStudent = false,
   targetSemester,
   currentSemester,
+  isUserInGroup = false,
+  isTargetGroupLocked = false,
 }: SendRequestButtonsProps) {
   const [showMessageModal, setShowMessageModal] = useState(false);
   const [showPartnerModal, setShowPartnerModal] = useState(false);
@@ -46,6 +52,28 @@ export function SendRequestButtons({
   // Mutations
   const sendMessageMutation = useSendMessageRequest();
   const sendPartnerMutation = useSendPartnerRequest();
+
+  // Fetch existing requests to check status
+  const { data: sentMessageRequests } = useSentMessageRequests();
+  const { data: sentPartnerRequests } = useSentPartnerRequests();
+
+  // Check if there's an existing message request to this student
+  const existingMessageRequest = useMemo(() => {
+    if (!sentMessageRequests) return null;
+    return sentMessageRequests.find((req: any) => req.toStudentId === targetStudentId);
+  }, [sentMessageRequests, targetStudentId]);
+
+  // Check if there's an existing partner request to this student
+  const existingPartnerRequest = useMemo(() => {
+    if (!sentPartnerRequests) return null;
+    return sentPartnerRequests.find((req: any) => req.toStudentId === targetStudentId);
+  }, [sentPartnerRequests, targetStudentId]);
+
+  // Determine button states
+  const hasAcceptedMessageRequest = existingMessageRequest?.status === "ACCEPTED";
+  const hasPendingMessageRequest = existingMessageRequest?.status === "PENDING";
+  const hasAcceptedPartnerRequest = existingPartnerRequest?.status === "ACCEPTED";
+  const hasPendingPartnerRequest = existingPartnerRequest?.status === "PENDING";
 
   // If same student, don't show anything
   if (isSameStudent) {
@@ -94,52 +122,88 @@ export function SendRequestButtons({
     <>
       <div className="flex flex-wrap gap-3">
         {/* Send Message Request Button */}
-        <button
-          onClick={() => setShowMessageModal(true)}
-          disabled={sendMessageMutation.isPending || messageSuccess}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {messageSuccess ? (
-            <>
-              <Check className="w-4 h-4" />
-              Request Sent!
-            </>
-          ) : sendMessageMutation.isPending ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Sending...
-            </>
-          ) : (
-            <>
-              <MessageSquare className="w-4 h-4" />
-              Send Message Request
-            </>
-          )}
-        </button>
+        {hasAcceptedMessageRequest ? (
+          // Already connected - show messaging enabled status
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-green-50 text-green-700 font-semibold rounded-xl border border-green-200">
+            <Check className="w-4 h-4" />
+            Messaging Enabled
+          </div>
+        ) : hasPendingMessageRequest ? (
+          // Request pending
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-50 text-amber-700 font-semibold rounded-xl border border-amber-200">
+            <Loader2 className="w-4 h-4" />
+            Message Request Pending
+          </div>
+        ) : (
+          // Can send request
+          <button
+            onClick={() => setShowMessageModal(true)}
+            disabled={sendMessageMutation.isPending || messageSuccess}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {messageSuccess ? (
+              <>
+                <Check className="w-4 h-4" />
+                Request Sent!
+              </>
+            ) : sendMessageMutation.isPending ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Sending...
+              </>
+            ) : (
+              <>
+                <MessageSquare className="w-4 h-4" />
+                Send Message Request
+              </>
+            )}
+          </button>
+        )}
 
         {/* Send Partner Request Button */}
-        <button
-          onClick={() => setShowPartnerModal(true)}
-          disabled={sendPartnerMutation.isPending || partnerSuccess}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-500 to-purple-600 text-white font-semibold rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {partnerSuccess ? (
-            <>
-              <Check className="w-4 h-4" />
-              Request Sent!
-            </>
-          ) : sendPartnerMutation.isPending ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Sending...
-            </>
-          ) : (
-            <>
-              <Users className="w-4 h-4" />
-              Send Partner Request
-            </>
-          )}
-        </button>
+        {hasAcceptedPartnerRequest || isUserInGroup ? (
+          // Already partnered or in a group
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-green-50 text-green-700 font-semibold rounded-xl border border-green-200">
+            <Check className="w-4 h-4" />
+            {hasAcceptedPartnerRequest ? "Already Partners" : "Already in Group"}
+          </div>
+        ) : isTargetGroupLocked ? (
+          // Target's group is locked
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-100 text-gray-500 font-semibold rounded-xl border border-gray-200">
+            <Ban className="w-4 h-4" />
+            Group Locked
+          </div>
+        ) : hasPendingPartnerRequest ? (
+          // Request pending
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-50 text-amber-700 font-semibold rounded-xl border border-amber-200">
+            <Loader2 className="w-4 h-4" />
+            Partner Request Pending
+          </div>
+        ) : (
+          // Can send request
+          <button
+            onClick={() => setShowPartnerModal(true)}
+            disabled={sendPartnerMutation.isPending || partnerSuccess}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-500 to-purple-600 text-white font-semibold rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {partnerSuccess ? (
+              <>
+                <Check className="w-4 h-4" />
+                Request Sent!
+              </>
+            ) : sendPartnerMutation.isPending ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Sending...
+              </>
+            ) : (
+              <>
+                <Users className="w-4 h-4" />
+                Send Partner Request
+              </>
+            )}
+          </button>
+        )}
 
         {/* Semester mismatch hint */}
         {!canPartner && targetSemester !== undefined && currentSemester !== undefined && (

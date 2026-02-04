@@ -75,14 +75,19 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     const studentId = profile.id;
 
     // Create a channel for Request table changes
+    // Note: For Supabase Realtime to work, you need to:
+    // 1. Enable Realtime on the "Request" table in Supabase Dashboard
+    // 2. Go to Database > Replication > Enable for "Request" table
+    // 3. Add a RLS policy that allows the user to see their own requests
     const channel = supabase
       .channel(`request-notifications-${studentId}`)
       .on(
         "postgres_changes",
         {
-          event: "*",
+          event: "INSERT",
           schema: "public",
           table: "Request",
+          filter: `toStudentId=eq.${studentId}`,
         },
         (payload) => {
           console.log("[Notification] Request change:", payload.eventType, payload);
@@ -149,19 +154,47 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
               },
             });
           }
+        }
+      )
+      // Also listen for UPDATE events on requests I sent (for acceptance notifications)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "Request",
+          filter: `fromStudentId=eq.${studentId}`,
+        },
+        (payload) => {
+          console.log("[Notification] Sent request updated:", payload);
+          
+          const request = payload.new as {
+            id: string;
+            fromStudentId: string;
+            toStudentId: string;
+            type: "MESSAGE" | "PARTNER";
+            status: "PENDING" | "ACCEPTED" | "REJECTED";
+          } | null;
 
-          // Show notification for ACCEPTED requests (UPDATE where I'm sender)
-          if (
-            payload.eventType === "UPDATE" &&
-            isSender &&
-            request?.status === "ACCEPTED" &&
-            oldRequest?.status === "PENDING"
-          ) {
+          const oldRequest = payload.old as typeof request;
+
+          // Invalidate caches
+          if (request?.type === "MESSAGE") {
+            queryClient.invalidateQueries({ queryKey: messageRequestKeys.all });
+          } else if (request?.type === "PARTNER") {
+            queryClient.invalidateQueries({ queryKey: partnerRequestKeys.all });
+            if (request?.status === "ACCEPTED") {
+              queryClient.invalidateQueries({ queryKey: groupKeys.myGroup() });
+            }
+          }
+
+          // Show toast for accepted requests
+          if (request?.status === "ACCEPTED" && oldRequest?.status === "PENDING") {
             const notification: Notification = {
               id: `notif-${request.id}-${Date.now()}`,
-              type: type === "MESSAGE" ? "MESSAGE_REQUEST" : "PARTNER_REQUEST",
-              title: type === "MESSAGE" ? "Request Accepted!" : "Partner Request Accepted!",
-              message: type === "MESSAGE"
+              type: request.type === "MESSAGE" ? "MESSAGE_REQUEST" : "PARTNER_REQUEST",
+              title: request.type === "MESSAGE" ? "Request Accepted!" : "Partner Request Accepted!",
+              message: request.type === "MESSAGE"
                 ? "Your message request was accepted! You can now chat."
                 : "Your partner request was accepted! Check your group.",
               timestamp: new Date(),
@@ -170,7 +203,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
             };
 
             setNotifications((prev) => [notification, ...prev].slice(0, 20));
-
             toast.success(notification.title);
           }
         }

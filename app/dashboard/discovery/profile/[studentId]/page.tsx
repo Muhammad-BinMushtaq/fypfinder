@@ -20,6 +20,7 @@ import { useParams } from "next/navigation";
 import { useRequireAuth } from "@/hooks/auth/useRequireAuth";
 import { usePublicProfile } from "@/hooks/student/usePublicProfile";
 import { useMyProfile } from "@/hooks/student/useMyProfile";
+import { useMyGroup } from "@/hooks/group/useMyGroup";
 import { PublicProfileView } from "@/components/student/PublicProfileView";
 import Link from "next/link";
 
@@ -33,6 +34,9 @@ export default function PublicProfilePage() {
 
   // 📊 Current user's profile (for request buttons)
   const { profile: myProfile } = useMyProfile();
+
+  // 📊 Current user's group status
+  const { isInGroup } = useMyGroup();
 
   // 📊 Public profile data
   const { profile, isLoading, isError, error } = usePublicProfile(studentId, {
@@ -263,6 +267,7 @@ export default function PublicProfilePage() {
           profile={profile} 
           currentStudentId={myProfile?.id}
           currentSemester={myProfile?.semester}
+          isUserInGroup={isInGroup}
         />
       </div>
     </div>

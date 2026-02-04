@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import { useMyProfile } from "@/hooks/student/useMyProfile";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import type { Skill, ExperienceLevel } from "@/services/student.service";
 
 interface SkillsSectionProps {
@@ -11,6 +12,7 @@ interface SkillsSectionProps {
 
 export function SkillsSection({ skills }: SkillsSectionProps) {
   const { addSkillAsync, updateSkillAsync, removeSkillAsync, isAddingSkill, isUpdatingSkill, isRemovingSkill } = useMyProfile();
+  const [isOpen, setIsOpen] = useState(true); // Collapsible state
   const [showModal, setShowModal] = useState(false);
   const [editingSkill, setEditingSkill] = useState<Skill | null>(null);
   const [formData, setFormData] = useState({
@@ -104,9 +106,12 @@ export function SkillsSection({ skills }: SkillsSectionProps) {
 
   return (
     <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-      {/* Header */}
-      <div className="px-4 sm:px-8 py-4 sm:py-6 bg-gradient-to-r from-blue-600 to-indigo-600 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
-        <div className="text-white">
+      {/* Header - Clickable for collapse */}
+      <div 
+        className="px-4 sm:px-8 py-4 sm:py-6 bg-gradient-to-r from-blue-600 to-indigo-600 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 cursor-pointer hover:from-blue-700 hover:to-indigo-700 transition-colors"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <div className="text-white flex items-center">
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-lg flex items-center justify-center text-lg sm:text-xl">💡</div>
             <div>
@@ -114,15 +119,28 @@ export function SkillsSection({ skills }: SkillsSectionProps) {
               <p className="text-blue-100 text-xs sm:text-sm">Showcase your technical expertise</p>
             </div>
           </div>
+          {isOpen ? (
+            <ChevronUp className="w-5 h-5 sm:w-6 sm:h-6 text-white/80 ml-3" />
+          ) : (
+            <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 text-white/80 ml-3" />
+          )}
         </div>
+        {isOpen && (
         <button
-          onClick={() => setShowModal(true)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowModal(true);
+          }}
           className="w-full sm:w-auto px-4 sm:px-5 py-2 sm:py-2.5 bg-white text-blue-600 font-semibold rounded-lg hover:bg-blue-50 shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
         >
           <span className="text-lg">+</span> Add Skill
         </button>
+        )}
       </div>
 
+      {/* Collapsible Content */}
+      {isOpen && (
+      <>
       {/* Success/Error Messages */}
       <div className="px-4 sm:px-8 pt-4 sm:pt-6">
         {error && (
@@ -197,6 +215,8 @@ export function SkillsSection({ skills }: SkillsSectionProps) {
           </div>
         )}
       </div>
+      </>
+      )}
 
       {/* Modal */}
       {showModal && (

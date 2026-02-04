@@ -17,7 +17,10 @@
  * All data comes via props.
  */
 
+import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import type { PublicStudentProfile, PublicSkill, PublicProject } from "@/services/studentPublic.service";
 import { SendRequestButtons } from "@/components/request/SendRequestButtons";
 
@@ -27,15 +30,22 @@ interface PublicProfileViewProps {
   currentStudentId?: string;
   /** Current user's semester for partner eligibility hint */
   currentSemester?: number;
+  /** Is current user in an FYP group? */
+  isUserInGroup?: boolean;
 }
 
 export function PublicProfileView({ 
   profile, 
   currentStudentId,
-  currentSemester 
+  currentSemester,
+  isUserInGroup = false,
 }: PublicProfileViewProps) {
   // Check if viewing own profile
   const isSameStudent = currentStudentId === profile.id;
+
+  // Collapsible section states
+  const [isSkillsOpen, setIsSkillsOpen] = useState(true);
+  const [isProjectsOpen, setIsProjectsOpen] = useState(true);
   
   // Generate initials for avatar fallback
   const getInitials = (name: string) => {
@@ -217,6 +227,8 @@ export function PublicProfileView({
                   isSameStudent={isSameStudent}
                   targetSemester={profile.semester}
                   currentSemester={currentSemester}
+                  isUserInGroup={isUserInGroup}
+                  isTargetGroupLocked={profile.groupInfo?.isLocked ?? false}
                 />
               </div>
             </div>
@@ -262,22 +274,32 @@ export function PublicProfileView({
         </div>
       </div>
 
-      {/* Skills Section */}
+      {/* Skills Section - Collapsible */}
       <div className="bg-white rounded-3xl shadow-lg border border-gray-200 overflow-hidden">
-        {/* Section Header */}
-        <div className="px-6 sm:px-8 py-5 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100">
+        {/* Section Header - Clickable */}
+        <button
+          onClick={() => setIsSkillsOpen(!isSkillsOpen)}
+          className="w-full px-6 sm:px-8 py-5 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100 flex items-center justify-between cursor-pointer hover:from-blue-100 hover:to-indigo-100 transition-colors"
+        >
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-2xl shadow-lg">
               💡
             </div>
-            <div>
+            <div className="text-left">
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Skills</h2>
               <p className="text-blue-600 text-sm font-medium">Technical expertise & capabilities</p>
             </div>
           </div>
-        </div>
+          {isSkillsOpen ? (
+            <ChevronUp className="w-6 h-6 text-gray-500" />
+          ) : (
+            <ChevronDown className="w-6 h-6 text-gray-500" />
+          )}
+        </button>
 
-        <div className="p-6 sm:p-8">
+        {/* Collapsible Content */}
+        {isSkillsOpen && (
+          <div className="p-6 sm:p-8">
           {profile.skills.length === 0 ? (
             <div className="text-center py-12">
               <div className="w-20 h-20 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
@@ -310,23 +332,34 @@ export function PublicProfileView({
             </div>
           )}
         </div>
+        )}
       </div>
 
-      {/* Projects Section */}
+      {/* Projects Section - Collapsible */}
       <div className="bg-white rounded-3xl shadow-lg border border-gray-200 overflow-hidden">
-        {/* Section Header */}
-        <div className="px-6 sm:px-8 py-5 bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-emerald-100">
+        {/* Section Header - Clickable */}
+        <button
+          onClick={() => setIsProjectsOpen(!isProjectsOpen)}
+          className="w-full px-6 sm:px-8 py-5 bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-emerald-100 flex items-center justify-between cursor-pointer hover:from-emerald-100 hover:to-teal-100 transition-colors"
+        >
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center text-2xl shadow-lg">
               🚀
             </div>
-            <div>
+            <div className="text-left">
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Projects</h2>
               <p className="text-emerald-600 text-sm font-medium">Portfolio & achievements</p>
             </div>
           </div>
-        </div>
+          {isProjectsOpen ? (
+            <ChevronUp className="w-6 h-6 text-gray-500" />
+          ) : (
+            <ChevronDown className="w-6 h-6 text-gray-500" />
+          )}
+        </button>
 
+        {/* Collapsible Content */}
+        {isProjectsOpen && (
         <div className="p-6 sm:p-8">
           {profile.projects.length === 0 ? (
             <div className="text-center py-12">
@@ -379,6 +412,7 @@ export function PublicProfileView({
             </div>
           )}
         </div>
+        )}
       </div>
 
       {/* Contact/Action Section */}
