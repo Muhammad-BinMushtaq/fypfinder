@@ -36,7 +36,7 @@ export default function PublicProfilePage() {
   const { profile: myProfile } = useMyProfile();
 
   // 📊 Current user's group status
-  const { isInGroup } = useMyGroup();
+  const { isInGroup, isGroupLocked } = useMyGroup();
 
   // 📊 Public profile data
   const { profile, isLoading, isError, error } = usePublicProfile(studentId, {
@@ -268,6 +268,7 @@ export default function PublicProfilePage() {
           currentStudentId={myProfile?.id}
           currentSemester={myProfile?.semester}
           isUserInGroup={isInGroup}
+          isUserGroupLocked={isGroupLocked}
         />
       </div>
     </div>

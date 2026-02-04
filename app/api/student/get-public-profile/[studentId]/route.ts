@@ -82,6 +82,9 @@ export async function GET(
                     profilePicture: student.profilePicture,
                     interests: student.interests,
                     availability: student.availability,
+                    // Social Links
+                    linkedinUrl: student.linkedinUrl,
+                    githubUrl: student.githubUrl,
                     // Group status
                     isGrouped,
                     availableForGroup,

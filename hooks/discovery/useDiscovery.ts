@@ -55,6 +55,7 @@ export function useDiscovery(options: UseDiscoveryOptions = {}) {
     return (
       pendingFilters.department !== appliedFilters.department ||
       pendingFilters.semester !== appliedFilters.semester ||
+      pendingFilters.availability !== appliedFilters.availability ||
       JSON.stringify(pendingFilters.skills) !== JSON.stringify(appliedFilters.skills)
     );
   }, [pendingFilters, appliedFilters]);
@@ -93,6 +94,13 @@ export function useDiscovery(options: UseDiscoveryOptions = {}) {
     setPendingFilters((prev) => ({
       ...prev,
       skills,
+    }));
+  }, []);
+
+  const setAvailability = useCallback((availability: "AVAILABLE" | "BUSY" | "AWAY" | undefined) => {
+    setPendingFilters((prev) => ({
+      ...prev,
+      availability,
     }));
   }, []);
 
@@ -210,6 +218,7 @@ export function useDiscovery(options: UseDiscoveryOptions = {}) {
     setDepartment,
     setSemester,
     setSkills,
+    setAvailability,
     applyFilters,
     clearFilters,
     

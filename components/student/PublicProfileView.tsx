@@ -20,7 +20,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Github, Linkedin } from "lucide-react";
 import type { PublicStudentProfile, PublicSkill, PublicProject } from "@/services/studentPublic.service";
 import { SendRequestButtons } from "@/components/request/SendRequestButtons";
 
@@ -32,6 +32,8 @@ interface PublicProfileViewProps {
   currentSemester?: number;
   /** Is current user in an FYP group? */
   isUserInGroup?: boolean;
+  /** Is current user's group locked? */
+  isUserGroupLocked?: boolean;
 }
 
 export function PublicProfileView({ 
@@ -39,6 +41,7 @@ export function PublicProfileView({
   currentStudentId,
   currentSemester,
   isUserInGroup = false,
+  isUserGroupLocked = false,
 }: PublicProfileViewProps) {
   // Check if viewing own profile
   const isSameStudent = currentStudentId === profile.id;
@@ -217,6 +220,33 @@ export function PublicProfileView({
                   <span className="text-base">{groupStatusConfig.icon}</span>
                   {groupStatusConfig.label}
                 </div>
+                {/* Social Links */}
+                {(profile.githubUrl || profile.linkedinUrl) && (
+                  <div className="flex items-center gap-2">
+                    {profile.githubUrl && (
+                      <a
+                        href={profile.githubUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-800 transition-colors shadow-lg shadow-gray-900/20"
+                      >
+                        <Github className="w-4 h-4" />
+                        GitHub
+                      </a>
+                    )}
+                    {profile.linkedinUrl && (
+                      <a
+                        href={profile.linkedinUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20"
+                      >
+                        <Linkedin className="w-4 h-4" />
+                        LinkedIn
+                      </a>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Action Buttons - Send Requests */}
@@ -229,6 +259,8 @@ export function PublicProfileView({
                   currentSemester={currentSemester}
                   isUserInGroup={isUserInGroup}
                   isTargetGroupLocked={profile.groupInfo?.isLocked ?? false}
+                  isUserGroupLocked={isUserGroupLocked}
+                  targetAvailability={profile.availability}
                 />
               </div>
             </div>

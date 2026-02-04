@@ -19,7 +19,7 @@
 import { useState, useMemo } from "react";
 import { useSendMessageRequest, useSentMessageRequests } from "@/hooks/request/useMessageRequests";
 import { useSendPartnerRequest, useSentPartnerRequests } from "@/hooks/request/usePartnerRequests";
-import { MessageSquare, Users, Loader2, Check, Ban } from "lucide-react";
+import { MessageSquare, Users, Loader2, Check, Ban, Clock } from "lucide-react";
 
 interface SendRequestButtonsProps {
   targetStudentId: string;
@@ -31,6 +31,10 @@ interface SendRequestButtonsProps {
   isUserInGroup?: boolean;
   /** Is target student in a locked group? */
   isTargetGroupLocked?: boolean;
+  /** Is current user's group locked? */
+  isUserGroupLocked?: boolean;
+  /** Target student's availability status */
+  targetAvailability?: "AVAILABLE" | "BUSY" | "AWAY";
 }
 
 export function SendRequestButtons({
@@ -41,6 +45,8 @@ export function SendRequestButtons({
   currentSemester,
   isUserInGroup = false,
   isTargetGroupLocked = false,
+  isUserGroupLocked = false,
+  targetAvailability = "AVAILABLE",
 }: SendRequestButtonsProps) {
   const [showMessageModal, setShowMessageModal] = useState(false);
   const [showPartnerModal, setShowPartnerModal] = useState(false);
@@ -122,7 +128,13 @@ export function SendRequestButtons({
     <>
       <div className="flex flex-wrap gap-3">
         {/* Send Message Request Button */}
-        {hasAcceptedMessageRequest ? (
+        {targetAvailability === "AWAY" ? (
+          // Target is away - cannot send message requests
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-50 text-red-600 font-semibold rounded-xl border border-red-200">
+            <Clock className="w-4 h-4" />
+            User is Away
+          </div>
+        ) : hasAcceptedMessageRequest ? (
           // Already connected - show messaging enabled status
           <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-green-50 text-green-700 font-semibold rounded-xl border border-green-200">
             <Check className="w-4 h-4" />
@@ -161,11 +173,23 @@ export function SendRequestButtons({
         )}
 
         {/* Send Partner Request Button */}
-        {hasAcceptedPartnerRequest || isUserInGroup ? (
+        {targetAvailability === "AWAY" ? (
+          // Target is away - cannot send partner requests
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-50 text-red-600 font-semibold rounded-xl border border-red-200">
+            <Clock className="w-4 h-4" />
+            User is Away
+          </div>
+        ) : hasAcceptedPartnerRequest || isUserInGroup ? (
           // Already partnered or in a group
           <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-green-50 text-green-700 font-semibold rounded-xl border border-green-200">
             <Check className="w-4 h-4" />
             {hasAcceptedPartnerRequest ? "Already Partners" : "Already in Group"}
+          </div>
+        ) : isUserGroupLocked ? (
+          // Current user's group is locked - cannot send partner requests
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-100 text-gray-500 font-semibold rounded-xl border border-gray-200">
+            <Ban className="w-4 h-4" />
+            Your Group is Locked
           </div>
         ) : isTargetGroupLocked ? (
           // Target's group is locked

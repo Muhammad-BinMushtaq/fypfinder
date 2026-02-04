@@ -43,6 +43,9 @@ export interface PublicStudentProfile {
   profilePicture?: string | null;
   interests?: string;
   availability: "AVAILABLE" | "BUSY" | "AWAY";
+  // Social Links
+  linkedinUrl?: string | null;
+  githubUrl?: string | null;
   // Group status
   isGrouped: boolean;
   availableForGroup: boolean;

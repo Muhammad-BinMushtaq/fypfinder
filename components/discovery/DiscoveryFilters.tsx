@@ -26,6 +26,7 @@ interface DiscoveryFiltersProps {
   onDepartmentChange: (department: string | undefined) => void;
   onSemesterChange: (semester: number | undefined) => void;
   onSkillsChange: (skills: string[] | undefined) => void;
+  onAvailabilityChange: (availability: "AVAILABLE" | "BUSY" | "AWAY" | undefined) => void;
   onApply: () => void;
   onClear: () => void;
   isLoading?: boolean;
@@ -47,6 +48,13 @@ const SEMESTERS = [
   { value: 5, label: "Semester 5" },
   { value: 6, label: "Semester 6" },
   { value: 7, label: "Semester 7" },
+];
+
+// Availability statuses
+const AVAILABILITY_OPTIONS = [
+  { value: "AVAILABLE", label: "Available", color: "text-emerald-600", dot: "bg-emerald-500" },
+  { value: "BUSY", label: "Busy", color: "text-amber-600", dot: "bg-amber-500" },
+  { value: "AWAY", label: "Away", color: "text-red-600", dot: "bg-red-500" },
 ];
 
 // Common skills (could be fetched from backend in future)
@@ -75,6 +83,7 @@ export function DiscoveryFilters({
   onDepartmentChange,
   onSemesterChange,
   onSkillsChange,
+  onAvailabilityChange,
   onApply,
   onClear,
   isLoading = false,
@@ -85,7 +94,7 @@ export function DiscoveryFilters({
 
   // Check if any filters are active (applied)
   const hasActiveFilters = Boolean(
-    appliedFilters.department || appliedFilters.semester || (appliedFilters.skills && appliedFilters.skills.length > 0)
+    appliedFilters.department || appliedFilters.semester || (appliedFilters.skills && appliedFilters.skills.length > 0) || appliedFilters.availability
   );
 
   // Filter skills by search
@@ -103,7 +112,7 @@ export function DiscoveryFilters({
   };
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 p-4 sm:p-6 shadow-lg">
+    <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 p-4 sm:p-6 shadow-lg relative z-30">
       {/* Header */}
       <div className="flex items-center justify-between mb-4 sm:mb-6">
         <div className="flex items-center gap-2 sm:gap-3">
@@ -143,7 +152,7 @@ export function DiscoveryFilters({
       </div>
 
       {/* Filters Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
         {/* Department Filter */}
         <div>
           <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
@@ -186,12 +195,32 @@ export function DiscoveryFilters({
           </select>
         </div>
 
+        {/* Availability Filter */}
+        <div>
+          <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
+            Availability
+          </label>
+          <select
+            value={pendingFilters.availability || ""}
+            onChange={(e) => onAvailabilityChange(e.target.value as "AVAILABLE" | "BUSY" | "AWAY" || undefined)}
+            disabled={isLoading || isFetching}
+            className="w-full px-3 py-2.5 sm:py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed bg-white shadow-sm hover:shadow-md"
+          >
+            <option value="">Available (Default)</option>
+            {AVAILABILITY_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
         {/* Skills Filter */}
         <div>
           <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
             Skills
           </label>
-          <div className="relative">
+          <div className="relative ">
             <button
               type="button"
               onClick={() => setShowSkillsDropdown(!showSkillsDropdown)}
@@ -229,7 +258,7 @@ export function DiscoveryFilters({
                   onClick={() => setShowSkillsDropdown(false)}
                 />
                 
-                {/* Dropdown - z-50 to appear above student cards */}
+                {/* Dropdown */}
                 <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-xl max-h-64 overflow-hidden">
                   {/* Search */}
                   <div className="p-3 border-b border-gray-100 bg-gray-50">

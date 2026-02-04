@@ -20,6 +20,14 @@ export interface MatchedStudent {
   semester: number;
   profilePicture: string | null;
   skills: string[];
+  // New fields
+  interests: string | null;
+  linkedinUrl: string | null;
+  githubUrl: string | null;
+  matchScore: number; // 0-100 percentage
+  isGroupLocked: boolean; // If student's group is locked
+  availability: "AVAILABLE" | "BUSY" | "AWAY"; // Student's availability status
+  projectCount: number; // Number of projects for matching
 }
 
 export interface DiscoveryPagination {
@@ -37,6 +45,7 @@ export interface DiscoveryFilters {
   department?: string;
   semester?: number;
   skills?: string[];
+  availability?: "AVAILABLE" | "BUSY" | "AWAY"; // Filter by availability status
   limit?: number;
   offset?: number;
 }
@@ -105,6 +114,10 @@ export async function getMatchedStudentsWithSkills(
   
   if (filters.semester) {
     url.searchParams.set("semester", String(filters.semester));
+  }
+
+  if (filters.availability) {
+    url.searchParams.set("availability", filters.availability);
   }
   
   // Append each skill as separate param

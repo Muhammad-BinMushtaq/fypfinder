@@ -38,6 +38,7 @@ export default function DiscoveryPage() {
     setDepartment,
     setSemester,
     setSkills,
+    setAvailability,
     applyFilters,
     clearFilters,
     currentPage,
@@ -119,7 +120,7 @@ export default function DiscoveryPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Filters */}
-        <div className="mb-6 sm:mb-8">
+        <div className="mb-6 sm:mb-8 relative z-20">
           <DiscoveryFilters
             pendingFilters={pendingFilters}
             appliedFilters={appliedFilters}
@@ -127,6 +128,7 @@ export default function DiscoveryPage() {
             onDepartmentChange={setDepartment}
             onSemesterChange={setSemester}
             onSkillsChange={setSkills}
+            onAvailabilityChange={setAvailability}
             onApply={applyFilters}
             onClear={clearFilters}
             isLoading={isLoading}
@@ -169,7 +171,7 @@ export default function DiscoveryPage() {
         {!isLoading && students.length > 0 && (
           <>
             {/* Fetching overlay */}
-            <div className={`relative ${isFetching ? "opacity-60" : ""} transition-opacity`}>
+            <div className={`relative z-10 ${isFetching ? "opacity-60" : ""} transition-opacity`}>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                 {students.map((student) => (
                   <StudentCard key={student.id} student={student} />
