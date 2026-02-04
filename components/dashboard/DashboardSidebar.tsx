@@ -4,12 +4,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { useUnreadCount } from "@/hooks/messaging/useUnreadCount";
 
 interface NavItem {
   label: string;
   href: string;
   icon: string;
   badge?: string;
+  showUnreadBadge?: boolean;
   children?: { label: string; href: string; icon: string }[];
 }
 
@@ -25,19 +27,24 @@ const navItems: NavItem[] = [
     icon: "🔍",
   },
   {
+    label: "Messages",
+    href: "/dashboard/messages",
+    icon: "💬",
+    showUnreadBadge: true,
+  },
+  {
     label: "Requests",
     href: "/dashboard/requests",
     icon: "📩",
     children: [
       { label: "Partner Requests", href: "/dashboard/requests/partner", icon: "🤝" },
-      { label: "Message Requests", href: "/dashboard/requests/messages", icon: "💬" },
+      { label: "Message Requests", href: "/dashboard/requests/messages", icon: "📨" },
     ],
   },
   {
     label: "FYP Management",
     href: "/dashboard/fyp",
     icon: "📋",
-    badge: "Soon",
   },
 ];
 
@@ -51,6 +58,7 @@ export function DashboardSidebar({ userEmail, onLogout, isLoggingOut }: Dashboar
   const pathname = usePathname();
   const [expandedItems, setExpandedItems] = useState<string[]>(["Requests"]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { unreadCount } = useUnreadCount();
 
   const toggleExpand = (label: string) => {
     setExpandedItems((prev) =>
@@ -140,6 +148,11 @@ export function DashboardSidebar({ userEmail, onLogout, isLoggingOut }: Dashboar
                 {item.badge && (
                   <span className="px-2 py-0.5 text-xs font-semibold bg-amber-100 text-amber-700 rounded-full">
                     {item.badge}
+                  </span>
+                )}
+                {item.showUnreadBadge && unreadCount > 0 && (
+                  <span className="px-2 py-0.5 text-xs font-semibold bg-red-500 text-white rounded-full">
+                    {unreadCount > 99 ? "99+" : unreadCount}
                   </span>
                 )}
               </Link>

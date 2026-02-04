@@ -17,9 +17,10 @@
  */
 
 import { useState, useMemo } from "react";
-import { useSendMessageRequest, useSentMessageRequests } from "@/hooks/request/useMessageRequests";
+import { useSendMessageRequest, useSentMessageRequests, useReceivedMessageRequests } from "@/hooks/request/useMessageRequests";
 import { useSendPartnerRequest, useSentPartnerRequests } from "@/hooks/request/usePartnerRequests";
-import { MessageSquare, Users, Loader2, Check, Ban, Clock } from "lucide-react";
+import { useStartConversation } from "@/hooks/messaging/useStartConversation";
+import { MessageSquare, Users, Loader2, Check, Ban, Clock, Send } from "lucide-react";
 
 interface SendRequestButtonsProps {
   targetStudentId: string;
@@ -58,16 +59,24 @@ export function SendRequestButtons({
   // Mutations
   const sendMessageMutation = useSendMessageRequest();
   const sendPartnerMutation = useSendPartnerRequest();
+  const { startConversation, isPending: isStartingChat } = useStartConversation();
 
   // Fetch existing requests to check status
   const { data: sentMessageRequests } = useSentMessageRequests();
+  const { data: receivedMessageRequests } = useReceivedMessageRequests();
   const { data: sentPartnerRequests } = useSentPartnerRequests();
 
-  // Check if there's an existing message request to this student
-  const existingMessageRequest = useMemo(() => {
+  // Check if there's an existing message request to this student (sent by current user)
+  const existingSentMessageRequest = useMemo(() => {
     if (!sentMessageRequests) return null;
     return sentMessageRequests.find((req: any) => req.toStudentId === targetStudentId);
   }, [sentMessageRequests, targetStudentId]);
+
+  // Check if there's an existing message request from this student (received by current user)
+  const existingReceivedMessageRequest = useMemo(() => {
+    if (!receivedMessageRequests) return null;
+    return receivedMessageRequests.find((req: any) => req.fromStudentId === targetStudentId);
+  }, [receivedMessageRequests, targetStudentId]);
 
   // Check if there's an existing partner request to this student
   const existingPartnerRequest = useMemo(() => {
@@ -75,9 +84,11 @@ export function SendRequestButtons({
     return sentPartnerRequests.find((req: any) => req.toStudentId === targetStudentId);
   }, [sentPartnerRequests, targetStudentId]);
 
-  // Determine button states
-  const hasAcceptedMessageRequest = existingMessageRequest?.status === "ACCEPTED";
-  const hasPendingMessageRequest = existingMessageRequest?.status === "PENDING";
+  // Determine button states - messaging is enabled if EITHER direction has accepted request
+  const hasAcceptedMessageRequest = 
+    existingSentMessageRequest?.status === "ACCEPTED" || 
+    existingReceivedMessageRequest?.status === "ACCEPTED";
+  const hasPendingMessageRequest = existingSentMessageRequest?.status === "PENDING";
   const hasAcceptedPartnerRequest = existingPartnerRequest?.status === "ACCEPTED";
   const hasPendingPartnerRequest = existingPartnerRequest?.status === "PENDING";
 
@@ -135,11 +146,24 @@ export function SendRequestButtons({
             User is Away
           </div>
         ) : hasAcceptedMessageRequest ? (
-          // Already connected - show messaging enabled status
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-green-50 text-green-700 font-semibold rounded-xl border border-green-200">
-            <Check className="w-4 h-4" />
-            Messaging Enabled
-          </div>
+          // Already connected - show Start Chat button
+          <button
+            onClick={() => startConversation({ targetStudentId })}
+            disabled={isStartingChat}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg shadow-green-500/25 hover:shadow-green-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isStartingChat ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Opening Chat...
+              </>
+            ) : (
+              <>
+                <Send className="w-4 h-4" />
+                Start Chat
+              </>
+            )}
+          </button>
         ) : hasPendingMessageRequest ? (
           // Request pending
           <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-50 text-amber-700 font-semibold rounded-xl border border-amber-200">

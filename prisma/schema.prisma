@@ -94,6 +94,11 @@ model Student {
   receivedRequests Request[]      @relation("RECEIVEDREQUESTS")
 
   groupMember    FYPGroupMember?
+
+  // Messaging relations
+  conversationsAsA Conversation[] @relation("ConversationsAsA")
+  conversationsAsB Conversation[] @relation("ConversationsAsB")
+  sentMessages     Message[]
 }
 
 // =====================
@@ -193,6 +198,46 @@ model FYPGroupMember {
   @@unique([studentId])
   // 📌 Enforces:
   // A student can only be in one group at a time
+}
+
+// =====================
+// 11️⃣ Conversation (Chat between two students)
+// =====================
+
+model Conversation {
+  id         String    @id @default(uuid())
+  studentAId String
+  studentBId String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  studentA   Student   @relation("ConversationsAsA", fields: [studentAId], references: [id])
+  studentB   Student   @relation("ConversationsAsB", fields: [studentBId], references: [id])
+  messages   Message[]
+
+  @@unique([studentAId, studentBId])
+  @@index([studentAId])
+  @@index([studentBId])
+}
+
+// =====================
+// 12️⃣ Message (Individual chat message)
+// =====================
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String
+  senderId       String
+  content        String       @db.Text
+  isRead         Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         Student      @relation(fields: [senderId], references: [id])
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@index([createdAt])
 }
 
 
