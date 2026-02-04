@@ -83,7 +83,7 @@ export function useRealtimeMessages(
           queryClient.invalidateQueries({ queryKey: ["messages", conversationId] })
         }
       )
-      .subscribe((status) => {
+      .subscribe((status: string) => {
         console.log(`Realtime subscription status for ${conversationId}:`, status)
       })
 
