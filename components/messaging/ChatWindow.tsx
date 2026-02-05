@@ -118,7 +118,7 @@ export function ChatWindow({
           queryClient.invalidateQueries({ queryKey: ["conversations"] })
         }
       )
-      .subscribe((status) => {
+      .subscribe((status: string) => {
         console.log("[ChatWindow] Subscription status:", status)
       })
 
