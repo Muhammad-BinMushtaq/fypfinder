@@ -65,7 +65,7 @@ export function useRealtimeConversationUpdates(currentStudentId: string | null) 
           queryClient.invalidateQueries({ queryKey: ["unreadCount"] })
         }
       )
-      .subscribe((status) => {
+      .subscribe((status: RealtimeChannel['state']) => {
         console.log("[RealtimeConversations] Subscription status:", status)
       })
 
