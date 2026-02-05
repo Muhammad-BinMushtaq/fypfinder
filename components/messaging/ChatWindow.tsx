@@ -58,7 +58,7 @@ export function ChatWindow({
           schema: "public",
           table: "Message",
         },
-        async (payload) => {
+        async (payload: { new: Record<string, unknown> }) => {
           console.log("[ChatWindow] 🔔 Received realtime message:", payload)
           
           const newMessageData = payload.new as {
