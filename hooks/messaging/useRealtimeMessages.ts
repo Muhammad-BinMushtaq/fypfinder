@@ -37,7 +37,7 @@ export function useRealtimeMessages(
           event: "INSERT",
           schema: "public",
           table: "Message",
-          filter: `conversationId=eq.${conversationId}`,
+        //   filter: `conversationId=eq.${conversationId}`,
         },
         async (payload: RealtimePayload) => {
           const newMessageData = payload.new
