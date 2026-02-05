@@ -1,13 +1,14 @@
 // components/messaging/ChatWindow.tsx
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { useQueryClient } from "@tanstack/react-query"
 import { MessageList } from "./MessageList"
 import { ChatInput } from "./ChatInput"
-import { useMessages } from "@/hooks/messaging/useMessages"
+import { useMessages, type Message } from "@/hooks/messaging/useMessages"
 import { useSendMessage } from "@/hooks/messaging/useSendMessage"
-import { useRealtimeMessages } from "@/hooks/messaging/useRealtimeMessages"
+import { getSupabaseClient } from "@/lib/supabaseClient"
 
 interface ChatParticipant {
   id: string
@@ -30,11 +31,115 @@ export function ChatWindow({
   otherStudent,
 }: ChatWindowProps) {
   const router = useRouter()
-  const { messages, isLoading, isError, error } = useMessages(conversationId)
+  const queryClient = useQueryClient()
+  const { messages, isLoading, isError, error, refetch } = useMessages(conversationId)
   const { sendMessage, isPending } = useSendMessage()
+  
+  // Local state to force re-render when realtime messages arrive
+  const [realtimeMessages, setRealtimeMessages] = useState<Message[]>([])
 
-  // Subscribe to realtime messages
-  useRealtimeMessages(conversationId, currentStudent.id)
+  // Subscribe to realtime messages directly in this component
+  useEffect(() => {
+    if (!conversationId || !currentStudent.id) {
+      console.log("[ChatWindow] Missing params for realtime:", { conversationId, currentStudentId: currentStudent.id })
+      return
+    }
+
+    console.log("[ChatWindow] Setting up realtime subscription for:", conversationId)
+    
+    const supabase = getSupabaseClient()
+
+    const channel = supabase
+      .channel(`chat-messages:${conversationId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "Message",
+        },
+        async (payload) => {
+          console.log("[ChatWindow] 🔔 Received realtime message:", payload)
+          
+          const newMessageData = payload.new as {
+            id: string
+            conversationId: string
+            senderId: string
+            content: string
+            isRead: boolean
+            createdAt: string
+          }
+
+          // Skip if not for this conversation
+          if (newMessageData.conversationId !== conversationId) {
+            console.log("[ChatWindow] Message for different conversation, skipping")
+            return
+          }
+
+          // Skip own messages (handled by optimistic update)
+          if (newMessageData.senderId === currentStudent.id) {
+            console.log("[ChatWindow] Own message, skipping")
+            return
+          }
+
+          console.log("[ChatWindow] ✅ Processing incoming message:", newMessageData.id)
+
+          // Create the message object
+          const newMessage: Message = {
+            id: newMessageData.id,
+            conversationId: newMessageData.conversationId,
+            senderId: newMessageData.senderId,
+            content: newMessageData.content || "",
+            isRead: newMessageData.isRead ?? false,
+            createdAt: newMessageData.createdAt || new Date().toISOString(),
+            sender: {
+              id: newMessageData.senderId,
+              name: otherStudent.name, // Use the known other student name
+              profilePicture: otherStudent.profilePicture,
+            },
+          }
+
+          // Add to local state to force re-render
+          setRealtimeMessages(prev => {
+            if (prev.some(m => m.id === newMessage.id)) return prev
+            return [...prev, newMessage]
+          })
+
+          // Also update React Query cache
+          queryClient.setQueryData<Message[]>(
+            ["messages", conversationId],
+            (old = []) => {
+              if (old.some(m => m.id === newMessage.id)) return old
+              return [...old, newMessage]
+            }
+          )
+
+          // Invalidate conversations to update sidebar
+          queryClient.invalidateQueries({ queryKey: ["conversations"] })
+        }
+      )
+      .subscribe((status) => {
+        console.log("[ChatWindow] Subscription status:", status)
+      })
+
+    return () => {
+      console.log("[ChatWindow] Cleaning up realtime subscription")
+      supabase.removeChannel(channel)
+    }
+  }, [conversationId, currentStudent.id, otherStudent, queryClient])
+
+  // Combine messages from React Query with realtime messages
+  const allMessages = [...messages]
+  
+  // Add any realtime messages not already in the main list
+  realtimeMessages.forEach(rtMsg => {
+    if (!allMessages.some(m => m.id === rtMsg.id)) {
+      allMessages.push(rtMsg)
+    }
+  })
+  
+  // Sort by createdAt
+  allMessages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
 
   const handleSendMessage = (content: string) => {
     sendMessage({
@@ -154,9 +259,9 @@ export function ChatWindow({
         </button>
       </div>
 
-      {/* Messages */}
+      {/* Messages - use allMessages which combines React Query + realtime */}
       <MessageList
-        messages={messages}
+        messages={allMessages}
         currentStudentId={currentStudent.id}
         isLoading={isLoading}
       />

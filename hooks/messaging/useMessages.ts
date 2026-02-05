@@ -41,7 +41,7 @@ export function useMessages(conversationId: string | null) {
     staleTime: 5 * 60 * 1000, // 5 minutes - messages are fresh, updated via realtime
     gcTime: 30 * 60 * 1000, // 30 minutes - keep in cache for a while
     refetchOnWindowFocus: false, // Don't refetch - we have realtime updates
-    refetchOnMount: false, // Don't refetch on mount if data exists
+    refetchOnMount: true, // Refetch on mount to ensure fresh data initially
   })
 
   const invalidateMessages = () => {

@@ -81,8 +81,11 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   // Subscribe to realtime changes
   useEffect(() => {
     if (!profile?.id) {
+      console.log("[NotificationContext] No profile ID, skipping subscription");
       return;
     }
+
+    console.log("[NotificationContext] Setting up subscriptions for:", profile.id);
 
     const supabase = createSupabaseBrowserClient();
     const studentId = profile.id;
