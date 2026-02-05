@@ -1,17 +1,14 @@
 // app/api/messaging/start/route.ts
 import { NextRequest, NextResponse } from "next/server"
-import { createSupabaseServerClient } from "@/lib/supabase"
 import prisma from "@/lib/db"
+import { requireRole } from "@/lib/auth"
+import { UserRole } from "@/lib/generated/prisma/enums"
 import { canStudentsMessage, getOrCreateConversation } from "@/modules/messaging/messaging.service"
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createSupabaseServerClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    // 🔐 Auth
+    const user = await requireRole(UserRole.STUDENT)
 
     const body = await request.json()
     const { targetStudentId } = body

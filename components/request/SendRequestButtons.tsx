@@ -5,6 +5,7 @@
  * SendRequestButtons Component
  * ----------------------------
  * Action buttons to send message/partner requests from public profile.
+ * Also shows "Start Conversation" button if users are allowed to message.
  * 
  * Props:
  * - targetStudentId: The student to send request to
@@ -20,6 +21,7 @@ import { useState, useMemo } from "react";
 import { useSendMessageRequest, useSentMessageRequests, useReceivedMessageRequests } from "@/hooks/request/useMessageRequests";
 import { useSendPartnerRequest, useSentPartnerRequests } from "@/hooks/request/usePartnerRequests";
 import { useStartConversation } from "@/hooks/messaging/useStartConversation";
+import { useCheckMessagePermission } from "@/hooks/messaging/useCheckMessagePermission";
 import { MessageSquare, Users, Loader2, Check, Ban, Clock, Send } from "lucide-react";
 
 interface SendRequestButtonsProps {
@@ -61,6 +63,11 @@ export function SendRequestButtons({
   const sendPartnerMutation = useSendPartnerRequest();
   const { startConversation, isPending: isStartingChat } = useStartConversation();
 
+  // Check if users can message each other (partners or accepted request)
+  const { canMessage, isLoading: isCheckingPermission } = useCheckMessagePermission(
+    isSameStudent ? null : targetStudentId
+  );
+
   // Fetch existing requests to check status
   const { data: sentMessageRequests } = useSentMessageRequests();
   const { data: receivedMessageRequests } = useReceivedMessageRequests();
@@ -84,10 +91,8 @@ export function SendRequestButtons({
     return sentPartnerRequests.find((req: any) => req.toStudentId === targetStudentId);
   }, [sentPartnerRequests, targetStudentId]);
 
-  // Determine button states - messaging is enabled if EITHER direction has accepted request
-  const hasAcceptedMessageRequest = 
-    existingSentMessageRequest?.status === "ACCEPTED" || 
-    existingReceivedMessageRequest?.status === "ACCEPTED";
+  // Determine button states
+  // canMessage from API checks both partners AND accepted requests
   const hasPendingMessageRequest = existingSentMessageRequest?.status === "PENDING";
   const hasAcceptedPartnerRequest = existingPartnerRequest?.status === "ACCEPTED";
   const hasPendingPartnerRequest = existingPartnerRequest?.status === "PENDING";
@@ -138,15 +143,21 @@ export function SendRequestButtons({
   return (
     <>
       <div className="flex flex-wrap gap-3">
-        {/* Send Message Request Button */}
+        {/* Send Message Request / Start Chat Button */}
         {targetAvailability === "AWAY" ? (
           // Target is away - cannot send message requests
           <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-50 text-red-600 font-semibold rounded-xl border border-red-200">
             <Clock className="w-4 h-4" />
             User is Away
           </div>
-        ) : hasAcceptedMessageRequest ? (
-          // Already connected - show Start Chat button
+        ) : isCheckingPermission ? (
+          // Loading permission check
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-50 text-gray-500 font-semibold rounded-xl border border-gray-200">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Checking...
+          </div>
+        ) : canMessage ? (
+          // Can message (either partners or accepted request) - show Start Chat button
           <button
             onClick={() => startConversation({ targetStudentId })}
             disabled={isStartingChat}
@@ -160,7 +171,7 @@ export function SendRequestButtons({
             ) : (
               <>
                 <Send className="w-4 h-4" />
-                Start Chat
+                Start Conversation
               </>
             )}
           </button>

@@ -1,4 +1,5 @@
 // hooks/messaging/index.ts
+export * from "./useCheckMessagePermission"
 export * from "./useConversations"
 export * from "./useMessages"
 export * from "./useRealtimeMessages"

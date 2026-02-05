@@ -41,8 +41,10 @@ export function useConversations() {
   const query = useQuery({
     queryKey: ["conversations"],
     queryFn: fetchConversations,
-    staleTime: 30 * 1000, // 30 seconds
-    refetchOnWindowFocus: true,
+    staleTime: 2 * 60 * 1000, // 2 minutes - data is considered fresh
+    gcTime: 10 * 60 * 1000, // 10 minutes - keep in cache
+    refetchOnWindowFocus: false, // Don't refetch on window focus - we have real-time updates
+    refetchOnMount: false, // Don't refetch on mount if data exists
   })
 
   const invalidateConversations = () => {

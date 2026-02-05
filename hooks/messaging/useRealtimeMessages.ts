@@ -79,8 +79,37 @@ export function useRealtimeMessages(
           queryClient.invalidateQueries({ queryKey: ["conversations"] })
           queryClient.invalidateQueries({ queryKey: ["unreadCount"] })
 
-          // Refetch messages to get full sender info
-          queryClient.invalidateQueries({ queryKey: ["messages", conversationId] })
+          // Fetch sender info in background and update the message
+          // Do NOT invalidate messages cache immediately - it causes race condition
+          try {
+            const response = await fetch(`/api/student/get-public-profile/${newMessageData.senderId}`)
+            if (response.ok) {
+              const data = await response.json()
+              const senderName = data.student?.name || "Unknown"
+              const senderPicture = data.student?.profilePicture || null
+
+              // Update the message with real sender info
+              queryClient.setQueryData<Message[]>(
+                ["messages", conversationId],
+                (old = []) => {
+                  return old.map((m) =>
+                    m.id === newMessage.id
+                      ? {
+                          ...m,
+                          sender: {
+                            id: newMessageData.senderId,
+                            name: senderName,
+                            profilePicture: senderPicture,
+                          },
+                        }
+                      : m
+                  )
+                }
+              )
+            }
+          } catch (error) {
+            console.error("Failed to fetch sender info:", error)
+          }
         }
       )
       .subscribe((status: string) => {

@@ -6,7 +6,224 @@ This document describes the architecture of the real-time messaging system built
 
 ---
 
-## 🏗️ System Architecture
+## � Complete Feature Flow
+
+### User Journey & Component Mapping
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                        MESSAGING FEATURE COMPLETE FLOW                           │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+1️⃣ PERMISSION CHECK (Can users message each other?)
+   ┌─────────────────────────────────────────────────────────────────────────────┐
+   │ User visits Profile Page → /dashboard/discovery/profile/[studentId]         │
+   │                                                                             │
+   │  Component: PublicProfileView → SendRequestButtons                          │
+   │       ↓                                                                     │
+   │  Hook: useCheckMessagePermission(targetStudentId)                           │
+   │       ↓                                                                     │
+   │  API: GET /api/messaging/check-permission?targetStudentId=xxx               │
+   │       ↓                                                                     │
+   │  Service: canStudentsMessage(studentA, studentB)                            │
+   │       ↓                                                                     │
+   │  Checks: ① Are they partners in same group?                                 │
+   │          ② Does either have ACCEPTED message request from the other?        │
+   │       ↓                                                                     │
+   │  Returns: { allowed: true/false }                                           │
+   │       ↓                                                                     │
+   │  UI Shows: "Start Conversation" button OR "Send Message Request" button     │
+   └─────────────────────────────────────────────────────────────────────────────┘
+
+2️⃣ START CONVERSATION
+   ┌─────────────────────────────────────────────────────────────────────────────┐
+   │ User clicks "Start Conversation" button                                     │
+   │                                                                             │
+   │  Component: SendRequestButtons                                              │
+   │       ↓                                                                     │
+   │  Hook: useStartConversation() → startConversation({ targetStudentId })      │
+   │       ↓                                                                     │
+   │  API: POST /api/messaging/start                                             │
+   │       ↓                                                                     │
+   │  Service: getOrCreateConversation(studentA, studentB)                       │
+   │       ↓                                                                     │
+   │  Creates Conversation in DB (or returns existing one)                       │
+   │       ↓                                                                     │
+   │  Redirect to: /dashboard/messages/[conversationId]                          │
+   └─────────────────────────────────────────────────────────────────────────────┘
+
+3️⃣ VIEW CONVERSATIONS LIST
+   ┌─────────────────────────────────────────────────────────────────────────────┐
+   │ User visits Messages Page → /dashboard/messages                             │
+   │                                                                             │
+   │  Page: app/dashboard/messages/page.tsx                                      │
+   │       ↓                                                                     │
+   │  Component: ConversationList                                                │
+   │       ↓                                                                     │
+   │  Hook: useConversations()                                                   │
+   │       ↓ (React Query - cached for 2 minutes)                                │
+   │  API: GET /api/messaging/get-conversations                                  │
+   │       ↓                                                                     │
+   │  Service: getConversationsForStudent(studentId)                             │
+   │       ↓                                                                     │
+   │  Returns: List with otherStudent info, lastMessage, unreadCount             │
+   │       ↓                                                                     │
+   │  Real-time Updates via: useRealtimeConversationUpdates(studentId)           │
+   │  (Subscribes to Message table INSERT events, invalidates cache)             │
+   └─────────────────────────────────────────────────────────────────────────────┘
+
+4️⃣ VIEW CHAT / SEND MESSAGES
+   ┌─────────────────────────────────────────────────────────────────────────────┐
+   │ User clicks on a conversation                                               │
+   │                                                                             │
+   │  Page: app/dashboard/messages/[conversationId]/page.tsx                     │
+   │       ↓                                                                     │
+   │  Components: ConversationList (sidebar) + ChatWindow                        │
+   │       ↓                                                                     │
+   │  ┌─────────────────────────────────────────────────────────────────────┐   │
+   │  │ ChatWindow                                                           │   │
+   │  │                                                                      │   │
+   │  │  Hook: useMessages(conversationId)                                   │   │
+   │  │       ↓ (React Query - cached for 5 minutes)                         │   │
+   │  │  API: GET /api/messaging/get-messages?conversationId=xxx             │   │
+   │  │       ↓                                                              │   │
+   │  │  Service: getMessages(conversationId, studentId)                     │   │
+   │  │       ↓                                                              │   │
+   │  │  Also calls: markMessagesAsRead(conversationId, studentId)           │   │
+   │  │                                                                      │   │
+   │  │  Real-time Hook: useRealtimeMessages(conversationId, studentId)      │   │
+   │  │       ↓                                                              │   │
+   │  │  Supabase Channel: messages:{conversationId}                         │   │
+   │  │       ↓                                                              │   │
+   │  │  On INSERT → Add message to cache → Invalidate conversations         │   │
+   │  └─────────────────────────────────────────────────────────────────────┘   │
+   │                                                                             │
+   │  User types message and clicks Send                                         │
+   │       ↓                                                                     │
+   │  Hook: useSendMessage() → sendMessage({ conversationId, content, ... })     │
+   │       ↓                                                                     │
+   │  Optimistic Update: Add message to cache immediately                        │
+   │       ↓                                                                     │
+   │  API: POST /api/messaging/send                                              │
+   │       ↓                                                                     │
+   │  Service: sendMessage(conversationId, senderId, content)                    │
+   │       ↓                                                                     │
+   │  Creates Message in DB → Triggers Supabase Realtime → Other user sees it    │
+   └─────────────────────────────────────────────────────────────────────────────┘
+
+5️⃣ GLOBAL NOTIFICATIONS (Bell Icon)
+   ┌─────────────────────────────────────────────────────────────────────────────┐
+   │ User is anywhere in the dashboard                                           │
+   │                                                                             │
+   │  Context: NotificationProvider (wraps entire dashboard)                     │
+   │       ↓                                                                     │
+   │  Hook: useMyProfile() → Gets current student ID                             │
+   │       ↓                                                                     │
+   │  Supabase Channel: message-notifications-{studentId}                        │
+   │       ↓                                                                     │
+   │  Listens for: postgres_changes on Message table (INSERT events)             │
+   │       ↓                                                                     │
+   │  When new message arrives (not from self):                                  │
+   │       ↓                                                                     │
+   │  ① Invalidate: conversations, unreadCount, messages cache                   │
+   │  ② Fetch sender info: GET /api/student/get-public-profile/{senderId}        │
+   │  ③ Add notification to state: { type: "NEW_MESSAGE", senderName, ... }      │
+   │  ④ Show Toast: "💬 {senderName}: {messagePreview}"                          │
+   │       ↓                                                                     │
+   │  Component: NotificationBell                                                │
+   │       ↓                                                                     │
+   │  Shows: Badge with unread count, dropdown with notifications                │
+   │  Click: Navigates to /dashboard/messages/{conversationId}                   │
+   └─────────────────────────────────────────────────────────────────────────────┘
+
+6️⃣ SIDEBAR UNREAD BADGE
+   ┌─────────────────────────────────────────────────────────────────────────────┐
+   │ Sidebar always visible in dashboard                                         │
+   │                                                                             │
+   │  Component: DashboardSidebar                                                │
+   │       ↓                                                                     │
+   │  Hook: useUnreadCount()                                                     │
+   │       ↓ (React Query - cached for 30 seconds)                               │
+   │  API: GET /api/messaging/unread-count                                       │
+   │       ↓                                                                     │
+   │  Service: getTotalUnreadCount(studentId)                                    │
+   │       ↓                                                                     │
+   │  Shows: Badge next to "Messages" menu item                                  │
+   │       ↓                                                                     │
+   │  Auto-updates: When NotificationContext invalidates unreadCount cache       │
+   └─────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🔄 Real-Time Update Flow
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                         REAL-TIME MESSAGE DELIVERY                               │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+  User A (Sender)                                         User B (Receiver)
+       │                                                        │
+       │ Types message & clicks Send                            │
+       │        │                                               │
+       ▼        │                                               │
+  ┌─────────────┴───────┐                                       │
+  │ useSendMessage()    │                                       │
+  │ Optimistic update   │                                       │
+  │ (message appears    │                                       │
+  │  instantly)         │                                       │
+  └─────────────────────┘                                       │
+       │                                                        │
+       │ POST /api/messaging/send                               │
+       │                                                        │
+       ▼                                                        │
+  ┌─────────────────────────────────────────────────────────────┴───────────┐
+  │                          SUPABASE DATABASE                              │
+  │   INSERT INTO Message (conversationId, senderId, content, ...)         │
+  │                                                                         │
+  │   ┌─────────────────────────────────────────────────────────────────┐   │
+  │   │              SUPABASE REALTIME (WebSocket)                       │   │
+  │   │   Broadcasts: postgres_changes event (INSERT on Message)         │   │
+  │   └─────────────────────────────────────────────────────────────────┘   │
+  └─────────────────────────────────────────────────────────────────────────┘
+       │                                                        │
+       │                                                        │
+       │                           ┌────────────────────────────┘
+       │                           │
+       │                           ▼
+       │                    ┌───────────────────────────────────────────────┐
+       │                    │ User B's Browser                              │
+       │                    │                                               │
+       │                    │ ① NotificationContext (Global)                │
+       │                    │    - Receives INSERT event                    │
+       │                    │    - Checks: senderId !== myId ✓              │
+       │                    │    - Invalidates: conversations, unreadCount  │
+       │                    │    - Fetches sender name                      │
+       │                    │    - Creates notification                     │
+       │                    │    - Shows toast: "💬 User A: Hello!"         │
+       │                    │                                               │
+       │                    │ ② useRealtimeMessages (if chat is open)       │
+       │                    │    - Receives INSERT event                    │
+       │                    │    - Checks: conversationId matches ✓         │
+       │                    │    - Adds message to cache                    │
+       │                    │    - UI updates instantly                     │
+       │                    │                                               │
+       │                    │ ③ useRealtimeConversationUpdates              │
+       │                    │    - Receives INSERT event                    │
+       │                    │    - Invalidates conversations cache          │
+       │                    │    - Conversation list updates                │
+       │                    └───────────────────────────────────────────────┘
+       │
+       ▼
+  ┌─────────────────────────────────────────────────────────────────────────┐
+  │ User A sees: Message sent confirmation (optimistic update was correct)  │
+  └─────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## �🏗️ System Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -432,6 +649,78 @@ When sending a message:
 
 ---
 
+## � File Structure
+
+```
+├── app/
+│   ├── api/
+│   │   └── messaging/
+│   │       ├── check-permission/route.ts  # GET - Check if users can message
+│   │       ├── get-conversations/route.ts # GET - List user's conversations
+│   │       ├── get-messages/route.ts      # GET - Messages for a conversation
+│   │       ├── mark-read/route.ts         # POST - Mark messages as read
+│   │       ├── send/route.ts              # POST - Send a message
+│   │       ├── start/route.ts             # POST - Start/get conversation
+│   │       └── unread-count/route.ts      # GET - Total unread count
+│   │
+│   └── dashboard/
+│       └── messages/
+│           ├── page.tsx                   # Messages list page
+│           └── [conversationId]/
+│               └── page.tsx               # Chat page
+│
+├── components/
+│   ├── messaging/
+│   │   ├── ChatInput.tsx                  # Message input field
+│   │   ├── ChatWindow.tsx                 # Main chat view
+│   │   ├── ConversationItem.tsx           # Single conversation row
+│   │   ├── ConversationList.tsx           # List of conversations
+│   │   ├── MessageBubble.tsx              # Single message bubble
+│   │   └── MessageList.tsx                # List of messages
+│   │
+│   ├── notifications/
+│   │   └── NotificationBell.tsx           # Notification bell with dropdown
+│   │
+│   └── request/
+│       └── SendRequestButtons.tsx         # Start Conversation button
+│
+├── contexts/
+│   └── NotificationContext.tsx            # Global real-time notifications
+│
+├── hooks/
+│   └── messaging/
+│       ├── index.ts                       # Barrel export
+│       ├── useCheckMessagePermission.ts   # Check if can message
+│       ├── useConversations.ts            # Fetch conversations
+│       ├── useMessages.ts                 # Fetch messages
+│       ├── useRealtimeMessages.ts         # Real-time subscriptions
+│       ├── useSendMessage.ts              # Send message mutation
+│       ├── useStartConversation.ts        # Start conversation mutation
+│       └── useUnreadCount.ts              # Get unread count
+│
+└── modules/
+    └── messaging/
+        └── messaging.service.ts           # Business logic
+```
+
+---
+
+## 💾 Caching Strategy (React Query)
+
+| Query Key | staleTime | gcTime | Refetch on Focus | Notes |
+|-----------|-----------|--------|------------------|-------|
+| `["conversations"]` | 2 min | 10 min | No | Updated via real-time |
+| `["messages", id]` | 5 min | 30 min | No | Updated via real-time |
+| `["unreadCount"]` | 30 sec | 5 min | Yes | Quick updates needed |
+| `["messagePermission", id]` | 5 min | 10 min | No | Permission rarely changes |
+
+### Why This Strategy?
+- **Long staleTime**: Since we have real-time updates, we don't need frequent refetches
+- **No refetch on focus**: Real-time handles updates, no need for focus-based refetch
+- **Long gcTime**: Keep data in cache longer to avoid unnecessary API calls when navigating
+
+---
+
 ## 🔒 Security Considerations
 
 1. **Server-side permission checks**: Every API validates permissions
@@ -452,6 +741,11 @@ npx prisma migrate dev --name add_messaging
 ### 2. Enable Supabase Realtime
 - Go to Supabase Dashboard → Database → Replication
 - Enable replication for `Message` table
+
+Or run this SQL:
+```sql
+ALTER PUBLICATION supabase_realtime ADD TABLE "Message";
+```
 
 ### 3. Environment Variables
 Ensure these are set:
@@ -478,3 +772,6 @@ npx prisma generate
 - [ ] Error handling shows appropriate messages
 - [ ] Mobile responsive design
 - [ ] Proper cleanup on unmount
+- [ ] Global notification shows for new messages
+- [ ] Sidebar badge updates for unread messages
+- [ ] Start Conversation button shows on profile for allowed users

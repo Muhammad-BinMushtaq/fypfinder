@@ -38,8 +38,10 @@ export function useMessages(conversationId: string | null) {
     queryKey: ["messages", conversationId],
     queryFn: () => fetchMessages(conversationId!),
     enabled: !!conversationId,
-    staleTime: 10 * 1000, // 10 seconds
-    refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes - messages are fresh, updated via realtime
+    gcTime: 30 * 60 * 1000, // 30 minutes - keep in cache for a while
+    refetchOnWindowFocus: false, // Don't refetch - we have realtime updates
+    refetchOnMount: false, // Don't refetch on mount if data exists
   })
 
   const invalidateMessages = () => {

@@ -1,17 +1,14 @@
 // app/api/messaging/unread-count/route.ts
 import { NextResponse } from "next/server"
-import { createSupabaseServerClient } from "@/lib/supabase"
 import prisma from "@/lib/db"
+import { requireRole } from "@/lib/auth"
+import { UserRole } from "@/lib/generated/prisma/enums"
 import { getTotalUnreadCount } from "@/modules/messaging/messaging.service"
 
 export async function GET() {
   try {
-    const supabase = await createSupabaseServerClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    // 🔐 Auth
+    const user = await requireRole(UserRole.STUDENT)
 
     // Get student ID from user ID
     const student = await prisma.student.findUnique({
