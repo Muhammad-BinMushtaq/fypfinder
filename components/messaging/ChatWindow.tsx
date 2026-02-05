@@ -134,7 +134,7 @@ export function ChatWindow({
 
         {/* Actions */}
         <button
-          onClick={() => router.push(`/dashboard/discovery/${otherStudent.id}`)}
+          onClick={() => router.push(`/dashboard/discovery/profile/${otherStudent.id}`)}
           className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
           title="View profile"
         >

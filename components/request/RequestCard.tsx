@@ -18,6 +18,7 @@
  */
 
 import { formatDistanceToNow } from "date-fns";
+import Link from "next/link";
 
 import { 
   MessageSquare, 
@@ -26,7 +27,8 @@ import {
   CheckCircle2, 
   XCircle,
   ArrowUpRight,
-  ArrowDownLeft
+  ArrowDownLeft,
+  ExternalLink
 } from "lucide-react";
 import { RequestActions } from "./RequestActions";
 
@@ -171,13 +173,16 @@ export function RequestCard({
 
         {/* Student Info */}
         <div className="flex items-start gap-3 sm:gap-4">
-          {/* Avatar */}
-          <div className="flex-shrink-0">
+          {/* Avatar - Clickable to profile */}
+          <Link
+            href={`/dashboard/discovery/profile/${student.id}`}
+            className="flex-shrink-0 group"
+          >
             {student.profilePicture ? (
               <img
                 src={student.profilePicture}
                 alt={student.name}
-                className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-cover border-2 border-gray-100 shadow-lg"
+                className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-cover border-2 border-gray-100 shadow-lg group-hover:border-blue-300 transition-colors"
               />
             ) : (
               <div
@@ -185,18 +190,24 @@ export function RequestCard({
                   type === "message"
                     ? "bg-gradient-to-br from-blue-500 via-sky-500 to-cyan-500"
                     : "bg-gradient-to-br from-purple-500 via-violet-500 to-indigo-500"
-                } flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-lg`}
+                } flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-lg group-hover:scale-105 transition-transform`}
               >
                 {getInitials(student.name)}
               </div>
             )}
-          </div>
+          </Link>
 
           {/* Info */}
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900 truncate">
-              {student.name}
-            </h3>
+            <Link
+              href={`/dashboard/discovery/profile/${student.id}`}
+              className="inline-flex items-center gap-1 group"
+            >
+              <h3 className="font-semibold text-gray-900 truncate group-hover:text-blue-600 transition-colors">
+                {student.name}
+              </h3>
+              <ExternalLink className="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-500 transition-colors" />
+            </Link>
             <p className="text-sm text-gray-600 truncate">
               {student.department}
             </p>

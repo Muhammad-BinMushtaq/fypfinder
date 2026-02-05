@@ -254,12 +254,11 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
             return;
           }
 
-          // Invalidate caches to update UI
+          // Invalidate caches to update UI (conversations list and unread count)
+          // NOTE: Do NOT invalidate messages cache here - useRealtimeMessages handles it
+          // Invalidating messages cache causes a race condition that overwrites the cache
           queryClient.invalidateQueries({ queryKey: messagingKeys.conversations });
           queryClient.invalidateQueries({ queryKey: messagingKeys.unreadCount });
-          queryClient.invalidateQueries({ 
-            queryKey: messagingKeys.messages(message.conversationId) 
-          });
 
           // Try to get sender info from cache or fetch it
           let senderName = "Someone";
