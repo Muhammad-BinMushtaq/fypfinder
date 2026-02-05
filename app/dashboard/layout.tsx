@@ -6,6 +6,7 @@ import { useSession } from "@/hooks/auth/useSession";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { NotificationBell } from "@/components/notifications";
 import { NotificationProvider } from "@/contexts/NotificationContext";
+import { SuspensionBanner } from "@/components/student/SuspensionBanner";
 import { ReactNode, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -84,6 +85,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               </div>
             </div>
           </div>
+
+          {/* Suspension/Deletion Banner */}
+          <SuspensionBanner />
 
           {/* Page Content */}
           <div>

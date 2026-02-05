@@ -82,11 +82,13 @@ export async function POST(req: Request) {
             {
                 success: true,
                 message: "Admin login successful",
-                userId: data.user.id,
-                adminId: user.admin.id,
-                adminName: user.admin.name,
-                email: user.email,
-                role: user.role,
+                admin: {
+                    id: user.admin.id,
+                    userId: data.user.id,
+                    name: user.admin.name,
+                    email: user.email,
+                    role: user.role,
+                }
             },
             { status: 200 }
         )

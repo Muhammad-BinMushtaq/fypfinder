@@ -1,7 +1,8 @@
 
 import { NextResponse } from "next/server"
 import { createSupabaseServerClient } from "@/lib/supabase"
-
+import prisma from "@/lib/db"
+import { UserStatus } from "@/lib/generated/prisma/enums"
 
 
 export async function POST(req: Request) {
@@ -39,6 +40,25 @@ export async function POST(req: Request) {
             return NextResponse.json(
                 { error: error?.message || "Signin failed" },
                 { status: 400 }
+            )
+        }
+
+        // Check if user is suspended
+        const user = await prisma.user.findUnique({
+            where: { id: data.user.id },
+            select: { status: true }
+        })
+
+        if (user?.status === UserStatus.SUSPENDED) {
+            // Sign them out since they shouldn't be logged in
+            await supabase.auth.signOut()
+            
+            return NextResponse.json(
+                { 
+                    error: "Your account has been suspended. Please contact administration for account reactivation.",
+                    isSuspended: true
+                },
+                { status: 403 }
             )
         }
 

@@ -21,6 +21,13 @@ export async function GET() {
                 linkedinUrl: true,
                 githubUrl: true,
                 availability: true,
+                user: {
+                    select: {
+                        status: true,
+                        email: true,
+                        createdAt: true,
+                    },
+                },
                 skills: {
                     select: {
                         id: true,
@@ -70,6 +77,7 @@ export async function GET() {
                     availability: student.availability,
                     skills: student.skills,
                     projects: student.projects,
+                    user: student.user,
                 },
             },
             { status: 200 }

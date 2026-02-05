@@ -33,6 +33,11 @@ export interface StudentProfile {
   availability: AvailabilityStatus;
   skills: Skill[];
   projects: Project[];
+  user?: {
+    status: "ACTIVE" | "SUSPENDED" | "DELETION_REQUESTED";
+    email: string;
+    createdAt: string;
+  };
 }
 
 // API Response wrapper
@@ -134,4 +139,61 @@ export async function removeProject(projectId: string): Promise<{ success: boole
     `/api/student/project/remove?projectId=${projectId}`
   );
   return response.data;
+}
+
+/* ---------- ACCOUNT MANAGEMENT ---------- */
+
+export interface DeletionRequestResponse {
+  success: boolean
+  message: string
+}
+
+export interface StudentAccountStatus {
+  status: "ACTIVE" | "SUSPENDED" | "DELETION_REQUESTED"
+  canMessage: boolean
+  canSendRequests: boolean
+  canDiscoverStudents: boolean
+}
+
+/**
+ * Request account deletion
+ * Sets user status to DELETION_REQUESTED
+ * Admin must approve for actual deletion
+ */
+export async function requestAccountDeletion(): Promise<DeletionRequestResponse> {
+  const response = await fetch("/api/student/delete-my-profile", {
+    method: "PATCH",
+  })
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to request deletion")
+  }
+
+  return {
+    success: true,
+    message: data.message || "Deletion request sent for admin approval",
+  }
+}
+
+/**
+ * Cancel deletion request (if allowed)
+ * Returns status to ACTIVE
+ */
+export async function cancelDeletionRequest(): Promise<DeletionRequestResponse> {
+  const response = await fetch("/api/student/cancel-deletion", {
+    method: "PATCH",
+  })
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to cancel deletion request")
+  }
+
+  return {
+    success: true,
+    message: data.message || "Deletion request cancelled",
+  }
 }

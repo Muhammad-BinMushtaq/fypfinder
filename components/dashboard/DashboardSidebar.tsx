@@ -46,6 +46,11 @@ const navItems: NavItem[] = [
     href: "/dashboard/fyp",
     icon: "📋",
   },
+  {
+    label: "Settings",
+    href: "/dashboard/settings",
+    icon: "⚙️",
+  },
 ];
 
 interface DashboardSidebarProps {
