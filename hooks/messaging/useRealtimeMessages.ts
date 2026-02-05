@@ -37,28 +37,44 @@ export function useRealtimeMessages(
           event: "INSERT",
           schema: "public",
           table: "Message",
-        //   filter: `conversationId=eq.${conversationId}`,
+          filter: `conversationId=eq.${conversationId}`,
         },
         async (payload: RealtimePayload) => {
           const newMessageData = payload.new
+
+          // Validate payload data - skip if essential fields are missing
+          if (!newMessageData?.id || !newMessageData?.senderId || !newMessageData?.conversationId) {
+            console.warn("[RealtimeMessages] Invalid payload, skipping:", newMessageData)
+            return
+          }
+
+          // Skip if this message is not for our current conversation
+          if (newMessageData.conversationId !== conversationId) {
+            return
+          }
 
           // Skip if this is our own message (already added via optimistic update)
           if (newMessageData.senderId === currentStudentId) {
             return
           }
 
+          // Ensure createdAt is valid, use current time as fallback
+          const createdAt = newMessageData.createdAt && !isNaN(new Date(newMessageData.createdAt).getTime())
+            ? newMessageData.createdAt
+            : new Date().toISOString()
+
           // Fetch sender info for the message
-          // We'll construct the message with minimal info, then refetch for full data
+          // We'll construct the message with minimal info, then update with full data
           const newMessage: Message = {
             id: newMessageData.id,
             conversationId: newMessageData.conversationId,
             senderId: newMessageData.senderId,
-            content: newMessageData.content,
-            isRead: newMessageData.isRead,
-            createdAt: newMessageData.createdAt,
+            content: newMessageData.content || "",
+            isRead: newMessageData.isRead ?? false,
+            createdAt,
             sender: {
               id: newMessageData.senderId,
-              name: "Loading...", // Will be updated on refetch
+              name: "Loading...", // Will be updated after fetch
               profilePicture: null,
             },
           }

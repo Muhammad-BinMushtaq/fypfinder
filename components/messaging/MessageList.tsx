@@ -70,9 +70,9 @@ export function MessageList({
       ref={containerRef}
       className="flex-1 overflow-y-auto px-4 py-4"
     >
-      {messages.map((message) => (
+      {messages.map((message, index) => (
         <MessageBubble
-          key={message.id}
+          key={message.id || `msg-${index}`}
           message={message}
           isOwn={message.senderId === currentStudentId}
         />

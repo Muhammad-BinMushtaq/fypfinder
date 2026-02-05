@@ -249,8 +249,14 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
             createdAt: string;
           } | null;
 
+          // Validate payload - skip if essential fields are missing
+          if (!message?.id || !message?.senderId || !message?.conversationId) {
+            console.warn("[Notification] Invalid message payload, skipping:", message);
+            return;
+          }
+
           // Skip if this is our own message
-          if (!message || message.senderId === studentId) {
+          if (message.senderId === studentId) {
             return;
           }
 
@@ -273,14 +279,18 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
             console.error("[Notification] Failed to fetch sender info:", error);
           }
 
+          // Safely get message content preview
+          const messageContent = message.content || "";
+          const messagePreview = messageContent.length > 50 
+            ? messageContent.substring(0, 50) + "..." 
+            : messageContent;
+
           // Create notification
           const notification: Notification = {
             id: `msg-${message.id}-${Date.now()}`,
             type: "NEW_MESSAGE",
             title: `New message from ${senderName}`,
-            message: message.content.length > 50 
-              ? message.content.substring(0, 50) + "..." 
-              : message.content,
+            message: messagePreview,
             timestamp: new Date(),
             read: false,
             requestId: message.id,
@@ -291,7 +301,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           setNotifications((prev) => [notification, ...prev].slice(0, 20));
 
           // Show toast notification
-          toast.info(`💬 ${senderName}: ${notification.message}`, {
+          toast.info(`💬 ${senderName}: ${messagePreview || "New message"}`, {
             onClick: () => {
               window.location.href = `/dashboard/messages/${message.conversationId}`;
             },

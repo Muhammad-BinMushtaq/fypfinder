@@ -10,9 +10,16 @@ interface MessageBubbleProps {
 }
 
 export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
-  const formattedTime = formatDistanceToNow(new Date(message.createdAt), {
-    addSuffix: true,
-  })
+  // Safely format time with fallback
+  let formattedTime = "just now"
+  try {
+    const date = new Date(message.createdAt)
+    if (!isNaN(date.getTime())) {
+      formattedTime = formatDistanceToNow(date, { addSuffix: true })
+    }
+  } catch (error) {
+    console.warn("Invalid date for message:", message.id)
+  }
 
   return (
     <div className={`flex ${isOwn ? "justify-end" : "justify-start"} mb-3`}>
