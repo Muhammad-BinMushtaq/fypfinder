@@ -1,4 +1,3 @@
-// app/dashboard/messages/[conversationId]/page.tsx
 "use client"
 
 import { useMemo } from "react"
@@ -7,38 +6,39 @@ import { ConversationList } from "@/components/messaging/ConversationList"
 import { ChatWindow } from "@/components/messaging/ChatWindow"
 import { useMyProfile } from "@/hooks/student/useMyProfile"
 import { useConversations } from "@/hooks/messaging/useConversations"
-import { useRealtimeConversationUpdates } from "@/hooks/messaging/useRealtimeMessages"
 
 export default function ConversationPage() {
   const params = useParams()
   const router = useRouter()
-  const conversationId = params.conversationId as string
+
+  const conversationId =
+    typeof params.conversationId === "string"
+      ? params.conversationId
+      : ""
 
   const { profile, isLoading: profileLoading } = useMyProfile()
-  
-  // Use the cached conversations hook instead of manual fetch
-  // This prevents the list from reloading on every navigation
-  const { conversations, isLoading: conversationsLoading, isError } = useConversations()
 
-  // Subscribe to realtime updates for conversation list
-  useRealtimeConversationUpdates(profile?.id || null)
+  // Cached conversations (sidebar source of truth)
+  const {
+    conversations,
+    isLoading: conversationsLoading,
+    isError,
+  } = useConversations()
 
-  // Find the current conversation from the cached list
+  // Find the current conversation from cache
   const currentConversation = useMemo(() => {
     if (!conversations || !conversationId) return null
-    return conversations.find((c) => c.id === conversationId)
+    return conversations.find((c) => c.id === conversationId) || null
   }, [conversations, conversationId])
 
-  // Only show loading if profile is loading (conversations will show their own skeleton)
+  // Profile loading
   if (profileLoading) {
     return (
       <div className="h-[calc(100vh-4rem)] bg-white flex">
-        {/* Conversation List - show the real component, it handles its own loading */}
         <div className="hidden lg:block w-80 xl:w-96 border-r border-gray-200">
           <ConversationList activeConversationId={conversationId} />
         </div>
 
-        {/* Chat area loading */}
         <div className="flex-1 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
             <div className="w-8 h-8 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin" />
@@ -49,17 +49,14 @@ export default function ConversationPage() {
     )
   }
 
-  // Show chat loading only while we're fetching conversations for the first time
-  // AND we don't have the current conversation data yet
+  // Conversation loading (first load only)
   if (conversationsLoading && !currentConversation) {
     return (
       <div className="h-[calc(100vh-4rem)] bg-white flex">
-        {/* Conversation List - let it handle its own loading state */}
         <div className="hidden lg:block w-80 xl:w-96 border-r border-gray-200">
           <ConversationList activeConversationId={conversationId} />
         </div>
 
-        {/* Chat area loading */}
         <div className="flex-1 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
             <div className="w-8 h-8 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin" />
@@ -70,15 +67,14 @@ export default function ConversationPage() {
     )
   }
 
+  // Error or conversation not found
   if (isError || (!conversationsLoading && !currentConversation)) {
     return (
       <div className="h-[calc(100vh-4rem)] bg-white flex">
-        {/* Conversation List */}
         <div className="hidden lg:block w-80 xl:w-96 border-r border-gray-200">
           <ConversationList activeConversationId={conversationId} />
         </div>
 
-        {/* Error state */}
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -118,17 +114,16 @@ export default function ConversationPage() {
     return null
   }
 
-  // Get the other student from the conversation
   const otherStudent = currentConversation.otherStudent
 
   return (
     <div className="h-[calc(100vh-4rem)] bg-white flex">
-      {/* Conversation List (hidden on mobile when viewing chat) */}
+      {/* Sidebar */}
       <div className="hidden lg:block w-80 xl:w-96 border-r border-gray-200">
         <ConversationList activeConversationId={conversationId} />
       </div>
 
-      {/* Chat Window */}
+      {/* Chat */}
       <div className="flex-1">
         <ChatWindow
           conversationId={conversationId}

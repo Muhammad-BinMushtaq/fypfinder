@@ -106,7 +106,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           filter: `toStudentId=eq.${studentId}`,
         },
         (payload) => {
-          console.log("[Notification] Request change:", payload.eventType, payload);
+         
 
           const request = payload.new as {
             id: string;

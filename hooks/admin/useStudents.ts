@@ -12,7 +12,6 @@ import {
   getStudentDetails,
   suspendStudent,
   unsuspendStudent,
-  deleteStudent,
   type StudentFilters,
   type StudentListItem,
   type StudentDetails,
@@ -93,28 +92,7 @@ export function useUnsuspendStudent() {
   })
 }
 
-/**
- * Delete a student (approve deletion request)
- */
-export function useDeleteStudent() {
-  const queryClient = useQueryClient()
 
-  return useMutation({
-    mutationFn: (studentId: string) => deleteStudent(studentId),
-    onSuccess: (_, studentId) => {
-      // Invalidate students list
-      queryClient.invalidateQueries({ queryKey: adminKeys.students() })
-      
-      // Remove from cache
-      queryClient.removeQueries({ queryKey: adminKeys.student(studentId) })
-      
-      toast.success("Student deleted successfully")
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || "Failed to delete student")
-    },
-  })
-}
 
 // Re-export types for convenience
 export type { StudentListItem, StudentDetails, StudentFilters }

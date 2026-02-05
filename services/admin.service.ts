@@ -225,19 +225,7 @@ export async function unsuspendStudent(studentId: string): Promise<void> {
   }
 }
 
-export async function deleteStudent(studentId: string): Promise<void> {
-  const response = await fetch("/api/admin/delete-student", {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ studentId }),
-  })
 
-  const data = await response.json()
-
-  if (!response.ok) {
-    throw new Error(data.message || "Failed to delete student")
-  }
-}
 
 // ============ CONVERSATIONS (READ-ONLY) ============
 

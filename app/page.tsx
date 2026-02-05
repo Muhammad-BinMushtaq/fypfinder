@@ -2,12 +2,9 @@
 "use client"
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useSession } from "@/hooks/auth/useSession";
+
 
 export default function HomePage() {
-  const router = useRouter();
 
 
   return (

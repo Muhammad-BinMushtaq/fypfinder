@@ -23,6 +23,7 @@ import { useSendPartnerRequest, useSentPartnerRequests } from "@/hooks/request/u
 import { useStartConversation } from "@/hooks/messaging/useStartConversation";
 import { useCheckMessagePermission } from "@/hooks/messaging/useCheckMessagePermission";
 import { MessageSquare, Users, Loader2, Check, Ban, Clock, Send } from "lucide-react";
+import { toast } from "react-toastify";
 
 interface SendRequestButtonsProps {
   targetStudentId: string;
@@ -111,9 +112,13 @@ export function SendRequestButtons({
   // Handle send message request
   const handleSendMessageRequest = async () => {
     try {
+      if (messageReason.trim() === "") {
+        toast.error("Please provide a reason for your message request");
+        return;
+      }
       await sendMessageMutation.mutateAsync({
         toStudentId: targetStudentId,
-        reason: messageReason || undefined,
+        reason: messageReason
       });
       setMessageSuccess(true);
       setShowMessageModal(false);
@@ -127,9 +132,13 @@ export function SendRequestButtons({
   // Handle send partner request
   const handleSendPartnerRequest = async () => {
     try {
+      if (partnerReason.trim() === "") {
+        toast.error("Please provide a reason for your message request");
+        return;
+      }
       await sendPartnerMutation.mutateAsync({
         toStudentId: targetStudentId,
-        reason: partnerReason || undefined,
+        reason: partnerReason,
       });
       setPartnerSuccess(true);
       setShowPartnerModal(false);

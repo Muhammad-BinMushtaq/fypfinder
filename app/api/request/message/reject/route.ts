@@ -42,7 +42,7 @@ export async function POST(req: Request) {
         return NextResponse.json(
             {
                 success: true,
-                message: "Message request accepted",
+                message: "Message request Rejected",
                 data: rejectedRequest,
             },
             { status: 200 }

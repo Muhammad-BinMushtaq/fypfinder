@@ -1,18 +1,6 @@
-// hooks/messaging/useRealtimeMessages.ts
-/**
- * Real-time messaging hooks
- * 
- * Note: The main real-time message handling is now done directly in ChatWindow.tsx
- * to ensure proper state updates and re-renders.
- * 
- * This file contains:
- * - useRealtimeConversationUpdates: Updates conversation list when new messages arrive
- */
-
-import { useEffect, useRef } from "react"
+import { useEffect } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { getSupabaseClient } from "@/lib/supabaseClient"
-import type { RealtimeChannel } from "@supabase/supabase-js"
 
 interface RealtimePayload {
   new: {
@@ -25,58 +13,59 @@ interface RealtimePayload {
   }
 }
 
-// Hook to subscribe to all conversations for notification updates
 export function useRealtimeConversationUpdates(currentStudentId: string | null) {
   const queryClient = useQueryClient()
-  const channelRef = useRef<RealtimeChannel | null>(null)
 
   useEffect(() => {
-    if (!currentStudentId) {
-      console.log("[RealtimeConversations] No student ID, skipping subscription")
-      return
-    }
+    if (!currentStudentId) return
 
-    console.log("[RealtimeConversations] Setting up subscription for:", currentStudentId)
-    
     const supabase = getSupabaseClient()
 
-    // Subscribe to all new messages to update conversation list
     const channel = supabase
-      .channel("all-messages-for-conversations")
+      .channel("conversation-updates")
       .on(
         "postgres_changes",
         {
           event: "INSERT",
           schema: "public",
           table: "Message",
+          filter: `receiverId=eq.${currentStudentId}`,
         },
         (payload: RealtimePayload) => {
-          console.log("[RealtimeConversations] New message received:", payload.new?.id)
-          
-          // Skip our own messages
-          if (payload.new.senderId === currentStudentId) {
-            console.log("[RealtimeConversations] Own message, skipping")
-            return
+          const newRow = payload.new as {
+            conversationId: string
+            content: string
+            createdAt: string
+            senderId: string
           }
 
-          // Invalidate conversations to update the list
-          console.log("[RealtimeConversations] Invalidating conversations")
-          queryClient.invalidateQueries({ queryKey: ["conversations"] })
-          queryClient.invalidateQueries({ queryKey: ["unreadCount"] })
+          // update conversation preview
+          queryClient.setQueryData<any[]>(
+            ["conversations"],
+            (old = []) =>
+              old.map((c) =>
+                c.id === newRow.conversationId
+                  ? {
+                      ...c,
+                      lastMessage: newRow.content,
+                      lastMessageAt: newRow.createdAt,
+                      unreadCount: (c.unreadCount || 0) + 1,
+                    }
+                  : c
+              )
+          )
+
+          // update unread badge
+          queryClient.setQueryData<number>(
+            ["unreadCount"],
+            (old = 0) => old + 1
+          )
         }
       )
-      .subscribe((status: RealtimeChannel['state']) => {
-        console.log("[RealtimeConversations] Subscription status:", status)
-      })
-
-    channelRef.current = channel
+      .subscribe()
 
     return () => {
-      console.log("[RealtimeConversations] Cleaning up subscription")
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current)
-        channelRef.current = null
-      }
+      supabase.removeChannel(channel)
     }
   }, [currentStudentId, queryClient])
 }

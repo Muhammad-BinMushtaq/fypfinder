@@ -1,15 +1,10 @@
-// app/dashboard/messages/page.tsx
 "use client"
 
 import { ConversationList } from "@/components/messaging/ConversationList"
-import { useRealtimeConversationUpdates } from "@/hooks/messaging/useRealtimeMessages"
 import { useMyProfile } from "@/hooks/student/useMyProfile"
 
 export default function MessagesPage() {
   const { profile, isLoading: profileLoading } = useMyProfile()
-
-  // Subscribe to realtime updates for conversation list
-  useRealtimeConversationUpdates(profile?.id || null)
 
   if (profileLoading) {
     return (
@@ -26,12 +21,12 @@ export default function MessagesPage() {
 
   return (
     <div className="h-[calc(100vh-4rem)] bg-white flex">
-      {/* Conversation List (always visible) */}
+      {/* Conversation List */}
       <div className="w-full lg:w-80 xl:w-96 border-r border-gray-200 bg-white">
         <ConversationList />
       </div>
 
-      {/* Empty state for desktop (no conversation selected) */}
+      {/* Empty state (desktop only) */}
       <div className="hidden lg:flex flex-1 items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -54,7 +49,7 @@ export default function MessagesPage() {
           </h2>
           <p className="text-gray-500 max-w-sm">
             Select a conversation from the list to start chatting, or send a
-            message request to a student you'd like to connect with.
+            message request to a student you’d like to connect with.
           </p>
         </div>
       </div>
