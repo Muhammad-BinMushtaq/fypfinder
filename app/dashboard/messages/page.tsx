@@ -49,7 +49,7 @@ export default function MessagesPage() {
           </h2>
           <p className="text-gray-500 max-w-sm">
             Select a conversation from the list to start chatting, or send a
-            message request to a student you’d like to connect with.
+            message request to a student you'd like to connect with.
           </p>
         </div>
       </div>
