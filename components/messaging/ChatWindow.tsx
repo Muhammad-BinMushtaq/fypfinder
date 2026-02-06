@@ -65,7 +65,9 @@ export function ChatWindow({
           filter: `conversationId=eq.${conversationId}`,
         },
         (payload: RealtimePayload) => {
-          console.log("🔥 REALTIME EVENT RECEIVED", payload)
+          if (process.env.NODE_ENV !== "production") {
+            console.log("🔥 REALTIME EVENT RECEIVED", payload)
+          }
           const newRow = payload.new as {
             id: string
             conversationId: string
@@ -75,10 +77,11 @@ export function ChatWindow({
             createdAt: string
           }
 
-
-
           // Skip own messages (handled optimistically)
           if (newRow.senderId === currentStudent.id) return
+
+          // Prevent in-flight fetch from overwriting realtime update
+          queryClient.cancelQueries({ queryKey: ["messages", conversationId] })
 
           const newMessage: Message = {
             id: newRow.id,
@@ -104,7 +107,11 @@ export function ChatWindow({
           )
         }
       )
-      .subscribe()
+      .subscribe((status: any) => {
+        if (process.env.NODE_ENV !== "production") {
+          console.log("[Realtime] chat channel status:", status)
+        }
+      })
 
     console.log(
       "AFTER REALTIME",

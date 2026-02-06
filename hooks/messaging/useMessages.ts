@@ -34,10 +34,26 @@ async function fetchMessages(conversationId: string): Promise<Message[]> {
 
 export function useMessages(conversationId: string | null) {
   const queryClient = useQueryClient()
+  const queryKey = ["messages", conversationId] as const
 
   const query = useQuery<Message[], Error>({
-    queryKey: ["messages", conversationId],
-    queryFn: () => fetchMessages(conversationId!),
+    queryKey,
+    queryFn: async () => {
+      const fetched = await fetchMessages(conversationId!)
+      const cached = queryClient.getQueryData<Message[]>(queryKey) || []
+
+      if (cached.length === 0) return fetched
+
+      // Merge fetched data with any realtime/optimistic messages already in cache
+      const byId = new Map<string, Message>()
+      for (const msg of cached) byId.set(msg.id, msg)
+      for (const msg of fetched) byId.set(msg.id, msg)
+
+      return Array.from(byId.values()).sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      )
+    },
     enabled: !!conversationId,
     staleTime: 5 * 60 * 1000, // 5 minutes - messages are fresh, updated via realtime
     gcTime: 30 * 60 * 1000, // 30 minutes - keep in cache for a while
@@ -56,13 +72,13 @@ export function useMessages(conversationId: string | null) {
 
   const invalidateMessages = () => {
     if (conversationId) {
-      queryClient.invalidateQueries({ queryKey: ["messages", conversationId] })
+      queryClient.invalidateQueries({ queryKey })
     }
   }
 
   const addMessageToCache = (message: Message) => {
     queryClient.setQueryData<Message[]>(
-      ["messages", conversationId],
+      queryKey,
       (old = []) => {
         // Prevent duplicates
         if (old.some(m => m.id === message.id)) {
@@ -75,7 +91,7 @@ export function useMessages(conversationId: string | null) {
 
   const replaceOptimisticMessage = (tempId: string, realMessage: Message) => {
     queryClient.setQueryData<Message[]>(
-      ["messages", conversationId],
+      queryKey,
       (old = []) => {
         return old.map(m => (m.id === tempId ? realMessage : m))
       }
@@ -84,7 +100,7 @@ export function useMessages(conversationId: string | null) {
 
   const removeOptimisticMessage = (tempId: string) => {
     queryClient.setQueryData<Message[]>(
-      ["messages", conversationId],
+      queryKey,
       (old = []) => {
         return old.filter(m => m.id !== tempId)
       }
