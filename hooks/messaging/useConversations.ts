@@ -44,7 +44,7 @@ export function useConversations() {
     staleTime: 2 * 60 * 1000, // 2 minutes - data is considered fresh
     gcTime: 10 * 60 * 1000, // 10 minutes - keep in cache
     refetchOnWindowFocus: false, // Don't refetch on window focus - we have real-time updates
-    refetchOnMount: false, // Don't refetch on mount if data exists
+    refetchOnMount: true, // Refetch on mount to avoid stale list after background updates
   })
 
   const invalidateConversations = () => {

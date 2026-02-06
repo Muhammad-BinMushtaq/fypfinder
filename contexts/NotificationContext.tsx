@@ -263,11 +263,55 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
             return;
           }
 
-          // Invalidate caches to update UI (conversations list and unread count)
-          // NOTE: Do NOT invalidate messages cache here - useRealtimeMessages handles it
-          // Invalidating messages cache causes a race condition that overwrites the cache
-          queryClient.invalidateQueries({ queryKey: messagingKeys.conversations });
-          queryClient.invalidateQueries({ queryKey: messagingKeys.unreadCount });
+          // Update caches to keep sidebar + badges in sync.
+          // NOTE: Do NOT invalidate messages cache here - ChatWindow handles it.
+          const conversations =
+            queryClient.getQueryData<any[]>(messagingKeys.conversations) || [];
+          const existing = conversations.find(
+            (c) => c.id === message.conversationId
+          );
+
+          if (!existing) {
+            // Conversation not in cache; refetch to avoid stale list/unread count
+            queryClient.invalidateQueries({ queryKey: messagingKeys.conversations });
+            queryClient.invalidateQueries({ queryKey: messagingKeys.unreadCount });
+          } else {
+            queryClient.setQueryData<any[]>(
+              messagingKeys.conversations,
+              (old = []) => {
+                const updated = old.map((c) =>
+                  c.id === message.conversationId
+                    ? {
+                        ...c,
+                        lastMessage: {
+                          id: message.id,
+                          content: message.content,
+                          senderId: message.senderId,
+                          isRead: message.isRead,
+                          createdAt: message.createdAt,
+                        },
+                        unreadCount: (c.unreadCount || 0) + 1,
+                        updatedAt: message.createdAt,
+                      }
+                    : c
+                );
+
+                // Move updated conversation to the top
+                const moved = updated.filter(
+                  (c) => c.id === message.conversationId
+                );
+                const rest = updated.filter(
+                  (c) => c.id !== message.conversationId
+                );
+                return [...moved, ...rest];
+              }
+            );
+
+            queryClient.setQueryData<number>(
+              messagingKeys.unreadCount,
+              (old = 0) => old + 1
+            );
+          }
 
           // Try to get sender info from cache or fetch it
           let senderName = "Someone";

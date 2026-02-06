@@ -9,8 +9,12 @@ SELECT * FROM pg_catalog.pg_publication_tables;
 -- Add the Request table to the supabase_realtime publication
 ALTER PUBLICATION supabase_realtime ADD TABLE "Request";
 
+-- 2b. Enable Realtime on the Message table (chat messages)
+ALTER PUBLICATION supabase_realtime ADD TABLE "Message";
+
 -- 3. Verify it was added
 SELECT * FROM pg_catalog.pg_publication_tables WHERE tablename = 'Request';
+SELECT * FROM pg_catalog.pg_publication_tables WHERE tablename = 'Message';
 
 -- If you see the Request table in the output, realtime is now enabled!
 

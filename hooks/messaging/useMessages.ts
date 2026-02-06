@@ -1,4 +1,5 @@
 // hooks/messaging/useMessages.ts
+import { useEffect } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 
 export interface MessageSender {
@@ -34,15 +35,24 @@ async function fetchMessages(conversationId: string): Promise<Message[]> {
 export function useMessages(conversationId: string | null) {
   const queryClient = useQueryClient()
 
-  const query = useQuery({
+  const query = useQuery<Message[], Error>({
     queryKey: ["messages", conversationId],
     queryFn: () => fetchMessages(conversationId!),
     enabled: !!conversationId,
     staleTime: 5 * 60 * 1000, // 5 minutes - messages are fresh, updated via realtime
     gcTime: 30 * 60 * 1000, // 30 minutes - keep in cache for a while
     refetchOnWindowFocus: false, // Don't refetch - we have realtime updates
-    refetchOnMount: true, // Refetch on mount to ensure fresh data initially
+    refetchOnMount: "always", // Always refetch on mount to mark messages as read
   })
+
+  useEffect(() => {
+    if (!conversationId || !query.isSuccess) return
+
+    // Messages fetch marks messages as read on the server.
+    // Keep conversation previews + unread badges in sync.
+    queryClient.invalidateQueries({ queryKey: ["conversations"] })
+    queryClient.invalidateQueries({ queryKey: ["unreadCount"] })
+  }, [conversationId, query.isSuccess, query.dataUpdatedAt, queryClient])
 
   const invalidateMessages = () => {
     if (conversationId) {

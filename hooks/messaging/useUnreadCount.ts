@@ -20,6 +20,7 @@ export function useUnreadCount() {
     queryFn: fetchUnreadCount,
     staleTime: 30 * 1000, // 30 seconds
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   })
 
   const invalidateUnreadCount = () => {

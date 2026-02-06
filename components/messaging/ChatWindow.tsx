@@ -65,6 +65,7 @@ export function ChatWindow({
           filter: `conversationId=eq.${conversationId}`,
         },
         (payload: RealtimePayload) => {
+          console.log("🔥 REALTIME EVENT RECEIVED", payload)
           const newRow = payload.new as {
             id: string
             conversationId: string
@@ -73,6 +74,8 @@ export function ChatWindow({
             isRead: boolean
             createdAt: string
           }
+
+
 
           // Skip own messages (handled optimistically)
           if (newRow.senderId === currentStudent.id) return
@@ -103,6 +106,10 @@ export function ChatWindow({
       )
       .subscribe()
 
+    console.log(
+      "AFTER REALTIME",
+      queryClient.getQueryData(["messages", conversationId])
+    )
     return () => {
       supabase.removeChannel(channel)
     }
