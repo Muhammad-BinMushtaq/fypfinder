@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useRef, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { useQueryClient } from "@tanstack/react-query"
 import { MessageList } from "./MessageList"
@@ -33,7 +33,10 @@ interface RealtimePayload {
     isRead: boolean
     createdAt: string
   }
+  errors?: string[]
 }
+
+type ConnectionStatus = "connecting" | "connected" | "disconnected" | "error"
 
 export function ChatWindow({
   conversationId,
@@ -42,17 +45,37 @@ export function ChatWindow({
 }: ChatWindowProps) {
   const router = useRouter()
   const queryClient = useQueryClient()
+  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>("connecting")
+  const channelRef = useRef<ReturnType<ReturnType<typeof getSupabaseClient>["channel"]> | null>(null)
+  const fallbackIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
-  const { messages, isLoading, isError, error } =
-    useMessages(conversationId)
-
+  const { messages, isLoading, isError, error, refetch } = useMessages(conversationId)
   const { sendMessage, isPending } = useSendMessage()
 
-  // 🔔 REALTIME: listen to messages for THIS conversation only
+  // Fallback polling when realtime is not connected
+  const startFallbackPolling = useCallback(() => {
+    if (fallbackIntervalRef.current) return // Already polling
+    
+    console.log("[Chat] Starting fallback polling")
+    fallbackIntervalRef.current = setInterval(() => {
+      refetch()
+    }, 5000) // Poll every 5 seconds
+  }, [refetch])
+
+  const stopFallbackPolling = useCallback(() => {
+    if (fallbackIntervalRef.current) {
+      console.log("[Chat] Stopping fallback polling")
+      clearInterval(fallbackIntervalRef.current)
+      fallbackIntervalRef.current = null
+    }
+  }, [])
+
+  // 🔔 REALTIME: listen to messages for THIS conversation
   useEffect(() => {
     if (!conversationId || !currentStudent.id) return
 
     const supabase = getSupabaseClient()
+    setConnectionStatus("connecting")
 
     const channel = supabase
       .channel(`chat:${conversationId}`)
@@ -62,29 +85,42 @@ export function ChatWindow({
           event: "INSERT",
           schema: "public",
           table: "Message",
-          filter: `conversationId=eq.${conversationId}`,
+          // NOTE: Do NOT use filter here! Supabase Realtime filters require
+          // the column to be in the table's replica identity. Instead, we
+          // listen to all INSERTs and manually check conversationId below.
         },
         (payload: RealtimePayload) => {
           if (process.env.NODE_ENV !== "production") {
-            console.log("🔥 REALTIME EVENT RECEIVED", payload)
+            console.log("🔥 REALTIME MESSAGE RECEIVED", payload)
           }
-          // If RLS blocks payload, refetch from server to stay in sync
-          if (!payload?.new || !payload.new.id) {
+
+          // Handle errors in payload
+          if (payload?.errors?.length) {
+            console.warn("[Chat] Realtime payload errors:", payload.errors)
+            // Fallback: refetch from server
             queryClient.invalidateQueries({
               queryKey: ["messages", conversationId],
             })
             return
           }
-          const newRow = payload.new as {
-            id: string
-            conversationId: string
-            senderId: string
-            content: string
-            isRead: boolean
-            createdAt: string
+          
+          // If RLS blocks payload or invalid data, refetch from server
+          if (!payload?.new || !payload.new.id || !payload.new.conversationId) {
+            console.warn("[Chat] Invalid realtime payload, refetching")
+            queryClient.invalidateQueries({
+              queryKey: ["messages", conversationId],
+            })
+            return
+          }
+          
+          const newRow = payload.new
+
+          // ✅ MANUAL FILTER: Only process messages for THIS conversation
+          if (newRow.conversationId !== conversationId) {
+            return
           }
 
-          // Skip own messages (handled optimistically)
+          // Skip own messages (handled optimistically by useSendMessage)
           if (newRow.senderId === currentStudent.id) return
 
           // Prevent in-flight fetch from overwriting realtime update
@@ -94,9 +130,9 @@ export function ChatWindow({
             id: newRow.id,
             conversationId: newRow.conversationId,
             senderId: newRow.senderId,
-            content: newRow.content,
-            isRead: newRow.isRead,
-            createdAt: newRow.createdAt,
+            content: newRow.content || "",
+            isRead: newRow.isRead ?? false,
+            createdAt: newRow.createdAt || new Date().toISOString(),
             sender: {
               id: newRow.senderId,
               name: otherStudent.name,
@@ -108,24 +144,40 @@ export function ChatWindow({
           queryClient.setQueryData<Message[]>(
             ["messages", conversationId],
             (old = []) => {
+              // Prevent duplicates
               if (old.some((m) => m.id === newMessage.id)) return old
               return [...old, newMessage]
             }
           )
         }
       )
-      .subscribe((status: any) => {
+      .subscribe((status: string, err?: Error) => {
         if (process.env.NODE_ENV !== "production") {
-          console.log("[Realtime] chat channel status:", status)
+          console.log("[Chat] Subscription status:", status, err?.message)
+        }
+        
+        if (status === "SUBSCRIBED") {
+          setConnectionStatus("connected")
+          stopFallbackPolling() // Stop polling when connected
+        } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+          setConnectionStatus("error")
+          console.error("[Chat] Realtime error:", err?.message)
+          startFallbackPolling() // Start polling as fallback
+        } else if (status === "CLOSED") {
+          setConnectionStatus("disconnected")
+          startFallbackPolling()
         }
       })
 
-    console.log(
-      "AFTER REALTIME",
-      queryClient.getQueryData(["messages", conversationId])
-    )
+    channelRef.current = channel
+
+    // Cleanup on unmount or dependency change
     return () => {
-      supabase.removeChannel(channel)
+      stopFallbackPolling()
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current)
+        channelRef.current = null
+      }
     }
   }, [
     conversationId,
@@ -133,12 +185,16 @@ export function ChatWindow({
     otherStudent.name,
     otherStudent.profilePicture,
     queryClient,
+    startFallbackPolling,
+    stopFallbackPolling,
   ])
 
   const handleSendMessage = (content: string) => {
+    if (!content.trim()) return
+    
     sendMessage({
       conversationId,
-      content,
+      content: content.trim(),
       currentStudentId: currentStudent.id,
       currentStudentName: currentStudent.name,
     })
@@ -148,15 +204,29 @@ export function ChatWindow({
     return (
       <div className="h-full flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-500">
-            {error?.message || "Failed to load chat"}
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <p className="text-gray-700 font-medium mb-1">Failed to load messages</p>
+          <p className="text-gray-500 text-sm mb-4">
+            {error?.message || "Something went wrong"}
           </p>
-          <button
-            onClick={() => router.push("/dashboard/messages")}
-            className="text-indigo-600 text-sm mt-3"
-          >
-            ← Back
-          </button>
+          <div className="flex gap-3 justify-center">
+            <button
+              onClick={() => refetch()}
+              className="px-4 py-2 text-sm font-medium text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+            >
+              Try Again
+            </button>
+            <button
+              onClick={() => router.push("/dashboard/messages")}
+              className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              ← Back
+            </button>
+          </div>
         </div>
       </div>
     )
@@ -164,6 +234,21 @@ export function ChatWindow({
 
   return (
     <div className="h-full flex flex-col bg-white">
+      {/* Connection status indicator (only show when not connected) */}
+      {connectionStatus !== "connected" && (
+        <div className={`px-3 py-1.5 text-xs font-medium text-center ${
+          connectionStatus === "connecting" 
+            ? "bg-yellow-50 text-yellow-700"
+            : connectionStatus === "error"
+            ? "bg-red-50 text-red-700"
+            : "bg-gray-50 text-gray-600"
+        }`}>
+          {connectionStatus === "connecting" && "Connecting to live updates..."}
+          {connectionStatus === "error" && "Live updates unavailable - refreshing periodically"}
+          {connectionStatus === "disconnected" && "Reconnecting..."}
+        </div>
+      )}
+      
       <MessageList
         messages={messages}
         currentStudentId={currentStudent.id}

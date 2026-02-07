@@ -29,7 +29,7 @@ async function fetchMessages(conversationId: string): Promise<Message[]> {
     throw new Error(data.error || "Failed to fetch messages")
   }
 
-  return data.messages
+  return data.messages || []
 }
 
 export function useMessages(conversationId: string | null) {
@@ -42,13 +42,27 @@ export function useMessages(conversationId: string | null) {
       const fetched = await fetchMessages(conversationId!)
       const cached = queryClient.getQueryData<Message[]>(queryKey) || []
 
+      // If no cached data, just return fetched
       if (cached.length === 0) return fetched
 
       // Merge fetched data with any realtime/optimistic messages already in cache
+      // Prioritize server data over cached, except for optimistic messages
       const byId = new Map<string, Message>()
-      for (const msg of cached) byId.set(msg.id, msg)
-      for (const msg of fetched) byId.set(msg.id, msg)
+      
+      // First add fetched messages (server truth)
+      for (const msg of fetched) {
+        byId.set(msg.id, msg)
+      }
+      
+      // Then add optimistic messages that haven't been confirmed yet
+      // (they have temp-* IDs that won't exist in server data)
+      for (const msg of cached) {
+        if (msg.isOptimistic && !byId.has(msg.id)) {
+          byId.set(msg.id, msg)
+        }
+      }
 
+      // Sort by creation time
       return Array.from(byId.values()).sort(
         (a, b) =>
           new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
@@ -59,6 +73,7 @@ export function useMessages(conversationId: string | null) {
     gcTime: 30 * 60 * 1000, // 30 minutes - keep in cache for a while
     refetchOnWindowFocus: false, // Don't refetch - we have realtime updates
     refetchOnMount: "always", // Always refetch on mount to mark messages as read
+    retry: 2, // Retry failed requests twice
   })
 
   useEffect(() => {

@@ -1,7 +1,7 @@
 // components/messaging/MessageList.tsx
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useLayoutEffect } from "react"
 import { MessageBubble } from "./MessageBubble"
 import type { Message } from "@/hooks/messaging/useMessages"
 
@@ -18,13 +18,50 @@ export function MessageList({
 }: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const prevMessagesLengthRef = useRef(0)
+  const isNearBottomRef = useRef(true)
 
-  // Auto-scroll to bottom when new messages arrive
-  useEffect(() => {
-    if (bottomRef.current) {
-      bottomRef.current.scrollIntoView({ behavior: "smooth" })
+  // Check if user is near bottom (within 150px)
+  const checkIfNearBottom = () => {
+    if (!containerRef.current) return true
+    const { scrollTop, scrollHeight, clientHeight } = containerRef.current
+    return scrollHeight - scrollTop - clientHeight < 150
+  }
+
+  // Track scroll position
+  const handleScroll = () => {
+    isNearBottomRef.current = checkIfNearBottom()
+  }
+
+  // Auto-scroll to bottom when new messages arrive (only if user is near bottom)
+  useLayoutEffect(() => {
+    const newMessagesCount = messages.length - prevMessagesLengthRef.current
+    
+    // Only auto-scroll if:
+    // 1. New messages were added (not initial load)
+    // 2. User is near the bottom
+    // 3. OR the new message is from current user (always scroll for own messages)
+    const shouldScroll = newMessagesCount > 0 && (
+      isNearBottomRef.current ||
+      (messages.length > 0 && messages[messages.length - 1]?.senderId === currentStudentId)
+    )
+
+    if (shouldScroll && bottomRef.current) {
+      // Use requestAnimationFrame for smoother scrolling
+      requestAnimationFrame(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" })
+      })
     }
-  }, [messages])
+
+    prevMessagesLengthRef.current = messages.length
+  }, [messages, currentStudentId])
+
+  // Scroll to bottom on initial load
+  useEffect(() => {
+    if (!isLoading && messages.length > 0 && bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: "instant" })
+    }
+  }, [isLoading]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (isLoading) {
     return (
@@ -68,6 +105,7 @@ export function MessageList({
   return (
     <div
       ref={containerRef}
+      onScroll={handleScroll}
       className="flex-1 overflow-y-auto px-4 py-4"
     >
       {messages.map((message, index) => (
