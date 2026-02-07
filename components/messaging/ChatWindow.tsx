@@ -68,6 +68,13 @@ export function ChatWindow({
           if (process.env.NODE_ENV !== "production") {
             console.log("🔥 REALTIME EVENT RECEIVED", payload)
           }
+          // If RLS blocks payload, refetch from server to stay in sync
+          if (!payload?.new || !payload.new.id) {
+            queryClient.invalidateQueries({
+              queryKey: ["messages", conversationId],
+            })
+            return
+          }
           const newRow = payload.new as {
             id: string
             conversationId: string
