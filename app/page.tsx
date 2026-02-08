@@ -53,16 +53,16 @@ export default function HomePage() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full mb-8">
             <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-            <span className="text-sm text-indigo-300 font-medium">Find your FYP Partner at Pak-Austria </span>
+            <span className="text-sm text-indigo-300 font-medium">FYP Partner Finder Pak-Austria Institute </span>
           </div>
 
           {/* Main Heading */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
             <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-              FYP Partner Finder
+             Find your FYP Partner at 
             </span>
             <br />
-            for PAF-IAST
+            PAF-IAST
           </h1>
 
           {/* Subheading */}
@@ -414,111 +414,11 @@ export default function HomePage() {
         </div>
       </section>
 
+     
 
+      
 
-
-
-      {/* Platform Principles Section */}
-      <section className="relative py-20 sm:py-32">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Section Header */}
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full mb-6">
-              <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-              <span className="text-sm text-emerald-300 font-medium">Our Commitment</span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              Platform Principles
-            </h2>
-            <p className="text-gray-400 max-w-2xl mx-auto">
-              FYP Finder is built on strong academic values to ensure a safe, productive, and respectful environment for all students.
-            </p>
-          </div>
-
-          {/* Principles Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Principle 1 - Academic Integrity */}
-            <div className="p-6 bg-gradient-to-br from-emerald-500/10 to-teal-500/5 border border-emerald-500/20 rounded-2xl">
-              <div className="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-bold text-white mb-2">Academic Integrity</h3>
-              <p className="text-gray-400 text-sm">
-                We promote honest collaboration. All partnerships should uphold university academic policies and ethical standards.
-              </p>
-            </div>
-
-            {/* Principle 2 - Permission-Based Messaging */}
-            <div className="p-6 bg-gradient-to-br from-blue-500/10 to-indigo-500/5 border border-blue-500/20 rounded-2xl">
-              <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-bold text-white mb-2">Permission-Based Messaging</h3>
-              <p className="text-gray-400 text-sm">
-                Students must request permission before starting conversations. No unsolicited messages or spam allowed.
-              </p>
-            </div>
-
-            {/* Principle 3 - Admin Moderation */}
-            <div className="p-6 bg-gradient-to-br from-purple-500/10 to-violet-500/5 border border-purple-500/20 rounded-2xl">
-              <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-bold text-white mb-2">Admin Moderation</h3>
-              <p className="text-gray-400 text-sm">
-                Dedicated administrators monitor the platform to ensure compliance with guidelines and handle any issues promptly.
-              </p>
-            </div>
-
-            {/* Principle 4 - No Random Chats */}
-            <div className="p-6 bg-gradient-to-br from-orange-500/10 to-amber-500/5 border border-orange-500/20 rounded-2xl">
-              <div className="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-bold text-white mb-2">No Random Chats</h3>
-              <p className="text-gray-400 text-sm">
-                This is not a social chat app. All interactions should be purposeful and related to FYP collaboration.
-              </p>
-            </div>
-
-            {/* Principle 5 - No Misuse */}
-            <div className="p-6 bg-gradient-to-br from-red-500/10 to-rose-500/5 border border-red-500/20 rounded-2xl">
-              <div className="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-bold text-white mb-2">Zero Tolerance for Misuse</h3>
-              <p className="text-gray-400 text-sm">
-                Any harassment, inappropriate behavior, or misuse of the platform will result in immediate account suspension.
-              </p>
-            </div>
-
-            {/* Principle 6 - Academic Purpose Only */}
-            <div className="p-6 bg-gradient-to-br from-cyan-500/10 to-sky-500/5 border border-cyan-500/20 rounded-2xl">
-              <div className="w-12 h-12 bg-cyan-500/20 rounded-xl flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-bold text-white mb-2">Academic Purpose Only</h3>
-              <p className="text-gray-400 text-sm">
-                FYP Finder is exclusively for Final Year Project collaboration. Keep all activities education-focused.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+     
 
       {/* CTA Section */}
       <section className="relative py-20 sm:py-32">
@@ -528,7 +428,7 @@ export default function HomePage() {
               Ready to Find Your FYP Partner?
             </h2>
             <p className="text-gray-400 mb-8 max-w-xl mx-auto">
-              Join students who have already found their perfect teammates.
+              Join students who have already found their perfect teammates. 
               Start your FYP journey today.
             </p>
             <Link
@@ -560,12 +460,7 @@ export default function HomePage() {
               <p className="text-gray-400 text-sm leading-relaxed">
                 A dedicated platform designed to help university students find the perfect teammates for their Final Year Projects.
               </p>
-              <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-                <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-                <span className="text-xs text-amber-300 font-medium">Academic Project • Not Commercial</span>
-              </div>
+            
             </div>
 
             {/* Open Source */}
@@ -598,7 +493,7 @@ export default function HomePage() {
                 <span className="text-lg">👤</span> Creator
               </h4>
               <p className="text-gray-400 text-sm mb-4">
-                Created by <span className="text-white font-medium">Muhammad bin Mushtaq</span> as an academic Final Year Project.
+                Created by <span className="text-white font-medium">Muhammad bin Mushtaq</span> 
               </p>
               <div className="flex items-center gap-3">
                 <a
@@ -609,7 +504,7 @@ export default function HomePage() {
                   title="LinkedIn"
                 >
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
                   </svg>
                 </a>
                 <a
