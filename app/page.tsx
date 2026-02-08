@@ -103,146 +103,209 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* Locked Profile Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {/* Preview Card 1 */}
+          {/* Locked Profile Cards - Horizontal Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Preview Card 1 - Ahmed */}
             <div className="relative group">
               <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-2xl blur-xl opacity-50 group-hover:opacity-70 transition-opacity"></div>
-              <div className="relative p-5 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden">
-                {/* Blur overlay */}
-                <div className="absolute inset-0 backdrop-blur-[2px] bg-slate-900/30 z-10 flex items-center justify-center">
-                  <div className="text-center px-4">
-                    <div className="w-10 h-10 mx-auto mb-2 bg-white/10 rounded-full flex items-center justify-center">
-                      <svg className="w-5 h-5 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="relative bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden">
+                {/* Visible Header - Name & Avatar */}
+                <div className="p-5 border-b border-white/10">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full flex items-center justify-center text-xl font-bold text-white flex-shrink-0">
+                      A
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-white text-lg">Ahmed Khan</h3>
+                      <p className="text-sm text-gray-400">BSCS • 7th Semester</p>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                        <span className="text-xs text-green-400">Looking for partner</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* Locked Content */}
+                <div className="relative p-5">
+                  <div className="absolute inset-0 backdrop-blur-sm bg-slate-900/60 z-10 flex items-center justify-center">
+                    <Link href="/login" className="flex flex-col items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 rounded-xl transition-colors">
+                      <svg className="w-6 h-6 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                       </svg>
-                    </div>
-                    <Link href="/login" className="text-sm text-white/90 hover:text-white font-medium">
-                      Login to unlock
+                      <span className="text-sm text-white font-medium">Login to unlock profile</span>
                     </Link>
                   </div>
-                </div>
-                {/* Card content (blurred) */}
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full flex items-center justify-center text-lg font-bold text-white">A</div>
-                  <div>
-                    <div className="font-semibold text-white">Ahmed K.</div>
-                    <div className="text-xs text-gray-400">BSCS • 7th Sem</div>
+                  {/* Blurred content preview */}
+                  <div className="space-y-4 opacity-40">
+                    <div>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Skills</p>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="px-3 py-1 bg-indigo-500/20 text-indigo-300 text-xs rounded-full">React</span>
+                        <span className="px-3 py-1 bg-purple-500/20 text-purple-300 text-xs rounded-full">Node.js</span>
+                        <span className="px-3 py-1 bg-pink-500/20 text-pink-300 text-xs rounded-full">Python</span>
+                        <span className="px-3 py-1 bg-blue-500/20 text-blue-300 text-xs rounded-full">+2 more</span>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Bio</p>
+                      <p className="text-sm text-gray-400">Passionate developer interested in web technologies and AI...</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Projects</p>
+                      <p className="text-sm text-gray-400">3 projects showcased</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex flex-wrap gap-1.5 mb-3">
-                  <span className="px-2 py-0.5 bg-indigo-500/20 text-indigo-300 text-xs rounded-full">React</span>
-                  <span className="px-2 py-0.5 bg-purple-500/20 text-purple-300 text-xs rounded-full">Node.js</span>
-                  <span className="px-2 py-0.5 bg-pink-500/20 text-pink-300 text-xs rounded-full">Python</span>
-                </div>
-                <div className="text-xs text-gray-500 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-                  Looking for partner
                 </div>
               </div>
             </div>
 
-            {/* Preview Card 2 */}
+            {/* Preview Card 2 - Sara */}
             <div className="relative group">
               <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-2xl blur-xl opacity-50 group-hover:opacity-70 transition-opacity"></div>
-              <div className="relative p-5 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden">
-                <div className="absolute inset-0 backdrop-blur-[2px] bg-slate-900/30 z-10 flex items-center justify-center">
-                  <div className="text-center px-4">
-                    <div className="w-10 h-10 mx-auto mb-2 bg-white/10 rounded-full flex items-center justify-center">
-                      <svg className="w-5 h-5 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="relative bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden">
+                <div className="p-5 border-b border-white/10">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center text-xl font-bold text-white flex-shrink-0">
+                      S
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-white text-lg">Sara Malik</h3>
+                      <p className="text-sm text-gray-400">BSSE • 8th Semester</p>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                        <span className="text-xs text-green-400">Available for team</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="relative p-5">
+                  <div className="absolute inset-0 backdrop-blur-sm bg-slate-900/60 z-10 flex items-center justify-center">
+                    <Link href="/login" className="flex flex-col items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 rounded-xl transition-colors">
+                      <svg className="w-6 h-6 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                       </svg>
-                    </div>
-                    <Link href="/login" className="text-sm text-white/90 hover:text-white font-medium">
-                      Login to unlock
+                      <span className="text-sm text-white font-medium">Login to unlock profile</span>
                     </Link>
                   </div>
-                </div>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center text-lg font-bold text-white">S</div>
-                  <div>
-                    <div className="font-semibold text-white">Sara M.</div>
-                    <div className="text-xs text-gray-400">BSSE • 8th Sem</div>
+                  <div className="space-y-4 opacity-40">
+                    <div>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Skills</p>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 text-xs rounded-full">UI/UX</span>
+                        <span className="px-3 py-1 bg-teal-500/20 text-teal-300 text-xs rounded-full">Figma</span>
+                        <span className="px-3 py-1 bg-cyan-500/20 text-cyan-300 text-xs rounded-full">Flutter</span>
+                        <span className="px-3 py-1 bg-green-500/20 text-green-300 text-xs rounded-full">+1 more</span>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Bio</p>
+                      <p className="text-sm text-gray-400">Creative designer with a focus on mobile-first experiences...</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Projects</p>
+                      <p className="text-sm text-gray-400">5 projects showcased</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex flex-wrap gap-1.5 mb-3">
-                  <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 text-xs rounded-full">UI/UX</span>
-                  <span className="px-2 py-0.5 bg-teal-500/20 text-teal-300 text-xs rounded-full">Figma</span>
-                  <span className="px-2 py-0.5 bg-cyan-500/20 text-cyan-300 text-xs rounded-full">Flutter</span>
-                </div>
-                <div className="text-xs text-gray-500 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-                  Available for team
                 </div>
               </div>
             </div>
 
-            {/* Preview Card 3 */}
+            {/* Preview Card 3 - Usman */}
             <div className="relative group">
               <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-amber-500/20 rounded-2xl blur-xl opacity-50 group-hover:opacity-70 transition-opacity"></div>
-              <div className="relative p-5 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden">
-                <div className="absolute inset-0 backdrop-blur-[2px] bg-slate-900/30 z-10 flex items-center justify-center">
-                  <div className="text-center px-4">
-                    <div className="w-10 h-10 mx-auto mb-2 bg-white/10 rounded-full flex items-center justify-center">
-                      <svg className="w-5 h-5 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="relative bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden">
+                <div className="p-5 border-b border-white/10">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 bg-gradient-to-br from-orange-400 to-amber-500 rounded-full flex items-center justify-center text-xl font-bold text-white flex-shrink-0">
+                      U
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-white text-lg">Usman Raza</h3>
+                      <p className="text-sm text-gray-400">BSCS • 7th Semester</p>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
+                        <span className="text-xs text-amber-400">Has 1 partner</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="relative p-5">
+                  <div className="absolute inset-0 backdrop-blur-sm bg-slate-900/60 z-10 flex items-center justify-center">
+                    <Link href="/login" className="flex flex-col items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 rounded-xl transition-colors">
+                      <svg className="w-6 h-6 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                       </svg>
-                    </div>
-                    <Link href="/login" className="text-sm text-white/90 hover:text-white font-medium">
-                      Login to unlock
+                      <span className="text-sm text-white font-medium">Login to unlock profile</span>
                     </Link>
                   </div>
-                </div>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-amber-500 rounded-full flex items-center justify-center text-lg font-bold text-white">U</div>
-                  <div>
-                    <div className="font-semibold text-white">Usman R.</div>
-                    <div className="text-xs text-gray-400">BSCS • 7th Sem</div>
+                  <div className="space-y-4 opacity-40">
+                    <div>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Skills</p>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="px-3 py-1 bg-orange-500/20 text-orange-300 text-xs rounded-full">ML</span>
+                        <span className="px-3 py-1 bg-amber-500/20 text-amber-300 text-xs rounded-full">TensorFlow</span>
+                        <span className="px-3 py-1 bg-yellow-500/20 text-yellow-300 text-xs rounded-full">Data Science</span>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Bio</p>
+                      <p className="text-sm text-gray-400">Data enthusiast building intelligent systems...</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Projects</p>
+                      <p className="text-sm text-gray-400">4 projects showcased</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex flex-wrap gap-1.5 mb-3">
-                  <span className="px-2 py-0.5 bg-orange-500/20 text-orange-300 text-xs rounded-full">ML</span>
-                  <span className="px-2 py-0.5 bg-amber-500/20 text-amber-300 text-xs rounded-full">TensorFlow</span>
-                  <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-300 text-xs rounded-full">Data</span>
-                </div>
-                <div className="text-xs text-gray-500 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>
-                  Has 1 partner
                 </div>
               </div>
             </div>
 
-            {/* Preview Card 4 */}
+            {/* Preview Card 4 - Fatima */}
             <div className="relative group">
               <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 to-rose-500/20 rounded-2xl blur-xl opacity-50 group-hover:opacity-70 transition-opacity"></div>
-              <div className="relative p-5 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden">
-                <div className="absolute inset-0 backdrop-blur-[2px] bg-slate-900/30 z-10 flex items-center justify-center">
-                  <div className="text-center px-4">
-                    <div className="w-10 h-10 mx-auto mb-2 bg-white/10 rounded-full flex items-center justify-center">
-                      <svg className="w-5 h-5 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="relative bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden">
+                <div className="p-5 border-b border-white/10">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 bg-gradient-to-br from-pink-400 to-rose-500 rounded-full flex items-center justify-center text-xl font-bold text-white flex-shrink-0">
+                      F
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-white text-lg">Fatima Zahid</h3>
+                      <p className="text-sm text-gray-400">BSSE • 8th Semester</p>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                        <span className="text-xs text-green-400">Looking for partner</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="relative p-5">
+                  <div className="absolute inset-0 backdrop-blur-sm bg-slate-900/60 z-10 flex items-center justify-center">
+                    <Link href="/login" className="flex flex-col items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 rounded-xl transition-colors">
+                      <svg className="w-6 h-6 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                       </svg>
-                    </div>
-                    <Link href="/login" className="text-sm text-white/90 hover:text-white font-medium">
-                      Login to unlock
+                      <span className="text-sm text-white font-medium">Login to unlock profile</span>
                     </Link>
                   </div>
-                </div>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-pink-400 to-rose-500 rounded-full flex items-center justify-center text-lg font-bold text-white">F</div>
-                  <div>
-                    <div className="font-semibold text-white">Fatima Z.</div>
-                    <div className="text-xs text-gray-400">BSSE • 8th Sem</div>
+                  <div className="space-y-4 opacity-40">
+                    <div>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Skills</p>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="px-3 py-1 bg-pink-500/20 text-pink-300 text-xs rounded-full">Java</span>
+                        <span className="px-3 py-1 bg-rose-500/20 text-rose-300 text-xs rounded-full">Spring Boot</span>
+                        <span className="px-3 py-1 bg-red-500/20 text-red-300 text-xs rounded-full">AWS</span>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Bio</p>
+                      <p className="text-sm text-gray-400">Backend developer specializing in scalable systems...</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Projects</p>
+                      <p className="text-sm text-gray-400">2 projects showcased</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex flex-wrap gap-1.5 mb-3">
-                  <span className="px-2 py-0.5 bg-pink-500/20 text-pink-300 text-xs rounded-full">Java</span>
-                  <span className="px-2 py-0.5 bg-rose-500/20 text-rose-300 text-xs rounded-full">Spring</span>
-                  <span className="px-2 py-0.5 bg-red-500/20 text-red-300 text-xs rounded-full">AWS</span>
-                </div>
-                <div className="text-xs text-gray-500 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-                  Looking for partner
                 </div>
               </div>
             </div>
