@@ -53,7 +53,7 @@ export default function HomePage() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full mb-8">
             <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-            <span className="text-sm text-indigo-300 font-medium">Pak-Austria Institute FYP Partner Finder</span>
+            <span className="text-sm text-indigo-300 font-medium">Find your FYP Partner at Pak-Austria </span>
           </div>
 
           {/* Main Heading */}
@@ -414,91 +414,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="relative py-20 sm:py-32">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Section Header */}
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              Built for PAF-IAST FYP Collaboration
-            </h2>
-            <p className="text-gray-400 max-w-2xl mx-auto">
-              Clear, focused tools that match how FYP teams actually form at Pak-Austria.
-            </p>
-          </div>
 
-          {/* Features Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Feature 1 */}
-            <div className="group p-6 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 hover:border-indigo-500/50 transition-all">
-              <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform">
-                🔍
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">Smart Discovery</h3>
-              <p className="text-gray-400">
-                Filter by skills, department, semester, and availability to find the right teammate fast.
-              </p>
-            </div>
 
-            {/* Feature 2 */}
-            <div className="group p-6 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 hover:border-indigo-500/50 transition-all">
-              <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform">
-                👤
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">Rich Profiles</h3>
-              <p className="text-gray-400">
-                Highlight skills, projects, and interests so others understand your strengths.
-              </p>
-            </div>
 
-            {/* Feature 3 */}
-            <div className="group p-6 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 hover:border-indigo-500/50 transition-all">
-              <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform">
-                🤝
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">Partner Requests</h3>
-              <p className="text-gray-400">
-                Send and accept partner requests to form a serious FYP team.
-              </p>
-            </div>
-
-            {/* Feature 4 */}
-            <div className="group p-6 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 hover:border-indigo-500/50 transition-all">
-              <div className="w-14 h-14 bg-gradient-to-br from-pink-500 to-rose-600 rounded-xl flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform">
-                💬
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">Real-Time Messaging</h3>
-              <p className="text-gray-400">
-                Chat instantly once messaging is allowed to discuss ideas and scope.
-              </p>
-            </div>
-
-            {/* Feature 5 */}
-            <div className="group p-6 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 hover:border-indigo-500/50 transition-all">
-              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform">
-                👥
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">Team Management</h3>
-              <p className="text-gray-400">
-                Form your FYP group, manage members, and lock your team when ready.
-              </p>
-            </div>
-
-            {/* Feature 6 */}
-            <div className="group p-6 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 hover:border-indigo-500/50 transition-all">
-              <div className="w-14 h-14 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform">
-                🚀
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">Project Showcase</h3>
-              <p className="text-gray-400">
-                Share past work with links and demos to build trust quickly.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      
 
       {/* Platform Principles Section */}
       <section className="relative py-20 sm:py-32">
@@ -610,7 +528,7 @@ export default function HomePage() {
               Ready to Find Your FYP Partner?
             </h2>
             <p className="text-gray-400 mb-8 max-w-xl mx-auto">
-              Join students who have already found their perfect teammates. 
+              Join students who have already found their perfect teammates.
               Start your FYP journey today.
             </p>
             <Link
@@ -684,14 +602,14 @@ export default function HomePage() {
               </p>
               <div className="flex items-center gap-3">
                 <a
-                  href="https://linkedin.com/in/muhammad-bin-mushtaq"
+                  href="https://www.linkedin.com/in/muhammad-bin-mushtaq1/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center w-10 h-10 bg-white/5 border border-white/10 rounded-lg text-gray-400 hover:text-blue-400 hover:border-blue-500/50 transition-all"
                   title="LinkedIn"
                 >
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                   </svg>
                 </a>
                 <a
