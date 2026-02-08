@@ -18,8 +18,6 @@ export async function canStudentsMessage(
     return false
   }
 
-  console.log(`Checking messaging permission between ${studentAId} and ${studentBId}`)
-
   // 1️⃣ Check ACCEPTED message request (either direction)
   const messageRequest = await prisma.request.findFirst({
     where: {
@@ -43,7 +41,6 @@ export async function canStudentsMessage(
     return true
   }
 
-  console.log("Message request found:", messageRequest)
   // 2️⃣ Check shared FYP group
   const sharedGroup = await prisma.fYPGroupMember.findFirst({
     where: {
@@ -59,7 +56,6 @@ export async function canStudentsMessage(
     select: { id: true },
   })
 
-  console.log("Shared group found:", sharedGroup)
   return Boolean(sharedGroup)
 }
 

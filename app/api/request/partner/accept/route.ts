@@ -38,7 +38,6 @@ export async function POST(req: Request) {
       student.id
     )
 
-    console.log("Partner request accepted:", request)
     return NextResponse.json(
       {
         success: true,

@@ -149,8 +149,6 @@ export async function getMatchedStudents(
         }),
         prisma.student.count({ where }),
     ])
-
-    console.log("Students are ", students)
     
     // 🎁 6. Shape response with improved match score calculation
     const items: MatchedStudent[] = students.map((s) => {

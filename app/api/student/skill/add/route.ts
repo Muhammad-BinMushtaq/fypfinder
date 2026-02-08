@@ -83,7 +83,6 @@ export async function POST(req: Request) {
       },
     })
 
-    console.log("This is new skill", skill)
     // ✅ 8. Response
     return NextResponse.json(
       {

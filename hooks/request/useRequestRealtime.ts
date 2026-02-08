@@ -59,8 +59,6 @@ export function useRequestRealtime({
           // We could filter by column, but it's simpler to check in handler
         },
         (payload) => {
-          console.log("[Realtime] Request change detected:", payload.eventType);
-
           // Get the request data
           const request = payload.new as {
             id: string;
@@ -80,7 +78,6 @@ export function useRequestRealtime({
             oldRequest?.toStudentId === studentId;
 
           if (!affectsMe) {
-            console.log("[Realtime] Change doesn't affect current user, skipping");
             return;
           }
 
@@ -89,30 +86,25 @@ export function useRequestRealtime({
 
           if (type === "MESSAGE") {
             // Invalidate message request queries
-            console.log("[Realtime] Invalidating message request cache");
             queryClient.invalidateQueries({ queryKey: messageRequestKeys.all });
           } else if (type === "PARTNER") {
             // Invalidate partner request queries
-            console.log("[Realtime] Invalidating partner request cache");
             queryClient.invalidateQueries({ queryKey: partnerRequestKeys.all });
 
             // If status changed to ACCEPTED, also invalidate group data
             if (request?.status === "ACCEPTED") {
-              console.log("[Realtime] Partner accepted, invalidating group cache");
               queryClient.invalidateQueries({ queryKey: groupKeys.myGroup() });
             }
           }
         }
       )
-      .subscribe((status) => {
-        console.log("[Realtime] Subscription status:", status);
+      .subscribe(() => {
       });
 
     channelRef.current = channel;
 
     // Cleanup on unmount
     return () => {
-      console.log("[Realtime] Unsubscribing from request changes");
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
         channelRef.current = null;

@@ -25,7 +25,6 @@ export async function GET() {
         // 📤 Fetch sent message requests
         const requests = await getRecievedPartnerRequests(student.id)
 
-        console.log("Fetched Recieved Partner requests:", requests)
         return NextResponse.json(
             {
                 success: true,

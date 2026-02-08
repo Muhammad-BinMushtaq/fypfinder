@@ -49,7 +49,6 @@ export async function POST(req: Request) {
             },
         })
 
-        console.log("This is new project", project)
         return NextResponse.json(
             {
                 success: true,

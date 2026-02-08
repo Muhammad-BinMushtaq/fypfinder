@@ -56,7 +56,6 @@ export function ChatWindow({
   const startFallbackPolling = useCallback(() => {
     if (fallbackIntervalRef.current) return // Already polling
     
-    console.log("[Chat] Starting fallback polling")
     fallbackIntervalRef.current = setInterval(() => {
       refetch()
     }, 5000) // Poll every 5 seconds
@@ -64,7 +63,6 @@ export function ChatWindow({
 
   const stopFallbackPolling = useCallback(() => {
     if (fallbackIntervalRef.current) {
-      console.log("[Chat] Stopping fallback polling")
       clearInterval(fallbackIntervalRef.current)
       fallbackIntervalRef.current = null
     }
@@ -90,10 +88,6 @@ export function ChatWindow({
           // listen to all INSERTs and manually check conversationId below.
         },
         (payload: RealtimePayload) => {
-          if (process.env.NODE_ENV !== "production") {
-            console.log("🔥 REALTIME MESSAGE RECEIVED", payload)
-          }
-
           // Handle errors in payload
           if (payload?.errors?.length) {
             console.warn("[Chat] Realtime payload errors:", payload.errors)
@@ -152,16 +146,11 @@ export function ChatWindow({
         }
       )
       .subscribe((status: string, err?: Error) => {
-        if (process.env.NODE_ENV !== "production") {
-          console.log("[Chat] Subscription status:", status, err?.message)
-        }
-        
         if (status === "SUBSCRIBED") {
           setConnectionStatus("connected")
           stopFallbackPolling() // Stop polling when connected
         } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
           setConnectionStatus("error")
-          console.error("[Chat] Realtime error:", err?.message)
           startFallbackPolling() // Start polling as fallback
         } else if (status === "CLOSED") {
           setConnectionStatus("disconnected")

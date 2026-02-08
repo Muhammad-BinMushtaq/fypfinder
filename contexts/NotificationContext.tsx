@@ -81,11 +81,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   // Subscribe to realtime changes
   useEffect(() => {
     if (!profile?.id) {
-      console.log("[NotificationContext] No profile ID, skipping subscription");
       return;
     }
-
-    console.log("[NotificationContext] Setting up subscriptions for:", profile.id);
 
     const supabase = createSupabaseBrowserClient();
     const studentId = profile.id;
@@ -131,10 +128,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           // Invalidate relevant caches
           if (isReceiver || isSender || wasReceiver || wasSender) {
             if (type === "MESSAGE") {
-              console.log("[Notification] Invalidating MESSAGE request cache");
               queryClient.invalidateQueries({ queryKey: messageRequestKeys.all });
             } else if (type === "PARTNER") {
-              console.log("[Notification] Invalidating PARTNER request cache");
               queryClient.invalidateQueries({ queryKey: partnerRequestKeys.all });
               
               // If accepted, also invalidate group
@@ -182,8 +177,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           filter: `fromStudentId=eq.${studentId}`,
         },
         (payload) => {
-          console.log("[Notification] Sent request updated:", payload);
-          
           const request = payload.new as {
             id: string;
             fromStudentId: string;
@@ -224,7 +217,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         }
       )
       .subscribe((status: string) => {
-        console.log("[Notification] Subscription status:", status);
         setIsConnected(status === "SUBSCRIBED");
       });
 
@@ -241,7 +233,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           table: "Message",
         },
         async (payload) => {
-          console.log("[Notification] New message:", payload);
 
           if (payload?.errors?.length) {
             console.warn("[Notification] Realtime payload errors:", payload.errors);
@@ -367,14 +358,12 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           });
         }
       )
-      .subscribe((status: string) => {
-        console.log("[Notification] Message subscription status:", status);
+      .subscribe(() => {
       });
 
     messageChannelRef.current = messageChannel;
 
     return () => {
-      console.log("[Notification] Unsubscribing");
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
         channelRef.current = null;

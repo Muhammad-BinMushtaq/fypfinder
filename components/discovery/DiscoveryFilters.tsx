@@ -112,7 +112,7 @@ export function DiscoveryFilters({
   };
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 p-4 sm:p-6 shadow-lg relative z-30">
+    <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 dark:border-slate-700/50 p-4 sm:p-6 shadow-lg relative z-30">
       {/* Header */}
       <div className="flex items-center justify-between mb-4 sm:mb-6">
         <div className="flex items-center gap-2 sm:gap-3">
@@ -132,8 +132,8 @@ export function DiscoveryFilters({
             </svg>
           </div>
           <div>
-            <h3 className="font-bold text-gray-900 text-base sm:text-lg">Search Filters</h3>
-            <p className="text-xs sm:text-sm text-gray-500">Find your ideal FYP partner</p>
+            <h3 className="font-bold text-gray-900 dark:text-white text-base sm:text-lg">Search Filters</h3>
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Find your ideal FYP partner</p>
           </div>
         </div>
 
@@ -155,14 +155,14 @@ export function DiscoveryFilters({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
         {/* Department Filter */}
         <div>
-          <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
+          <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">
             Department
           </label>
           <select
             value={pendingFilters.department || ""}
             onChange={(e) => onDepartmentChange(e.target.value || undefined)}
             disabled={isLoading || isFetching}
-            className="w-full px-3 py-2.5 sm:py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed bg-white shadow-sm hover:shadow-md"
+            className="w-full px-3 py-2.5 sm:py-3 border border-gray-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-slate-700 dark:text-white shadow-sm hover:shadow-md"
           >
             <option value="">All Departments</option>
             {DEPARTMENTS.map((dept) => (
@@ -175,7 +175,7 @@ export function DiscoveryFilters({
 
         {/* Semester Filter */}
         <div>
-          <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
+          <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">
             Semester
           </label>
           <select
@@ -184,7 +184,7 @@ export function DiscoveryFilters({
               onSemesterChange(e.target.value ? Number(e.target.value) : undefined)
             }
             disabled={isLoading || isFetching}
-            className="w-full px-3 py-2.5 sm:py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed bg-white shadow-sm hover:shadow-md"
+            className="w-full px-3 py-2.5 sm:py-3 border border-gray-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-slate-700 dark:text-white shadow-sm hover:shadow-md"
           >
             <option value="">All Semesters</option>
             {SEMESTERS.map((sem) => (
@@ -197,14 +197,14 @@ export function DiscoveryFilters({
 
         {/* Availability Filter */}
         <div>
-          <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
+          <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">
             Availability
           </label>
           <select
             value={pendingFilters.availability || ""}
             onChange={(e) => onAvailabilityChange(e.target.value as "AVAILABLE" | "BUSY" | "AWAY" || undefined)}
             disabled={isLoading || isFetching}
-            className="w-full px-3 py-2.5 sm:py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed bg-white shadow-sm hover:shadow-md"
+            className="w-full px-3 py-2.5 sm:py-3 border border-gray-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-slate-700 dark:text-white shadow-sm hover:shadow-md"
           >
             <option value="">Available (Default)</option>
             {AVAILABILITY_OPTIONS.map((opt) => (
@@ -217,7 +217,7 @@ export function DiscoveryFilters({
 
         {/* Skills Filter */}
         <div>
-          <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
+          <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">
             Skills
           </label>
           <div className="relative ">
@@ -225,9 +225,9 @@ export function DiscoveryFilters({
               type="button"
               onClick={() => setShowSkillsDropdown(!showSkillsDropdown)}
               disabled={isLoading || isFetching}
-              className="w-full px-3 py-2.5 sm:py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm text-left flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed bg-white shadow-sm hover:shadow-md"
+              className="w-full px-3 py-2.5 sm:py-3 border border-gray-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm text-left flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-slate-700 shadow-sm hover:shadow-md"
             >
-              <span className={pendingFilters.skills?.length ? "text-gray-900" : "text-gray-500"}>
+              <span className={pendingFilters.skills?.length ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400"}>
                 {pendingFilters.skills?.length
                   ? `${pendingFilters.skills.length} selected`
                   : "Select Skills"}
@@ -259,22 +259,22 @@ export function DiscoveryFilters({
                 />
                 
                 {/* Dropdown */}
-                <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-xl max-h-64 overflow-hidden">
+                <div className="absolute z-50 mt-2 w-full bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl shadow-xl max-h-64 overflow-hidden">
                   {/* Search */}
-                  <div className="p-3 border-b border-gray-100 bg-gray-50">
+                  <div className="p-3 border-b border-gray-100 dark:border-slate-600 bg-gray-50 dark:bg-slate-800">
                     <input
                       type="text"
                       value={skillSearch}
                       onChange={(e) => setSkillSearch(e.target.value)}
                       placeholder="Search skills..."
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                      className="w-full px-3 py-2 border border-gray-200 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white dark:bg-slate-700 dark:text-white dark:placeholder-gray-400"
                     />
                   </div>
 
                   {/* Skills List */}
                   <div className="max-h-48 overflow-y-auto p-2">
                     {filteredSkills.length === 0 ? (
-                      <p className="text-sm text-gray-500 text-center py-4">
+                      <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
                         No skills found
                       </p>
                     ) : (
@@ -284,8 +284,8 @@ export function DiscoveryFilters({
                             key={skill}
                             className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors ${
                               pendingFilters.skills?.includes(skill)
-                                ? "bg-blue-50 text-blue-700"
-                                : "hover:bg-gray-50"
+                                ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                                : "hover:bg-gray-50 dark:hover:bg-slate-600 dark:text-gray-200"
                             }`}
                           >
                             <input
@@ -338,13 +338,13 @@ export function DiscoveryFilters({
 
       {/* Selected Skills Tags */}
       {pendingFilters.skills && pendingFilters.skills.length > 0 && (
-        <div className="mt-4 pt-4 border-t border-gray-100">
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Selected Skills</p>
+        <div className="mt-4 pt-4 border-t border-gray-100 dark:border-slate-700">
+          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Selected Skills</p>
           <div className="flex flex-wrap gap-2">
             {pendingFilters.skills.map((skill) => (
               <span
                 key={skill}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 text-xs sm:text-sm font-medium rounded-lg border border-blue-200/50"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 text-blue-700 dark:text-blue-300 text-xs sm:text-sm font-medium rounded-lg border border-blue-200/50 dark:border-blue-700/50"
               >
                 {skill}
                 <button
@@ -367,8 +367,8 @@ export function DiscoveryFilters({
 
       {/* Unapplied changes indicator */}
       {hasUnappliedChanges && (
-        <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl">
-          <div className="flex items-center gap-2 text-amber-700">
+        <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 rounded-xl">
+          <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
             <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>

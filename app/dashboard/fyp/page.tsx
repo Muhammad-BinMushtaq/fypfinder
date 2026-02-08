@@ -236,6 +236,8 @@ export default function FYPManagementPage() {
                   </p>
                 </div>
               </div>
+            </div>
+            <div className="flex items-center justify-end mt-4">
               <button
                 onClick={handleToggleVisibility}
                 disabled={updateVisibility.isPending}

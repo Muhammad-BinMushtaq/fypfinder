@@ -38,7 +38,6 @@ export async function POST(req: Request) {
             student.id
         )
 
-        console.log("Accepted message request:", updatedRequest)
         return NextResponse.json(
             {
                 success: true,

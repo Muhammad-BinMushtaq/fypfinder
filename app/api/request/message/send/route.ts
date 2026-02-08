@@ -40,7 +40,6 @@ export async function POST(req: Request) {
       reason
     )
 
-    console.log("Message request sent:", request)
     
     return NextResponse.json(
       {

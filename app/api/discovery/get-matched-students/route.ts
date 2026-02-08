@@ -19,8 +19,6 @@ export async function GET(req: Request) {
             user.id
         )
 
-        console.log("Fetched students:", items)
-        console.log("Total fetched students are", total)
         return NextResponse.json(
             {
                 success: true,

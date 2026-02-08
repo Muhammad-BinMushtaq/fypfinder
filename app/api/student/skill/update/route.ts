@@ -78,7 +78,6 @@ export async function PATCH(req: Request) {
             },
         })
 
-        console.log("Updated skill:", updatedSkill)
         // ✅ 7. Response
         return NextResponse.json(
             {

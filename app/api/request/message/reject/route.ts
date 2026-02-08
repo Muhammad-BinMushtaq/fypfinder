@@ -38,7 +38,6 @@ export async function POST(req: Request) {
             student.id
         )
 
-        console.log("Rejected message request:", rejectedRequest)
         return NextResponse.json(
             {
                 success: true,

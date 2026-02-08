@@ -39,7 +39,6 @@ export async function POST(req: Request) {
       reason
     )
 
-    console.log("Partner request sent:", request)
     return NextResponse.json(
       {
         success: true,

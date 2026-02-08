@@ -35,7 +35,6 @@ export async function GET(req: Request) {
       )
     }
     const allowed = await canStudentsMessage(student.id, targetStudentId)
-    console.log("This is current User", student)
     return NextResponse.json(
       {
         success: true,

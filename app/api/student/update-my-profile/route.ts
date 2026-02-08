@@ -42,7 +42,6 @@ export async function PATCH(req: Request) {
 
         })
 
-        console.log('This is updated stuident',student)
         //  Return updated profile
         return NextResponse.json(
             {
