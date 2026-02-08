@@ -91,6 +91,178 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Profile Preview Section - Locked Cards */}
+      <section className="relative py-16 sm:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
+              Students Looking for Partners
+            </h2>
+            <p className="text-gray-400">
+              Login to unlock profiles and start connecting
+            </p>
+          </div>
+
+          {/* Locked Profile Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {/* Preview Card 1 */}
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-2xl blur-xl opacity-50 group-hover:opacity-70 transition-opacity"></div>
+              <div className="relative p-5 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden">
+                {/* Blur overlay */}
+                <div className="absolute inset-0 backdrop-blur-[2px] bg-slate-900/30 z-10 flex items-center justify-center">
+                  <div className="text-center px-4">
+                    <div className="w-10 h-10 mx-auto mb-2 bg-white/10 rounded-full flex items-center justify-center">
+                      <svg className="w-5 h-5 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    </div>
+                    <Link href="/login" className="text-sm text-white/90 hover:text-white font-medium">
+                      Login to unlock
+                    </Link>
+                  </div>
+                </div>
+                {/* Card content (blurred) */}
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full flex items-center justify-center text-lg font-bold text-white">A</div>
+                  <div>
+                    <div className="font-semibold text-white">Ahmed K.</div>
+                    <div className="text-xs text-gray-400">BSCS • 7th Sem</div>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                  <span className="px-2 py-0.5 bg-indigo-500/20 text-indigo-300 text-xs rounded-full">React</span>
+                  <span className="px-2 py-0.5 bg-purple-500/20 text-purple-300 text-xs rounded-full">Node.js</span>
+                  <span className="px-2 py-0.5 bg-pink-500/20 text-pink-300 text-xs rounded-full">Python</span>
+                </div>
+                <div className="text-xs text-gray-500 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                  Looking for partner
+                </div>
+              </div>
+            </div>
+
+            {/* Preview Card 2 */}
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-2xl blur-xl opacity-50 group-hover:opacity-70 transition-opacity"></div>
+              <div className="relative p-5 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden">
+                <div className="absolute inset-0 backdrop-blur-[2px] bg-slate-900/30 z-10 flex items-center justify-center">
+                  <div className="text-center px-4">
+                    <div className="w-10 h-10 mx-auto mb-2 bg-white/10 rounded-full flex items-center justify-center">
+                      <svg className="w-5 h-5 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    </div>
+                    <Link href="/login" className="text-sm text-white/90 hover:text-white font-medium">
+                      Login to unlock
+                    </Link>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center text-lg font-bold text-white">S</div>
+                  <div>
+                    <div className="font-semibold text-white">Sara M.</div>
+                    <div className="text-xs text-gray-400">BSSE • 8th Sem</div>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                  <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 text-xs rounded-full">UI/UX</span>
+                  <span className="px-2 py-0.5 bg-teal-500/20 text-teal-300 text-xs rounded-full">Figma</span>
+                  <span className="px-2 py-0.5 bg-cyan-500/20 text-cyan-300 text-xs rounded-full">Flutter</span>
+                </div>
+                <div className="text-xs text-gray-500 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                  Available for team
+                </div>
+              </div>
+            </div>
+
+            {/* Preview Card 3 */}
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-amber-500/20 rounded-2xl blur-xl opacity-50 group-hover:opacity-70 transition-opacity"></div>
+              <div className="relative p-5 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden">
+                <div className="absolute inset-0 backdrop-blur-[2px] bg-slate-900/30 z-10 flex items-center justify-center">
+                  <div className="text-center px-4">
+                    <div className="w-10 h-10 mx-auto mb-2 bg-white/10 rounded-full flex items-center justify-center">
+                      <svg className="w-5 h-5 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    </div>
+                    <Link href="/login" className="text-sm text-white/90 hover:text-white font-medium">
+                      Login to unlock
+                    </Link>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-amber-500 rounded-full flex items-center justify-center text-lg font-bold text-white">U</div>
+                  <div>
+                    <div className="font-semibold text-white">Usman R.</div>
+                    <div className="text-xs text-gray-400">BSCS • 7th Sem</div>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                  <span className="px-2 py-0.5 bg-orange-500/20 text-orange-300 text-xs rounded-full">ML</span>
+                  <span className="px-2 py-0.5 bg-amber-500/20 text-amber-300 text-xs rounded-full">TensorFlow</span>
+                  <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-300 text-xs rounded-full">Data</span>
+                </div>
+                <div className="text-xs text-gray-500 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>
+                  Has 1 partner
+                </div>
+              </div>
+            </div>
+
+            {/* Preview Card 4 */}
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 to-rose-500/20 rounded-2xl blur-xl opacity-50 group-hover:opacity-70 transition-opacity"></div>
+              <div className="relative p-5 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden">
+                <div className="absolute inset-0 backdrop-blur-[2px] bg-slate-900/30 z-10 flex items-center justify-center">
+                  <div className="text-center px-4">
+                    <div className="w-10 h-10 mx-auto mb-2 bg-white/10 rounded-full flex items-center justify-center">
+                      <svg className="w-5 h-5 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    </div>
+                    <Link href="/login" className="text-sm text-white/90 hover:text-white font-medium">
+                      Login to unlock
+                    </Link>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-pink-400 to-rose-500 rounded-full flex items-center justify-center text-lg font-bold text-white">F</div>
+                  <div>
+                    <div className="font-semibold text-white">Fatima Z.</div>
+                    <div className="text-xs text-gray-400">BSSE • 8th Sem</div>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                  <span className="px-2 py-0.5 bg-pink-500/20 text-pink-300 text-xs rounded-full">Java</span>
+                  <span className="px-2 py-0.5 bg-rose-500/20 text-rose-300 text-xs rounded-full">Spring</span>
+                  <span className="px-2 py-0.5 bg-red-500/20 text-red-300 text-xs rounded-full">AWS</span>
+                </div>
+                <div className="text-xs text-gray-500 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                  Looking for partner
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* CTA below cards */}
+          <div className="text-center mt-10">
+            <Link
+              href="/signup"
+              className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl hover:from-indigo-500 hover:to-purple-500 transition-all shadow-lg hover:shadow-indigo-500/25"
+            >
+              Create Your Profile
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* How It Works Section */}
       <section className="relative py-20 sm:py-32 bg-gradient-to-b from-transparent via-indigo-950/50 to-transparent">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -7,6 +7,7 @@ import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { NotificationBell } from "@/components/notifications";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { SuspensionBanner } from "@/components/student/SuspensionBanner";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { ReactNode, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -40,22 +41,22 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   // Show loading skeleton while checking session
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex">
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex">
         {/* Sidebar Skeleton */}
-        <div className="hidden lg:block w-72 bg-white border-r border-gray-200">
-          <div className="p-4 border-b border-gray-200">
-            <div className="h-10 w-40 bg-gray-200 rounded-lg animate-pulse"></div>
+        <div className="hidden lg:block w-72 bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700">
+          <div className="p-4 border-b border-gray-200 dark:border-slate-700">
+            <div className="h-10 w-40 bg-gray-200 dark:bg-slate-700 rounded-lg animate-pulse"></div>
           </div>
           <div className="p-4 space-y-3">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-12 bg-gray-100 rounded-xl animate-pulse"></div>
+              <div key={i} className="h-12 bg-gray-100 dark:bg-slate-700 rounded-xl animate-pulse"></div>
             ))}
           </div>
         </div>
         {/* Content Skeleton */}
         <div className="flex-1 p-8">
-          <div className="h-8 w-48 bg-gray-200 rounded-lg animate-pulse mb-6"></div>
-          <div className="h-64 bg-gray-100 rounded-2xl animate-pulse"></div>
+          <div className="h-8 w-48 bg-gray-200 dark:bg-slate-700 rounded-lg animate-pulse mb-6"></div>
+          <div className="h-64 bg-gray-100 dark:bg-slate-800 rounded-2xl animate-pulse"></div>
         </div>
       </div>
     );
@@ -63,7 +64,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   return (
     <NotificationProvider>
-      <div className="min-h-screen bg-gray-50 flex">
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex">
         {/* Sidebar */}
         <DashboardSidebar
           userEmail={user?.email || "user@example.com"}
@@ -74,8 +75,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         {/* Main content */}
         <main className="flex-1 lg:ml-72">
           {/* Top Header Bar with Notification Bell */}
-          <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-200 px-4 py-3 lg:px-6">
-            <div className="flex items-center justify-end gap-4">
+          <div className="sticky top-0 z-40 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-gray-200 dark:border-slate-700 px-4 py-3 lg:px-6">
+            <div className="flex items-center justify-end gap-3">
+              {/* Theme Toggle */}
+              <ThemeToggle />
+
               {/* Notification Bell */}
               <NotificationBell />
               

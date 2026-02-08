@@ -76,12 +76,12 @@ export function DashboardSidebar({ userEmail, onLogout, isLoggingOut }: Dashboar
   const NavContent = () => (
     <>
       {/* Logo */}
-      <div className="p-4 border-b border-gray-200">
+      <div className="p-4 border-b border-gray-200 dark:border-slate-700">
         <Link href="/dashboard/profile" className="flex items-center gap-3">
           <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-xl shadow-lg">
             🎓
           </div>
-          <span className="text-xl font-bold text-gray-900">FYP Finder</span>
+          <span className="text-xl font-bold text-gray-900 dark:text-white">FYP Finder</span>
         </Link>
       </div>
 
@@ -96,8 +96,8 @@ export function DashboardSidebar({ userEmail, onLogout, isLoggingOut }: Dashboar
                   onClick={() => toggleExpand(item.label)}
                   className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all ${
                     isActive(item.href)
-                      ? "bg-indigo-50 text-indigo-700"
-                      : "text-gray-700 hover:bg-gray-100"
+                      ? "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300"
+                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700"
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -124,8 +124,8 @@ export function DashboardSidebar({ userEmail, onLogout, isLoggingOut }: Dashboar
                         onClick={() => setIsMobileMenuOpen(false)}
                         className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all ${
                           pathname === child.href
-                            ? "bg-indigo-100 text-indigo-700 font-medium"
-                            : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                            ? "bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 font-medium"
+                            : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-white"
                         }`}
                       >
                         <span className="text-lg">{child.icon}</span>
@@ -142,8 +142,8 @@ export function DashboardSidebar({ userEmail, onLogout, isLoggingOut }: Dashboar
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all ${
                   isActive(item.href)
-                    ? "bg-indigo-100 text-indigo-700 shadow-sm"
-                    : "text-gray-700 hover:bg-gray-100"
+                    ? "bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 shadow-sm"
+                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700"
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -167,15 +167,15 @@ export function DashboardSidebar({ userEmail, onLogout, isLoggingOut }: Dashboar
       </nav>
 
       {/* User Section */}
-      <div className="p-4 border-t border-gray-200">
+      <div className="p-4 border-t border-gray-200 dark:border-slate-700">
         {/* User Info */}
-        <div className="flex items-center gap-3 px-3 py-3 mb-3 bg-gray-50 rounded-xl">
+        <div className="flex items-center gap-3 px-3 py-3 mb-3 bg-gray-50 dark:bg-slate-700 rounded-xl">
           <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
             {userEmail.charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate">{userEmail}</p>
-            <p className="text-xs text-gray-500">Student</p>
+            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{userEmail}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Student</p>
           </div>
         </div>
 
@@ -183,7 +183,7 @@ export function DashboardSidebar({ userEmail, onLogout, isLoggingOut }: Dashboar
         <button
           onClick={onLogout}
           disabled={isLoggingOut}
-          className="w-full flex items-center justify-center gap-2 px-4 py-3 text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full flex items-center justify-center gap-2 px-4 py-3 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-xl transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoggingOut ? (
             <>
@@ -208,9 +208,9 @@ export function DashboardSidebar({ userEmail, onLogout, isLoggingOut }: Dashboar
       {/* Mobile Menu Button */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-lg border border-gray-200"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-gray-200 dark:border-slate-700"
       >
-        <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           {isMobileMenuOpen ? (
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           ) : (
@@ -229,7 +229,7 @@ export function DashboardSidebar({ userEmail, onLogout, isLoggingOut }: Dashboar
 
       {/* Sidebar - Mobile */}
       <aside
-        className={`lg:hidden fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50 transform transition-transform duration-300 flex flex-col ${
+        className={`lg:hidden fixed top-0 left-0 h-full w-72 bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700 z-50 transform transition-transform duration-300 flex flex-col ${
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -237,7 +237,7 @@ export function DashboardSidebar({ userEmail, onLogout, isLoggingOut }: Dashboar
       </aside>
 
       {/* Sidebar - Desktop */}
-      <aside className="hidden lg:flex lg:flex-col lg:w-72 lg:fixed lg:inset-y-0 bg-white border-r border-gray-200">
+      <aside className="hidden lg:flex lg:flex-col lg:w-72 lg:fixed lg:inset-y-0 bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700">
         <NavContent />
       </aside>
     </>
