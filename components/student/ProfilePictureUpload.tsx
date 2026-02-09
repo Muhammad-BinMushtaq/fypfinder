@@ -20,6 +20,47 @@ export function ProfilePictureUpload({ currentPicture, studentId, name }: Profil
   const [success, setSuccess] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const compressImage = async (file: File) => {
+    const maxDimension = 512;
+    const bitmap = await createImageBitmap(file);
+
+    const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+
+    if (!ctx) {
+      throw new Error("Unable to process image");
+    }
+
+    ctx.drawImage(bitmap, 0, 0, width, height);
+
+    const preferredType = file.type === "image/png" ? "image/png" : "image/webp";
+    const quality = preferredType === "image/png" ? undefined : 0.8;
+
+    const blob = await new Promise<Blob | null>((resolve) => {
+      canvas.toBlob((b) => resolve(b), preferredType, quality);
+    });
+
+    if (!blob) {
+      throw new Error("Image compression failed");
+    }
+
+    const ext =
+      blob.type === "image/webp"
+        ? "webp"
+        : blob.type === "image/png"
+          ? "png"
+          : "jpg";
+
+    const baseName = file.name.replace(/\.[^/.]+$/, "");
+    return new File([blob], `${baseName}.${ext}`, { type: blob.type });
+  };
+
   const handleFileSelect = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -30,10 +71,10 @@ export function ProfilePictureUpload({ currentPicture, studentId, name }: Profil
       return;
     }
 
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    // Validate file size (max 10MB before compression)
+    const maxSize = 10 * 1024 * 1024; // 10MB
     if (file.size > maxSize) {
-      setError("Image size must be less than 5MB");
+      setError("Image size must be less than 10MB");
       return;
     }
 
@@ -49,10 +90,18 @@ export function ProfilePictureUpload({ currentPicture, studentId, name }: Profil
     setUploadProgress(0);
 
     try {
+      const compressedFile = await compressImage(file);
+
+      // Final size check (after compression)
+      const maxCompressedSize = 2 * 1024 * 1024; // 2MB
+      if (compressedFile.size > maxCompressedSize) {
+        throw new Error("Compressed image is still too large. Try a smaller image.");
+      }
+
       const supabase = createSupabaseBrowserClient();
       
       // Generate unique filename
-      const fileExt = file.name.split(".").pop();
+      const fileExt = compressedFile.name.split(".").pop();
       const fileName = `${studentId}-${Date.now()}.${fileExt}`;
       const filePath = `profile-pictures/${fileName}`;
 
@@ -70,7 +119,7 @@ export function ProfilePictureUpload({ currentPicture, studentId, name }: Profil
       // Upload to Supabase Storage
       const { data, error: uploadError } = await supabase.storage
         .from("avatars")
-        .upload(filePath, file, {
+        .upload(filePath, compressedFile, {
           cacheControl: "3600",
           upsert: true,
         });
