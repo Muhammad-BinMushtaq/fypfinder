@@ -1,26 +1,16 @@
-// components/auth/SignupForm.tsx
-
 "use client";
 
-/**
- * SignupForm Component
- * ----------------
- * Beautiful signup form with validation, password strength indicator,
- * and smooth UX patterns.
- */
-
-import { useState, FormEvent } from "react";
 import Link from "next/link";
+import { FormEvent, useState } from "react";
 import { useSignup } from "@/hooks/auth/useSignup";
 
 const UNIVERSITY_DOMAIN = "@paf-iast.edu.pk";
 const STUDENT_ID_REGEX = /^[bB]\d{2}[fFsS]\d{4}[a-zA-Z]{2}\d{3}$/;
 
-// Password strength checker
 function getPasswordStrength(password: string): {
   level: "weak" | "fair" | "good" | "strong";
   percentage: number;
-  color: string;
+  barClass: string;
 } {
   let strength = 0;
   if (password.length >= 6) strength++;
@@ -30,10 +20,10 @@ function getPasswordStrength(password: string): {
   if (/[^A-Za-z0-9]/.test(password)) strength++;
 
   const levels = [
-    { level: "weak" as const, percentage: 20, color: "bg-red-500" },
-    { level: "fair" as const, percentage: 40, color: "bg-orange-500" },
-    { level: "good" as const, percentage: 60, color: "bg-yellow-500" },
-    { level: "strong" as const, percentage: 100, color: "bg-green-500" },
+    { level: "weak" as const, percentage: 20, barClass: "bg-red-500" },
+    { level: "fair" as const, percentage: 40, barClass: "bg-orange-500" },
+    { level: "good" as const, percentage: 60, barClass: "bg-yellow-500" },
+    { level: "strong" as const, percentage: 100, barClass: "bg-emerald-500" },
   ];
 
   return levels[Math.min(strength, 3)];
@@ -47,7 +37,6 @@ export function SignupForm() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
   const [errors, setErrors] = useState<{
     email?: string;
     password?: string;
@@ -57,101 +46,79 @@ export function SignupForm() {
   const passwordStrength = getPasswordStrength(password);
   const passwordsMatch = password && confirmPassword && password === confirmPassword;
 
-  // Validation
   const validateForm = () => {
-    const newErrors: typeof errors = {};
+    const nextErrors: typeof errors = {};
 
     if (!email) {
-      newErrors.email = "Email is required";
+      nextErrors.email = "Email is required";
     } else if (!email.endsWith(UNIVERSITY_DOMAIN)) {
-      newErrors.email = `Email must end with ${UNIVERSITY_DOMAIN}`;
+      nextErrors.email = `Email must end with ${UNIVERSITY_DOMAIN}`;
     } else {
       const studentId = email.split("@")[0];
       if (!STUDENT_ID_REGEX.test(studentId)) {
-        newErrors.email = "Invalid student ID format (e.g., B23F0001SE021)";
+        nextErrors.email = "Invalid student ID format (example: B23F0001SE021)";
       }
     }
 
     if (!password) {
-      newErrors.password = "Password is required";
+      nextErrors.password = "Password is required";
     } else if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
+      nextErrors.password = "Password must be at least 6 characters";
     }
 
     if (!confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
+      nextErrors.confirmPassword = "Please confirm your password";
     } else if (password !== confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
+      nextErrors.confirmPassword = "Passwords do not match";
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
   };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-
     if (!validateForm()) return;
-
     signup({ email, password });
   };
 
-  // Success state
   if (isSuccess) {
     return (
-      <div className="text-center space-y-6 py-8">
-        <div className="w-20 h-20 mx-auto bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-lg">
+      <div className="space-y-5 py-6 text-center">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-emerald-400/30 bg-emerald-950/40">
           <svg
-            className="w-10 h-10 text-white"
+            className="h-8 w-8 text-emerald-300"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2.5}
-              d="M5 13l4 4L19 7"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
           </svg>
         </div>
         <div>
-          <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Account Created!
-          </h3>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
-            Your account has been created successfully.
-          </p>
+          <h3 className="text-xl font-semibold text-zinc-100">Account created</h3>
+          <p className="mt-1 text-sm text-zinc-400">You can now sign in to continue.</p>
         </div>
-        <div className="pt-4">
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-            Redirecting to login in a moment...
-          </p>
-          <Link
-            href="/login"
-            className="inline-block px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
-          >
-            Go to Login
-          </Link>
-        </div>
+        <Link
+          href="/login"
+          className="inline-block rounded-lg bg-zinc-100 px-5 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-200"
+        >
+          Go to login
+        </Link>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Email Field */}
+    <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <label
-          htmlFor="email"
-          className="block text-sm font-semibold text-gray-900 dark:text-white mb-2"
-        >
-          University Email
+        <label htmlFor="email" className="mb-2 block text-sm font-medium text-zinc-200">
+          University email
         </label>
         <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
             <svg
-              className="w-5 h-5 text-gray-400"
+              className="h-5 w-5 text-zinc-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -171,43 +138,27 @@ export function SignupForm() {
             onChange={(e) => setEmail(e.target.value.toLowerCase())}
             placeholder="b23f0001se021@paf-iast.edu.pk"
             disabled={isLoading}
-            className={`
-              w-full pl-12 pr-4 py-3 rounded-lg border-2
-              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-              disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50
-              transition-all duration-200
-              ${
-                errors.email
-                  ? "border-red-500 bg-red-50 dark:bg-red-900/10"
-                  : "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
-              }
-              text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400
-            `}
+            className={`w-full rounded-lg border pl-12 pr-4 py-3 text-sm text-zinc-100 placeholder-zinc-500 outline-none transition ${
+              errors.email
+                ? "border-red-500/70 bg-red-950/30 focus:border-red-500"
+                : "border-white/15 bg-zinc-900 focus:border-zinc-400"
+            } ${isLoading ? "cursor-not-allowed opacity-60" : ""}`}
           />
         </div>
-        {errors.email && (
-          <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
-            <span className="text-lg">⚠️</span>
-            {errors.email}
-          </p>
-        )}
-        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-          Format: B23F0001SE021@paf-iast.edu.pk (from your registration number)
+        {errors.email && <p className="mt-2 text-xs text-red-400">{errors.email}</p>}
+        <p className="mt-2 text-xs text-zinc-500">
+          Format: B23F0001SE021@paf-iast.edu.pk
         </p>
       </div>
 
-      {/* Password Field */}
       <div>
-        <label
-          htmlFor="password"
-          className="block text-sm font-semibold text-gray-900 dark:text-white mb-2"
-        >
+        <label htmlFor="password" className="mb-2 block text-sm font-medium text-zinc-200">
           Password
         </label>
         <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
             <svg
-              className="w-5 h-5 text-gray-400"
+              className="h-5 w-5 text-zinc-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -225,28 +176,21 @@ export function SignupForm() {
             type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
+            placeholder="********"
             disabled={isLoading}
-            className={`
-              w-full pl-12 pr-12 py-3 rounded-lg border-2
-              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-              disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50
-              transition-all duration-200
-              ${
-                errors.password
-                  ? "border-red-500 bg-red-50 dark:bg-red-900/10"
-                  : "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
-              }
-              text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400
-            `}
+            className={`w-full rounded-lg border pl-12 pr-12 py-3 text-sm text-zinc-100 placeholder-zinc-500 outline-none transition ${
+              errors.password
+                ? "border-red-500/70 bg-red-950/30 focus:border-red-500"
+                : "border-white/15 bg-zinc-900 focus:border-zinc-400"
+            } ${isLoading ? "cursor-not-allowed opacity-60" : ""}`}
           />
           <button
             type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            onClick={() => setShowPassword((v) => !v)}
+            className="absolute inset-y-0 right-0 flex items-center pr-4 text-zinc-500 hover:text-zinc-200"
           >
             {showPassword ? (
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
                 <path
                   fillRule="evenodd"
@@ -255,60 +199,42 @@ export function SignupForm() {
                 />
               </svg>
             ) : (
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fillRule="evenodd"
-                  d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"
+                  d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-14-14zM10 5c4.478 0 8.268 2.943 9.542 7a9.968 9.968 0 01-2.293 3.95l-1.422-1.422A7.99 7.99 0 0017.5 12c-1.02-2.674-3.52-5-7.5-5a8.21 8.21 0 00-2.704.46L5.78 5.944A10.08 10.08 0 0110 5zM2.5 8.05L4.012 9.56A8.65 8.65 0 002.5 12c1.274 4.057 5.064 7 9.542 7 1.433 0 2.79-.293 4.01-.82l-1.56-1.56a8.35 8.35 0 01-2.45.38c-3.98 0-6.48-2.326-7.5-5 .338-.883.805-1.69 1.388-2.397L2.5 8.05z"
                   clipRule="evenodd"
                 />
-                <path d="M15.171 13.576l1.472 1.473a1 1 0 001.414-1.414l-14-14a1 1 0 00-1.414 1.414l1.473 1.473A10.014 10.014 0 00.458 10C1.732 14.057 5.522 17 10 17a9.958 9.958 0 004.512-1.074l1.78 1.781a1 1 0 001.414-1.414l-14-14z" />
               </svg>
             )}
           </button>
         </div>
-        {errors.password && (
-          <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
-            <span className="text-lg">⚠️</span>
-            {errors.password}
-          </p>
-        )}
+        {errors.password && <p className="mt-2 text-xs text-red-400">{errors.password}</p>}
 
-        {/* Password Strength Indicator */}
         {password && (
           <div className="mt-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-medium text-gray-600 dark:text-gray-400">
-                Password Strength
-              </p>
-              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 capitalize">
-                {passwordStrength.level}
-              </p>
+            <div className="flex items-center justify-between text-xs text-zinc-400">
+              <span>Password strength</span>
+              <span className="capitalize">{passwordStrength.level}</span>
             </div>
-            <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+            <div className="h-2 overflow-hidden rounded-full bg-zinc-800">
               <div
-                className={`h-full transition-all duration-300 ${passwordStrength.color}`}
+                className={`h-full transition-all duration-300 ${passwordStrength.barClass}`}
                 style={{ width: `${passwordStrength.percentage}%` }}
               />
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Mix uppercase, numbers, and symbols for stronger password
-            </p>
           </div>
         )}
       </div>
 
-      {/* Confirm Password Field */}
       <div>
-        <label
-          htmlFor="confirmPassword"
-          className="block text-sm font-semibold text-gray-900 dark:text-white mb-2"
-        >
-          Confirm Password
+        <label htmlFor="confirmPassword" className="mb-2 block text-sm font-medium text-zinc-200">
+          Confirm password
         </label>
         <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
             <svg
-              className="w-5 h-5 text-gray-400"
+              className="h-5 w-5 text-zinc-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -326,30 +252,23 @@ export function SignupForm() {
             type={showConfirmPassword ? "text" : "password"}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="••••••••"
+            placeholder="********"
             disabled={isLoading}
-            className={`
-              w-full pl-12 pr-12 py-3 rounded-lg border-2
-              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-              disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50
-              transition-all duration-200
-              ${
-                errors.confirmPassword
-                  ? "border-red-500 bg-red-50 dark:bg-red-900/10"
-                  : passwordsMatch
-                    ? "border-green-500 bg-green-50 dark:bg-green-900/10"
-                    : "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
-              }
-              text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400
-            `}
+            className={`w-full rounded-lg border pl-12 pr-12 py-3 text-sm text-zinc-100 placeholder-zinc-500 outline-none transition ${
+              errors.confirmPassword
+                ? "border-red-500/70 bg-red-950/30 focus:border-red-500"
+                : passwordsMatch
+                ? "border-emerald-500/70 bg-emerald-950/20 focus:border-emerald-500"
+                : "border-white/15 bg-zinc-900 focus:border-zinc-400"
+            } ${isLoading ? "cursor-not-allowed opacity-60" : ""}`}
           />
           <button
             type="button"
-            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            onClick={() => setShowConfirmPassword((v) => !v)}
+            className="absolute inset-y-0 right-0 flex items-center pr-4 text-zinc-500 hover:text-zinc-200"
           >
             {showConfirmPassword ? (
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
                 <path
                   fillRule="evenodd"
@@ -358,132 +277,49 @@ export function SignupForm() {
                 />
               </svg>
             ) : (
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fillRule="evenodd"
-                  d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"
+                  d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-14-14zM10 5c4.478 0 8.268 2.943 9.542 7a9.968 9.968 0 01-2.293 3.95l-1.422-1.422A7.99 7.99 0 0017.5 12c-1.02-2.674-3.52-5-7.5-5a8.21 8.21 0 00-2.704.46L5.78 5.944A10.08 10.08 0 0110 5zM2.5 8.05L4.012 9.56A8.65 8.65 0 002.5 12c1.274 4.057 5.064 7 9.542 7 1.433 0 2.79-.293 4.01-.82l-1.56-1.56a8.35 8.35 0 01-2.45.38c-3.98 0-6.48-2.326-7.5-5 .338-.883.805-1.69 1.388-2.397L2.5 8.05z"
                   clipRule="evenodd"
                 />
-                <path d="M15.171 13.576l1.472 1.473a1 1 0 001.414-1.414l-14-14a1 1 0 00-1.414 1.414l1.473 1.473A10.014 10.014 0 00.458 10C1.732 14.057 5.522 17 10 17a9.958 9.958 0 004.512-1.074l1.78 1.781a1 1 0 001.414-1.414l-14-14z" />
               </svg>
             )}
           </button>
         </div>
         {errors.confirmPassword && (
-          <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
-            <span className="text-lg">⚠️</span>
-            {errors.confirmPassword}
-          </p>
+          <p className="mt-2 text-xs text-red-400">{errors.confirmPassword}</p>
         )}
         {passwordsMatch && password && (
-          <p className="mt-2 text-sm text-green-600 dark:text-green-400 flex items-center gap-1">
-            <span className="text-lg">✓</span>
-            Passwords match
-          </p>
+          <p className="mt-2 text-xs text-emerald-400">Passwords match</p>
         )}
       </div>
 
-      {/* API Error */}
       {isError && error && (
-        <div className="p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex gap-3">
-          <svg
-            className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path
-              fillRule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-              clipRule="evenodd"
-            />
-          </svg>
-          <div>
-            <p className="font-medium text-red-800 dark:text-red-200">
-              Signup Failed
-            </p>
-            <p className="text-sm text-red-700 dark:text-red-300">
-              {(error as Error).message}
-            </p>
-          </div>
+        <div className="rounded-lg border border-red-500/30 bg-red-950/30 p-3 text-sm text-red-300">
+          {(error as Error).message}
         </div>
       )}
 
-      {/* Info Box */}
-      <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 flex gap-3">
-        <svg
-          className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-        >
-          <path
-            fillRule="evenodd"
-            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-            clipRule="evenodd"
-          />
-        </svg>
-        <p className="text-sm text-blue-700 dark:text-blue-300">
-          <span className="font-semibold">Note:</span> Only students in semester 5-7 can register.
-        </p>
+      <div className="rounded-lg border border-white/10 bg-white/5 p-3 text-xs text-zinc-400">
+        Only students in semester 5 to 7 can register.
       </div>
 
-      {/* Submit Button */}
       <button
         type="submit"
         disabled={isLoading || !email || !password || !confirmPassword}
-        className={`
-          w-full py-3 px-4 rounded-lg font-semibold text-white
-          transition-all duration-200 flex items-center justify-center gap-2
-          ${
-            isLoading || !email || !password || !confirmPassword
-              ? "bg-gray-400 cursor-not-allowed opacity-50"
-              : "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl"
-          }
-        `}
+        className={`w-full rounded-lg px-4 py-3 text-sm font-medium transition ${
+          isLoading || !email || !password || !confirmPassword
+            ? "cursor-not-allowed bg-zinc-700 text-zinc-400"
+            : "bg-zinc-100 text-zinc-900 hover:bg-zinc-200"
+        }`}
       >
-        {isLoading ? (
-          <>
-            <svg
-              className="w-5 h-5 animate-spin"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            Creating Account...
-          </>
-        ) : (
-          <>
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-              />
-            </svg>
-            Create Account
-          </>
-        )}
+        {isLoading ? "Creating account..." : "Create account"}
       </button>
 
-      {/* Login Link */}
-      <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+      <p className="text-center text-sm text-zinc-400">
         Already have an account?{" "}
-        <Link
-          href="/login"
-          className="font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
-        >
+        <Link href="/login" className="font-medium text-zinc-200 hover:text-white">
           Sign in
         </Link>
       </p>
