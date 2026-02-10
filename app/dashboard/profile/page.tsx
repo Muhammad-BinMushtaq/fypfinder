@@ -12,23 +12,23 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
         {/* Skeleton Header */}
         <div className="relative overflow-hidden">
-          <div className="h-48 sm:h-56 bg-gradient-to-r from-indigo-400 to-purple-400 animate-pulse"></div>
+          <div className="h-48 sm:h-56 bg-gradient-to-r from-gray-300 to-gray-400 dark:from-slate-700 dark:to-slate-600 animate-pulse"></div>
           <div className="max-w-5xl mx-auto px-4 relative">
             <div className="flex flex-col items-center -mt-20">
-              <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gray-300 animate-pulse border-4 border-white shadow-xl"></div>
-              <div className="mt-4 w-48 h-8 bg-gray-200 rounded-lg animate-pulse"></div>
-              <div className="mt-2 w-32 h-5 bg-gray-200 rounded animate-pulse"></div>
+              <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gray-300 dark:bg-slate-600 animate-pulse border-4 border-white dark:border-slate-800 shadow-xl"></div>
+              <div className="mt-4 w-48 h-8 bg-gray-200 dark:bg-slate-700 rounded-lg animate-pulse"></div>
+              <div className="mt-2 w-32 h-5 bg-gray-200 dark:bg-slate-700 rounded animate-pulse"></div>
             </div>
           </div>
         </div>
         {/* Skeleton Content */}
         <div className="max-w-5xl mx-auto px-4 py-10 space-y-8">
-          <div className="h-64 bg-white rounded-2xl shadow animate-pulse"></div>
-          <div className="h-48 bg-white rounded-2xl shadow animate-pulse"></div>
-          <div className="h-48 bg-white rounded-2xl shadow animate-pulse"></div>
+          <div className="h-64 bg-white dark:bg-slate-800 rounded-2xl shadow animate-pulse"></div>
+          <div className="h-48 bg-white dark:bg-slate-800 rounded-2xl shadow animate-pulse"></div>
+          <div className="h-48 bg-white dark:bg-slate-800 rounded-2xl shadow animate-pulse"></div>
         </div>
       </div>
     );
@@ -36,18 +36,18 @@ export default function ProfilePage() {
 
   if (error || !profile) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
-        <div className="text-center bg-white rounded-3xl p-10 shadow-xl border border-gray-100 max-w-md mx-4">
-          <div className="w-20 h-20 mx-auto mb-6 bg-red-100 rounded-full flex items-center justify-center">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-slate-900">
+        <div className="text-center bg-white dark:bg-slate-800 rounded-3xl p-10 shadow-xl border border-gray-100 dark:border-slate-700 max-w-md mx-4">
+          <div className="w-20 h-20 mx-auto mb-6 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
             <span className="text-4xl">⚠️</span>
           </div>
-          <p className="text-xl font-bold text-gray-900 mb-2">Failed to load profile</p>
-          <p className="text-gray-600">
+          <p className="text-xl font-bold text-gray-900 dark:text-white mb-2">Failed to load profile</p>
+          <p className="text-gray-600 dark:text-gray-400">
             {error?.message || "Please try refreshing the page"}
           </p>
           <button
             onClick={() => window.location.reload()}
-            className="mt-6 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors"
+            className="mt-6 px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-semibold rounded-xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
           >
             Refresh Page
           </button>
@@ -59,31 +59,31 @@ export default function ProfilePage() {
   const getAvailabilityConfig = (status: string) => {
     switch (status) {
       case "AVAILABLE":
-        return { label: "Available for FYP", color: "bg-green-100 text-green-700 border-green-200", icon: "🟢" };
+        return { label: "Available for FYP", color: "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800", icon: "🟢" };
       case "BUSY":
-        return { label: "Busy", color: "bg-yellow-100 text-yellow-700 border-yellow-200", icon: "🟡" };
+        return { label: "Busy", color: "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800", icon: "🟡" };
       case "AWAY":
-        return { label: "Away", color: "bg-gray-100 text-gray-700 border-gray-200", icon: "⚫" };
+        return { label: "Away", color: "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-400 border-gray-200 dark:border-gray-700", icon: "⚫" };
       default:
-        return { label: status, color: "bg-gray-100 text-gray-700 border-gray-200", icon: "⚫" };
+        return { label: status, color: "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-400 border-gray-200 dark:border-gray-700", icon: "⚫" };
     }
   };
 
   const availability = getAvailabilityConfig(profile.availability);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
       {/* Clean Header Section */}
       <div className="relative">
         {/* Gradient Cover - Clean & Simple */}
-        <div className="h-32 sm:h-40 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 relative overflow-hidden">
+        <div className="h-32 sm:h-40 bg-gradient-to-br from-gray-800 via-gray-900 to-black dark:from-slate-700 dark:via-slate-800 dark:to-slate-900 relative overflow-hidden">
           {/* Subtle Pattern Overlay */}
-          <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.1)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.1)_50%,rgba(255,255,255,0.1)_75%,transparent_75%)] bg-[length:60px_60px]"></div>
+          <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.05)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.05)_50%,rgba(255,255,255,0.05)_75%,transparent_75%)] bg-[length:60px_60px]"></div>
         </div>
 
         {/* Profile Card - Overlapping the cover */}
         <div className="max-w-4xl mx-auto px-4">
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 -mt-16 sm:-mt-20 relative z-10 p-6 sm:p-8">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-700 -mt-16 sm:-mt-20 relative z-10 p-6 sm:p-8">
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
               {/* Profile Picture Upload Component */}
               <div className="flex-shrink-0">
@@ -99,12 +99,12 @@ export default function ProfilePage() {
                 {/* Quick Info Badges */}
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-4">
                   {/* Department Badge */}
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 rounded-lg text-sm font-medium text-indigo-700 border border-indigo-100">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-slate-700 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-600">
                     🎓 {profile.department}
                   </span>
                   
                   {/* Semester Badge */}
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 rounded-lg text-sm font-medium text-purple-700 border border-purple-100">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-slate-700 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-600">
                     📚 Semester {profile.semester}
                   </span>
                   
@@ -116,7 +116,7 @@ export default function ProfilePage() {
 
                 {/* Bio/Interests Preview */}
                 {profile.interests && (
-                  <p className="text-gray-600 text-sm line-clamp-2 mb-4 max-w-xl">
+                  <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 mb-4 max-w-xl">
                     {profile.interests}
                   </p>
                 )}
@@ -124,20 +124,20 @@ export default function ProfilePage() {
                 {/* Stats Row */}
                 <div className="flex items-center justify-center sm:justify-start gap-8">
                   <div className="text-center sm:text-left">
-                    <div className="text-2xl font-bold text-gray-900">{profile.skills?.length || 0}</div>
-                    <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">Skills</div>
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">{profile.skills?.length || 0}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wide">Skills</div>
                   </div>
-                  <div className="w-px h-10 bg-gray-200"></div>
+                  <div className="w-px h-10 bg-gray-200 dark:bg-slate-700"></div>
                   <div className="text-center sm:text-left">
-                    <div className="text-2xl font-bold text-gray-900">{profile.projects?.length || 0}</div>
-                    <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">Projects</div>
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">{profile.projects?.length || 0}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wide">Projects</div>
                   </div>
-                  <div className="w-px h-10 bg-gray-200 hidden sm:block"></div>
+                  <div className="w-px h-10 bg-gray-200 dark:bg-slate-700 hidden sm:block"></div>
                   <div className="text-center sm:text-left hidden sm:block">
-                    <div className="text-2xl font-bold text-gray-900">
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
                       {profile.linkedinUrl || profile.githubUrl ? "2" : "0"}
                     </div>
-                    <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">Links</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wide">Links</div>
                   </div>
                 </div>
               </div>

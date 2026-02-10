@@ -28,8 +28,8 @@ export function ConversationItem({ conversation, isActive }: ConversationItemPro
   return (
     <Link href={`/dashboard/messages/${conversation.id}`}>
       <div
-        className={`flex items-center gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors ${
-          isActive ? "bg-indigo-50 border-l-4 border-indigo-500" : ""
+        className={`flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-slate-800 cursor-pointer transition-colors ${
+          isActive ? "bg-gray-100 dark:bg-slate-700 border-l-4 border-gray-900 dark:border-white" : ""
         }`}
       >
         {/* Avatar */}
@@ -41,7 +41,7 @@ export function ConversationItem({ conversation, isActive }: ConversationItemPro
               className="w-12 h-12 rounded-full object-cover"
             />
           ) : (
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+            <div className="w-12 h-12 rounded-full bg-gray-900 dark:bg-white flex items-center justify-center text-white dark:text-gray-900 font-semibold text-sm">
               {initials}
             </div>
           )}
@@ -59,12 +59,12 @@ export function ConversationItem({ conversation, isActive }: ConversationItemPro
           <div className="flex items-center justify-between mb-1">
             <h3
               className={`text-sm font-semibold truncate ${
-                unreadCount > 0 ? "text-gray-900" : "text-gray-700"
+                unreadCount > 0 ? "text-gray-900 dark:text-white" : "text-gray-700 dark:text-gray-300"
               }`}
             >
               {otherStudent.name}
             </h3>
-            <span className="text-xs text-gray-400 flex-shrink-0 ml-2">
+            <span className="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0 ml-2">
               {formattedTime}
             </span>
           </div>
@@ -73,13 +73,13 @@ export function ConversationItem({ conversation, isActive }: ConversationItemPro
           {lastMessage ? (
             <p
               className={`text-sm truncate ${
-                unreadCount > 0 ? "text-gray-800 font-medium" : "text-gray-500"
+                unreadCount > 0 ? "text-gray-800 dark:text-gray-200 font-medium" : "text-gray-500 dark:text-gray-400"
               }`}
             >
               {lastMessage.content}
             </p>
           ) : (
-            <p className="text-sm text-gray-400 italic">No messages yet</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500 italic">No messages yet</p>
           )}
         </div>
       </div>

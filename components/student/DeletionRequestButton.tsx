@@ -33,19 +33,19 @@ export function DeletionRequestButton() {
   // If deletion is already requested, show pending state
   if (isPending) {
     return (
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+      <div className="rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-4">
         <div className="flex items-start gap-3">
-          <Clock className="mt-0.5 h-5 w-5 text-amber-600" />
+          <Clock className="mt-0.5 h-5 w-5 text-amber-600 dark:text-amber-400" />
           <div className="flex-1">
-            <h3 className="font-medium text-amber-900">Deletion Request Pending</h3>
-            <p className="mt-1 text-sm text-amber-700">
+            <h3 className="font-medium text-amber-900 dark:text-amber-200">Deletion Request Pending</h3>
+            <p className="mt-1 text-sm text-amber-700 dark:text-amber-300">
               Your account deletion request is being reviewed by an administrator.
               This process may take a few days.
             </p>
             <button
               onClick={handleCancel}
               disabled={isCancelling}
-              className="mt-3 inline-flex items-center gap-2 rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-sm font-medium text-amber-700 hover:bg-amber-50 disabled:opacity-50"
+              className="mt-3 inline-flex items-center gap-2 rounded-lg border border-amber-300 dark:border-amber-600 bg-white dark:bg-slate-700 px-3 py-1.5 text-sm font-medium text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-slate-600 disabled:opacity-50"
             >
               {isCancelling ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -62,12 +62,12 @@ export function DeletionRequestButton() {
 
   return (
     <>
-      <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+      <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-4">
         <div className="flex items-start gap-3">
-          <AlertTriangle className="mt-0.5 h-5 w-5 text-red-600" />
+          <AlertTriangle className="mt-0.5 h-5 w-5 text-red-600 dark:text-red-400" />
           <div className="flex-1">
-            <h3 className="font-medium text-red-900">Delete Account</h3>
-            <p className="mt-1 text-sm text-red-700">
+            <h3 className="font-medium text-red-900 dark:text-red-200">Delete Account</h3>
+            <p className="mt-1 text-sm text-red-700 dark:text-red-300">
               Once your account is deleted, all your data will be permanently removed.
               This action cannot be undone.
             </p>
@@ -85,26 +85,26 @@ export function DeletionRequestButton() {
       {/* Confirmation Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+          <div className="w-full max-w-md rounded-xl bg-white dark:bg-slate-800 p-6 shadow-xl">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
-                <AlertTriangle className="h-5 w-5 text-red-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+                <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                   Request Account Deletion
                 </h2>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   This will submit a deletion request to administrators
                 </p>
               </div>
             </div>
 
-            <div className="mt-4 rounded-lg bg-red-50 p-3">
-              <p className="text-sm text-red-800">
+            <div className="mt-4 rounded-lg bg-red-50 dark:bg-red-900/20 p-3">
+              <p className="text-sm text-red-800 dark:text-red-200">
                 <strong>Warning:</strong> After an administrator approves your request:
               </p>
-              <ul className="mt-2 list-inside list-disc text-sm text-red-700">
+              <ul className="mt-2 list-inside list-disc text-sm text-red-700 dark:text-red-300">
                 <li>Your profile will be permanently deleted</li>
                 <li>All your messages will be removed</li>
                 <li>Your group memberships will be cancelled</li>
@@ -112,7 +112,7 @@ export function DeletionRequestButton() {
               </ul>
             </div>
 
-            <p className="mt-4 text-sm text-gray-600">
+            <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
               Are you sure you want to request deletion of your account?
             </p>
 
@@ -120,7 +120,7 @@ export function DeletionRequestButton() {
               <button
                 onClick={() => setShowModal(false)}
                 disabled={isRequesting}
-                className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
+                className="rounded-lg border border-gray-200 dark:border-slate-600 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700"
               >
                 Cancel
               </button>

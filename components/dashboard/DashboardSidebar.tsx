@@ -78,7 +78,7 @@ export function DashboardSidebar({ userEmail, onLogout, isLoggingOut }: Dashboar
       {/* Logo */}
       <div className="p-4 border-b border-gray-200 dark:border-slate-700">
         <Link href="/dashboard/profile" className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-xl shadow-lg">
+          <div className="w-10 h-10 bg-gray-900 dark:bg-white rounded-xl flex items-center justify-center text-xl shadow-lg">
             🎓
           </div>
           <span className="text-xl font-bold text-gray-900 dark:text-white">FYP Finder</span>
@@ -96,7 +96,7 @@ export function DashboardSidebar({ userEmail, onLogout, isLoggingOut }: Dashboar
                   onClick={() => toggleExpand(item.label)}
                   className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all ${
                     isActive(item.href)
-                      ? "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300"
+                      ? "bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white"
                       : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700"
                   }`}
                 >
@@ -124,7 +124,7 @@ export function DashboardSidebar({ userEmail, onLogout, isLoggingOut }: Dashboar
                         onClick={() => setIsMobileMenuOpen(false)}
                         className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all ${
                           pathname === child.href
-                            ? "bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 font-medium"
+                            ? "bg-gray-200 dark:bg-slate-600 text-gray-900 dark:text-white font-medium"
                             : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-white"
                         }`}
                       >
@@ -142,7 +142,7 @@ export function DashboardSidebar({ userEmail, onLogout, isLoggingOut }: Dashboar
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all ${
                   isActive(item.href)
-                    ? "bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 shadow-sm"
+                    ? "bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white shadow-sm"
                     : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700"
                 }`}
               >
@@ -170,7 +170,7 @@ export function DashboardSidebar({ userEmail, onLogout, isLoggingOut }: Dashboar
       <div className="p-4 border-t border-gray-200 dark:border-slate-700">
         {/* User Info */}
         <div className="flex items-center gap-3 px-3 py-3 mb-3 bg-gray-50 dark:bg-slate-700 rounded-xl">
-          <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+          <div className="w-10 h-10 bg-gray-900 dark:bg-white rounded-full flex items-center justify-center text-white dark:text-gray-900 font-bold text-sm">
             {userEmail.charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">

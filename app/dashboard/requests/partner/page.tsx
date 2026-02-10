@@ -72,12 +72,12 @@ export default function PartnerRequestsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/30 to-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Back Link */}
         <Link
           href="/dashboard"
-          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
+          className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span className="text-sm font-medium">Back to Dashboard</span>
@@ -86,24 +86,24 @@ export default function PartnerRequestsPage() {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2.5 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg shadow-purple-500/25">
-              <Users className="w-6 h-6 text-white" />
+            <div className="p-2.5 bg-gray-900 dark:bg-white rounded-xl shadow-lg">
+              <Users className="w-6 h-6 text-white dark:text-gray-900" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
               Partner Requests
             </h1>
           </div>
-          <p className="text-gray-600 ml-14">
+          <p className="text-gray-600 dark:text-gray-400 ml-14">
             Manage partnership requests for your FYP team
           </p>
         </div>
 
         {/* Important Notice */}
-        <div className="mb-6 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200/50 flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+        <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800 flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-amber-500 dark:text-amber-400 flex-shrink-0 mt-0.5" />
           <div className="text-sm">
-            <span className="font-medium text-amber-700">Important:</span>
-            <span className="text-amber-600">
+            <span className="font-medium text-amber-700 dark:text-amber-400">Important:</span>
+            <span className="text-amber-600 dark:text-amber-300">
               {" "}
               Accepting a partner request will add them to your FYP group. Your
               group can have a maximum of 3 members.
@@ -113,9 +113,9 @@ export default function PartnerRequestsPage() {
 
         {/* Pending Badge */}
         {pendingReceivedCount > 0 && activeTab === "received" && (
-          <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-violet-50 rounded-xl border border-purple-200/50 flex items-center gap-3">
-            <Sparkles className="w-5 h-5 text-purple-500" />
-            <span className="text-sm font-medium text-purple-700">
+          <div className="mb-6 p-4 bg-gray-100 dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 flex items-center gap-3">
+            <Sparkles className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
               You have {pendingReceivedCount} pending partner request
               {pendingReceivedCount > 1 ? "s" : ""}!
             </span>
@@ -149,7 +149,7 @@ export default function PartnerRequestsPage() {
           <div className="mt-6 text-center">
             <Link
               href="/dashboard/discovery"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white font-semibold rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-semibold rounded-xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-all shadow-lg"
             >
               <Sparkles className="w-4 h-4" />
               Discover Partners

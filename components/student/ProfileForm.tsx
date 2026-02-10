@@ -73,18 +73,18 @@ export function ProfileForm({ profile }: ProfileFormProps) {
 
   const getAvailabilityColor = (status: AvailabilityStatus) => {
     const colors = {
-      AVAILABLE: "bg-green-100 text-green-700 border border-green-200",
-      BUSY: "bg-yellow-100 text-yellow-700 border border-yellow-200",
-      AWAY: "bg-gray-100 text-gray-700 border border-gray-200",
+      AVAILABLE: "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800",
+      BUSY: "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800",
+      AWAY: "bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-600",
     };
     return colors[status];
   };
 
   return (
-    <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-700 overflow-hidden">
       {/* Header - Clickable for collapse */}
       <div 
-        className="px-4 sm:px-8 py-4 sm:py-6 bg-gradient-to-r from-indigo-600 to-blue-600 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 cursor-pointer hover:from-indigo-700 hover:to-blue-700 transition-colors"
+        className="px-4 sm:px-8 py-4 sm:py-6 bg-gradient-to-r from-gray-800 to-gray-900 dark:from-slate-700 dark:to-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 cursor-pointer hover:from-gray-900 hover:to-black dark:hover:from-slate-600 dark:hover:to-slate-700 transition-colors"
         onClick={() => !isEditing && setIsOpen(!isOpen)}
       >
         <div className="text-white flex items-center gap-2 sm:gap-3">
@@ -92,7 +92,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
             <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-lg flex items-center justify-center text-lg sm:text-xl">👤</div>
             <div>
               <h2 className="text-xl sm:text-2xl font-bold">Personal Information</h2>
-              <p className="text-indigo-100 text-xs sm:text-sm">Manage your profile and preferences</p>
+              <p className="text-gray-300 text-xs sm:text-sm">Manage your profile and preferences</p>
             </div>
           </div>
           {!isEditing && (
@@ -109,7 +109,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
               e.stopPropagation();
               setIsEditing(true);
             }}
-            className="w-full sm:w-auto px-4 sm:px-5 py-2 sm:py-2.5 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-indigo-50 shadow-md hover:shadow-lg transition-all duration-300 text-center"
+            className="w-full sm:w-auto px-4 sm:px-5 py-2 sm:py-2.5 bg-white text-gray-900 font-semibold rounded-lg hover:bg-gray-100 shadow-md hover:shadow-lg transition-all duration-300 text-center"
           >
             Edit Profile
           </button>
@@ -120,13 +120,13 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       {isOpen && (
       <form onSubmit={handleSubmit} className="p-4 sm:p-8">
         {error && (
-          <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-xs sm:text-sm">
+          <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-xs sm:text-sm">
             {error}
           </div>
         )}
         
         {success && (
-          <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 text-xs sm:text-sm font-medium">
+          <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-400 text-xs sm:text-sm font-medium">
             {success}
           </div>
         )}
@@ -134,7 +134,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-7">
           {/* Name */}
           <div>
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2.5">
+            <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
               Full Name
             </label>
             {isEditing ? (
@@ -142,11 +142,11 @@ export function ProfileForm({ profile }: ProfileFormProps) {
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-sm sm:text-base"
+                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent outline-none transition-all text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                 required
               />
             ) : (
-              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg text-gray-900 font-medium border border-indigo-100 text-sm sm:text-base">
+              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-900 dark:text-white font-medium border border-gray-200 dark:border-slate-600 text-sm sm:text-base">
                 {profile.name}
               </div>
             )}
@@ -154,25 +154,25 @@ export function ProfileForm({ profile }: ProfileFormProps) {
 
           {/* Department (Read-only) */}
           <div>
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2.5">
+            <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
               Department
             </label>
-            <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-100 rounded-lg text-gray-700 font-medium border border-gray-200 cursor-not-allowed opacity-75 text-sm sm:text-base">
+            <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-100 dark:bg-slate-700/50 rounded-lg text-gray-700 dark:text-gray-400 font-medium border border-gray-200 dark:border-slate-600 cursor-not-allowed opacity-75 text-sm sm:text-base">
               {profile.department}
-              <span className="ml-1 sm:ml-2 text-[10px] sm:text-xs text-gray-500">(Cannot be changed)</span>
+              <span className="ml-1 sm:ml-2 text-[10px] sm:text-xs text-gray-500 dark:text-gray-500">(Cannot be changed)</span>
             </div>
           </div>
 
           {/* Semester */}
           <div>
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2.5">
+            <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
               Current Semester
             </label>
             {isEditing ? (
               <select
                 value={formData.currentSemester}
                 onChange={(e) => setFormData({ ...formData, currentSemester: parseInt(e.target.value) })}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-sm sm:text-base"
+                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent outline-none transition-all text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
               >
                 <option value={5}>Semester 5</option>
                 <option value={6}>Semester 6</option>
@@ -180,7 +180,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
                 <option value={8}>Semester 8</option>
               </select>
             ) : (
-              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg text-gray-900 font-medium border border-indigo-100 text-sm sm:text-base">
+              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-900 dark:text-white font-medium border border-gray-200 dark:border-slate-600 text-sm sm:text-base">
                 Semester {profile.semester}
               </div>
             )}
@@ -188,14 +188,14 @@ export function ProfileForm({ profile }: ProfileFormProps) {
 
           {/* Availability */}
           <div>
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2.5">
+            <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
               Availability Status
             </label>
             {isEditing ? (
               <select
                 value={formData.availability}
                 onChange={(e) => setFormData({ ...formData, availability: e.target.value as AvailabilityStatus })}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-sm sm:text-base"
+                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent outline-none transition-all text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
               >
                 <option value="AVAILABLE">🟢 Available</option>
                 <option value="BUSY">🟡 Busy</option>
@@ -212,7 +212,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
 
           {/* Phone */}
           <div>
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2.5">
+            <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
               Phone Number
             </label>
             {isEditing ? (
@@ -221,10 +221,10 @@ export function ProfileForm({ profile }: ProfileFormProps) {
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 placeholder="+1234567890"
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-sm sm:text-base"
+                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent outline-none transition-all text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
               />
             ) : (
-              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 rounded-lg text-gray-700 font-medium text-sm sm:text-base">
+              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-700 dark:text-gray-300 font-medium text-sm sm:text-base border border-gray-200 dark:border-slate-600">
                 {profile.phone || "Not provided"}
               </div>
             )}
@@ -232,7 +232,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
 
           {/* LinkedIn */}
           <div>
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2.5">
+            <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
               LinkedIn URL
             </label>
             {isEditing ? (
@@ -241,12 +241,12 @@ export function ProfileForm({ profile }: ProfileFormProps) {
                 value={formData.linkedinUrl}
                 onChange={(e) => setFormData({ ...formData, linkedinUrl: e.target.value })}
                 placeholder="https://linkedin.com/in/username"
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-sm sm:text-base"
+                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent outline-none transition-all text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
               />
             ) : (
-              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 rounded-lg text-gray-700 font-medium text-sm sm:text-base">
+              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-700 dark:text-gray-300 font-medium text-sm sm:text-base border border-gray-200 dark:border-slate-600">
                 {profile.linkedinUrl ? (
-                  <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">
+                  <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-gray-900 dark:text-white hover:underline">
                     View Profile →
                   </a>
                 ) : (
@@ -258,7 +258,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
 
           {/* GitHub */}
           <div>
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2.5">
+            <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
               GitHub URL
             </label>
             {isEditing ? (
@@ -267,12 +267,12 @@ export function ProfileForm({ profile }: ProfileFormProps) {
                 value={formData.githubUrl}
                 onChange={(e) => setFormData({ ...formData, githubUrl: e.target.value })}
                 placeholder="https://github.com/username"
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-sm sm:text-base"
+                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent outline-none transition-all text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
               />
             ) : (
-              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 rounded-lg text-gray-700 font-medium text-sm sm:text-base">
+              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-700 dark:text-gray-300 font-medium text-sm sm:text-base border border-gray-200 dark:border-slate-600">
                 {profile.githubUrl ? (
-                  <a href={profile.githubUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">
+                  <a href={profile.githubUrl} target="_blank" rel="noopener noreferrer" className="text-gray-900 dark:text-white hover:underline">
                     View Profile →
                   </a>
                 ) : (
@@ -284,7 +284,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
 
           {/* Interests - Full Width */}
           <div className="md:col-span-2">
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2.5">
+            <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
               Interests & Bio
             </label>
             {isEditing ? (
@@ -293,10 +293,10 @@ export function ProfileForm({ profile }: ProfileFormProps) {
                 onChange={(e) => setFormData({ ...formData, interests: e.target.value })}
                 placeholder="Tell us about your interests and what you're looking for in a project..."
                 rows={4}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all resize-none text-sm sm:text-base"
+                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent outline-none transition-all resize-none text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
               />
             ) : (
-              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 rounded-lg text-gray-700 font-medium min-h-20 sm:min-h-24 flex items-center text-sm sm:text-base">
+              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-700 dark:text-gray-300 font-medium min-h-20 sm:min-h-24 flex items-center text-sm sm:text-base border border-gray-200 dark:border-slate-600">
                 {profile.interests || "Not provided"}
               </div>
             )}
@@ -310,14 +310,14 @@ export function ProfileForm({ profile }: ProfileFormProps) {
               type="button"
               onClick={handleCancel}
               disabled={isUpdating}
-              className="w-full sm:w-auto px-5 sm:px-6 py-2.5 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-all duration-300 text-sm sm:text-base"
+              className="w-full sm:w-auto px-5 sm:px-6 py-2.5 border-2 border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 transition-all duration-300 text-sm sm:text-base"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isUpdating}
-              className="w-full sm:w-auto px-5 sm:px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-semibold rounded-lg hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 text-sm sm:text-base"
+              className="w-full sm:w-auto px-5 sm:px-6 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-semibold rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 text-sm sm:text-base"
             >
               {isUpdating ? "Saving..." : "Save Changes"}
             </button>

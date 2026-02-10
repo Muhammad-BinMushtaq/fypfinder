@@ -33,25 +33,15 @@ export function RequestTabs({
   receivedCount,
   type = "message",
 }: RequestTabsProps) {
-  const accentGradient =
-    type === "message"
-      ? "from-blue-500 to-blue-600"
-      : "from-purple-500 to-purple-600";
-
-  const accentBorder =
-    type === "message" ? "border-blue-500" : "border-purple-500";
-
-  const accentText = type === "message" ? "text-blue-600" : "text-purple-600";
-
   return (
-    <div className="flex items-center bg-gray-50 rounded-xl p-1.5 border border-gray-200/50">
+    <div className="flex items-center bg-gray-100 dark:bg-slate-800 rounded-xl p-1.5 border border-gray-200 dark:border-slate-700">
       {/* Received Tab */}
       <button
         onClick={() => onTabChange("received")}
         className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 ${
           activeTab === "received"
-            ? `bg-white shadow-md ${accentText}`
-            : "text-gray-500 hover:text-gray-700 hover:bg-white/50"
+            ? "bg-white dark:bg-slate-700 shadow-md text-gray-900 dark:text-white"
+            : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-white/50 dark:hover:bg-slate-700/50"
         }`}
       >
         <ArrowDownLeft className="w-4 h-4" />
@@ -60,8 +50,8 @@ export function RequestTabs({
           <span
             className={`ml-1 px-2 py-0.5 rounded-full text-xs ${
               activeTab === "received"
-                ? `bg-gradient-to-r ${accentGradient} text-white`
-                : "bg-gray-200 text-gray-600"
+                ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900"
+                : "bg-gray-200 dark:bg-slate-600 text-gray-600 dark:text-gray-300"
             }`}
           >
             {receivedCount}
@@ -74,8 +64,8 @@ export function RequestTabs({
         onClick={() => onTabChange("sent")}
         className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 ${
           activeTab === "sent"
-            ? `bg-white shadow-md ${accentText}`
-            : "text-gray-500 hover:text-gray-700 hover:bg-white/50"
+            ? "bg-white dark:bg-slate-700 shadow-md text-gray-900 dark:text-white"
+            : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-white/50 dark:hover:bg-slate-700/50"
         }`}
       >
         <ArrowUpRight className="w-4 h-4" />
@@ -84,8 +74,8 @@ export function RequestTabs({
           <span
             className={`ml-1 px-2 py-0.5 rounded-full text-xs ${
               activeTab === "sent"
-                ? `bg-gradient-to-r ${accentGradient} text-white`
-                : "bg-gray-200 text-gray-600"
+                ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900"
+                : "bg-gray-200 dark:bg-slate-600 text-gray-600 dark:text-gray-300"
             }`}
           >
             {sentCount}

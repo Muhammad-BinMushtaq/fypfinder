@@ -30,19 +30,13 @@ export function RequestActions({
   isLoading = false,
   type = "message",
 }: RequestActionsProps) {
-  const accentColor = type === "message" ? "blue" : "purple";
-
   return (
     <div className="flex items-center gap-3">
       {/* Accept Button */}
       <button
         onClick={onAccept}
         disabled={isLoading}
-        className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
-          type === "message"
-            ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40"
-            : "bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40"
-        }`}
+        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium text-white bg-gray-900 dark:bg-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
       >
         {isLoading ? (
           <Loader2 className="w-4 h-4 animate-spin" />
@@ -58,7 +52,7 @@ export function RequestActions({
       <button
         onClick={onReject}
         disabled={isLoading}
-        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isLoading ? (
           <Loader2 className="w-4 h-4 animate-spin" />

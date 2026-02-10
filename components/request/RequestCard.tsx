@@ -88,21 +88,21 @@ export function RequestCard({
     switch (request.status) {
       case "PENDING":
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200/50">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
             <Clock className="w-3 h-3" />
             Pending
           </span>
         );
       case "ACCEPTED":
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-50 text-green-700 border border-green-200/50">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800">
             <CheckCircle2 className="w-3 h-3" />
             Accepted
           </span>
         );
       case "REJECTED":
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-700 border border-red-200/50">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800">
             <XCircle className="w-3 h-3" />
             Rejected
           </span>
@@ -113,9 +113,9 @@ export function RequestCard({
   // Get type icon
   const getTypeIcon = () => {
     if (type === "message") {
-      return <MessageSquare className="w-4 h-4 text-blue-500" />;
+      return <MessageSquare className="w-4 h-4 text-gray-600 dark:text-gray-400" />;
     }
-    return <Users className="w-4 h-4 text-purple-500" />;
+    return <Users className="w-4 h-4 text-gray-600 dark:text-gray-400" />;
   };
 
   // Get type label
@@ -129,41 +129,26 @@ export function RequestCard({
   // Get variant icon
   const getVariantIcon = () => {
     if (variant === "sent") {
-      return <ArrowUpRight className="w-3.5 h-3.5 text-gray-400" />;
+      return <ArrowUpRight className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />;
     }
-    return <ArrowDownLeft className="w-3.5 h-3.5 text-gray-400" />;
+    return <ArrowDownLeft className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />;
   };
 
   // Get card border color based on type
   const getBorderClass = () => {
-    if (request.status !== "PENDING") {
-      return "border-gray-200/50";
-    }
-    if (type === "message") {
-      return "border-blue-200/50 hover:border-blue-400/50";
-    }
-    return "border-purple-200/50 hover:border-purple-400/50";
+    return "border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:hover:border-slate-600";
   };
 
   return (
     <div
-      className={`relative bg-white/80 backdrop-blur-sm rounded-2xl border ${getBorderClass()} p-4 sm:p-5 hover:shadow-xl transition-all duration-300 overflow-hidden`}
+      className={`relative bg-white dark:bg-slate-800 rounded-2xl border ${getBorderClass()} p-4 sm:p-5 hover:shadow-xl dark:hover:shadow-slate-900/50 transition-all duration-300 overflow-hidden`}
     >
-      {/* Background gradient on hover */}
-      <div
-        className={`absolute inset-0 ${
-          type === "message"
-            ? "bg-gradient-to-br from-blue-500/5 via-sky-500/5 to-cyan-500/5"
-            : "bg-gradient-to-br from-purple-500/5 via-violet-500/5 to-indigo-500/5"
-        } opacity-0 hover:opacity-100 transition-opacity duration-300`}
-      />
-
       <div className="relative z-10">
         {/* Header: Type + Status + Time */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             {getTypeIcon()}
-            <span className="text-xs font-medium text-gray-600">
+            <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
               {getTypeLabel()}
             </span>
             {getVariantIcon()}
@@ -182,15 +167,11 @@ export function RequestCard({
               <img
                 src={student.profilePicture}
                 alt={student.name}
-                className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-cover border-2 border-gray-100 shadow-lg group-hover:border-blue-300 transition-colors"
+                className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-cover border-2 border-gray-100 dark:border-slate-600 shadow-lg group-hover:border-gray-300 dark:group-hover:border-slate-500 transition-colors"
               />
             ) : (
               <div
-                className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl ${
-                  type === "message"
-                    ? "bg-gradient-to-br from-blue-500 via-sky-500 to-cyan-500"
-                    : "bg-gradient-to-br from-purple-500 via-violet-500 to-indigo-500"
-                } flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-lg group-hover:scale-105 transition-transform`}
+                className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gray-900 dark:bg-slate-600 flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-lg group-hover:scale-105 transition-transform"
               >
                 {getInitials(student.name)}
               </div>
@@ -203,15 +184,15 @@ export function RequestCard({
               href={`/dashboard/discovery/profile/${student.id}`}
               className="inline-flex items-center gap-1 group"
             >
-              <h3 className="font-semibold text-gray-900 truncate group-hover:text-blue-600 transition-colors">
+              <h3 className="font-semibold text-gray-900 dark:text-white truncate group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
                 {student.name}
               </h3>
-              <ExternalLink className="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-500 transition-colors" />
+              <ExternalLink className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-400 transition-colors" />
             </Link>
-            <p className="text-sm text-gray-600 truncate">
+            <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
               {student.department}
             </p>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
               Semester {student.currentSemester}
             </p>
           </div>
@@ -219,19 +200,19 @@ export function RequestCard({
 
         {/* Reason (if any) */}
         {request.reason && (
-          <div className="mt-4 p-3 bg-gray-50 rounded-xl border border-gray-100">
-            <p className="text-sm text-gray-600 italic">"{request.reason}"</p>
+          <div className="mt-4 p-3 bg-gray-50 dark:bg-slate-700 rounded-xl border border-gray-100 dark:border-slate-600">
+            <p className="text-sm text-gray-600 dark:text-gray-300 italic">"{request.reason}"</p>
           </div>
         )}
 
         {/* Timestamp */}
-        <p className="text-xs text-gray-400 mt-3">
+        <p className="text-xs text-gray-400 dark:text-gray-500 mt-3">
           {formatDistanceToNow(new Date(request.createdAt), { addSuffix: true })}
         </p>
 
         {/* Actions (only for received + pending) */}
         {variant === "received" && request.status === "PENDING" && (
-          <div className="mt-4 pt-4 border-t border-gray-100">
+          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-slate-700">
             <RequestActions
               onAccept={() => onAccept?.(request.id)}
               onReject={() => onReject?.(request.id)}

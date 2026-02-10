@@ -26,15 +26,15 @@ export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
       <div
         className={`max-w-[70%] ${
           isOwn
-            ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white"
-            : "bg-gray-100 text-gray-900"
+            ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900"
+            : "bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white"
         } rounded-2xl px-4 py-3 ${
           message.isOptimistic ? "opacity-70" : "opacity-100"
         }`}
       >
         {/* Sender name for received messages */}
         {!isOwn && (
-          <p className="text-xs font-medium text-gray-500 mb-1">
+          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
             {message.sender.name}
           </p>
         )}
@@ -50,7 +50,7 @@ export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
         >
           <span
             className={`text-xs ${
-              isOwn ? "text-white/70" : "text-gray-400"
+              isOwn ? "text-white/70 dark:text-gray-500" : "text-gray-400 dark:text-gray-500"
             }`}
           >
             {message.isOptimistic ? "Sending..." : formattedTime}
@@ -58,7 +58,7 @@ export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
 
           {/* Read indicator for own messages */}
           {isOwn && !message.isOptimistic && (
-            <span className="text-xs text-white/70">
+            <span className="text-xs text-white/70 dark:text-gray-500">
               {message.isRead ? "✓✓" : "✓"}
             </span>
           )}

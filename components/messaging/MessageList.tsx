@@ -67,8 +67,8 @@ export function MessageList({
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-gray-500 text-sm">Loading messages...</p>
+          <div className="w-8 h-8 border-3 border-gray-900 dark:border-white border-t-transparent rounded-full animate-spin" />
+          <p className="text-gray-500 dark:text-gray-400 text-sm">Loading messages...</p>
         </div>
       </div>
     )
@@ -78,9 +78,9 @@ export function MessageList({
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-gray-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
-              className="w-8 h-8 text-gray-400"
+              className="w-8 h-8 text-gray-400 dark:text-gray-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -93,8 +93,8 @@ export function MessageList({
               />
             </svg>
           </div>
-          <h3 className="text-gray-700 font-medium mb-1">No messages yet</h3>
-          <p className="text-gray-500 text-sm">
+          <h3 className="text-gray-700 dark:text-gray-200 font-medium mb-1">No messages yet</h3>
+          <p className="text-gray-500 dark:text-gray-400 text-sm">
             Send a message to start the conversation!
           </p>
         </div>

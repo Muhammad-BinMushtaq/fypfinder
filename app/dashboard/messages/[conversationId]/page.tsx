@@ -34,15 +34,15 @@ export default function ConversationPage() {
   // Profile loading
   if (profileLoading) {
     return (
-      <div className="h-[calc(100vh-4rem)] bg-white flex">
-        <div className="hidden lg:block w-80 xl:w-96 border-r border-gray-200">
+      <div className="h-[calc(100vh-4rem)] bg-white dark:bg-slate-900 flex">
+        <div className="hidden lg:block w-80 xl:w-96 border-r border-gray-200 dark:border-slate-700">
           <ConversationList activeConversationId={conversationId} />
         </div>
 
         <div className="flex-1 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
-            <div className="w-8 h-8 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-            <p className="text-gray-500 text-sm">Loading profile...</p>
+            <div className="w-8 h-8 border-3 border-gray-900 dark:border-white border-t-transparent rounded-full animate-spin" />
+            <p className="text-gray-500 dark:text-gray-400 text-sm">Loading profile...</p>
           </div>
         </div>
       </div>
@@ -52,15 +52,15 @@ export default function ConversationPage() {
   // Conversation loading (first load only)
   if (conversationsLoading && !currentConversation) {
     return (
-      <div className="h-[calc(100vh-4rem)] bg-white flex">
-        <div className="hidden lg:block w-80 xl:w-96 border-r border-gray-200">
+      <div className="h-[calc(100vh-4rem)] bg-white dark:bg-slate-900 flex">
+        <div className="hidden lg:block w-80 xl:w-96 border-r border-gray-200 dark:border-slate-700">
           <ConversationList activeConversationId={conversationId} />
         </div>
 
         <div className="flex-1 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
-            <div className="w-8 h-8 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-            <p className="text-gray-500 text-sm">Loading conversation...</p>
+            <div className="w-8 h-8 border-3 border-gray-900 dark:border-white border-t-transparent rounded-full animate-spin" />
+            <p className="text-gray-500 dark:text-gray-400 text-sm">Loading conversation...</p>
           </div>
         </div>
       </div>
@@ -70,16 +70,16 @@ export default function ConversationPage() {
   // Error or conversation not found
   if (isError || (!conversationsLoading && !currentConversation)) {
     return (
-      <div className="h-[calc(100vh-4rem)] bg-white flex">
-        <div className="hidden lg:block w-80 xl:w-96 border-r border-gray-200">
+      <div className="h-[calc(100vh-4rem)] bg-white dark:bg-slate-900 flex">
+        <div className="hidden lg:block w-80 xl:w-96 border-r border-gray-200 dark:border-slate-700">
           <ConversationList activeConversationId={conversationId} />
         </div>
 
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg
-                className="w-8 h-8 text-red-500"
+                className="w-8 h-8 text-red-500 dark:text-red-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -92,15 +92,15 @@ export default function ConversationPage() {
                 />
               </svg>
             </div>
-            <h3 className="text-gray-700 font-medium mb-1">
+            <h3 className="text-gray-700 dark:text-gray-200 font-medium mb-1">
               Couldn&apos;t load conversation
             </h3>
-            <p className="text-gray-500 text-sm mb-4">
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
               {isError ? "Failed to load conversations" : "Conversation not found"}
             </p>
             <button
               onClick={() => router.push("/dashboard/messages")}
-              className="text-indigo-600 hover:text-indigo-700 text-sm font-medium"
+              className="text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-300 text-sm font-medium"
             >
               ← Back to messages
             </button>
@@ -117,9 +117,9 @@ export default function ConversationPage() {
   const otherStudent = currentConversation.otherStudent
 
   return (
-    <div className="h-[calc(100vh-4rem)] bg-white flex">
+    <div className="h-[calc(100vh-4rem)] bg-white dark:bg-slate-900 flex">
       {/* Sidebar */}
-      <div className="hidden lg:block w-80 xl:w-96 border-r border-gray-200">
+      <div className="hidden lg:block w-80 xl:w-96 border-r border-gray-200 dark:border-slate-700">
         <ConversationList activeConversationId={conversationId} />
       </div>
 
