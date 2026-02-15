@@ -34,15 +34,11 @@ export default function LoginPage() {
 
         <section className="rounded-2xl border border-white/10 bg-zinc-950/90 p-8 shadow-2xl backdrop-blur">
           <div className="mb-6">
-            <h2 className="text-2xl font-semibold text-zinc-100">Welcome back</h2>
-            <p className="mt-1 text-sm text-zinc-400">Sign in to continue</p>
+            <h2 className="text-2xl font-semibold text-zinc-100">Sign in</h2>
+            <p className="mt-1 text-sm text-zinc-400">Use your university Microsoft account</p>
           </div>
           <LoginForm />
         </section>
-
-        <div className="mt-6 rounded-xl border border-white/10 bg-white/5 p-3 text-center text-xs text-zinc-400">
-          Use your PAF-IAST email only
-        </div>
       </div>
     </main>
   );

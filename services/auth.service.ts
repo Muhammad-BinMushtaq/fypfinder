@@ -9,38 +9,24 @@
 
 import { apiClient } from "@/services/apiClient";
 
-export interface LoginPayload {
-  email: string;
-  password: string;
-}
-
-export interface SignupPayload {
-  email: string;
-  password: string;
-}
-
 export interface AuthResponse {
   success: true;
 }
 
-/**
- * Login user
- */
-export function login(payload: LoginPayload) {
-  return apiClient.post<AuthResponse>(
-    "/api/auth/login",
-    payload
-  );
+export interface MicrosoftAuthResponse {
+  url: string;
 }
 
 /**
- * Signup user
+ * Initiate Microsoft OAuth login
+ * Returns the OAuth URL to redirect the user to
  */
-export function signup(payload: SignupPayload) {
-  return apiClient.post<AuthResponse>(
-    "/api/auth/signup",
-    payload
+export async function loginWithMicrosoft(redirectTo?: string): Promise<string> {
+  const response = await apiClient.post<MicrosoftAuthResponse>(
+    "/api/auth/microsoft",
+    { redirectTo: redirectTo || "/dashboard/profile" }
   );
+  return response.url;
 }
 
 /**

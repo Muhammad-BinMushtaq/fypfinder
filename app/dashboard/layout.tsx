@@ -10,11 +10,13 @@ import { SuspensionBanner } from "@/components/student/SuspensionBanner";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ReactNode, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   useRequireAuth();
   const { user, isLoading } = useSession();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
@@ -25,7 +27,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       });
 
       if (response.ok) {
-        // Clear any client-side cache/state if needed
+        // Clear all cached data including session
+        queryClient.clear();
         router.push("/login");
         router.refresh();
       } else {

@@ -38,10 +38,10 @@ export function useSession() {
     queryKey: ["session"],
     queryFn: () =>
       apiClient.get<SessionResponse>("/api/auth/session"),
-    staleTime: 10 * 60 * 1000, // 10 minutes
-    gcTime: 30 * 60 * 1000, // 30 minutes  
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    staleTime: 1 * 60 * 1000, // 1 minute - shorter to catch auth changes
+    gcTime: 5 * 60 * 1000, // 5 minutes  
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
+    refetchOnMount: true, // Always check on mount
     retry: false, // auth failures should not retry
   });
 
