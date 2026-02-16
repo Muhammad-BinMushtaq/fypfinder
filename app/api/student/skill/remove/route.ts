@@ -1,6 +1,7 @@
 import { requireRole } from "@/lib/auth"
 import prisma from "@/lib/db"
 import { UserRole } from "@/lib/generated/prisma/enums"
+import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
 
 export async function DELETE(req: Request) {
@@ -47,7 +48,7 @@ export async function DELETE(req: Request) {
 
 
     } catch (error: any) {
-        console.error("Delete skill error:", error)
+        logger.error("Delete skill error:", error)
 
         return NextResponse.json(
             {

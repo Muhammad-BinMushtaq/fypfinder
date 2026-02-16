@@ -115,6 +115,7 @@ export async function getOrCreateConversation(
 
 /**
  * Get all conversations for a student with last message and unread count.
+ * Uses batched queries to avoid N+1 problem.
  */
 export async function getConversationsForStudent(studentId: string) {
   const conversations = await prisma.conversation.findMany({
@@ -148,32 +149,42 @@ export async function getConversationsForStudent(studentId: string) {
     },
   })
 
-  // Get unread counts for each conversation
-  const conversationsWithUnread = await Promise.all(
-    conversations.map(async (conv) => {
-      const unreadCount = await prisma.message.count({
+  // BATCHED: Get all unread counts in a single query (fixes N+1)
+  const conversationIds = conversations.map(c => c.id)
+  
+  const unreadCounts = conversationIds.length > 0
+    ? await prisma.message.groupBy({
+        by: ['conversationId'],
         where: {
-          conversationId: conv.id,
+          conversationId: { in: conversationIds },
           senderId: { not: studentId },
           isRead: false,
         },
+        _count: {
+          id: true
+        }
       })
+    : []
 
-      // Determine the other participant
-      const otherStudent = conv.studentAId === studentId ? conv.studentB : conv.studentA
-      const lastMessage = conv.messages[0] || null
-
-      return {
-        id: conv.id,
-        otherStudent,
-        lastMessage,
-        unreadCount,
-        updatedAt: conv.updatedAt,
-      }
-    })
+  // Create a map for O(1) lookup
+  const unreadCountMap = new Map(
+    unreadCounts.map(uc => [uc.conversationId, uc._count.id])
   )
 
-  return conversationsWithUnread
+  // Transform conversations with batched unread counts
+  return conversations.map((conv) => {
+    const otherStudent = conv.studentAId === studentId ? conv.studentB : conv.studentA
+    const lastMessage = conv.messages[0] || null
+    const unreadCount = unreadCountMap.get(conv.id) || 0
+
+    return {
+      id: conv.id,
+      otherStudent,
+      lastMessage,
+      unreadCount,
+      updatedAt: conv.updatedAt,
+    }
+  })
 }
 
 /**

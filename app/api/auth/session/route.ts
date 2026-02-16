@@ -1,4 +1,5 @@
 // this is for session route
+import logger from "@/lib/logger"
 import { NextResponse } from "next/server";
 import {  requireAuth } from "@/lib/auth";
 
@@ -37,7 +38,7 @@ export async function GET(req: Request) {
         return response;
     }
     catch (error: any) {
-        console.error("Session retrieval error:", error);
+        logger.error("Session retrieval error:", error);
         return NextResponse.json(
             {
                 success: false,

@@ -1,3 +1,4 @@
+import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
 import { requireAuth, requireRole } from "@/lib/auth"
 import prisma from "@/lib/db"
@@ -87,7 +88,7 @@ export async function GET() {
         response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate")
         return response
     } catch (error) {
-        // console.error("Get my profile error:", error)
+        // logger.error("Get my profile error:", error)
 
         return NextResponse.json(
             {

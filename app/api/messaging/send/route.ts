@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server"
 import prisma from "@/lib/db"
 import { requireRole } from "@/lib/auth"
 import { UserRole } from "@/lib/generated/prisma/enums"
+import logger from "@/lib/logger"
 import { sendMessage } from "@/modules/messaging/messaging.service"
 
 export async function POST(request: NextRequest) {
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ message })
   } catch (error) {
-    console.error("Send message error:", error)
+    logger.error("Send message error:", error)
     const errorMessage = error instanceof Error ? error.message : "Failed to send message"
     return NextResponse.json({ error: errorMessage }, { status: 500 })
   }

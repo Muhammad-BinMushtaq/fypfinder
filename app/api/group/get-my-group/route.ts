@@ -1,3 +1,4 @@
+import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
 import { requireRole } from "@/lib/auth"
 import { UserRole } from "@/lib/generated/prisma/enums"
@@ -37,7 +38,7 @@ export async function GET() {
             { status: 200 }
         )
     } catch (error: any) {
-        console.error("Get my group error:", error)
+        logger.error("Get my group error:", error)
 
         return NextResponse.json(
             {

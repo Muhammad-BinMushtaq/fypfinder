@@ -1,5 +1,6 @@
 // app/api/student/skill/add/route.ts
 
+import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
 import prisma from "@/lib/db"
 import { requireRole } from "@/lib/auth"
@@ -95,7 +96,7 @@ export async function POST(req: Request) {
 
 
   } catch (error: any) {
-    console.error("Add skill error:", error)
+    logger.error("Add skill error:", error)
 
     return NextResponse.json(
       {

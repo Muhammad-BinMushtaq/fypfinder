@@ -237,6 +237,12 @@ export async function sendPartnerRequest(
         throw new Error("Both students must be in same semesters")
     }
 
+    // 3.5️⃣ Check if both are already in the SAME group (edge case fix)
+    if (sender.groupMember && receiver.groupMember &&
+        sender.groupMember.groupId === receiver.groupMember.groupId) {
+        throw new Error("You are already in the same group as this student")
+    }
+
     // 4️⃣ Prevent sending request if sender group is locked
     if (sender.groupMember?.group?.isLocked) {
         throw new Error("Your FYP group is already locked")
@@ -252,18 +258,29 @@ export async function sendPartnerRequest(
         throw new Error("Your group is already full (max 3 members)")
     }
 
-    // 7️⃣ Prevent duplicate pending partner request
+    // 6.5️⃣ Check if receiver already has a group (edge case fix)
+    // If receiver has a group, check if adding sender would exceed limit
+    if (receiver.groupMember?.group?.members) {
+        const receiverGroupSize = receiver.groupMember.group.members.length
+        if (receiverGroupSize >= 3) {
+            throw new Error("Target student's group is already full (max 3 members)")
+        }
+    }
+
+    // 7️⃣ Prevent duplicate pending partner request (either direction)
     const existingRequest = await prisma.request.findFirst({
         where: {
-            fromStudentId,
-            toStudentId,
             type: RequestType.PARTNER,
             status: RequestStatus.PENDING,
+            OR: [
+                { fromStudentId, toStudentId },
+                { fromStudentId: toStudentId, toStudentId: fromStudentId }, // Check reverse direction too
+            ],
         },
     })
 
     if (existingRequest) {
-        throw new Error("A pending partner request already exists")
+        throw new Error("A pending partner request already exists between you and this student")
     }
 
     // 8️⃣ Create partner request
@@ -438,7 +455,20 @@ export async function acceptPartnerRequest(
         const senderGroup = sender.groupMember?.group
         const receiverGroup = receiver.groupMember?.group
 
-        // ❌ Both already in groups → reject
+        // ❌ Check if either group is locked (race condition protection)
+        if (senderGroup?.isLocked) {
+            throw new Error("Sender's group is now locked")
+        }
+        if (receiverGroup?.isLocked) {
+            throw new Error("Receiver's group is now locked")
+        }
+
+        // ❌ Check if already in same group (edge case)
+        if (senderGroup && receiverGroup && senderGroup.id === receiverGroup.id) {
+            throw new Error("Both students are already in the same group")
+        }
+
+        // ❌ Both already in different groups → reject
         if (senderGroup && receiverGroup) {
             throw new Error("Both students already have groups")
         }

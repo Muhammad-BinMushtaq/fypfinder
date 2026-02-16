@@ -1,3 +1,4 @@
+import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
 import { requireRole } from "@/lib/auth"
 import { UserRole } from "@/lib/generated/prisma/enums"
@@ -35,7 +36,7 @@ export async function GET() {
             { status: 200 }
         )
     } catch (error: any) {
-        console.error("Get sent partner requests error:", error)
+        logger.error("Get sent partner requests error:", error)
 
         return NextResponse.json(
             {

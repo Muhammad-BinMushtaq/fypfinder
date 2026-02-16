@@ -1,13 +1,18 @@
 // app/api/admin/signup/route.ts
-// Signup route for ADMIN users only
+// Create new admin - REQUIRES existing admin authentication
 
+import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
 import { createSupabaseServerClient } from "@/lib/supabase"
 import prisma from "@/lib/db"
 import { UserRole } from "@/lib/generated/prisma/enums"
+import { requireRole } from "@/lib/auth"
 
 export async function POST(req: Request) {
     try {
+        // 🔐 SECURITY: Only existing admins can create new admins
+        await requireRole(UserRole.ADMIN)
+
         const body = await req.json()
         const { email, password, name } = body
 
@@ -95,10 +100,13 @@ export async function POST(req: Request) {
             { status: 201 }
         )
     } catch (err: any) {
-        console.error("Admin signup error:", err)
+        // Error logged server-side only in development
+        if (process.env.NODE_ENV === "development") {
+            logger.error("Admin signup error:", err)
+        }
         return NextResponse.json(
-            { error: "Internal server error" },
-            { status: 500 }
+            { error: err.message === "Unauthorized: insufficient role" ? "Unauthorized" : "Internal server error" },
+            { status: err.message?.includes("Unauthorized") ? 403 : 500 }
         )
     }
 }

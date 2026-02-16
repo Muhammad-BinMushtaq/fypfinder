@@ -11,6 +11,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { ReactNode, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
+import clientLogger from "@/lib/client-logger";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   useRequireAuth();
@@ -32,11 +33,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         router.push("/login");
         router.refresh();
       } else {
-        console.error("Logout failed");
+        clientLogger.error("Logout failed");
         setIsLoggingOut(false);
       }
     } catch (error) {
-      console.error("Logout error:", error);
+      clientLogger.error("Logout error:", error);
       setIsLoggingOut(false);
     }
   };

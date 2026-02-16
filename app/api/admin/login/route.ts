@@ -1,6 +1,7 @@
 // app/api/admin/login/route.ts
 // Login route for ADMIN users only
 
+import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
 import { createSupabaseServerClient } from "@/lib/supabase"
 import prisma from "@/lib/db"
@@ -93,7 +94,7 @@ export async function POST(req: Request) {
             { status: 200 }
         )
     } catch (err: any) {
-        console.error("Admin login error:", err)
+        logger.error("Admin login error:", err)
         return NextResponse.json(
             { error: "Internal server error" },
             { status: 500 }

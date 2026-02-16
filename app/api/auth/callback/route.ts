@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from "@/lib/supabase"
 import prisma from "@/lib/db"
 import { validateStudentID } from "@/modules/auth/auth.service"
 import { UserRole, UserStatus } from "@/lib/generated/prisma/enums"
+import logger from "@/lib/logger"
 
 export async function GET(req: Request) {
     const { searchParams } = new URL(req.url)
@@ -30,7 +31,7 @@ export async function GET(req: Request) {
         const { data: sessionData, error: sessionError } = await supabase.auth.exchangeCodeForSession(code)
 
         if (sessionError || !sessionData.user) {
-            console.error("OAuth session error:", sessionError)
+            logger.error("OAuth session error:", sessionError)
             return NextResponse.redirect(`${origin}/login?error=Authentication%20failed`)
         }
 
@@ -136,7 +137,7 @@ export async function GET(req: Request) {
         return NextResponse.redirect(`${origin}/dashboard/profile`)
 
     } catch (err) {
-        console.error("OAuth callback error:", err)
+        logger.error("OAuth callback error:", err)
         const errorMessage = encodeURIComponent(err instanceof Error ? err.message : "Authentication failed")
         return NextResponse.redirect(`${new URL(req.url).origin}/login?error=${errorMessage}`)
     }

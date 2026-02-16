@@ -5,6 +5,7 @@ import { NextResponse, NextRequest } from "next/server"
 import { requireRole } from "@/lib/auth"
 import { UserRole } from "@/lib/generated/prisma/enums"
 import prisma from "@/lib/db"
+import logger from "@/lib/logger"
 
 export async function GET(
   req: NextRequest,
@@ -76,7 +77,7 @@ export async function GET(
       totalPages: Math.ceil(total / pageSize),
     })
   } catch (error: any) {
-    console.error("Admin get messages error:", error)
+    logger.error("Admin get messages error:", error)
 
     if (error.message === "Unauthorized" || error.message === "Forbidden") {
       return NextResponse.json(

@@ -1,4 +1,5 @@
 // app/api/messaging/unread-count/route.ts
+import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
 import prisma from "@/lib/db"
 import { requireRole } from "@/lib/auth"
@@ -24,7 +25,7 @@ export async function GET() {
 
     return NextResponse.json({ unreadCount })
   } catch (error) {
-    console.error("Get unread count error:", error)
+    logger.error("Get unread count error:", error)
     return NextResponse.json(
       { error: "Failed to get unread count" },
       { status: 500 }

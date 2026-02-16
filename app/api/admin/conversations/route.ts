@@ -1,6 +1,7 @@
 // app/api/admin/conversations/route.ts
 // Get all conversations for admin read-only view
 
+import logger from "@/lib/logger"
 import { NextResponse, NextRequest } from "next/server"
 import { requireRole } from "@/lib/auth"
 import { UserRole } from "@/lib/generated/prisma/enums"
@@ -88,7 +89,7 @@ export async function GET(req: NextRequest) {
       totalPages: Math.ceil(total / pageSize),
     })
   } catch (error: any) {
-    console.error("Admin get conversations error:", error)
+    logger.error("Admin get conversations error:", error)
 
     if (error.message === "Unauthorized" || error.message === "Forbidden") {
       return NextResponse.json(

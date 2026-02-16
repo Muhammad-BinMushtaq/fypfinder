@@ -1,6 +1,7 @@
 import { requireRole } from "@/lib/auth"
 import prisma from "@/lib/db"
 import { UserRole } from "@/lib/generated/prisma/enums"
+import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
 
 export async function PATCH(req: Request) {
@@ -65,7 +66,7 @@ export async function PATCH(req: Request) {
       { status: 200 }
     )
   } catch (error: any) {
-    console.error("Update project error:", error)
+    logger.error("Update project error:", error)
 
     return NextResponse.json(
       {

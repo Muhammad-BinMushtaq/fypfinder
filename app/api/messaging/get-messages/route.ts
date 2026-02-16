@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server"
 import prisma from "@/lib/db"
 import { requireRole } from "@/lib/auth"
 import { UserRole } from "@/lib/generated/prisma/enums"
+import logger from "@/lib/logger"
 import { getMessages, markMessagesAsRead } from "@/modules/messaging/messaging.service"
 
 export async function GET(request: NextRequest) {
@@ -37,7 +38,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ messages })
   } catch (error) {
-    console.error("Get messages error:", error)
+    logger.error("Get messages error:", error)
     const message = error instanceof Error ? error.message : "Failed to get messages"
     return NextResponse.json({ error: message }, { status: 500 })
   }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import prisma from "@/lib/db"
 import { requireRole } from "@/lib/auth"
 import { UserRole } from "@/lib/generated/prisma/enums"
+import logger from "@/lib/logger"
 
 export async function GET(
     req: NextRequest,
@@ -134,7 +135,7 @@ export async function GET(
             { status: 200 }
         )
     } catch (error) {
-        console.error("Get public profile error:", error)
+        logger.error("Get public profile error:", error)
 
         return NextResponse.json(
             {

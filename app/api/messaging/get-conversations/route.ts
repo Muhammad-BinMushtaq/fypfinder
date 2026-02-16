@@ -1,4 +1,5 @@
 // app/api/messaging/get-conversations/route.ts
+import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
 import prisma from "@/lib/db"
 import { requireRole } from "@/lib/auth"
@@ -24,7 +25,7 @@ export async function GET() {
 
     return NextResponse.json({ conversations })
   } catch (error) {
-    console.error("Get conversations error:", error)
+    logger.error("Get conversations error:", error)
     return NextResponse.json(
       { error: "Failed to get conversations" },
       { status: 500 }

@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server"
 import prisma from "@/lib/db"
 import { requireRole } from "@/lib/auth"
 import { UserRole } from "@/lib/generated/prisma/enums"
+import logger from "@/lib/logger"
 import { canStudentsMessage, getOrCreateConversation } from "@/modules/messaging/messaging.service"
 
 export async function POST(request: NextRequest) {
@@ -62,7 +63,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ conversation })
   } catch (error) {
-    console.error("Start conversation error:", error)
+    logger.error("Start conversation error:", error)
     const errorMessage = error instanceof Error ? error.message : "Failed to start conversation"
     return NextResponse.json({ error: errorMessage }, { status: 500 })
   }

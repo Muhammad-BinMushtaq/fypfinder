@@ -1,3 +1,4 @@
+import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
 import { requireRole } from "@/lib/auth"
 import prisma from "@/lib/db"
@@ -52,7 +53,7 @@ export async function PATCH(req: Request) {
             { status: 200 }
         )
     } catch (error: any) {
-        console.error("Update profile error:", error)
+        logger.error("Update profile error:", error)
 
         return NextResponse.json(
             {

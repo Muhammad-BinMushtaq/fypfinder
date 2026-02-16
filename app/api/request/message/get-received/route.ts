@@ -1,3 +1,4 @@
+import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
 import { requireRole } from "@/lib/auth"
 import { UserRole } from "@/lib/generated/prisma/enums"
@@ -34,7 +35,7 @@ export async function GET() {
             { status: 200 }
         )
     } catch (error: any) {
-        console.error("Get recieved message requests error:", error)
+        logger.error("Get recieved message requests error:", error)
 
         return NextResponse.json(
             {

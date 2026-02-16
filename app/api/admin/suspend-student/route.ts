@@ -1,4 +1,5 @@
 // app/api/admin/suspend-student/route.ts
+import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
 import { requireRole } from "@/lib/auth"
 import { UserRole, UserStatus } from "@/lib/generated/prisma/enums"
@@ -56,7 +57,7 @@ export async function PATCH(req: Request) {
       status: newStatus,
     })
   } catch (error: any) {
-    console.error("Admin suspend student error:", error)
+    logger.error("Admin suspend student error:", error)
 
     return NextResponse.json(
       {

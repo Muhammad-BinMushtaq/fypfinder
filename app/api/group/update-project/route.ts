@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/auth"
 import { UserRole } from "@/lib/generated/prisma/enums"
 import { updateGroupProject } from "@/modules/group/group.service"
 import prisma from "@/lib/db"
+import logger from "@/lib/logger"
 
 export async function PUT(req: NextRequest) {
     try {
@@ -51,7 +52,7 @@ export async function PUT(req: NextRequest) {
             { status: 200 }
         )
     } catch (error: any) {
-        console.error("Update group project error:", error)
+        logger.error("Update group project error:", error)
 
         return NextResponse.json(
             {

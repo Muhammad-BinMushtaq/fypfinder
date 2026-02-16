@@ -2,6 +2,7 @@
 import prisma from "./db"
 import { UserRole, UserStatus } from "./generated/prisma/enums"
 import { createSupabaseServerClient } from "./supabase"
+import logger from "./logger"
 
 // Get current logged-in user (SECURE)
 export async function getCurrentUser() {
@@ -13,7 +14,7 @@ export async function getCurrentUser() {
     if (error) {
       // Check if it's a network error vs auth error
       if (error.message?.includes('fetch') || error.message?.includes('network')) {
-        console.error("Network error connecting to auth server:", error.message)
+        logger.error("Network error connecting to auth server:", error.message)
         throw new Error("Network error: Unable to connect to authentication server. Please check your internet connection.")
       }
       return null
@@ -34,7 +35,7 @@ export async function getCurrentUser() {
         errorMessage.includes('ENOTFOUND') || 
         errorMessage.includes('ConnectTimeoutError') ||
         errorMessage.includes('Network error')) {
-      console.error("⚠️ Network connectivity issue with Supabase:", errorMessage)
+      logger.error("Network connectivity issue with Supabase:", errorMessage)
       throw new Error("Network error: Unable to reach authentication server. Please check your internet connection and try again.")
     }
     throw err
@@ -52,6 +53,12 @@ export async function requireAuth() {
     if (user?.status === UserStatus.SUSPENDED) {
       throw new Error("Account suspended")
     }
+    
+    // Block users who requested deletion
+    if (user?.status === UserStatus.DELETION_REQUESTED) {
+      throw new Error("Account pending deletion")
+    }
+    
     if (!user) {
       throw new Error("Unauthorized: not logged in")
     }

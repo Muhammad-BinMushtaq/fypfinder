@@ -3,6 +3,7 @@
 
 import { formatDistanceToNow } from "date-fns"
 import type { Message } from "@/hooks/messaging/useMessages"
+import clientLogger from "@/lib/client-logger"
 
 interface MessageBubbleProps {
   message: Message
@@ -18,7 +19,7 @@ export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
       formattedTime = formatDistanceToNow(date, { addSuffix: true })
     }
   } catch (error) {
-    console.warn("Invalid date for message:", message.id)
+    clientLogger.warn("Invalid date for message:", message.id)
   }
 
   return (

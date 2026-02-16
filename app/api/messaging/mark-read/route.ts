@@ -4,6 +4,7 @@ import prisma from "@/lib/db"
 import { requireRole } from "@/lib/auth"
 import { UserRole } from "@/lib/generated/prisma/enums"
 import { markMessagesAsRead } from "@/modules/messaging/messaging.service"
+import logger from "@/lib/logger"
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(result)
   } catch (error) {
-    console.error("Mark read error:", error)
+    logger.error("Mark read error:", error)
     const errorMessage = error instanceof Error ? error.message : "Failed to mark messages as read"
     return NextResponse.json({ error: errorMessage }, { status: 500 })
   }

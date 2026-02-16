@@ -1,3 +1,4 @@
+import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
 import { requireRole } from "@/lib/auth"
 import { UserRole } from "@/lib/generated/prisma/enums"
@@ -45,7 +46,7 @@ export async function GET(req: Request) {
       { status: 200 }
     )
   } catch (error: any) {
-    console.error("Messaging permission error:", error)
+    logger.error("Messaging permission error:", error)
 
     return NextResponse.json(
       {

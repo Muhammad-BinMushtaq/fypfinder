@@ -1,3 +1,4 @@
+import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
 import { requireRole } from "@/lib/auth"
 import { UserRole } from "@/lib/generated/prisma/enums"
@@ -49,7 +50,7 @@ export async function POST(req: Request) {
       { status: 200 }
     )
   } catch (error: any) {
-    console.error("Remove member error:", error)
+    logger.error("Remove member error:", error)
 
     return NextResponse.json(
       {

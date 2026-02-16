@@ -1,3 +1,4 @@
+import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
 import { requireRole } from "@/lib/auth"
 import { UserRole, UserStatus } from "@/lib/generated/prisma/enums"
@@ -59,7 +60,7 @@ export async function GET(req: Request) {
             data: result,
         })
     } catch (error: any) {
-        console.error("Admin get-all-students error:", error)
+        logger.error("Admin get-all-students error:", error)
 
         return NextResponse.json(
             {

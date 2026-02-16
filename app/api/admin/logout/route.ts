@@ -1,6 +1,7 @@
 // app/api/admin/logout/route.ts
 // Logout route for admin users
 
+import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
 import { createSupabaseServerClient } from "@/lib/supabase"
 
@@ -11,7 +12,7 @@ export async function POST() {
     const { error } = await supabase.auth.signOut()
 
     if (error) {
-      console.error("Admin logout error:", error)
+      logger.error("Admin logout error:", error)
       return NextResponse.json(
         { error: "Logout failed" },
         { status: 500 }
@@ -23,7 +24,7 @@ export async function POST() {
       message: "Logged out successfully",
     })
   } catch (err: any) {
-    console.error("Admin logout error:", err)
+    logger.error("Admin logout error:", err)
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

@@ -1,6 +1,7 @@
 // app/api/student/cancel-deletion/route.ts
 // Cancel account deletion request
 
+import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
 import { requireRole } from "@/lib/auth"
 import { UserRole, UserStatus } from "@/lib/generated/prisma/enums"
@@ -30,7 +31,7 @@ export async function PATCH() {
       message: "Deletion request cancelled. Your account is now active.",
     })
   } catch (error: any) {
-    console.error("Cancel deletion error:", error)
+    logger.error("Cancel deletion error:", error)
 
     if (error.message === "Unauthorized") {
       return NextResponse.json(

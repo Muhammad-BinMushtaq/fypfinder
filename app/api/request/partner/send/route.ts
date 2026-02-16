@@ -1,3 +1,4 @@
+import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
 import prisma from "@/lib/db"
 import { requireRole } from "@/lib/auth"
@@ -48,7 +49,7 @@ export async function POST(req: Request) {
       { status: 201 }
     )
   } catch (error: any) {
-    console.error("Send partner request error:", error)
+    logger.error("Send partner request error:", error)
 
     return NextResponse.json(
       {

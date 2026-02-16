@@ -129,6 +129,7 @@ model Skill {
   student     Student         @relation(fields: [studentId], references: [id])
 
   @@unique([studentId, name]) // ✅ one skill name per student
+  @@index([studentId])
 }
 
 
@@ -146,6 +147,8 @@ model Project {
   githubLink String?
 
   student    Student  @relation(fields: [studentId], references: [id])
+
+  @@index([studentId])
 }
 
 // =====================
@@ -166,6 +169,11 @@ model Request {
 
   // 📌 Messaging rule:
   // If status = ACCEPTED → messaging allowed
+
+  @@index([fromStudentId])
+  @@index([toStudentId])
+  @@index([type, status])
+  @@index([toStudentId, type, status]) // Common query pattern
 }
 
 // =====================
@@ -196,6 +204,7 @@ model FYPGroupMember {
   student   Student  @relation(fields: [studentId], references: [id])
 
   @@unique([studentId])
+  @@index([groupId])
   // 📌 Enforces:
   // A student can only be in one group at a time
 }

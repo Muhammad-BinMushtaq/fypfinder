@@ -1,4 +1,5 @@
 //logout route
+import logger from "@/lib/logger"
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase";
 export async function POST(req: Request) {
@@ -17,7 +18,7 @@ export async function POST(req: Request) {
         );
     }
     catch (err) {
-        console.error("Logout error:", err);
+        logger.error("Logout error:", err);
         return NextResponse.json(
             { error: "Internal server error" },
             { status: 500 }

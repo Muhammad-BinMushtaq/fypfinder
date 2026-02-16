@@ -1,6 +1,7 @@
 // app/api/admin/session/route.ts
 // Get current admin session
 
+import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
 import { createSupabaseServerClient } from "@/lib/supabase"
 import prisma from "@/lib/db"
@@ -51,7 +52,7 @@ export async function GET() {
       },
     })
   } catch (err: any) {
-    console.error("Admin session error:", err)
+    logger.error("Admin session error:", err)
     return NextResponse.json(
       { error: "Internal server error", admin: null },
       { status: 500 }

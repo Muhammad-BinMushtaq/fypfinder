@@ -8,6 +8,7 @@ import { ChatInput } from "./ChatInput"
 import { useMessages, type Message } from "@/hooks/messaging/useMessages"
 import { useSendMessage } from "@/hooks/messaging/useSendMessage"
 import { getSupabaseClient } from "@/lib/supabaseClient"
+import clientLogger from "@/lib/client-logger"
 
 interface ChatParticipant {
   id: string
@@ -90,7 +91,7 @@ export function ChatWindow({
         (payload: RealtimePayload) => {
           // Handle errors in payload
           if (payload?.errors?.length) {
-            console.warn("[Chat] Realtime payload errors:", payload.errors)
+            clientLogger.warn("[Chat] Realtime payload errors:", payload.errors)
             // Fallback: refetch from server
             queryClient.invalidateQueries({
               queryKey: ["messages", conversationId],
@@ -100,7 +101,7 @@ export function ChatWindow({
           
           // If RLS blocks payload or invalid data, refetch from server
           if (!payload?.new || !payload.new.id || !payload.new.conversationId) {
-            console.warn("[Chat] Invalid realtime payload, refetching")
+            clientLogger.warn("[Chat] Invalid realtime payload, refetching")
             queryClient.invalidateQueries({
               queryKey: ["messages", conversationId],
             })

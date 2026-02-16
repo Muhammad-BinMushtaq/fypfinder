@@ -1,6 +1,7 @@
 // app/api/admin/stats/route.ts
 // Get admin dashboard statistics
 
+import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
 import { requireRole } from "@/lib/auth"
 import { UserRole, UserStatus } from "@/lib/generated/prisma/enums"
@@ -60,7 +61,7 @@ export async function GET() {
       totalMessages,
     })
   } catch (error: any) {
-    console.error("Admin stats error:", error)
+    logger.error("Admin stats error:", error)
 
     if (error.message === "Unauthorized" || error.message === "Forbidden") {
       return NextResponse.json(

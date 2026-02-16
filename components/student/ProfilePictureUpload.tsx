@@ -4,6 +4,7 @@
 import { useState, useRef, useCallback } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 import { useMyProfile } from "@/hooks/student/useMyProfile";
+import clientLogger from "@/lib/client-logger";
 
 interface ProfilePictureUploadProps {
   currentPicture?: string | null;
@@ -151,7 +152,7 @@ export function ProfilePictureUpload({ currentPicture, studentId, name }: Profil
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
-      console.error("Upload error:", err);
+      clientLogger.error("Upload error:", err);
       setError(err instanceof Error ? err.message : "Failed to upload image");
       // Revert to previous picture on error
       setPreviewUrl(currentPicture || null);

@@ -27,6 +27,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 import { useMyProfile } from "@/hooks/student/useMyProfile";
+import { clientLogger } from "@/lib/client-logger";
 import { messageRequestKeys } from "@/hooks/request/useMessageRequests";
 import { partnerRequestKeys, groupKeys } from "@/hooks/request/usePartnerRequests";
 import { toast } from "react-toastify";
@@ -235,7 +236,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         async (payload) => {
 
           if (payload?.errors?.length) {
-            console.warn("[Notification] Realtime payload errors:", payload.errors);
+            clientLogger.warn("[Notification] Realtime payload errors:", payload.errors);
             // Fallback: refetch conversations + unread count
             queryClient.invalidateQueries({ queryKey: messagingKeys.conversations });
             queryClient.invalidateQueries({ queryKey: messagingKeys.unreadCount });
@@ -253,7 +254,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
           // Validate payload - skip if essential fields are missing
           if (!message?.id || !message?.senderId || !message?.conversationId) {
-            console.warn("[Notification] Invalid message payload, skipping:", message);
+            clientLogger.warn("[Notification] Invalid message payload, skipping:", message);
             // Fallback: refetch conversations + unread count
             queryClient.invalidateQueries({ queryKey: messagingKeys.conversations });
             queryClient.invalidateQueries({ queryKey: messagingKeys.unreadCount });
@@ -325,7 +326,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
               senderName = data.student?.name || "Someone";
             }
           } catch (error) {
-            console.error("[Notification] Failed to fetch sender info:", error);
+            clientLogger.error("[Notification] Failed to fetch sender info:", error);
           }
 
           // Safely get message content preview

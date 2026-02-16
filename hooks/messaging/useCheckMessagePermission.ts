@@ -7,6 +7,7 @@
  */
 
 import { useQuery } from "@tanstack/react-query"
+import clientLogger from "@/lib/client-logger"
 
 interface CheckPermissionResponse {
   success: boolean
@@ -21,7 +22,7 @@ async function checkMessagePermission(targetStudentId: string): Promise<boolean>
   const data: CheckPermissionResponse = await response.json()
 
   if (!response.ok) {
-    console.error("Check permission error:", data.message)
+    clientLogger.error("Check permission error:", data.message)
     return false
   }
 
