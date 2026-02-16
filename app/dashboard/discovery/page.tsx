@@ -54,13 +54,13 @@ export default function DiscoveryPage() {
   // Auth loading state
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center">
         <div className="text-center">
           <div className="relative">
-            <div className="w-20 h-20 border-4 border-blue-200 rounded-full"></div>
-            <div className="w-20 h-20 border-4 border-blue-600 border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
+            <div className="w-20 h-20 border-4 border-gray-200 dark:border-slate-700 rounded-full"></div>
+            <div className="w-20 h-20 border-4 border-gray-600 dark:border-slate-400 border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
           </div>
-          <p className="text-gray-600 mt-6 font-medium">Checking authentication...</p>
+          <p className="text-gray-600 dark:text-gray-400 mt-6 font-medium">Checking authentication...</p>
         </div>
       </div>
     );
@@ -69,21 +69,21 @@ export default function DiscoveryPage() {
   // Not authenticated (useRequireAuth will redirect, but show loading)
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
-            <svg className="w-8 h-8 text-blue-600 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
+            <svg className="w-8 h-8 text-gray-600 dark:text-gray-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </div>
-          <p className="text-gray-600 font-medium">Redirecting to login...</p>
+          <p className="text-gray-600 dark:text-gray-400 font-medium">Redirecting to login...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
       {/* Header */}
       <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-b border-gray-200/50 dark:border-slate-700/50 sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
@@ -138,16 +138,16 @@ export default function DiscoveryPage() {
 
         {/* Error State */}
         {isError && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl">
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-red-800">Failed to load students</h3>
-                <p className="text-sm text-red-700 mt-1">
+                <h3 className="font-semibold text-red-800 dark:text-red-400">Failed to load students</h3>
+                <p className="text-sm text-red-700 dark:text-red-400 mt-1">
                   {error instanceof Error ? error.message : "An error occurred"}
                 </p>
               </div>
@@ -159,11 +159,11 @@ export default function DiscoveryPage() {
         {isLoading && (
           <div className="py-16 text-center">
             <div className="relative inline-block">
-              <div className="w-16 h-16 border-4 border-blue-200 rounded-full"></div>
-              <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
+              <div className="w-16 h-16 border-4 border-gray-200 dark:border-slate-700 rounded-full"></div>
+              <div className="w-16 h-16 border-4 border-gray-600 dark:border-slate-400 border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
             </div>
-            <p className="text-gray-600 mt-6 font-medium">Loading students...</p>
-            <p className="text-gray-500 text-sm mt-1">Finding potential FYP partners for you</p>
+            <p className="text-gray-600 dark:text-gray-400 mt-6 font-medium">Loading students...</p>
+            <p className="text-gray-500 dark:text-gray-500 text-sm mt-1">Finding potential FYP partners for you</p>
           </div>
         )}
 
@@ -186,7 +186,7 @@ export default function DiscoveryPage() {
                 <button
                   onClick={previousPage}
                   disabled={!hasPreviousPage || isFetching}
-                  className="px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-gray-700 font-medium hover:bg-gray-50 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 shadow-sm"
+                  className="px-5 py-2.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -214,10 +214,10 @@ export default function DiscoveryPage() {
                         key={pageNum}
                         onClick={() => goToPage(pageNum)}
                         disabled={isFetching}
-                        className={`w-10 h-10 rounded-xl font-semibold transition-all shadow-sm ${
+                        className={`w-10 h-10 rounded-xl font-semibold transition-all ${
                           currentPage === pageNum
-                            ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25"
-                            : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:shadow-md"
+                            ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900"
+                            : "bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700"
                         } disabled:opacity-50`}
                       >
                         {pageNum}
@@ -233,7 +233,7 @@ export default function DiscoveryPage() {
                     prefetchNextPage(); // Prefetch the page after next
                   }}
                   disabled={!hasNextPage || isFetching}
-                  className="px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-gray-700 font-medium hover:bg-gray-50 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 shadow-sm"
+                  className="px-5 py-2.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
                 >
                   Next
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -246,12 +246,12 @@ export default function DiscoveryPage() {
             {/* Floating loader for background fetching */}
             {isFetching && !isLoading && (
               <div className="fixed bottom-8 right-8 z-50">
-                <div className="bg-white rounded-2xl shadow-2xl p-4 flex items-center gap-3 border border-gray-200/50">
+                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-4 flex items-center gap-3 border border-gray-200/50 dark:border-slate-700">
                   <div className="relative">
-                    <div className="w-8 h-8 border-3 border-blue-200 rounded-full"></div>
-                    <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
+                    <div className="w-8 h-8 border-3 border-gray-200 dark:border-slate-700 rounded-full"></div>
+                    <div className="w-8 h-8 border-3 border-gray-600 dark:border-slate-400 border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
                   </div>
-                  <span className="text-sm font-medium text-gray-700">Updating results...</span>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Updating results...</span>
                 </div>
               </div>
             )}
@@ -261,13 +261,13 @@ export default function DiscoveryPage() {
         {/* Empty State */}
         {!isLoading && students.length === 0 && !isError && (
           <div className="py-16 text-center">
-            <div className="w-24 h-24 mx-auto mb-6 bg-blue-100 rounded-full flex items-center justify-center">
+            <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
               <span className="text-5xl">🔍</span>
             </div>
-            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-3">
               No students found
             </h3>
-            <p className="text-gray-600 mb-8 max-w-md mx-auto">
+            <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
               {appliedFilters.department || appliedFilters.semester || appliedFilters.skills?.length
                 ? "Try adjusting your filters to see more results"
                 : "There are no available students matching your criteria at the moment"}
@@ -275,7 +275,7 @@ export default function DiscoveryPage() {
             {(appliedFilters.department || appliedFilters.semester || appliedFilters.skills?.length) && (
               <button
                 onClick={clearFilters}
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg shadow-blue-500/25"
+                className="px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-semibold rounded-xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-all"
               >
                 Clear All Filters
               </button>

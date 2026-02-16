@@ -116,7 +116,7 @@ export function DiscoveryFilters({
       {/* Header */}
       <div className="flex items-center justify-between mb-4 sm:mb-6">
         <div className="flex items-center gap-2 sm:gap-3">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-800 dark:bg-slate-700 rounded-xl flex items-center justify-center">
             <svg
               className="w-5 h-5 sm:w-6 sm:h-6 text-white"
               fill="none"
@@ -313,10 +313,10 @@ export function DiscoveryFilters({
           <button
             onClick={onApply}
             disabled={isLoading || isFetching || !hasUnappliedChanges}
-            className={`w-full px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-lg ${
+            className={`w-full px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
               hasUnappliedChanges && !isLoading && !isFetching
-                ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-blue-500/25 hover:shadow-blue-500/40"
-                : "bg-gray-100 text-gray-400 cursor-not-allowed shadow-none"
+                ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100"
+                : "bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-gray-500 cursor-not-allowed"
             }`}
           >
             {isFetching ? (
