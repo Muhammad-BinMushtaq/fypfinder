@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import * as authService from "@/services/auth.service";
+import { getSupabaseClient } from "@/lib/supabaseClient";
 
 export function SignupForm() {
   const searchParams = useSearchParams();
@@ -16,8 +16,21 @@ export function SignupForm() {
     setError(null);
 
     try {
-      const url = await authService.loginWithMicrosoft("/dashboard/profile");
-      window.location.href = url;
+      const supabase = getSupabaseClient();
+      const callbackUrl = `${window.location.origin}/api/auth/callback`;
+
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: "azure",
+        options: {
+          redirectTo: callbackUrl,
+          scopes: "email openid profile",
+        },
+      });
+
+      if (oauthError) {
+        setError(oauthError.message);
+        setIsLoading(false);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to initiate signup");
       setIsLoading(false);

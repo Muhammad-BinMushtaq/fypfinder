@@ -1,8 +1,17 @@
 // app/page.tsx
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 
-export default function HomePage() {
+export default function HomePage({
+  searchParams,
+}: {
+  searchParams: { code?: string };
+}) {
+  // If OAuth code arrives at root (Supabase redirect fallback), forward it to callback
+  if (searchParams?.code) {
+    redirect(`/api/auth/callback?code=${searchParams.code}`);
+  }
 
 
   return (
