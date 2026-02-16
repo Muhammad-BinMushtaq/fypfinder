@@ -50,7 +50,8 @@ const AVAILABILITY_OPTIONS = [
 ];
 
 // Common skills (could be fetched from backend in future)
-const COMMON_SKILLS = [
+export const COMMON_SKILLS = [
+  // ================= IT & Computer Science =================
   "React",
   "Next.js",
   "Node.js",
@@ -58,15 +59,113 @@ const COMMON_SKILLS = [
   "TypeScript",
   "JavaScript",
   "Machine Learning",
+  "Deep Learning",
+  "Artificial Intelligence",
+  "Data Science",
+  "Cyber Security",
+  "Blockchain",
+  "Cloud Computing",
   "Flutter",
   "React Native",
   "MongoDB",
   "PostgreSQL",
+  "MySQL",
+  "Firebase",
   "AWS",
   "Docker",
+  "Kubernetes",
+  "REST APIs",
+  "GraphQL",
+
+  // ================= Software Engineering =================
+  "System Design",
+  "Microservices",
+  "DevOps",
+  "CI/CD",
+  "Unit Testing",
+  "Agile Methodology",
+  "Git",
+  "Linux",
+
+  // ================= Electrical & Computer Engineering =================
+  "Embedded Systems",
+  "VLSI Design",
+  "Digital Signal Processing",
+  "MATLAB",
+  "Circuit Design",
+  "Power Systems",
+  "Control Systems",
+  "IoT",
+  "Robotics",
+  "PLC Programming",
+
+  // ================= Mechanical & Manufacturing =================
+  "AutoCAD",
+  "SolidWorks",
+  "ANSYS",
+  "Thermodynamics",
+  "Fluid Mechanics",
+  "Manufacturing Processes",
+  "CNC Programming",
+  "3D Printing",
+
+  // ================= Chemical & Energy Engineering =================
+  "Process Simulation",
+  "Aspen HYSYS",
+  "Chemical Process Design",
+  "Renewable Energy Systems",
+  "Petroleum Engineering",
+  "Heat Transfer",
+  "Environmental Engineering",
+
+  // ================= Biological Sciences =================
+  "Molecular Biology",
+  "Microbiology",
+  "Biotechnology",
+  "Genetics",
+  "Bioinformatics",
+  "Lab Techniques",
+  "Data Analysis (Biological)",
+  "Cell Culture",
+
+  // ================= Pharmaceutical Sciences =================
+  "Pharmacology",
+  "Drug Formulation",
+  "Clinical Research",
+  "Quality Control",
+  "Regulatory Affairs",
+  "Pharmaceutical Analysis",
+  "Medicinal Chemistry",
+
+  // ================= Design & Architecture =================
   "Figma",
   "UI/UX",
+  "Adobe Illustrator",
+  "Adobe Photoshop",
+  "3D Modeling",
+  "Interior Design",
+  "Architectural Drafting",
+  "SketchUp",
+
+  // ================= Business & Entrepreneurship =================
+  "Business Analysis",
+  "Project Management",
+  "Digital Marketing",
+  "SEO",
+  "Financial Modeling",
+  "Entrepreneurship",
+  "Market Research",
+  "Supply Chain Management",
+
+  // ================= English & Communication =================
+  "Technical Writing",
+  "Content Writing",
+  "Public Speaking",
+  "Research Writing",
+  "Editing & Proofreading",
+  "Communication Skills"
 ];
+
 
 export function DiscoveryFilters({
   pendingFilters,
