@@ -9,7 +9,7 @@ export async function POST(req: Request) {
         const supabase = await createSupabaseServerClient()
 
         // Get the origin from the request headers for callback URL
-        const origin = req.headers.get("origin") || "http://localhost:3000"
+        const origin = req.headers.get("origin") 
         const callbackUrl = `${origin}/api/auth/callback`
 
         const { data, error } = await supabase.auth.signInWithOAuth({
