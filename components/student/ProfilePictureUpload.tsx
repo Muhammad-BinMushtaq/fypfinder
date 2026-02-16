@@ -272,7 +272,7 @@ export function ProfilePictureUpload({ currentPicture, studentId, name }: Profil
       </div>
 
       {/* Name Display */}
-      <h2 className="mt-3 text-xl sm:text-2xl font-bold text-gray-900">{name}</h2>
+      <h2 className="mt-3 text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{name}</h2>
 
       {/* Upload Status Messages - Compact */}
       <div className="mt-2 min-h-[24px] text-center max-w-[200px]">
