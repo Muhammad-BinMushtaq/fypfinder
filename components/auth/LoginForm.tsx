@@ -4,14 +4,21 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { getSupabaseClient } from "@/lib/supabaseClient";
 
-export function LoginForm() {
+/**
+ * MicrosoftAuthButton
+ * -------------------
+ * Unified auth component for both login and signup.
+ * Since OAuth handles both cases automatically (new user = signup, existing = login),
+ * there's no need for separate forms.
+ */
+export function MicrosoftAuthButton() {
   const searchParams = useSearchParams();
   const errorParam = searchParams.get("error");
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(errorParam);
 
-  const handleMicrosoftLogin = async () => {
+  const handleAuth = async () => {
     setIsLoading(true);
     setError(null);
 
@@ -33,7 +40,7 @@ export function LoginForm() {
       }
       // Browser will redirect automatically — no need to handle success
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to initiate login");
+      setError(err instanceof Error ? err.message : "Authentication failed");
       setIsLoading(false);
     }
   };
@@ -47,7 +54,7 @@ export function LoginForm() {
       )}
 
       <button
-        onClick={handleMicrosoftLogin}
+        onClick={handleAuth}
         disabled={isLoading}
         className={`w-full flex items-center justify-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition ${
           isLoading

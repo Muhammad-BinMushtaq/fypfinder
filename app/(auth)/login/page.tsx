@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { LoginForm } from "@/components/auth/LoginForm";
+import { MicrosoftAuthButton } from "@/components/auth/LoginForm";
 
 export default function LoginPage() {
   return (
@@ -29,7 +29,7 @@ export default function LoginPage() {
               </svg>
             </div>
           </Link>
-          <h1 className="text-4xl font-semibold tracking-tight text-zinc-100">FYP Finder</h1>
+          <h1 className="text-4xl font-semibold tracking-tight text-zinc-100">FYP Partner Finder</h1>
           <p className="mt-2 text-sm text-zinc-400">Find your perfect FYP partner</p>
         </div>
 
@@ -43,7 +43,7 @@ export default function LoginPage() {
               <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-400 border-t-transparent" />
             </div>
           }>
-            <LoginForm />
+            <MicrosoftAuthButton />
           </Suspense>
         </section>
       </div>
