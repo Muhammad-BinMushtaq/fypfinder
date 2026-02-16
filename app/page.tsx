@@ -1,9 +1,9 @@
 // app/page.tsx
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/auth";
 
-
-export default function HomePage({
+export default async function HomePage({
   searchParams,
 }: {
   searchParams: { code?: string };
@@ -11,6 +11,17 @@ export default function HomePage({
   // If OAuth code arrives at root (Supabase redirect fallback), forward it to callback
   if (searchParams?.code) {
     redirect(`/api/auth/callback?code=${searchParams.code}`);
+  }
+
+  // Check if user is already logged in - redirect to dashboard
+  try {
+    const user = await getCurrentUser();
+    if (user && user.status === "ACTIVE") {
+      redirect("/dashboard/discovery");
+    }
+  } catch {
+    // If error checking session, just show landing page
+    // This handles network errors gracefully
   }
 
 
@@ -535,9 +546,15 @@ export default function HomePage({
               <p className="text-sm text-gray-500">
                 © 2026 FYP Finder. Built for academic purposes.
               </p>
-              <p className="text-xs text-gray-600">
-                Built with Next.js, TypeScript, Prisma & Supabase
-              </p>
+              <div className="flex items-center gap-4">
+                <Link href="/privacy" className="text-sm text-gray-500 hover:text-gray-400 transition-colors">
+                  Privacy Policy
+                </Link>
+                <span className="text-gray-600">|</span>
+                <p className="text-xs text-gray-600">
+                  Built with Next.js, TypeScript, Prisma & Supabase
+                </p>
+              </div>
             </div>
           </div>
         </div>
