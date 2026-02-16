@@ -106,12 +106,9 @@ export default function AdminLoginPage() {
             )}
           </button>
 
-          {/* Signup Link */}
+          {/* Admin access note */}
           <p className="mt-6 text-center text-sm text-gray-500">
-            Need admin access?{" "}
-            <Link href="/admin/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
-              Request Access
-            </Link>
+            Admin access is managed by the system administrator.
           </p>
         </form>
 

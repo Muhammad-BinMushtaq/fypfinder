@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { LoginForm } from "@/components/auth/LoginForm";
 
 export default function LoginPage() {
@@ -37,7 +38,13 @@ export default function LoginPage() {
             <h2 className="text-2xl font-semibold text-zinc-100">Sign in</h2>
             <p className="mt-1 text-sm text-zinc-400">Use your university Microsoft account</p>
           </div>
-          <LoginForm />
+          <Suspense fallback={
+            <div className="flex items-center justify-center py-8">
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-400 border-t-transparent" />
+            </div>
+          }>
+            <LoginForm />
+          </Suspense>
         </section>
       </div>
     </main>

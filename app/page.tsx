@@ -28,7 +28,7 @@ export default function HomePage() {
                 Login
               </Link>
               <Link
-                href="/signup"
+                href="/login"
                 className="px-5 py-2.5 text-sm font-semibold text-neutral-900 bg-white rounded-lg hover:bg-neutral-100 transition-all shadow-lg"
               >
                 Get Started
@@ -72,7 +72,7 @@ export default function HomePage() {
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
             <Link
-              href="/signup"
+              href="/login"
               className="w-full sm:w-auto px-8 py-4 text-lg font-semibold text-neutral-900 bg-white rounded-xl hover:bg-neutral-100 transition-all shadow-xl hover:scale-105"
             >
               Start Finding Partners →
@@ -312,7 +312,7 @@ export default function HomePage() {
           {/* CTA below cards */}
           <div className="text-center mt-10">
             <Link
-              href="/signup"
+              href="/login"
               className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-neutral-900 bg-white rounded-xl hover:bg-neutral-100 transition-all shadow-lg"
             >
               Create Your Profile
@@ -430,7 +430,7 @@ export default function HomePage() {
               Start your FYP journey today.
             </p>
             <Link
-              href="/signup"
+              href="/login"
               className="inline-flex items-center gap-2 px-8 py-4 text-lg font-semibold text-neutral-900 bg-white rounded-xl hover:bg-neutral-100 transition-all shadow-xl hover:scale-105"
             >
               Get Started for Free
