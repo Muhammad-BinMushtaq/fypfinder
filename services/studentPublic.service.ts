@@ -48,6 +48,7 @@ export interface GroupInfo {
 export interface PublicStudentProfile {
   id: string;
   name: string;
+  email: string;
   department: string;
   semester: number;
   profilePicture?: string | null;

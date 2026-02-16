@@ -10,9 +10,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronDown, ChevronUp, Github, Linkedin, ArrowLeft, ExternalLink } from "lucide-react";
+import { ChevronDown, ChevronUp, Github, Linkedin, ArrowLeft, ExternalLink, Mail } from "lucide-react";
 import type { PublicStudentProfile } from "@/services/studentPublic.service";
 import { SendRequestButtons } from "@/components/request/SendRequestButtons";
+import { getDepartmentLabel } from "@/lib/departments";
 
 interface PublicProfileViewProps {
   profile: PublicStudentProfile;
@@ -140,18 +141,31 @@ export function PublicProfileView({
             {/* Info */}
             <div className="flex-1 text-center sm:text-left">
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3">
-                {profile.name}
+                {profile.name} 
               </h1>
               
               {/* Meta Info */}
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-4">
                 <span className="px-3 py-1.5 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium border border-gray-200 dark:border-slate-600">
-                  {profile.department}
+                  🎓 {getDepartmentLabel(profile.department)}
                 </span>
                 <span className="px-3 py-1.5 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium border border-gray-200 dark:border-slate-600">
-                  Semester {profile.semester}
+                  📚 Semester {profile.semester}
                 </span>
               </div>
+
+              {/* Email */}
+              {profile.email && (
+                <div className="flex items-center justify-center sm:justify-start gap-2 mb-4">
+                  <a
+                    href={`mailto:${profile.email}`}
+                    className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors text-sm"
+                  >
+                    <Mail className="w-4 h-4" />
+                    {profile.email}
+                  </a>
+                </div>
+              )}
 
               {/* Status Badges */}
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-4">

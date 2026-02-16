@@ -24,10 +24,15 @@ export async function GET(
             )
         }
 
-        // Fetch student with skills, projects, and group membership
+        // Fetch student with skills, projects, group membership, and user email
         const student = await prisma.student.findUnique({
             where: { id: studentId },
             include: {
+                user: {
+                    select: {
+                        email: true,
+                    },
+                },
                 skills: true,
                 projects: true,
                 groupMember: {
@@ -111,6 +116,7 @@ export async function GET(
                 data: {
                     id: student.id,
                     name: student.name,
+                    email: student.user.email,
                     department: student.department,
                     semester: student.currentSemester,
                     profilePicture: student.profilePicture,

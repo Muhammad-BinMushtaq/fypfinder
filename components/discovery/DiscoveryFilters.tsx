@@ -18,6 +18,7 @@
 
 import { useState } from "react";
 import type { DiscoveryFilters as Filters } from "@/services/discovery.service";
+import { DEPARTMENTS } from "@/lib/departments";
 
 interface DiscoveryFiltersProps {
   pendingFilters: Filters;
@@ -33,15 +34,6 @@ interface DiscoveryFiltersProps {
   isFetching?: boolean;
 }
 
-// Available departments (could be fetched from backend in future)
-const DEPARTMENTS = [
-  { value: "CS", label: "Computer Science" },
-  { value: "SE", label: "Software Engineering" },
-  { value: "AI", label: "Artificial Intelligence" },
-  { value: "DS", label: "Data Science" },
-  { value: "IT", label: "Information Technology" },
-  { value: "CY", label: "Cyber Security" },
-];
 
 // Available semesters for FYP students
 const SEMESTERS = [

@@ -6,6 +6,7 @@ import { SkillsSection } from "@/components/student/SkillsSection";
 import { ProjectsSection } from "@/components/student/ProjectsSection";
 import { ProfileForm } from "@/components/student/ProfileForm";
 import { ProfilePictureUpload } from "@/components/student/ProfilePictureUpload";
+import { getDepartmentLabel } from "@/lib/departments";
 
 export default function ProfilePage() {
   const { profile, isLoading, error } = useMyProfile();
@@ -100,7 +101,7 @@ export default function ProfilePage() {
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-4">
                   {/* Department Badge */}
                   <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-slate-700 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-600">
-                    🎓 {profile.department}
+                    🎓 {getDepartmentLabel(profile.department)}
                   </span>
                   
                   {/* Semester Badge */}
