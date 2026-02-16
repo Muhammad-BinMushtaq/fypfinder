@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState, useCallback } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useQueryClient } from "@tanstack/react-query"
 import { MessageList } from "./MessageList"
@@ -39,6 +39,9 @@ interface RealtimePayload {
 
 type ConnectionStatus = "connecting" | "connected" | "disconnected" | "error"
 
+// Polling interval in milliseconds
+const POLLING_INTERVAL = 3000 // 3 seconds
+
 export function ChatWindow({
   conversationId,
   currentStudent,
@@ -48,28 +51,30 @@ export function ChatWindow({
   const queryClient = useQueryClient()
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>("connecting")
   const channelRef = useRef<ReturnType<ReturnType<typeof getSupabaseClient>["channel"]> | null>(null)
-  const fallbackIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
   const { messages, isLoading, isError, error, refetch } = useMessages(conversationId)
   const { sendMessage, isPending } = useSendMessage()
 
-  // Fallback polling when realtime is not connected
-  const startFallbackPolling = useCallback(() => {
-    if (fallbackIntervalRef.current) return // Already polling
-    
-    fallbackIntervalRef.current = setInterval(() => {
+  // Always-on polling as the primary message update mechanism
+  // This ensures messages update even if Supabase Realtime isn't working
+  useEffect(() => {
+    if (!conversationId) return
+
+    // Start polling immediately
+    pollingIntervalRef.current = setInterval(() => {
       refetch()
-    }, 5000) // Poll every 5 seconds
-  }, [refetch])
+    }, POLLING_INTERVAL)
 
-  const stopFallbackPolling = useCallback(() => {
-    if (fallbackIntervalRef.current) {
-      clearInterval(fallbackIntervalRef.current)
-      fallbackIntervalRef.current = null
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current)
+        pollingIntervalRef.current = null
+      }
     }
-  }, [])
+  }, [conversationId, refetch])
 
-  // 🔔 REALTIME: listen to messages for THIS conversation
+  // 🔔 REALTIME: Enhanced real-time subscription (supplements polling)
   useEffect(() => {
     if (!conversationId || !currentStudent.id) return
 
@@ -84,33 +89,22 @@ export function ChatWindow({
           event: "INSERT",
           schema: "public",
           table: "Message",
-          // NOTE: Do NOT use filter here! Supabase Realtime filters require
-          // the column to be in the table's replica identity. Instead, we
-          // listen to all INSERTs and manually check conversationId below.
         },
         (payload: RealtimePayload) => {
           // Handle errors in payload
           if (payload?.errors?.length) {
             clientLogger.warn("[Chat] Realtime payload errors:", payload.errors)
-            // Fallback: refetch from server
-            queryClient.invalidateQueries({
-              queryKey: ["messages", conversationId],
-            })
             return
           }
           
-          // If RLS blocks payload or invalid data, refetch from server
+          // If RLS blocks payload or invalid data, skip
           if (!payload?.new || !payload.new.id || !payload.new.conversationId) {
-            clientLogger.warn("[Chat] Invalid realtime payload, refetching")
-            queryClient.invalidateQueries({
-              queryKey: ["messages", conversationId],
-            })
             return
           }
           
           const newRow = payload.new
 
-          // ✅ MANUAL FILTER: Only process messages for THIS conversation
+          // Only process messages for THIS conversation
           if (newRow.conversationId !== conversationId) {
             return
           }
@@ -135,11 +129,10 @@ export function ChatWindow({
             },
           }
 
-          // ✅ SINGLE SOURCE OF TRUTH: React Query cache
+          // Add to cache (prevents duplicates)
           queryClient.setQueryData<Message[]>(
             ["messages", conversationId],
             (old = []) => {
-              // Prevent duplicates
               if (old.some((m) => m.id === newMessage.id)) return old
               return [...old, newMessage]
             }
@@ -149,21 +142,16 @@ export function ChatWindow({
       .subscribe((status: string, err?: Error) => {
         if (status === "SUBSCRIBED") {
           setConnectionStatus("connected")
-          stopFallbackPolling() // Stop polling when connected
         } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
           setConnectionStatus("error")
-          startFallbackPolling() // Start polling as fallback
         } else if (status === "CLOSED") {
           setConnectionStatus("disconnected")
-          startFallbackPolling()
         }
       })
 
     channelRef.current = channel
 
-    // Cleanup on unmount or dependency change
     return () => {
-      stopFallbackPolling()
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current)
         channelRef.current = null
@@ -175,8 +163,6 @@ export function ChatWindow({
     otherStudent.name,
     otherStudent.profilePicture,
     queryClient,
-    startFallbackPolling,
-    stopFallbackPolling,
   ])
 
   const handleSendMessage = (content: string) => {

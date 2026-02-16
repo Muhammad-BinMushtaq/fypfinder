@@ -4,8 +4,6 @@
 import { useRequireAuth } from "@/hooks/auth/useRequireAuth";
 import { useSession } from "@/hooks/auth/useSession";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
-import { NotificationBell } from "@/components/notifications";
-import { NotificationProvider } from "@/contexts/NotificationContext";
 import { SuspensionBanner } from "@/components/student/SuspensionBanner";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ReactNode, useState } from "react";
@@ -67,42 +65,37 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <NotificationProvider>
-      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex">
-        {/* Sidebar */}
-        <DashboardSidebar
-          userEmail={user?.email || "user@example.com"}
-          onLogout={handleLogout}
-          isLoggingOut={isLoggingOut}
-        />
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex">
+      {/* Sidebar */}
+      <DashboardSidebar
+        userEmail={user?.email || "user@example.com"}
+        onLogout={handleLogout}
+        isLoggingOut={isLoggingOut}
+      />
 
-        {/* Main content */}
-        <main className="flex-1 lg:ml-72">
-          {/* Top Header Bar with Notification Bell */}
-          <div className="sticky top-0 z-40 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-gray-200 dark:border-slate-700 px-4 py-3 lg:px-6">
-            <div className="flex items-center justify-end gap-3">
-              {/* Theme Toggle */}
-              <ThemeToggle />
-
-              {/* Notification Bell */}
-              <NotificationBell />
-              
-              {/* User Avatar (small) */}
-              <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xs">
-                {user?.email?.charAt(0).toUpperCase() || "U"}
-              </div>
+      {/* Main content */}
+      <main className="flex-1 lg:ml-72">
+        {/* Top Header Bar */}
+        <div className="sticky top-0 z-40 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-gray-200 dark:border-slate-700 px-4 py-3 lg:px-6">
+          <div className="flex items-center justify-end gap-3">
+            {/* Theme Toggle */}
+            <ThemeToggle />
+            
+            {/* User Avatar (small) */}
+            <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xs">
+              {user?.email?.charAt(0).toUpperCase() || "U"}
             </div>
           </div>
+        </div>
 
-          {/* Suspension/Deletion Banner */}
-          <SuspensionBanner />
+        {/* Suspension/Deletion Banner */}
+        <SuspensionBanner />
 
-          {/* Page Content */}
-          <div>
-            {children}
-          </div>
-        </main>
-      </div>
-    </NotificationProvider>
+        {/* Page Content */}
+        <div>
+          {children}
+        </div>
+      </main>
+    </div>
   );
 }

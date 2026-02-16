@@ -12,9 +12,8 @@ export async function PATCH(req: Request) {
 
         const body = await req.json()
 
+        // Note: name and department are intentionally excluded - they cannot be changed
         const {
-            name,
-            department,
             currentSemester,
             profilePicture,
             interests,
@@ -24,14 +23,12 @@ export async function PATCH(req: Request) {
             availability,
         } = body
 
-        //  Update only provided fields
+        //  Update only provided fields (excluding name and department)
         const student = await prisma.student.update({
             where: {
                 userId: user.id,
             },
             data: {
-                ...(name !== undefined && { name }),
-                ...(department !== undefined && { department }),
                 ...(currentSemester !== undefined && { currentSemester }),
                 ...(profilePicture !== undefined && { profilePicture }),
                 ...(interests !== undefined && { interests }),

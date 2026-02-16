@@ -17,7 +17,6 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
   const [formData, setFormData] = useState({
-    name: "",
     interests: "",
     phone: "",
     linkedinUrl: "",
@@ -29,7 +28,6 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   useEffect(() => {
     if (profile) {
       setFormData({
-        name: profile.name || "",
         interests: profile.interests || "",
         phone: profile.phone || "",
         linkedinUrl: profile.linkedinUrl || "",
@@ -58,7 +56,6 @@ export function ProfileForm({ profile }: ProfileFormProps) {
 
   const handleCancel = () => {
     setFormData({
-      name: profile.name || "",
       interests: profile.interests || "",
       phone: profile.phone || "",
       linkedinUrl: profile.linkedinUrl || "",
@@ -132,24 +129,15 @@ export function ProfileForm({ profile }: ProfileFormProps) {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-7">
-          {/* Name */}
+          {/* Name (Read-only) */}
           <div>
             <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
               Full Name
             </label>
-            {isEditing ? (
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent outline-none transition-all text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
-                required
-              />
-            ) : (
-              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-900 dark:text-white font-medium border border-gray-200 dark:border-slate-600 text-sm sm:text-base">
-                {profile.name}
-              </div>
-            )}
+            <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-100 dark:bg-slate-700/50 rounded-lg text-gray-700 dark:text-gray-400 font-medium border border-gray-200 dark:border-slate-600 cursor-not-allowed opacity-75 text-sm sm:text-base">
+              {profile.name}
+              <span className="ml-1 sm:ml-2 text-[10px] sm:text-xs text-gray-500 dark:text-gray-500">(Cannot be changed)</span>
+            </div>
           </div>
 
           {/* Department (Read-only) */}
