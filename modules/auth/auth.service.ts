@@ -12,40 +12,43 @@ export type StudentIDValidationResult =
       error: string
     }
 
-
 export function validateStudentID(studentId: string): StudentIDValidationResult {
-  // Only accept lowercase letters
-  const studentIdRegex = /^b\d{2}[fs]\d{4}[a-z]{2}\d{3}$/
+  // Normalize input (allow uppercase or lowercase)
+  const normalizedId = studentId.trim().toLowerCase()
 
-  if (!studentIdRegex.test(studentId)) {
+  /**
+   * Format Supported:
+   * B23S0295SE014
+   * b23s0295se014
+   * Department code can be 2–4 letters
+   *
+   * Pattern:
+   * b + 2 digits year
+   * + f|s
+   * + 4 digits
+   * + 2–4 letters (department)
+   * + 3 digits
+   */
+  const studentIdRegex = /^b(\d{2})([fs])\d{4}([a-z]{2,4})\d{3}$/
+
+  const match = normalizedId.match(studentIdRegex)
+
+  if (!match) {
     return {
       valid: false,
-      error: "Invalid student ID format. Expected: bxxf0001aixxx (lowercase only)",
+      error:
+        "Invalid student ID format. Example: B23S0295SE014",
     }
   }
 
-  // Extract components
-  const degree = studentId[0] // b
-  const admissionYear = parseInt(studentId.substring(1, 3)) // 23
-  const admissionSession = studentId[3] // f | s
-  const department = studentId.substring(8, 10).toUpperCase() // ✅ SE, CY, CS (convert to uppercase for storage)
-
-  // ❌ Only bachelors allowed
-  if (degree !== "b") {
-    return { valid: false, error: "Only bachelor students can signup" }
-  }
-
-  // ❌ Validate session
-  if (admissionSession !== "f" && admissionSession !== "s") {
-    return {
-      valid: false,
-      error: "Invalid session. Must be f (Fall) or s (Spring)",
-    }
-  }
+  const admissionYear = parseInt(match[1])
+  const admissionSession = match[2] // f | s
+  const department = match[3].toUpperCase() // dynamic length (2–4 letters)
 
   // =============================
-  // Semester calculation
+  // Semester calculation (UNCHANGED LOGIC)
   // =============================
+
   const now = new Date()
   const currentYear = now.getFullYear()
   const currentMonth = now.getMonth() + 1
@@ -76,7 +79,7 @@ export function validateStudentID(studentId: string): StudentIDValidationResult 
     currentSemester += 1
   }
 
-  // ❌ Semester validation
+  // ❌ Semester validation (UNCHANGED)
   if (currentSemester < 5) {
     return {
       valid: false,

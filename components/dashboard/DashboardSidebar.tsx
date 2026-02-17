@@ -47,6 +47,12 @@ const navItems: NavItem[] = [
     icon: "📋",
   },
   {
+    label: "Previous FYPs",
+    href: "/dashboard/fyp-ideas",
+    icon: "💡",
+    badge: "New",
+  },
+  {
     label: "Settings",
     href: "/dashboard/settings",
     icon: "⚙️",

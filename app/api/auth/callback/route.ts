@@ -44,9 +44,18 @@ export async function GET(req: Request) {
         }
 
         // Validate university email domain
-        if (!email.endsWith("@paf-iast.edu.pk")) {
+        const allowedDomains = [
+            "paf-iast.edu.pk",
+            "fecid.paf-iast.edu.pk"
+        ]
+
+        const emailDomain = email.split("@")[1]
+
+        if (!allowedDomains.includes(emailDomain)) {
             await supabase.auth.signOut()
-            return NextResponse.redirect(`${origin}/login?error=Only%20PAF-IAST%20university%20emails%20are%20allowed`)
+            return NextResponse.redirect(
+                `${origin}/login?error=Only%20PAF-IAST%20university%20emails%20are%20allowed`
+            )
         }
 
         // Extract registration number from email
