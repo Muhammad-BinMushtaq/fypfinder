@@ -1,0 +1,335 @@
+[
+    {
+        "Group#":1,
+        "Student Name":"Talha Badar ,Ayesha Wajid ",
+        "Registration No":"B22f0080cs057,B22f1116cs027",
+        "Internal Supervisor":"Dr Arshad Iqbal ",
+        "FYP Title":"Edge AI-based Wildlife Detection and Biodiversity\nMapping in Alpine Regions",
+        "Abstract":"This project develops a mobile app using Edge AI to detect wildlife species in real-time in alpine regions. The app runs a lightweight AI model on-device (using TensorFlow Lite), geotags the detections, and stores data in Firebase. It helps researchers map biodiversity in remote areas without needing constant internet access.",
+        "Thematic Area":"Edge AI (On-device)\nComputer Vision (Recognition)\nMobile Computing (Portability)\nEnvironmental Monitoring(Observation)\nBiodiversity Mapping (Visualization)"
+    },
+    {
+        "Group#":2,
+        "Student Name":"Emal Kamawal, Humayun Haroon Maan",
+        "Registration No":"B22F1813CS118, B22F0074CS037",
+        "Internal Supervisor":"Dr Shahnawaz Qureshi",
+        "FYP Title":"Thought Viz (Thought Visualization)",
+        "Abstract":"\u00a0",
+        "Thematic Area":"\u00a0"
+    },
+    {
+        "Group#":3,
+        "Student Name":"Syed Mustafa Badshah, Asad Ullah Shah, Muhammad Muddasar Yasin (Yasin)(Abroad)",
+        "Registration No":"B22F0465CS023,B22F0191CS038, B22F0779CS052",
+        "Internal Supervisor":"Dr Arshad Iqbal ",
+        "FYP Title":"AI Powered Fabric Classification System for Denim Industry",
+        "Abstract":"the textile and denim industry in Pakistan plays a crucial role in global exports, particularly to markets in the USA and Europe. One of the operational challenges faced by denim manufacturers is the accurate identification of denim fabrics from images sent by clients during reordering processes. Due to the complex variations in patterns, textures, and colors, manual identification is unreliable and inefficient.\nThis project aims to develop an intelligent fabric classification system using deep learning techniques. A custom image dataset comprising 105 subclasses under 21 primary denim fabric categories will be created. A Convolutional Neural Network (CNN), specifically a fine-tuned VGG16 model, will be trained on this dataset to classify fabric images with high accuracy. The final model will be integrated into a user-friendly Flutter-based web and mobile application, allowing users to upload fabric images and instantly receive the class and subclass of the fabric.\nThis solution is expected to streamline the identification and reordering process, reduce human error, improve response time, and enhance client satisfaction. It serves as a practical application of machine learning and computer vision in the textile manufacturing domain",
+        "Thematic Area":"Artificial Intelligence (AI)\nComputer Vision\nDeep Learning\nIndustrial Automation\nMobile and Web Application Development"
+    },
+    {
+        "Group#":4,
+        "Student Name":"Omama Sajid , Seerat E Marryum, Saleha Arshad",
+        "Registration No":"B22F0070CS084, B22F0168CS036, B22F0354CS089",
+        "Internal Supervisor":"Dr Shahnawaz Qureshi",
+        "FYP Title":"IrisGuard:Deep Vision Security",
+        "Abstract":"This project explores iris-based biometric authentication using Convolutional Neural Networks (CNNs). Although the left and right irises of an individual are not identical due to independent developmental processes, CNNs can effectively extract and learn unique features from each iris separately. The system identifies users based on a single enrolled iris, enabling accurate and secure authentication. The project aims to demonstrate how deep learning models can handle such intra-person variation while maintaining high recognition performance.",
+        "Thematic Area":"AI, Cybersecurity, Computer Vision"
+    },
+    {
+        "Group#":5,
+        "Student Name":"Zawish Noor, Aleesha Khan, Shujahat Alam ",
+        "Registration No":"B22F0189CS086, B22F0647CS047, B22F0556CS032",
+        "Internal Supervisor":"Mr. Adil Khan",
+        "FYP Title":"IOT BASED SMART IRRIGATION SYSTEM FOR NON-SEASONAL PLANTS ",
+        "Abstract":"This project aims to design, develop, and evaluate an integrated Learning Management System (LMS) that incorporates innovative features to enhance student engagement and learning outcomes. The proposed LMS will utilize cutting-edge technologies to provide a user-friendly interface, personalized learning experiences, and real-time analytics. The system will be tested and evaluated through a pilot study involving students and educators, assessing its effectiveness in improving academic performance, student satisfaction, and teacher-student interaction. The findings of this project will contribute to the development of more effective LMS solutions, informing educators and policymakers about the potential of technology-enhanced learning environments.",
+        "Thematic Area":"Big Data, Database & Data Science "
+    },
+    {
+        "Group#":6,
+        "Student Name":"Waqar Ali, Sir Zaigham Abdullah Bin Qasim, Raja Siraj Gul",
+        "Registration No":"B22F0180CS079, B22F0464CS017, B22F0470CS076 ",
+        "Internal Supervisor":"Dr Arshad Iqbal ",
+        "FYP Title":"DetectForge: A Multimodal Deepfake Detection System for Image, Video & Audio Integrity ",
+        "Abstract":"This project introduces DetectForge, a smart system that finds fake content in images, videos, and audio using\nartificial intelligence. It uses machine learning techniques like CNNs, GNNs, and sound analysis to check if the\nmedia is real or fake. The system detects synthetic manipulations and provides real-time feedback via a user\nfriendly web interface. It aims to enhance digital media authenticity and support decision-making in journalism,\nlegal evidence, and cybersecurity applications.",
+        "Thematic Area":"AI, ML\/DL, Computer Vision, Cybersecurity"
+    },
+    {
+        "Group#":7,
+        "Student Name":"Urooj Fatima, Haleema Sadia",
+        "Registration No":"B22F0431CS021, B22F0543CS095",
+        "Internal Supervisor":"Dr. Abdul Waheed Khan",
+        "FYP Title":"CrimAI: AI-Powered Facial Recognition for Suspect Identification",
+        "Abstract":"This project aims to develop an intelligent system that detects and identifies suspects in lengthy CCTV footage using face recognition technology. Given a suspect's image, the system filters and scans the footage using motion detection and matches faces with the input image. The system supports multiple suspects, real-time camera integration, GUI-based interaction, and logging of match events. It minimizes manual effort and aids law enforcement in forensic investigations.",
+        "Thematic Area":"AI, Digital Forensics, Computer Vision, ML\/DL"
+    },
+    {
+        "Group#":8,
+        "Student Name":"Khaleeq ur Rahman, Ahmad Jawad",
+        "Registration No":"B22f0205cs022, B22F0536CS003",
+        "Internal Supervisor":"Dr. Shuaib Qureshi",
+        "FYP Title":"AI-Powered Eye Care",
+        "Abstract":"\u00a0",
+        "Thematic Area":"AI, ML\/DL, Computer Vision, Web Development"
+    },
+    {
+        "Group#":9,
+        "Student Name":"]",
+        "Registration No":"B22F0202CS015,B22F0338CS109,B22F0925CS014",
+        "Internal Supervisor":"Dr. Ihtisham Ali",
+        "FYP Title":"Khana e Khaana",
+        "Abstract":"\nKhana e Khaana is a mobile platform that connects home chefs with customers seeking fresh, homemade meals. It enables chefs to earn, customers to access healthy food, and supports secure ordering, real-time tracking, and scalability.",
+        "Thematic Area":"Mobile and Web Application Development"
+    },
+    {
+        "Group#":10,
+        "Student Name":"Shujahat ali khan, Uzair rafiq, Nimra malik",
+        "Registration No":"B22F1076CS115, B22F0894CS075, B22F1021CS081",
+        "Internal Supervisor":"Dr. Shuaib Qureshi",
+        "FYP Title":"Air canvas Face Authentication and Hand tracking Application ",
+        "Abstract":"This project presents an Air Canvas system that enables touchless drawing and interaction using computer vision\u2013based hand tracking. The system allows users to draw and write on a virtual canvas through real-time finger movement captured via a webcam. To ensure secure access, face authentication is integrated, allowing only authorized users to activate the canvas. Hand landmark detection is used to achieve smooth and responsive interaction, while a graphical user interface provides basic controls such as starting and clearing the canvas. The proposed system demonstrates an effective application of Human\u2013Computer Interaction (HCI) by combining face authentication and gesture-based interaction, offering a natural, secure, and contactless solution for digital drawing and interactive applications.\u00a0I would be grateful if this correction could be made at your convenience. Please let me know if any further clarification or documentation is required from my side.",
+        "Thematic Area":"Artificial Intelligence, Edge Computing, Smart Cities, Embedded Systems, Computer Vision, IoT for Urban Infrastructure"
+    },
+    {
+        "Group#":11,
+        "Student Name":"Jarrar Abdullah Bin Qasim , Ahmed Saleem, Huzaifa Bin Muneer ",
+        "Registration No":"B22F0508CS016 , B21F0418CS033, B22F0821CS068 ",
+        "Internal Supervisor":"Dr. Shuaib Qureshi",
+        "FYP Title":"Neura Cart- AI Powered AR E-Commerce Platform for Handicrafts",
+        "Abstract":"Neura Cart is an AI-powered e-commerce app made to help local artisans sell their handmade products online.With Augmented Reality (AR), customers can see how items look in their home before buying.",
+        "Thematic Area":"\u00a0"
+    },
+    {
+        "Group#":12,
+        "Student Name":"Rabia, Areesha Azhar",
+        "Registration No":"B22F1150CS059,B22F0625CS065",
+        "Internal Supervisor":"Dr. Shuaib Qureshi",
+        "FYP Title":"Smart Attendence System Using Face Recognition and Real-Time Detection",
+        "Abstract":"This Project to develop an automated attendence system using facial recognition technology to ensure accuracy, security, and efficiency by utilizing a camera based face detection system and matchig algorithms.",
+        "Thematic Area":"AI and Data-Driven Innovation"
+    },
+    {
+        "Group#":13,
+        "Student Name":"Ahmad Yar Hassan Khan, Sohaib Abdullah Sadiq",
+        "Registration No":"B22F0677CS049, B22F1155CS131",
+        "Internal Supervisor":"Dr. Shuaib Qureshi",
+        "FYP Title":"Operation Black Merage( Game on Unreal Engine 5)",
+        "Abstract":"This project is a first-person shooter game set during the 1965 war between Pakistan and India, designed to deliver a cinematic and immersive experience. Utilizing Unreal Engine 5, it blends historical storytelling with advanced gameplay mechanics, focusing on a covert military operation in Kashmir.",
+        "Thematic Area":"AI, Game Development, 3D Modelling & Animation, Level Design, Unreal Engine, NVIDIA DLSS, AMD FSR."
+    },
+    {
+        "Group#":14,
+        "Student Name":"Ibrahim Nasim Malik, Wasi Ullah Khan, Shahab Ullah Sajid",
+        "Registration No":"b22f1140cs010,b22f1007cs050,b22f0661cs074",
+        "Internal Supervisor":"Dr. Shuaib Qureshi",
+        "FYP Title":"Ai powered travel agency website app",
+        "Abstract":"An AI-powered travel website that provides personalized trip suggestions, real-time weather, and map integration, with secure login and admin management using modern web technologies.",
+        "Thematic Area":"Tech Stack: Next.Js , Express.Js, API's and LangChain."
+    },
+    {
+        "Group#":15,
+        "Student Name":"Syed Ibrahim Gillani, Umer Jalil Qureshi , Zain-ul-Abideen",
+        "Registration No":"B22F1482CS005, B22F1108CS031, B22F0655CS013 ",
+        "Internal Supervisor":"Dr. Shuaib Qureshi",
+        "FYP Title":"A Smart Cyber Security Model for Detecting Malicious and Phishing Emails",
+        "Abstract":"The final product of this FYP is PhishNet, a fully functional AI-powered Chrome browser extension designed to detect phishing websites and malicious emails in real time. The system operates transparently in the background while users browse the web or access Gmail and Outlook, automatically analyzing URLs and email content using a combination of heuristic rules and machine-learning models. When a threat is identified, PhishNet displays clear, non-technical warning banners or pop-ups to prevent users from interacting with malicious content. The extension is supported by a Python Flask backend that handles detection logic, model inference, and data management, while a database stores phishing domains, scan results, and user reports. A built-in reporting mechanism allows users to flag suspicious links, enabling continuous improvement of the detection models. Overall, the final deliverable is not just a report or prototype, but a deployable cybersecurity tool that provides lightweight, real-time phishing protection for both technical and non-technical users, supported by complete documentation and evaluation as required for the FYP",
+        "Thematic Area":"Tech Stack: React.js, Langflow (or LangChain), CoinGecko\/Binance API, Python backend\nKey Skills: Web dev, blockchain API, NLP, data analysis"
+    },
+    {
+        "Group#":16,
+        "Student Name":"Sardar Zohaib Ahmed,Mashab Jadoon, Hashir Iqbal",
+        "Registration No":"B22F0220CS135, B22F0834CS124, B22F0156CS082",
+        "Internal Supervisor":"Dr. Kamran Javed",
+        "FYP Title":"AI Based Health Assistant System",
+        "Abstract":"This Platform aims to develop a smart, AI-based virtual health assistant that gives basic health support, information, and advice. It will use machine learning and natural language tools to understand what users say, check their symptoms, and suggest possible reasons and helpful tips. The system will be easy to use and always available, helping people understand their health better without needing to visit a doctor right away.",
+        "Thematic Area":"AI-Driven Healthcare Support and Symptom Analysis using NLP and Machine Learning"
+    },
+    {
+        "Group#":17,
+        "Student Name":"Sohaib Imran,Syed Hassan Abdullah,Waniya Ayub(SADAAT)",
+        "Registration No":"B22F0890CS042,B22F0599CS073,B22F1789SDT035",
+        "Internal Supervisor":"Dr. Rizwan Akhter , Ma'am Saman (SDAAT)",
+        "FYP Title":"SWASH: Your AI Stylist",
+        "Abstract":"\u00a0",
+        "Thematic Area":"Virtual Reality,Ai\/Ml,AppDeve,ChatBotDev"
+    },
+    {
+        "Group#":18,
+        "Student Name":"Mohammed Askee, Azeem Mohamed Husain, Fathima Misna",
+        "Registration No":"B22F0758CS143, B22F0759CS142, B22F0757AI142",
+        "Internal Supervisor":"Dr. Abdul Waheed Khan",
+        "FYP Title":"Verisight: Lightweight, Open-Source SIEM Framework with Rule-Based and ML-Powered Threat Detection",
+        "Abstract":"It collects and analyzes system logs for threat detection, alerting, and visualization. The system includes both rule-based and AI-powered anomaly detection to monitor suspicious activity in real time. It is designed for local deployment and optimized for ease of use and cost-efficiency, making it ideal for academic and small business environments.",
+        "Thematic Area":"Cybersecurity, Data Analytics, Machine Learning \/ AI, Web Application Development, Network Security, Open-Source Systems, Threat Detection\u00a0&\u00a0Response"
+    },
+    {
+        "Group#":19,
+        "Student Name":"Zia ur rahman, imad ud din, hammad ali khan",
+        "Registration No":"B22F0582CS094,B22F1049CS024 ,B22F0671CS067 ,",
+        "Internal Supervisor":"Dr. Shuaib Qureshi",
+        "FYP Title":"Web-Based Spine Disease Detection System Using X-Ray Images",
+        "Abstract":"The SpineVision AI project aims to create a web-based system that helps doctors detect common spine problems, such as scoliosis, fractures, and disc issues, using X-ray images. This system uses artificial intelligence (AI) to analyze X-rays quickly and accurately, supporting doctors in areas with limited access to expert radiologists. It features an easy-to-use website where doctors can upload X-ray images, view results, and download reports. The system also highlights problem areas on X-rays to help doctors understand the AI\u2019s findings. Designed for adults, it works with standard X-ray images and ensures patient data privacy and security. By providing faster and more consistent diagnoses, this project seeks to improve healthcare in Pakistan, especially in remote areas, while assisting doctors without replacing them.",
+        "Thematic Area":"Healthcare Technology: Using AI and X-ray images to help doctors find spine problems faster.\nAccessible Diagnosis: Making it easier for doctors, especially in remote areas of Pakistan, to diagnose spine issues.\nPatient Care: Improving health outcomes by catching spine diseases early.\nEthical and Trustworthy: Ensuring patient data is safe and the system is clear about its results."
+    },
+    {
+        "Group#":20,
+        "Student Name":"Muhammad Hayan Khan, Hamna Masood",
+        "Registration No":"B22F0505CS114, B22F0565CS136",
+        "Internal Supervisor":"Dr. Kamran Javed",
+        "FYP Title":"Hospital information management system with agentic ai calling",
+        "Abstract":"A web based software for health ways kohat hospital that digitalizes all their process, finances and management on cloud, and allows agentic ai calls for booking appointments",
+        "Thematic Area":"Tech stack : React, supabase, node, n8n, gemini flash for agent"
+    },
+    {
+        "Group#":21,
+        "Student Name":"Muhammad Awais, Muhammad Huzaifa Tanveer, Hisham Sohail",
+        "Registration No":"B22F1631CS139,B22F1549CS034,B22F1046CS104",
+        "Internal Supervisor":"Dr. Rizwan Akhter",
+        "FYP Title":"AI Based GYM Poses Tracker with Chat Bot.",
+        "Abstract":"An AI-based gym poses tracker that counts reps of exercises like push-ups and pull-ups, detects whether poses are correct or not, and provides feedback through a chatbot with health, diet, and posture improvement suggestions.",
+        "Thematic Area":"Artificial Intelligence in Fitness & Health"
+    },
+    {
+        "Group#":22,
+        "Student Name":"Faizan Zeb , Abdullah Zahid, Raja Ahmed Abdullah ",
+        "Registration No":"B22F0361CS107, B22F0617CS028, B22F1257DS034",
+        "Internal Supervisor":"Mr. Rehan Tariq",
+        "FYP Title":"Heart Disease Prediction using Multi model",
+        "Abstract":"Our project is about building a FHIR-compliant medical registry that standardizes health data, anonymizes patient information for privacy, and provides an analytics dashboard for research insights. In simple terms, it makes medical data sharable, secure, and useful for decision-making in healthcare and research.",
+        "Thematic Area":"Healthcare Data Interoperability & Analytics."
+    },
+    {
+        "Group#":23,
+        "Student Name":"Muhammad Moeez,Yaseen yousaf, Ahmed Eahi",
+        "Registration No":"B22F0187CS090,B22F1476CS041, B22f0678CS026",
+        "Internal Supervisor":"Dr. Rizwan Akhter",
+        "FYP Title":"Intelligent 360 car vision with AI powered object detection",
+        "Abstract":"This project introduces a 360\u00b0 car view system with AI-powered blind spot detection to improve driver safety. Using multiple cameras, the system creates a bird\u2019s-eye view of the vehicle while AI models detect nearby vehicles, pedestrians, and obstacles in blind spots. Real-time alerts and visual feedback help drivers avoid collisions, providing an affordable and efficient driver assistance solution.",
+        "Thematic Area":"\u00a0Artificial Intelligence in Transportation System\/ Advanced Driver Assistance Systems (ADAS)"
+    },
+    {
+        "Group#":24,
+        "Student Name":"Fawad haider, Abdur Rehman, summaiya ",
+        "Registration No":"B22F0491CS009 , B22F0760CS141 , B22F0756AI141",
+        "Internal Supervisor":"Dr. Shuaib Qureshi",
+        "FYP Title":"UAV-Based Leaf Disease Detection and Canopy Health Monitoring for Smart Agriculture",
+        "Abstract":"This project presents a deep learning-driven UAV-based system for automated leaf disease detection and canopy health monitoring in agriculture. High-resolution images captured by drones are preprocessed and analyzed for disease classification, while enables real-time localization of infected regions. The system provides farmers with a scalable, accurate, and early-warning solution for monitoring plant health, reducing losses, and supporting sustainable precision agriculture.",
+        "Thematic Area":"UAVs & Remote Sensing in Agriculture"
+    },
+    {
+        "Group#":25,
+        "Student Name":"Shoaib khan, Usman Ali khan",
+        "Registration No":"B22F0877CS055, B22F1136CS011",
+        "Internal Supervisor":"Dr. Rashid Naseem",
+        "FYP Title":"IntelliCampus Empowering students through  an Intelligent university assistance system ",
+        "Abstract":"IntelliCampus is a chatbot designed to provide accurate, timely information to students at PAI-IAST, addressing inefficiencies in admissions, academic advising, and administrative support. Utilizing natural language processing and a comprehensive dataset from university sources. it will be deployed as a mobile app to enhance accessibility, fostering student empowerment and institutional efficiency in Pakistan\u2019s higher education sector.",
+        "Thematic Area":"Digital Transformation in Education"
+    },
+    {
+        "Group#":26,
+        "Student Name":"Saith asfand yar ,Raja Sami Ullah Zaib, M Ibrahim",
+        "Registration No":"B22F0351CS066 ,B22F0687CS108,B22F0082CS061",
+        "Internal Supervisor":"Dr. Shuaib Qureshi",
+        "FYP Title":"Real-Time Anomaly Detection System using\u00a0AI",
+        "Abstract":"An AI-powered real-time anomaly detection system that monitors network traffic, blocks suspicious IPs, and empowers administrators with adaptive cybersecurity defense.",
+        "Thematic Area":"Artificial Intelligence & Cybersecurity"
+    },
+    {
+        "Group#":27,
+        "Student Name":"Muhammad Talha Ali, Atif Ullah",
+        "Registration No":"B22F0868CS007, B22F1401CS051",
+        "Internal Supervisor":"Dr. Rashid Naseem",
+        "FYP Title":"Malware Detection using API Sequence Semantic Fusion: Enhancing Detection with CodeBert and Transformers In OT Envionment",
+        "Abstract":"This Project Builds a hybrid malware detection system for SCADA in OT environments, using  CodeBert and Transformers to detect ransomware more accurately. It runs on OT-Specific datasets with a Django web interface for fast, real-time log analysis, aiming to reduce errors and improve security",
+        "Thematic Area":"Cybersecurity for Critical Infrastructure (OT\/SCADA Security)"
+    },
+    {
+        "Group#":28,
+        "Student Name":"Zara Khan, Waleeja Atif",
+        "Registration No":"B22F0331CS001, B22F1260CS125",
+        "Internal Supervisor":"Dr. Musadaq Mansoor",
+        "FYP Title":"FocusTrack: AI-Powered Focus & Mental Wellness Companion",
+        "Abstract":"This project is an AI-powered wellness app that helps users regain focus, reduce stress, and overcome digital distractions. It monitors screen habits, sends smart reminders, and guides users with simple exercises to stay productive and balanced.",
+        "Thematic Area":"\u00a0"
+    },
+    {
+        "Group#":29,
+        "Student Name":"Muhammad Usama , Muhammad Sher khan ",
+        "Registration No":"B22FO580CS101 , B22F0542CS071",
+        "Internal Supervisor":"Dr Arshad Iqbal ",
+        "FYP Title":"AI-Driven Internship and Verification Model ",
+        "Abstract":"This FYP is a web and Mobile Based internship portal where companies and students can connect",
+        "Thematic Area":"\u00a0"
+    },
+    {
+        "Group#":30,
+        "Student Name":"Syed Muhammad Ali Hassan, Bilal Javed, Syed Saif ul hassan",
+        "Registration No":"B21F0490CS035, B22F0379CS054, B22F1060CS019",
+        "Internal Supervisor":"Dr. Shuaib Qureshi",
+        "FYP Title":"AI-Powered Plant Disease Detection ",
+        "Abstract":"Plant diseases pose a significant threat to global agriculture, leading to reduced crop yields and economic losses. Early detection and accurate diagnosis are critical for effective disease management and sustainable farming practices.",
+        "Thematic Area":"Artificial Intelligence and Deep Learning Applications in Agriculture"
+    },
+    {
+        "Group#":31,
+        "Student Name":"Ainee Zia, Maryam Ayoub (SE)",
+        "Registration No":"B22F0733CS029, B22F0805SE124",
+        "Internal Supervisor":"Dr. Rashid Naseem",
+        "FYP Title":"Generative Design of Sodium-Ion battery material using GANs",
+        "Abstract":"\u00a0",
+        "Thematic Area":"Artificial Intelligence and Generative Recommendation Systems."
+    },
+    {
+        "Group#":32,
+        "Student Name":"M. Nabeel Ashraf (not present), Fahad Ali, Muhammad uzair khan ",
+        "Registration No":"B22F1154CS030, B22F0403CS046,B22F0076CS092",
+        "Internal Supervisor":"Dr. Shuaib Qureshi",
+        "FYP Title":"Smart Hostel Management and Security System using AI-powered Face Recognition and Anomaly Detection",
+        "Abstract":"\u00a0",
+        "Thematic Area":"\u00a0"
+    },
+    {
+        "Group#":33,
+        "Student Name":"Ghulam Mustafa, Muhammad Abdullah, Shameer Rashid ",
+        "Registration No":"B22F1200CS126, B22F0514CS098, B22F1357CS012",
+        "Internal Supervisor":"Mr. Rehan Tariq",
+        "FYP Title":"Dairy Chain Logistics ",
+        "Abstract":"\u00a0",
+        "Thematic Area":"\u00a0"
+    },
+    {
+        "Group#":34,
+        "Student Name":"M.zain,Abdul dayyan,Muhammad Daud",
+        "Registration No":"B22f0544CS080,B22f0899cs102,b22f0190cs096",
+        "Internal Supervisor":"Dr. Kamran Javed",
+        "FYP Title":"Smart Contract Security Auditing Agent",
+        "Abstract":"\u00a0",
+        "Thematic Area":"\u00a0"
+    },
+    {
+        "Group#":35,
+        "Student Name":"Zahra Batool, Noor ul Hassan",
+        "Registration No":"B21F0259CS019, B22F0984CS127",
+        "Internal Supervisor":"Dr M.Shahid Iqbal Malik",
+        "FYP Title":"Multimodel hope speech detection from social media",
+        "Abstract":"Social media fosters communication but also spreads harmful content, while hope speech promotes positivity and social harmony. This project presents a multimodal deep learning model for Hope Speech Detection using text, images, and audio from social media. It integrates NLP for text, CNNs for images, and audio feature extraction, leveraging transformer models (BERT, ViT) with fusion techniques. The system classifies posts as hope speech or non-hope speech, aiding mental health support, content moderation, and inclusive online platforms.",
+        "Thematic Area":"Artificial Intelligence (AI) for Social Good ,Natural Language Processing (NLP) ,Computer Vision ,Multimodal Sentiment Analysis, Cybersecurity & Online Safety, Human-Computer Interaction"
+    },
+    {
+        "Group#":36,
+        "Student Name":"Muhammad robas khan, Muhammad shahzaib khan,Muhammad Hassan Sharif",
+        "Registration No":"B22F0594CS020, B22F1352CS060, B22F0781CS044",
+        "Internal Supervisor":"Dr jamil ahmed",
+        "FYP Title":"AI-Powered Smart Garbage Reporting and Management System",
+        "Abstract":"This project develops an AI-based garbage sorting system using computer vision and deep learning to classify waste into plastic, paper, glass, metal, and organic. It lies in the domains of Artificial Intelligence, Machine Learning, Computer Vision, and Sustainable Smart Cities, aiming to promote recycling and reduce landfill waste in Pakistan",
+        "Thematic Area":"\u00a0"
+    },
+    {
+        "Group#":37,
+        "Student Name":"Arslan Atif ,Muhammad Haris, Muhammad Hasnain",
+        "Registration No":"b22f1148cs100,b22f0190cs096, B22f0895cs002",
+        "Internal Supervisor":"Dr. Shuaib Qureshi",
+        "FYP Title":"generative ai for personalized drug discovery (genPharm)",
+        "Abstract":"\u00a0",
+        "Thematic Area":"\u00a0"
+    }
+]
