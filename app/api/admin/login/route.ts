@@ -36,12 +36,16 @@ export async function POST(req: Request) {
             password,
         })
 
+        console.log("Supabase login data:", data, "error", error)
         if (error || !data.user) {
             return NextResponse.json(
                 { error: error?.message || "Login failed" },
                 { status: 401 }
+
             )
         }
+
+
 
         // 👤 Verify user exists and has ADMIN role
         const user = await prisma.user.findUnique({

@@ -1,9 +1,39 @@
 import { NextResponse } from "next/server"
-import { createSupabaseServerClient } from "@/lib/supabase"
+import { createSupabaseServerClient, createSupabaseAdminClient } from "@/lib/supabase"
 import prisma from "@/lib/db"
 import { validateStudentID } from "@/modules/auth/auth.service"
 import { UserRole, UserStatus } from "@/lib/generated/prisma/enums"
 import logger from "@/lib/logger"
+
+/**
+ * Helper function to delete user from Supabase Auth and redirect with error
+ * Uses admin client to completely remove the user, not just sign out
+ */
+async function deleteUserAndRedirect(
+    supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+    userId: string,
+    origin: string,
+    errorMessage: string
+) {
+    try {
+        // Sign out first
+        await supabase.auth.signOut()
+        
+        // Delete user from Supabase Auth using admin client
+        const adminClient = createSupabaseAdminClient()
+        const { error: deleteError } = await adminClient.auth.admin.deleteUser(userId)
+        
+        if (deleteError) {
+            logger.error("Failed to delete user from Supabase Auth:", deleteError)
+        } else {
+            logger.info(`Deleted unauthorized user ${userId} from Supabase Auth`)
+        }
+    } catch (err) {
+        logger.error("Error during user cleanup:", err)
+    }
+    
+    return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(errorMessage)}`)
+}
 
 export async function GET(req: Request) {
     const { searchParams } = new URL(req.url)
@@ -39,8 +69,7 @@ export async function GET(req: Request) {
         const email = user.email?.toLowerCase()
 
         if (!email) {
-            await supabase.auth.signOut()
-            return NextResponse.redirect(`${origin}/login?error=No%20email%20provided%20by%20Microsoft`)
+            return deleteUserAndRedirect(supabase, user.id, origin, "No email provided by Microsoft")
         }
 
         // Validate university email domain
@@ -52,9 +81,11 @@ export async function GET(req: Request) {
         const emailDomain = email.split("@")[1]
 
         if (!allowedDomains.includes(emailDomain)) {
-            await supabase.auth.signOut()
-            return NextResponse.redirect(
-                `${origin}/login?error=Only%20PAF-IAST%20university%20emails%20are%20allowed`
+            return deleteUserAndRedirect(
+                supabase,
+                user.id,
+                origin,
+                "Only PAF-IAST university emails are allowed"
             )
         }
 
@@ -65,9 +96,7 @@ export async function GET(req: Request) {
         const validation = validateStudentID(regNo)
 
         if (!validation.valid) {
-            await supabase.auth.signOut()
-            const errorMessage = encodeURIComponent(validation.error)
-            return NextResponse.redirect(`${origin}/login?error=${errorMessage}`)
+            return deleteUserAndRedirect(supabase, user.id, origin, validation.error)
         }
 
         const { currentSemester, department } = validation

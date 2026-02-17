@@ -1,5 +1,6 @@
 // lib/supabase.ts
-import { createServerClient } from '@supabase/ssr'
+import { createServerClient} from '@supabase/ssr'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 
 export async function createSupabaseServerClient() {
@@ -23,6 +24,27 @@ export async function createSupabaseServerClient() {
           }
         },
       },
+    }
+  )
+}
+
+/**
+ * Create Supabase Admin Client
+ * ----------------------------
+ * Uses SERVICE_ROLE_KEY for admin operations like deleting users.
+ * ⚠️ NEVER expose this on the client side!
+ * 
+ * Required env variable: SECRET_SUPABASE_SERVICE_ROLE_KEY
+ */
+export function createSupabaseAdminClient() {
+  return createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SECRET_SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
     }
   )
 }
