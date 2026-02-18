@@ -76,6 +76,33 @@ const F22_PROJECTS = transformFYPData(fypProjectsF22Raw as FYPProjectRaw[], "F22
 const F21_PROJECTS = transformFYPData(fypProjectsF21Raw as FYPProjectRaw[], "F21");
 const ALL_PROJECTS = [...F22_PROJECTS, ...F21_PROJECTS];
 
+// Compute category stats based on keywords and title/abstract
+function computeStats(projects: FYPProject[]) {
+  const categories = {
+    ai: { label: "AI / ML", keywords: ["ai", "artificial intelligence", "machine learning", "deep learning", "neural", "nlp", "computer vision", "recognition", "detection", "lstm", "gru", "cnn", "resnet"], count: 0, color: "bg-purple-500" },
+    web: { label: "Web Dev", keywords: ["web", "react", "next", "django", "node", "frontend", "backend", "firebase", "api"], count: 0, color: "bg-blue-500" },
+    mobile: { label: "Mobile", keywords: ["mobile", "flutter", "android", "ios", "react native", "app"], count: 0, color: "bg-green-500" },
+    iot: { label: "IoT / Edge", keywords: ["iot", "embedded", "arduino", "sensor", "edge", "tinyml", "smart"], count: 0, color: "bg-orange-500" },
+    data: { label: "Data Science", keywords: ["data", "analytics", "visualization", "prediction", "analysis"], count: 0, color: "bg-cyan-500" },
+    health: { label: "Healthcare", keywords: ["health", "medical", "clinical", "patient", "hospital", "pathology", "diagnosis"], count: 0, color: "bg-red-500" },
+  };
+
+  projects.forEach((project) => {
+    const searchText = `${project.title} ${project.abstract} ${project.keywords.join(" ")}`.toLowerCase();
+    
+    Object.keys(categories).forEach((key) => {
+      const cat = categories[key as keyof typeof categories];
+      if (cat.keywords.some(kw => searchText.includes(kw))) {
+        cat.count++;
+      }
+    });
+  });
+
+  return categories;
+}
+
+const STATS = computeStats(ALL_PROJECTS);
+
 // Get unique supervisors and batches
 const SUPERVISORS = ["All", ...Array.from(new Set(ALL_PROJECTS.map((p) => p.supervisor).filter((s) => s && s !== "Not Assigned"))).sort()];
 const BATCHES = ["All", "F22", "F21"];
@@ -159,27 +186,51 @@ export default function FYPIdeasPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
       {/* Header */}
-      <div className="border-b border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-        <div className="max-w-5xl mx-auto px-4 py-6">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Already Taken FYPs</h1>
-          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-            {ALL_PROJECTS.length} projects • {F22_PROJECTS.length} F22 • {F21_PROJECTS.length} F21
-          </p>
+      <div className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Already Taken FYPs</h1>
+              <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+                Browse {ALL_PROJECTS.length} projects for inspiration and avoid duplicating ideas
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-medium rounded-full">
+                {F22_PROJECTS.length} F22
+              </span>
+              <span className="px-3 py-1.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium rounded-full">
+                {F21_PROJECTS.length} F21
+              </span>
+            </div>
+          </div>
+
+          {/* Category Stats */}
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-3 mt-6">
+            {Object.entries(STATS).map(([key, stat]) => (
+              <div key={key} className="bg-gray-50 dark:bg-slate-700/50 rounded-xl p-3 text-center">
+                <div className={`w-2 h-2 ${stat.color} rounded-full mx-auto mb-1.5`}></div>
+                <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">{stat.count}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{stat.label}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="max-w-5xl mx-auto px-4 py-4">
-        <div className="flex flex-col sm:flex-row gap-3">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4">
+          <div className="flex flex-col sm:flex-row gap-3">
           {/* Search */}
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Search projects..."
+              placeholder="Search by title, supervisor, students, keywords..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-gray-900 dark:text-white text-sm placeholder-gray-400 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white focus:border-transparent outline-none"
+              className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-gray-900 dark:text-white text-sm placeholder-gray-400 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white focus:border-transparent outline-none"
             />
           </div>
 
@@ -187,7 +238,7 @@ export default function FYPIdeasPage() {
           <select
             value={selectedBatch}
             onChange={(e) => setSelectedBatch(e.target.value)}
-            className="px-3 py-2.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-gray-900 dark:focus:ring-white outline-none cursor-pointer"
+            className="px-3 py-2.5 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-gray-900 dark:focus:ring-white outline-none cursor-pointer"
           >
             {BATCHES.map((batch) => (
               <option key={batch} value={batch}>{batch === "All" ? "All Batches" : batch}</option>
@@ -198,33 +249,35 @@ export default function FYPIdeasPage() {
           <select
             value={selectedSupervisor}
             onChange={(e) => setSelectedSupervisor(e.target.value)}
-            className="px-3 py-2.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-gray-900 dark:focus:ring-white outline-none cursor-pointer sm:max-w-[200px] truncate"
+            className="px-3 py-2.5 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-gray-900 dark:focus:ring-white outline-none cursor-pointer sm:max-w-[220px]"
           >
             {SUPERVISORS.map((sup) => (
               <option key={sup} value={sup}>{sup === "All" ? "All Supervisors" : sup}</option>
             ))}
           </select>
-        </div>
+          </div>
 
-        {/* Results count */}
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
-          Showing {visibleProjects.length} of {filteredProjects.length} projects
-        </p>
+          {/* Results count */}
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
+            Showing {visibleProjects.length} of {filteredProjects.length} projects
+          </p>
+        </div>
       </div>
 
       {/* Projects List */}
-      <div className="max-w-5xl mx-auto px-4 pb-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pb-8">
         <div className="space-y-3">
           {visibleProjects.length === 0 ? (
-            <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-8 text-center">
-              <Search className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-              <p className="text-gray-500 dark:text-gray-400 text-sm">No projects found</p>
+            <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-12 text-center">
+              <Search className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+              <p className="text-gray-900 dark:text-white font-medium mb-1">No projects found</p>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">Try adjusting your search or filters</p>
             </div>
           ) : (
             visibleProjects.map((project) => (
               <div
                 key={project.id}
-                className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden"
+                className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden hover:shadow-md transition-shadow"
               >
                 <div
                   className="p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors"

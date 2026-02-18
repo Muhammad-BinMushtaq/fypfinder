@@ -69,14 +69,9 @@ export default function SettingsPage() {
           </div>
 
           <div className="space-y-4">
-            <div className="flex items-center justify-between rounded-lg bg-gray-50 dark:bg-slate-700 p-4">
-              <div>
-                <p className="font-medium text-gray-900 dark:text-white">Password</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Last updated: Unknown</p>
-              </div>
-              <button className="rounded-lg border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-600 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-500">
-                Change Password
-              </button>
+            <div className="rounded-lg bg-gray-50 dark:bg-slate-700 p-4">
+              <p className="font-medium text-gray-900 dark:text-white">Authentication</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">You are signed in with Microsoft Azure AD. Password management is handled by your organization.</p>
             </div>
           </div>
         </section>

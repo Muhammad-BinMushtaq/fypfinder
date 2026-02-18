@@ -39,21 +39,19 @@ export default async function HomePage({
               <span className="text-xl font-bold text-white">FYP Finder</span>
             </div>
 
-            {/* Auth Buttons */}
-            <div className="flex items-center gap-3">
-              <Link
-                href="/login"
-                className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors"
-              >
-                Login
-              </Link>
-              <Link
-                href="/login"
-                className="px-5 py-2.5 text-sm font-semibold text-neutral-900 bg-white rounded-lg hover:bg-neutral-100 transition-all shadow-lg"
-              >
-                Get Started
-              </Link>
-            </div>
+            {/* Auth Button */}
+            <Link
+              href="/login"
+              className="px-5 py-2.5 text-sm font-semibold text-white bg-[#2f2f2f] rounded-lg hover:bg-[#1a1a1a] transition-all shadow-lg flex items-center gap-2"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="10" height="10" fill="#F25022"/>
+                <rect x="11" width="10" height="10" fill="#7FBA00"/>
+                <rect y="11" width="10" height="10" fill="#00A4EF"/>
+                <rect x="11" y="11" width="10" height="10" fill="#FFB900"/>
+              </svg>
+              Continue with Microsoft
+            </Link>
           </div>
         </div>
       </nav>
@@ -505,15 +503,37 @@ export default async function HomePage({
               </a>
             </div>
 
-            {/* Creator */}
+            {/* Supervisor */}
             <div>
               <h4 className="text-white font-semibold mb-4 flex items-center gap-2">
-                <span className="text-lg">👤</span> Creator
+                <span className="text-lg">🎓</span> Supervised By
               </h4>
-              <p className="text-gray-400 text-sm mb-4">
-                Created by <span className="text-white font-medium">Muhammad bin Mushtaq</span> 
+              <p className="text-gray-400 text-sm mb-3">
+                <span className="text-white font-medium">Dr. Muhammad Shuaib Qureshi</span>
               </p>
-              <div className="flex items-center gap-3">
+              <p className="text-gray-500 text-xs mb-4">
+                Chief Scientific Officer at Datalligence.pk
+              </p>
+              <a
+                href="https://datalligence.pk/wps-members/dr-muhammad-shuaib-qureshi/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
+              >
+                View Profile
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          {/* Creator */}
+          <div className="mt-8 pt-8 border-t border-white/10">
+            <p className="text-gray-400 text-sm mb-3">
+              Built by <span className="text-white font-medium">Muhammad bin Mushtaq</span>
+            </p>
+            <div className="flex items-center gap-3">
                 <a
                   href="https://www.linkedin.com/in/muhammad-bin-mushtaq1/"
                   target="_blank"
@@ -537,7 +557,6 @@ export default async function HomePage({
                   </svg>
                 </a>
               </div>
-            </div>
           </div>
 
           {/* Bottom Bar */}

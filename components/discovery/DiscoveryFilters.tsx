@@ -350,7 +350,7 @@ export function DiscoveryFilters({
                 />
                 
                 {/* Dropdown */}
-                <div className="absolute z-50 mt-2 w-full bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl shadow-xl max-h-64 overflow-hidden">
+                <div className="absolute z-50 mt-2 w-72 sm:w-80 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl shadow-xl max-h-64 overflow-hidden">
                   {/* Search */}
                   <div className="p-3 border-b border-gray-100 dark:border-slate-600 bg-gray-50 dark:bg-slate-800">
                     <input
@@ -369,7 +369,7 @@ export function DiscoveryFilters({
                         No skills found
                       </p>
                     ) : (
-                      <div className="grid grid-cols-2 gap-1">
+                      <div className="grid grid-cols-1 gap-1">
                         {filteredSkills.map((skill) => (
                           <label
                             key={skill}
@@ -385,7 +385,7 @@ export function DiscoveryFilters({
                               onChange={() => toggleSkill(skill)}
                               className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                             />
-                            <span className="text-sm font-medium truncate">
+                            <span className="text-sm font-medium">
                               {skill}
                             </span>
                           </label>
