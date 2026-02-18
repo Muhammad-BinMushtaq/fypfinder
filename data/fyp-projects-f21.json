@@ -1,0 +1,92 @@
+[
+  {
+    "Group#": 1,
+    "Student Name": "Wasqa Raiz, Khuzaima Saeed",
+    "Registration No": "",
+    "Internal Supervisor": "Dr. Maqbool Khan, Asad Khan",
+    "FYP Title": "HeavyEquip Marketplace",
+    "Abstract": "The growing demand for efficient, accessible, and reliable solutions in the construction and industrial sectors has led to the development of the HeavyEquip Marketplace—a digital platform designed to streamline the rental and listing of heavy machinery such as cranes, excavators, bulldozers, and other industrial equipment. Offered through both a mobile application and a website, the platform connects equipment owners with potential renters, reducing time and effort traditionally required through manual processes. The system integrates GPS-based location services to display nearby available equipment and is developed using Flutter for the mobile interface and ReactJS for the web portal. Backend operations are powered by Firebase.",
+    "Thematic Area": "Heavy equipment, Rental platform, Mobile application, Web development, Flutter, ReactJS, Firebase",
+    "Batch": "F21"
+  },
+  {
+    "Group#": 2,
+    "Student Name": "Jawad Mehmood, Faizan Ali",
+    "Registration No": "",
+    "Internal Supervisor": "Dr. Shahnawaz Qureshi",
+    "FYP Title": "UniPath: Enhancing Pathology with Synchronized AI",
+    "Abstract": "UniPath is a unified AI-powered platform for digital pathology image analysis designed to automate tissue segmentation, cellular detection, and diagnostic classification. It integrates U-Net, StarDist, and ResNet-based classification models trained on colorectal cancer datasets to assist diagnostic decisions. Evaluated using mIoU, Dice Score, and classification accuracy.",
+    "Thematic Area": "Digital Pathology, Medical AI, U-Net, StarDist, ResNet, Tumor Detection",
+    "Batch": "F21"
+  },
+  {
+    "Group#": 3,
+    "Student Name": "Syed Sabbi ul Hassan, Muhammad Yasir Raza Attari, Hassam Ahmed Swati",
+    "Registration No": "",
+    "Internal Supervisor": "Dr. Sohail Khan",
+    "FYP Title": "Decentralized AI on Edge IoT Based Network for Illegal Wood Cutting Detection",
+    "Abstract": "This project proposes a decentralized AI-driven Edge IoT network leveraging TinyML for real-time illegal logging detection using Arduino Nano BLE 33 Sense devices. Suspicious activity triggers instant alerts via a React Native interface.",
+    "Thematic Area": "Illegal logging detection, Decentralized AI, Edge IoT, TinyML, Real-time monitoring",
+    "Batch": "F21"
+  },
+  {
+    "Group#": 4,
+    "Student Name": "Mohamed Saad, Mohamed Dhilham, Rikhaz Ahamed",
+    "Registration No": "",
+    "Internal Supervisor": "Dr. Maqbool Khan",
+    "FYP Title": "iNovatcs: Intelligent Traffic Control System with Anomaly Detection",
+    "Abstract": "AI-based traffic optimization system using computer vision to detect accidents and fires, dynamically adjusting signal timings. Django dashboard enables real-time monitoring.",
+    "Thematic Area": "Traffic Management, AI, Anomaly Detection, Django, Smart Cities",
+    "Batch": "F21"
+  },
+  {
+    "Group#": 5,
+    "Student Name": "Raja Rameez Rauf, Waleed Ijaz",
+    "Registration No": "",
+    "Internal Supervisor": "Dr. Muhammad Arif Shah",
+    "FYP Title": "Dastkaari: AI-Powered E-Commerce Platform for Handicrafts",
+    "Abstract": "AI-powered e-commerce platform promoting Pakistani handicrafts with AR-based visualization and KNN recommendation system. Built using Flutter and Firebase.",
+    "Thematic Area": "Handicrafts, Augmented Reality, Recommendation System, E-Commerce, Machine Learning",
+    "Batch": "F21"
+  },
+  {
+    "Group#": 6,
+    "Student Name": "Obaidullah Miakhil, Noor Rahman",
+    "Registration No": "",
+    "Internal Supervisor": "Dr. Mohsin Khan Jadoon, Dr. Babar",
+    "FYP Title": "AI-Based Prediction of Insurance Claim Denials & Management",
+    "Abstract": "Machine learning-based system using Random Forest, LightGBM, and XGBoost to predict and prevent insurance claim denials with dashboard visualization.",
+    "Thematic Area": "Insurance Claims, Claim Denial Prediction, Machine Learning, Healthcare",
+    "Batch": "F21"
+  },
+  {
+    "Group#": 7,
+    "Student Name": "Muneeb Ur Rehman",
+    "Registration No": "",
+    "Internal Supervisor": "Ms. Maria Gul",
+    "FYP Title": "AI-Driven Stock Price Prediction Using LSTM and GRU",
+    "Abstract": "Deep learning-based stock prediction system using LSTM and GRU integrated with technical indicators and deployed using Streamlit.",
+    "Thematic Area": "Stock Market Prediction, LSTM, GRU, Time-Series Analysis",
+    "Batch": "F21"
+  },
+  {
+    "Group#": 8,
+    "Student Name": "",
+    "Registration No": "",
+    "Internal Supervisor": "",
+    "FYP Title": "FeastFusion: Unified Restaurant Recommendation System",
+    "Abstract": "An intelligent restaurant recommendation system leveraging real-time data and recommendation algorithms to personalize dining decisions.",
+    "Thematic Area": "Recommendation System, Restaurant, Personalization",
+    "Batch": "F21"
+  },
+  {
+    "Group#": 9,
+    "Student Name": "Hadia Eman Mahdi, Aliza Manzoor",
+    "Registration No": "",
+    "Internal Supervisor": "Dr. Ihtisham Ali",
+    "FYP Title": "AI-Driven Design Analysis and Recommendation Platform",
+    "Abstract": "AI-based web design optimization platform providing accessibility and UI improvement suggestions aligned with WCAG 2.1 standards.",
+    "Thematic Area": "AI in Design, Web Accessibility, WCAG Compliance",
+    "Batch": "F21"
+  }
+]
