@@ -66,6 +66,24 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
       return;
     }
 
+    // GitHub link is required for new projects
+    if (!editingProject && !formData.githubLink.trim()) {
+      setError("GitHub repository URL is required");
+      return;
+    }
+
+    // Validate GitHub URL format if provided
+    if (formData.githubLink.trim() && !isValidUrl(formData.githubLink)) {
+      setError("Please enter a valid GitHub URL");
+      return;
+    }
+
+    // Validate live link format if provided
+    if (formData.liveLink.trim() && !isValidUrl(formData.liveLink)) {
+      setError("Please enter a valid live link URL");
+      return;
+    }
+
     try {
       setError("");
       setSuccess("");

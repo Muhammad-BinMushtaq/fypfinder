@@ -22,7 +22,28 @@ export async function POST(req: Request) {
             )
         }
 
+        if (!githubLink) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "GitHub repository URL is required"
+                },
+                { status: 400 }
+            )
+        }
 
+        // Validate URL format
+        try {
+            new URL(githubLink)
+        } catch {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "Invalid GitHub URL format"
+                },
+                { status: 400 }
+            )
+        }
 
         // 🔗 Get student using userId
         const student = await prisma.student.findUnique({
