@@ -3,6 +3,7 @@
 
 import { Settings, User, Shield, Bell, Trash2 } from "lucide-react"
 import { DeletionRequestButton } from "@/components/student/DeletionRequestButton"
+import { NotificationSettings } from "@/components/pwa/NotificationSettings"
 import { useSession } from "@/hooks/auth/useSession"
 import { useMyProfile } from "@/hooks/student/useMyProfile"
 
@@ -84,26 +85,15 @@ export default function SettingsPage() {
           </div>
 
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium text-gray-900 dark:text-white">Email Notifications</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Receive email updates about requests and messages</p>
-              </div>
-              <label className="relative inline-flex cursor-pointer items-center">
-                <input type="checkbox" className="peer sr-only" defaultChecked />
-                <div className="h-6 w-11 rounded-full bg-gray-200 dark:bg-slate-600 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 dark:after:border-slate-500 after:bg-white after:transition-all after:content-[''] peer-checked:bg-gray-900 dark:peer-checked:bg-white peer-checked:after:translate-x-full peer-checked:after:border-white dark:peer-checked:after:border-slate-900 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-300 dark:peer-focus:ring-slate-600"></div>
-              </label>
-            </div>
+            {/* Push Notifications - Functional Component */}
+            <NotificationSettings />
 
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium text-gray-900 dark:text-white">Push Notifications</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Receive push notifications in browser</p>
-              </div>
-              <label className="relative inline-flex cursor-pointer items-center">
-                <input type="checkbox" className="peer sr-only" />
-                <div className="h-6 w-11 rounded-full bg-gray-200 dark:bg-slate-600 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 dark:after:border-slate-500 after:bg-white after:transition-all after:content-[''] peer-checked:bg-gray-900 dark:peer-checked:bg-white peer-checked:after:translate-x-full peer-checked:after:border-white dark:peer-checked:after:border-slate-900 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-300 dark:peer-focus:ring-slate-600"></div>
-              </label>
+            {/* Email Notifications - Info Only */}
+            <div className="rounded-lg bg-gray-50 dark:bg-slate-700 p-4 mt-4">
+              <p className="font-medium text-gray-900 dark:text-white">Email Notifications</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                Email notifications are sent based on your account activity. Contact support to modify preferences.
+              </p>
             </div>
           </div>
         </section>

@@ -5,6 +5,7 @@ import { useRequireAuth } from "@/hooks/auth/useRequireAuth";
 import { useSession } from "@/hooks/auth/useSession";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { SuspensionBanner } from "@/components/student/SuspensionBanner";
+import { PushPermissionBanner } from "@/components/pwa/PushPermissionBanner";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ReactNode, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -100,6 +101,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <div>
           {children}
         </div>
+
+        {/* Push Notification Permission Banner */}
+        <PushPermissionBanner />
       </main>
     </div>
   );

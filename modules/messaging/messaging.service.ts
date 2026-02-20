@@ -1,4 +1,5 @@
 import prisma from "@/lib/db"
+import { notifyNewMessage } from "@/lib/push-service"
 
 /**
  * Checks whether two students are allowed to message each other.
@@ -272,6 +273,14 @@ export async function sendMessage(
     where: { id: conversationId },
     data: { updatedAt: new Date() },
   })
+
+  // Send push notification (async, don't await to not block response)
+  notifyNewMessage(
+    conversationId,
+    senderId,
+    message.sender.name,
+    content.trim()
+  ).catch(err => console.error('Push notification error:', err))
 
   return message
 }

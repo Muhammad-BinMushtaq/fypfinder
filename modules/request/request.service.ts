@@ -3,6 +3,7 @@
 import prisma from "@/lib/db"
 import { RequestType, RequestStatus } from "@/lib/generated/prisma/enums"
 import { request } from "http"
+import { notifyMessageRequest, notifyPartnerRequest, notifyRequestAccepted } from "@/lib/push-service"
 
 
 // Message Request
@@ -50,7 +51,20 @@ export async function sendMessageRequest(
             status: RequestStatus.PENDING,
             reason: reason,
         },
+        include: {
+            fromStudent: {
+                select: { name: true },
+            },
+        },
     })
+
+    // 5️⃣ Send push notification (async, don't block response)
+    notifyMessageRequest(
+        toStudentId,
+        request.fromStudent.name,
+        request.id,
+        reason
+    ).catch(err => console.error('Push notification error:', err))
 
     return request
 }
@@ -144,9 +158,19 @@ export async function acceptMessageRequest(
         data: {
             status: RequestStatus.ACCEPTED,
         },
+        include: {
+            toStudent: {
+                select: { name: true },
+            },
+        },
     })
 
-
+    // 6️⃣ Send push notification to original sender (async)
+    notifyRequestAccepted(
+        request.fromStudentId,
+        'MESSAGE',
+        updatedRequest.toStudent.name
+    ).catch(err => console.error('Push notification error:', err))
 
     return updatedRequest
 }
@@ -294,6 +318,14 @@ export async function sendPartnerRequest(
         },
     })
 
+    // 9️⃣ Send push notification (async, don't block response)
+    notifyPartnerRequest(
+        toStudentId,
+        sender.name,
+        request.id,
+        reason || ""
+    ).catch(err => console.error('Push notification error:', err))
+
     return request
 }
 
@@ -398,7 +430,7 @@ export async function acceptPartnerRequest(
     requestId: string,
     currentStudentId: string
 ) {
-    return await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
         // 1️⃣ Fetch request
         const request = await tx.request.findUnique({
             where: { id: requestId },
@@ -541,7 +573,16 @@ export async function acceptPartnerRequest(
             data: { status: RequestStatus.ACCEPTED },
         })
 
-        return updatedRequest
+        return { updatedRequest, senderStudentId: sender.id, receiverName: receiver.name }
     })
+
+    // 7️⃣ Send push notification to original sender (outside transaction)
+    notifyRequestAccepted(
+        result.senderStudentId,
+        'PARTNER',
+        result.receiverName
+    ).catch(err => console.error('Push notification error:', err))
+
+    return result.updatedRequest
 }
 

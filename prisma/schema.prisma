@@ -62,8 +62,7 @@ model User {
 
   student   Student?
   admin     Admin?
-
-
+  pushSubscriptions PushSubscription[]
 }
 
 // =====================
@@ -249,4 +248,21 @@ model Message {
   @@index([createdAt])
 }
 
+// =====================
+// 13️⃣ Push Subscription (Web Push Notifications)
+// =====================
 
+model PushSubscription {
+  id         String   @id @default(uuid())
+  userId     String   // Links to User.id
+  endpoint   String   @unique  // Push service endpoint URL (unique per device)
+  p256dh     String   // Client public key for encryption
+  auth       String   // Auth secret for encryption
+  userAgent  String?  // Browser/device info for debugging
+  createdAt  DateTime @default(now())
+  lastUsedAt DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
