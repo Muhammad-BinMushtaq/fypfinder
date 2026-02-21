@@ -15,11 +15,11 @@ import { useSession } from "./useSession";
  */
 export function useRequireAuth() {
   const router = useRouter();
-  const { user, isLoading } = useSession();
+  const { user, isLoading, isFetching } = useSession();
   const [isAuthChecked, setIsAuthChecked] = useState(false);
 
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading || isFetching) return;
 
     if (!user) {
       router.replace("/login");
@@ -33,7 +33,7 @@ export function useRequireAuth() {
 
     // Auth verified - safe to show content
     setIsAuthChecked(true);
-  }, [user, isLoading, router]);
+  }, [user, isLoading, isFetching, router]);
 
   return {
     user,
@@ -41,6 +41,6 @@ export function useRequireAuth() {
     // True only when auth is confirmed (user exists and is not suspended)
     isAuthChecked,
     // Show loading until auth is fully verified
-    isAuthLoading: isLoading || !isAuthChecked,
+    isAuthLoading: isLoading || isFetching || !isAuthChecked,
   };
 }

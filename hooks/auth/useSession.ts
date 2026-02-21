@@ -56,6 +56,7 @@ export function useSession() {
   return {
     user: query.data?.data?.user ?? null,
     isLoading: query.isLoading,
+    isFetching: query.isFetching,
     isError: query.isError,
     error: query.error,
     refetch: query.refetch,
