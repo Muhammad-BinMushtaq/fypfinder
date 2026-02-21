@@ -5,7 +5,7 @@ import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
 import { createSupabaseServerClient } from "@/lib/supabase"
 import prisma from "@/lib/db"
-import { UserRole } from "@/lib/generated/prisma/enums"
+import { UserRole, UserStatus } from "@/lib/generated/prisma/enums"
 
 export async function GET() {
   try {
@@ -36,7 +36,7 @@ export async function GET() {
       },
     })
 
-    if (!user || user.role !== UserRole.ADMIN || !user.admin) {
+    if (!user || user.role !== UserRole.ADMIN || !user.admin || user.status !== UserStatus.ACTIVE) {
       return NextResponse.json(
         { admin: null },
         { status: 200 }

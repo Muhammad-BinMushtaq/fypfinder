@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 import { apiClient } from "@/services/apiClient";
 
 export type UserRole = "STUDENT" | "ADMIN";
-export type UserStatus = "ACTIVE" | "SUSPENDED";
+export type UserStatus = "ACTIVE" | "SUSPENDED" | "DELETION_REQUESTED";
 
 export interface SessionUser {
   id: string;

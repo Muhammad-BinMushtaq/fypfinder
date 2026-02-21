@@ -19,8 +19,8 @@ export async function GET(req: Request) {
                 { status: 200 }
             );
             
-            // ✅ Cache session for 5 minutes
-            response.headers.set("Cache-Control", "private, max-age=300");
+            // Don't cache auth state to avoid stale sessions
+            response.headers.set("Cache-Control", "no-store");
             return response;
         }
 
@@ -39,13 +39,26 @@ export async function GET(req: Request) {
     }
     catch (error: any) {
         logger.error("Session retrieval error:", error);
-        return NextResponse.json(
+        const message = error?.message || "Internal server error";
+        let status = 500;
+
+        if (message.includes("Unauthorized")) {
+            status = 401;
+        } else if (message.includes("suspended")) {
+            status = 403;
+        } else if (message.includes("Network error")) {
+            status = 503;
+        }
+
+        const response = NextResponse.json(
             {
                 success: false,
-                message: error.message || "Internal server error",
+                message,
                 data: null
             },
-            { status: 500 }
+            { status }
         );
+        response.headers.set("Cache-Control", "no-store");
+        return response;
     }
 }

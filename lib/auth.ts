@@ -54,11 +54,6 @@ export async function requireAuth() {
       throw new Error("Account suspended")
     }
     
-    // Block users who requested deletion
-    if (user?.status === UserStatus.DELETION_REQUESTED) {
-      throw new Error("Account pending deletion")
-    }
-    
     if (!user) {
       throw new Error("Unauthorized: not logged in")
     }

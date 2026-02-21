@@ -5,10 +5,24 @@ import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
 import { createSupabaseServerClient } from "@/lib/supabase"
 import prisma from "@/lib/db"
-import { UserRole } from "@/lib/generated/prisma/enums"
+import { UserRole, UserStatus } from "@/lib/generated/prisma/enums"
+import { authRateLimiter, getClientIdentifier } from "@/lib/rate-limit"
 
 export async function POST(req: Request) {
     try {
+        const rateLimit = authRateLimiter.check(getClientIdentifier(req.headers))
+        if (!rateLimit.allowed) {
+            return NextResponse.json(
+                { error: "Too many login attempts. Please try again later." },
+                {
+                    status: 429,
+                    headers: rateLimit.retryAfter
+                        ? { "Retry-After": String(rateLimit.retryAfter) }
+                        : undefined,
+                }
+            )
+        }
+
         const body = await req.json()
         const { email, password } = body
 
@@ -36,7 +50,6 @@ export async function POST(req: Request) {
             password,
         })
 
-        console.log("Supabase login data:", data, "error", error)
         if (error || !data.user) {
             return NextResponse.json(
                 { error: error?.message || "Login failed" },
@@ -64,6 +77,13 @@ export async function POST(req: Request) {
             return NextResponse.json(
                 { error: "User not found in database" },
                 { status: 404 }
+            )
+        }
+
+        if (user.status !== UserStatus.ACTIVE) {
+            return NextResponse.json(
+                { error: "Account is not active" },
+                { status: 403 }
             )
         }
 

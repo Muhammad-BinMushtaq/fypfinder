@@ -5,6 +5,18 @@ import { validateStudentID } from "@/modules/auth/auth.service"
 import { UserRole, UserStatus } from "@/lib/generated/prisma/enums"
 import logger from "@/lib/logger"
 
+function getRedirectOrigin(req: Request) {
+    const envUrl = process.env.NEXT_PUBLIC_APP_URL
+    if (envUrl) {
+        try {
+            return new URL(envUrl).origin
+        } catch {
+            // Fall through to request origin
+        }
+    }
+    return new URL(req.url).origin
+}
+
 /**
  * Helper function to delete user from Supabase Auth and redirect with error
  * Uses admin client to completely remove the user, not just sign out
@@ -42,7 +54,7 @@ export async function GET(req: Request) {
     const errorDescription = searchParams.get("error_description")
 
     // Get origin for redirects
-    const origin = req.headers.get("origin") || new URL(req.url).origin
+    const origin = getRedirectOrigin(req)
 
     // Handle OAuth errors
     if (errorParam) {

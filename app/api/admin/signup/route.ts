@@ -7,9 +7,23 @@ import { createSupabaseServerClient } from "@/lib/supabase"
 import prisma from "@/lib/db"
 import { UserRole } from "@/lib/generated/prisma/enums"
 import { requireRole } from "@/lib/auth"
+import { authRateLimiter, getClientIdentifier } from "@/lib/rate-limit"
 
 export async function POST(req: Request) {
     try {
+        const rateLimit = authRateLimiter.check(getClientIdentifier(req.headers))
+        if (!rateLimit.allowed) {
+            return NextResponse.json(
+                { error: "Too many requests. Please try again later." },
+                {
+                    status: 429,
+                    headers: rateLimit.retryAfter
+                        ? { "Retry-After": String(rateLimit.retryAfter) }
+                        : undefined,
+                }
+            )
+        }
+
         // 🔐 SECURITY: Only existing admins can create new admins
         await requireRole(UserRole.ADMIN)
 
