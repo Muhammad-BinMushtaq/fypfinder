@@ -43,7 +43,7 @@ export default function PublicProfilePage() {
   // No studentId provided
   if (!studentId) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+      <div className="min-h-screen bg-[#f6f5f1] text-slate-900 dark:bg-slate-950">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
           <div className="text-center py-16">
             <div className="w-20 h-20 mx-auto mb-6 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
@@ -73,7 +73,7 @@ export default function PublicProfilePage() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+      <div className="min-h-screen bg-[#f6f5f1] text-slate-900 dark:bg-slate-950">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
           {/* Back button skeleton */}
           <div className="mb-6">
@@ -125,7 +125,7 @@ export default function PublicProfilePage() {
   // Error state
   if (isError) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+      <div className="min-h-screen bg-[#f6f5f1] text-slate-900 dark:bg-slate-950">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
           {/* Back button */}
           <Link
@@ -176,7 +176,7 @@ export default function PublicProfilePage() {
   // Profile not found
   if (!profile) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+      <div className="min-h-screen bg-[#f6f5f1] text-slate-900 dark:bg-slate-950">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
           <Link
             href="/dashboard/discovery"
@@ -212,7 +212,7 @@ export default function PublicProfilePage() {
 
   // Success - render profile
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+    <div className="min-h-screen bg-[#f6f5f1] text-slate-900 dark:bg-slate-950">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <PublicProfileView 
           profile={profile} 
