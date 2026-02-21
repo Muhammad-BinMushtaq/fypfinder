@@ -1,5 +1,5 @@
 // lib/reactQuery.ts
-// React Query configuration - centralized
+// React Query configuration - centralized with offline persistence
 
 import { QueryClient } from "@tanstack/react-query"
 
@@ -11,13 +11,17 @@ export function createQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 5 * 60 * 1000,
-        gcTime: 10 * 60 * 1000,
+        staleTime: 5 * 60 * 1000,  // 5 minutes - data considered fresh
+        gcTime: 24 * 60 * 60 * 1000, // 24 hours - keep in storage for offline
         retry: 1,                
         refetchOnWindowFocus: false,
         refetchOnMount: false,
         // ✅ Refetch on reconnect
         refetchOnReconnect: true,
+        // ✅ Keep showing stale data while fetching new
+        placeholderData: (previousData: unknown) => previousData,
+        // ✅ Network mode for better offline handling
+        networkMode: 'offlineFirst',
       },
 
       mutations: {
@@ -26,6 +30,9 @@ export function createQueryClient() {
 
         // ✅ Exponential backoff for mutations
         retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+        
+        // ✅ Network mode for mutations
+        networkMode: 'offlineFirst',
       },
     },
   })

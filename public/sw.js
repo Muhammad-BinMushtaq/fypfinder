@@ -1,23 +1,47 @@
 // FYP Finder Service Worker
-// Version: 1.0.0
-// Purpose: PWA support + Push Notifications
+// Version: 1.1.0
+// Purpose: PWA support + Push Notifications + Offline Support
 
-const SW_VERSION = '1.0.0';
+const SW_VERSION = '1.1.0';
 const CACHE_NAME = `fypfinder-v${SW_VERSION}`;
+const RUNTIME_CACHE = `fypfinder-runtime-v${SW_VERSION}`;
 
-// Static assets to cache (minimal - only icons)
+// Static assets to pre-cache for instant load
 const STATIC_ASSETS = [
   '/icons/logo.svg',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png',
+  '/manifest.json',
 ];
 
-// Patterns that should NEVER be cached
+// Pages to cache for offline access (App Shell)
+const APP_SHELL_PAGES = [
+  '/dashboard/discovery',
+  '/dashboard/profile',
+  '/dashboard/messages',
+  '/dashboard/requests',
+  '/dashboard/fyp',
+  '/dashboard/settings',
+];
+
+// Patterns that should NEVER be cached (always network)
 const NO_CACHE_PATTERNS = [
-  /^\/api\//,              // All API routes
-  /\/_next\//,             // Next.js internals
-  /supabase/,              // Supabase calls
-  /\.json$/,               // JSON files (dynamic)
+  /^\/api\//,              // All API routes (dynamic data)
+  /supabase/,              // Supabase realtime/auth
+  /\/_next\/webpack/,      // HMR in dev
+];
+
+// Patterns to cache with stale-while-revalidate
+const STALE_WHILE_REVALIDATE_PATTERNS = [
+  /\/_next\/static\//,     // Next.js static assets (JS/CSS)
+  /\.(?:js|css)$/,         // JS and CSS files
+  /\.(?:woff2?|ttf|otf)$/, // Fonts
+];
+
+// Patterns to cache with cache-first
+const CACHE_FIRST_PATTERNS = [
+  /\.(?:png|jpg|jpeg|gif|svg|webp|ico)$/, // Images
+  /\/icons\//,             // App icons
 ];
 
 // =====================
@@ -53,7 +77,7 @@ self.addEventListener('activate', (event) => {
       .then((cacheNames) => {
         return Promise.all(
           cacheNames
-            .filter((name) => name !== CACHE_NAME)
+            .filter((name) => name !== CACHE_NAME && name !== RUNTIME_CACHE)
             .map((name) => {
               console.log('[SW] Deleting old cache:', name);
               return caches.delete(name);
@@ -68,7 +92,74 @@ self.addEventListener('activate', (event) => {
 });
 
 // =====================
-// FETCH EVENT (Minimal caching)
+// HELPER FUNCTIONS
+// =====================
+
+// Check if request matches any pattern in array
+function matchesPattern(url, patterns) {
+  return patterns.some(pattern => pattern.test(url.pathname) || pattern.test(url.href));
+}
+
+// Cache-first strategy (for images/icons)
+async function cacheFirst(request, cacheName) {
+  const cachedResponse = await caches.match(request);
+  if (cachedResponse) {
+    return cachedResponse;
+  }
+  
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse.ok) {
+      const cache = await caches.open(cacheName);
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch (error) {
+    return new Response('', { status: 408, statusText: 'Request timeout' });
+  }
+}
+
+// Stale-while-revalidate strategy (for JS/CSS)
+async function staleWhileRevalidate(request, cacheName) {
+  const cache = await caches.open(cacheName);
+  const cachedResponse = await cache.match(request);
+  
+  // Fetch from network in background
+  const fetchPromise = fetch(request).then(networkResponse => {
+    if (networkResponse.ok) {
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  }).catch(() => null);
+  
+  // Return cached response immediately, or wait for network
+  return cachedResponse || fetchPromise;
+}
+
+// Network-first strategy (for pages)
+async function networkFirst(request, cacheName) {
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse.ok) {
+      const cache = await caches.open(cacheName);
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch (error) {
+    const cachedResponse = await caches.match(request);
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+    // Return offline fallback for navigation requests
+    if (request.mode === 'navigate') {
+      return caches.match('/dashboard/discovery');
+    }
+    throw error;
+  }
+}
+
+// =====================
+// FETCH EVENT (Smart caching strategies)
 // =====================
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
@@ -83,32 +174,31 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Skip patterns that should never be cached
-  for (const pattern of NO_CACHE_PATTERNS) {
-    if (pattern.test(url.pathname) || pattern.test(url.href)) {
-      return;
-    }
+  // Skip patterns that should never be cached (API, Supabase)
+  if (matchesPattern(url, NO_CACHE_PATTERNS)) {
+    return;
   }
   
-  // Network-first strategy for everything else
-  // This ensures fresh content while providing offline fallback
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        // Only cache successful responses for static assets
-        if (response.ok && STATIC_ASSETS.some(asset => url.pathname.endsWith(asset))) {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseClone);
-          });
-        }
-        return response;
-      })
-      .catch(() => {
-        // Fallback to cache only for static assets
-        return caches.match(event.request);
-      })
-  );
+  // Cache-first for images and icons
+  if (matchesPattern(url, CACHE_FIRST_PATTERNS)) {
+    event.respondWith(cacheFirst(event.request, CACHE_NAME));
+    return;
+  }
+  
+  // Stale-while-revalidate for static assets (JS/CSS)
+  if (matchesPattern(url, STALE_WHILE_REVALIDATE_PATTERNS)) {
+    event.respondWith(staleWhileRevalidate(event.request, RUNTIME_CACHE));
+    return;
+  }
+  
+  // Network-first for pages (navigation requests)
+  if (event.request.mode === 'navigate') {
+    event.respondWith(networkFirst(event.request, RUNTIME_CACHE));
+    return;
+  }
+  
+  // Default: Network-first with cache fallback
+  event.respondWith(networkFirst(event.request, RUNTIME_CACHE));
 });
 
 // =====================
