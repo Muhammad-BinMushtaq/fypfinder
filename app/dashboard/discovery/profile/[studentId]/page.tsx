@@ -8,16 +8,16 @@
  * Path: /dashboard/discovery/profile/[studentId]
  * 
  * Responsibilities:
- * - Auth enforcement via useRequireAuth()
  * - Layout composition
  * - Pass current user info for request buttons
  * 
+ * Note: Auth is enforced by DashboardLayout (parent)
+ * 
  * Data Flow:
- * Page → useRequireAuth() → usePublicProfile() → studentPublic.service.ts → Backend
+ * Page → usePublicProfile() → studentPublic.service.ts → Backend
  */
 
 import { useParams } from "next/navigation";
-import { useRequireAuth } from "@/hooks/auth/useRequireAuth";
 import { usePublicProfile } from "@/hooks/student/usePublicProfile";
 import { useMyProfile } from "@/hooks/student/useMyProfile";
 import { useMyGroup } from "@/hooks/group/useMyGroup";
@@ -29,9 +29,6 @@ export default function PublicProfilePage() {
   const params = useParams();
   const studentId = params?.studentId as string;
 
-  // 🔐 Auth enforcement - redirects if not logged in
-  const { user, isLoading: authLoading } = useRequireAuth();
-
   // 📊 Current user's profile (for request buttons)
   const { profile: myProfile } = useMyProfile();
 
@@ -40,39 +37,8 @@ export default function PublicProfilePage() {
 
   // 📊 Public profile data
   const { profile, isLoading, isError, error } = usePublicProfile(studentId, {
-    enabled: !!user && !!studentId, // Only fetch if authenticated
+    enabled: !!studentId,
   });
-
-  // Auth loading state
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="relative">
-            <div className="w-16 h-16 border-4 border-gray-200 dark:border-slate-700 rounded-full"></div>
-            <div className="w-16 h-16 border-4 border-gray-900 dark:border-white border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
-          </div>
-          <p className="text-gray-600 dark:text-gray-400 mt-4 font-medium">Checking authentication...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Not authenticated
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 mx-auto mb-4 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
-            <svg className="w-6 h-6 text-gray-600 dark:text-gray-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-          </div>
-          <p className="text-gray-600 dark:text-gray-400 font-medium">Redirecting to login...</p>
-        </div>
-      </div>
-    );
-  }
 
   // No studentId provided
   if (!studentId) {

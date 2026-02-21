@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "./useSession";
 
@@ -11,10 +11,12 @@ import { useSession } from "./useSession";
  * ----------------
  * Route protection hook.
  * Redirects unauthenticated or suspended users.
+ * Returns isAuthChecked to prevent content flash.
  */
 export function useRequireAuth() {
   const router = useRouter();
   const { user, isLoading } = useSession();
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
 
   useEffect(() => {
     if (isLoading) return;
@@ -26,11 +28,19 @@ export function useRequireAuth() {
 
     if (user.status === "SUSPENDED") {
       router.replace("/suspended");
+      return;
     }
+
+    // Auth verified - safe to show content
+    setIsAuthChecked(true);
   }, [user, isLoading, router]);
 
   return {
     user,
     isLoading,
+    // True only when auth is confirmed (user exists and is not suspended)
+    isAuthChecked,
+    // Show loading until auth is fully verified
+    isAuthLoading: isLoading || !isAuthChecked,
   };
 }

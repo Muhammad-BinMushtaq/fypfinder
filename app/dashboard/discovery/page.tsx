@@ -7,24 +7,21 @@
  * Main page for discovering other students.
  * 
  * Responsibilities:
- * - Auth enforcement via useRequireAuth()
  * - Layout composition
  * - No direct data fetching
  * 
+ * Note: Auth is enforced by DashboardLayout (parent)
+ * 
  * Data Flow:
- * Page → useRequireAuth() → useDiscovery() → discovery.service.ts → Backend
+ * Page → useDiscovery() → discovery.service.ts → Backend
  */
 
-import { useRequireAuth } from "@/hooks/auth/useRequireAuth";
 import { useDiscovery } from "@/hooks/discovery/useDiscovery";
 import { StudentCard } from "@/components/discovery/StudentCard";
 import { DiscoveryFilters } from "@/components/discovery/DiscoveryFilters";
 
 export default function DiscoveryPage() {
-  // 🔐 Auth enforcement - redirects if not logged in
-  const { user, isLoading: authLoading } = useRequireAuth();
-
-  // 📊 Discovery data
+  // � Discovery data (auth is handled by dashboard layout)
   const {
     students,
     pagination,
@@ -50,37 +47,6 @@ export default function DiscoveryPage() {
     goToPage,
     prefetchNextPage,
   } = useDiscovery({ initialLimit: 12 });
-
-  // Auth loading state
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="relative">
-            <div className="w-20 h-20 border-4 border-gray-200 dark:border-slate-700 rounded-full"></div>
-            <div className="w-20 h-20 border-4 border-gray-600 dark:border-slate-400 border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
-          </div>
-          <p className="text-gray-600 dark:text-gray-400 mt-6 font-medium">Checking authentication...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Not authenticated (useRequireAuth will redirect, but show loading)
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
-            <svg className="w-8 h-8 text-gray-600 dark:text-gray-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-          </div>
-          <p className="text-gray-600 dark:text-gray-400 font-medium">Redirecting to login...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900">

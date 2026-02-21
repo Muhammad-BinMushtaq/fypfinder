@@ -54,8 +54,15 @@ export function AppProviders({ children }: ProvidersProps) {
         // Only persist certain queries
         dehydrateOptions: {
           shouldDehydrateQuery: (query) => {
-            // Persist discovery, profile, and messages data
             const queryKey = query.queryKey as string[]
+            
+            // NEVER persist auth-related queries (causes login issues)
+            const neverPersistKeys = ['session', 'auth', 'user']
+            if (neverPersistKeys.some(key => queryKey[0]?.includes(key))) {
+              return false
+            }
+            
+            // Persist discovery, profile, and messages data
             const persistableKeys = ['discovery', 'profile', 'student', 'messages', 'conversations']
             return persistableKeys.some(key => queryKey[0]?.includes(key))
           },

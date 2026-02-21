@@ -2,7 +2,6 @@
 "use client";
 
 import { useRequireAuth } from "@/hooks/auth/useRequireAuth";
-import { useSession } from "@/hooks/auth/useSession";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { SuspensionBanner } from "@/components/student/SuspensionBanner";
 import { PushPermissionBanner } from "@/components/pwa/PushPermissionBanner";
@@ -14,8 +13,8 @@ import clientLogger from "@/lib/client-logger";
 import Link from "next/link";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
-  useRequireAuth();
-  const { user, isLoading } = useSession();
+  // Use isAuthLoading to prevent content flash
+  const { user, isAuthLoading } = useRequireAuth();
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -28,8 +27,14 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       });
 
       if (response.ok) {
-        // Clear all cached data including session
+        // Clear React Query cache
         queryClient.clear();
+        
+        // Clear persisted localStorage cache
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('fypfinder-cache');
+        }
+        
         router.push("/login");
         router.refresh();
       } else {
@@ -42,8 +47,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     }
   };
 
-  // Show loading skeleton while checking session
-  if (isLoading) {
+  // Show loading skeleton until auth is fully verified
+  // This prevents content flash for unauthenticated users
+  if (isAuthLoading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex">
         {/* Sidebar Skeleton */}

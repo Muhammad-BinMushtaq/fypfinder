@@ -23,6 +23,12 @@ export function MicrosoftAuthButton() {
     setError(null);
 
     try {
+      // Clear any stale cached data before starting OAuth flow
+      // This ensures fresh data after successful login
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('fypfinder-cache');
+      }
+      
       const supabase = getSupabaseClient();
       const callbackUrl = `${window.location.origin}/api/auth/callback`;
 
