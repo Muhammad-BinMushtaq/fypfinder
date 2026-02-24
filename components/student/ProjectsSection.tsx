@@ -115,7 +115,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 overflow-hidden">
+    <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 overflow-hidden">
       {/* Header - Clickable for collapse */}
       <div 
         className="px-4 sm:px-6 py-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors"

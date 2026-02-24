@@ -78,25 +78,25 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-700 overflow-hidden">
+    <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 overflow-hidden">
       {/* Header - Clickable for collapse */}
       <div 
-        className="px-4 sm:px-8 py-4 sm:py-6 bg-gradient-to-r from-gray-800 to-gray-900 dark:from-slate-700 dark:to-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 cursor-pointer hover:from-gray-900 hover:to-black dark:hover:from-slate-600 dark:hover:to-slate-700 transition-colors"
+        className="px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors"
         onClick={() => !isEditing && setIsOpen(!isOpen)}
       >
-        <div className="text-white flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-lg flex items-center justify-center text-lg sm:text-xl">👤</div>
+            <span className="text-xl">👤</span>
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold">Personal Information</h2>
-              <p className="text-gray-300 text-xs sm:text-sm">Manage your profile and preferences</p>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Personal Information</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Manage your profile and preferences</p>
             </div>
           </div>
           {!isEditing && (
             isOpen ? (
-              <ChevronUp className="w-5 h-5 sm:w-6 sm:h-6 text-white/80 ml-2" />
+              <ChevronUp className="w-5 h-5 text-gray-400 ml-2" />
             ) : (
-              <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 text-white/80 ml-2" />
+              <ChevronDown className="w-5 h-5 text-gray-400 ml-2" />
             )
           )}
         </div>
@@ -106,7 +106,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
               e.stopPropagation();
               setIsEditing(true);
             }}
-            className="w-full sm:w-auto px-4 sm:px-5 py-2 sm:py-2.5 bg-white text-gray-900 font-semibold rounded-lg hover:bg-gray-100 shadow-md hover:shadow-lg transition-all duration-300 text-center"
+            className="w-full sm:w-auto px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium text-sm rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
           >
             Edit Profile
           </button>

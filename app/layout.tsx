@@ -22,7 +22,7 @@ export const viewport: Viewport = {
 // PWA Metadata configuration
 export const metadata: Metadata = {
   title: "FYP Finder - Find Your Perfect Project Partner",
-  description: "Connect with FAST NUCES students for your Final Year Project. Find partners, form groups, and collaborate.",
+  description: "Connect with Paf-iast students for your Final Year Project. Find partners, form groups, and collaborate.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -36,12 +36,12 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "FYP Finder",
     title: "FYP Finder - Find Your Perfect Project Partner",
-    description: "Connect with FAST NUCES students for your Final Year Project",
+    description: "Connect with Paf-iast students for your Final Year Project",
   },
   twitter: {
     card: "summary",
     title: "FYP Finder",
-    description: "Find your perfect FYP partner at FAST NUCES",
+    description: "Find your perfect FYP partner at Paf-iast",
   },
   other: {
     "mobile-web-app-capable": "yes",

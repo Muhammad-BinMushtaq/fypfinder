@@ -24,19 +24,19 @@ export default function ProfilePage() {
       <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-4 sm:p-6 lg:p-8">
         <div className="max-w-6xl mx-auto space-y-6">
           {/* Skeleton Progress */}
-          <div className="h-28 bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 animate-pulse" />
+          <div className="h-28 bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 animate-pulse" />
           
           {/* Skeleton Main Content */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Left Column */}
             <div className="lg:col-span-4 space-y-6">
-              <div className="h-80 bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 animate-pulse" />
+              <div className="h-80 bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 animate-pulse" />
             </div>
             {/* Right Column */}
             <div className="lg:col-span-8 space-y-6">
-              <div className="h-64 bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 animate-pulse" />
-              <div className="h-48 bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 animate-pulse" />
-              <div className="h-48 bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 animate-pulse" />
+              <div className="h-64 bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 animate-pulse" />
+              <div className="h-48 bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 animate-pulse" />
+              <div className="h-48 bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 animate-pulse" />
             </div>
           </div>
         </div>
@@ -47,7 +47,7 @@ export default function ProfilePage() {
   if (error || !profile) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-slate-900 p-4">
-        <div className="text-center bg-white dark:bg-slate-800 rounded-xl p-8 max-w-sm w-full border border-gray-200 dark:border-slate-700">
+        <div className="text-center bg-white dark:bg-slate-800 rounded-xl p-8 max-w-sm w-full border border-gray-100 dark:border-slate-700">
           <div className="w-14 h-14 mx-auto mb-4 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center">
             <AlertTriangle className="w-7 h-7 text-red-600 dark:text-red-400" />
           </div>
@@ -113,7 +113,7 @@ export default function ProfilePage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Column - Profile Card */}
           <div className="lg:col-span-4">
-            <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden lg:sticky lg:top-6">
+            <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 overflow-hidden lg:sticky lg:top-6">
               {/* Profile Picture Section */}
               <div className="p-6 text-center">
                 <div className="flex justify-center mb-4">
@@ -137,9 +137,9 @@ export default function ProfilePage() {
               </div>
 
               {/* Divider */}
-              <div className="border-t border-gray-100 dark:border-slate-700" />
+              <div className="border-t border-gray-50 dark:border-slate-700/50" />
 
-              {/* Info Section */}
+              {/* Info Section */
               <div className="p-4 space-y-3">
                 <div className="flex items-center gap-3 text-sm">
                   <GraduationCap className="w-4 h-4 text-gray-400" />
@@ -156,10 +156,10 @@ export default function ProfilePage() {
               </div>
 
               {/* Divider */}
-              <div className="border-t border-gray-100 dark:border-slate-700" />
+              <div className="border-t border-gray-50 dark:border-slate-700/50" />
 
               {/* Stats */}
-              <div className="grid grid-cols-3 divide-x divide-gray-100 dark:divide-slate-700">
+              <div className="grid grid-cols-3 divide-x divide-gray-50 dark:divide-slate-700/50">
                 <div className="p-4 text-center">
                   <div className="text-xl font-bold text-gray-900 dark:text-white">
                     {profile.skills?.length || 0}
@@ -183,7 +183,7 @@ export default function ProfilePage() {
               {/* Social Links */}
               {(profile.linkedinUrl || profile.githubUrl) && (
                 <>
-                  <div className="border-t border-gray-100 dark:border-slate-700" />
+                  <div className="border-t border-gray-50 dark:border-slate-700/50" />
                   <div className="p-4 flex gap-2">
                     {profile.githubUrl && (
                       <a
@@ -217,7 +217,7 @@ export default function ProfilePage() {
           <div className="lg:col-span-8 space-y-6">
             {/* Bio Preview */}
             {profile.interests && (
-              <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-5">
+              <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 p-5">
                 <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
                   About
                 </h3>
