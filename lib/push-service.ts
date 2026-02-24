@@ -86,15 +86,15 @@ export async function notifyNewMessage(
       return;
     }
 
-    // Prepare notification payload
+    // Prepare notification payload - clean minimalist design
     const payload: NotificationPayload = {
-      title: `💬 ${senderName}`,
+      title: senderName,
       body: messagePreview.length > 100 
         ? messagePreview.substring(0, 100) + '...' 
         : messagePreview,
       icon: '/icons/icon-192x192.png',
       badge: '/icons/icon-96x96.png',
-      tag: `message-${conversationId}`, // Group notifications by conversation
+      tag: `message-${conversationId}`,
       data: {
         url: `/dashboard/messages/${conversationId}`,
         type: 'message',
@@ -104,7 +104,6 @@ export async function notifyNewMessage(
       },
       actions: [
         { action: 'reply', title: 'Reply' },
-        { action: 'dismiss', title: 'Dismiss' },
       ],
     };
 
@@ -196,8 +195,8 @@ export async function notifyMessageRequest(
     }
 
     const payload: NotificationPayload = {
-      title: '📨 New Message Request',
-      body: `${fromStudentName} wants to message you${reason ? `: "${reason.substring(0, 50)}${reason.length > 50 ? '...' : ''}"` : ''}`,
+      title: 'Message Request',
+      body: `${fromStudentName} wants to connect${reason ? ` - "${reason.substring(0, 40)}${reason.length > 40 ? '...' : ''}"` : ''}`,
       icon: '/icons/icon-192x192.png',
       badge: '/icons/icon-96x96.png',
       tag: `request-message-${requestId}`,
@@ -208,8 +207,7 @@ export async function notifyMessageRequest(
         senderName: fromStudentName,
       },
       actions: [
-        { action: 'view', title: 'View Request' },
-        { action: 'dismiss', title: 'Dismiss' },
+        { action: 'view', title: 'View' },
       ],
     };
 
@@ -284,8 +282,8 @@ export async function notifyPartnerRequest(
     }
 
     const payload: NotificationPayload = {
-      title: '🤝 New Partner Request',
-      body: `${fromStudentName} wants to be your FYP partner${reason ? `: "${reason.substring(0, 50)}${reason.length > 50 ? '...' : ''}"` : ''}`,
+      title: 'Partner Request',
+      body: `${fromStudentName} wants to join your FYP${reason ? ` - "${reason.substring(0, 40)}${reason.length > 40 ? '...' : ''}"` : ''}`,
       icon: '/icons/icon-192x192.png',
       badge: '/icons/icon-96x96.png',
       tag: `request-partner-${requestId}`,
@@ -296,8 +294,7 @@ export async function notifyPartnerRequest(
         senderName: fromStudentName,
       },
       actions: [
-        { action: 'view', title: 'View Request' },
-        { action: 'dismiss', title: 'Dismiss' },
+        { action: 'view', title: 'View' },
       ],
     };
 
@@ -368,10 +365,10 @@ export async function notifyRequestAccepted(
 
     const isMessage = type === 'MESSAGE';
     const payload: NotificationPayload = {
-      title: isMessage ? '✅ Message Request Accepted' : '✅ Partner Request Accepted',
+      title: isMessage ? 'Request Accepted' : 'Partner Request Accepted',
       body: isMessage 
-        ? `${accepterName} accepted your message request. You can now chat!`
-        : `${accepterName} accepted your partner request. Welcome to the team!`,
+        ? `${accepterName} accepted. You can now chat.`
+        : `${accepterName} accepted your request. Welcome to the team.`,
       icon: '/icons/icon-192x192.png',
       badge: '/icons/icon-96x96.png',
       tag: `request-accepted-${type.toLowerCase()}`,

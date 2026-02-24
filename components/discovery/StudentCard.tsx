@@ -4,20 +4,12 @@
 /**
  * StudentCard Component
  * ---------------------
- * Displays a student's preview in the discovery grid.
- * 
- * Responsibilities:
- * - Render student preview data
- * - Handle navigation on click
- * - Prefetch profile on hover for instant navigation
- * 
- * ⚠️ NO API calls, NO business logic here.
- * All data comes via props.
+ * Minimalist student preview card for discovery grid.
  */
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Github, Linkedin, Lock, Code, Briefcase } from "lucide-react";
+import { Github, Linkedin, Lock, ChevronRight } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { prefetchPublicProfile } from "@/hooks/student/usePublicProfile";
 import type { MatchedStudent } from "@/services/discovery.service";
@@ -30,65 +22,35 @@ export function StudentCard({ student }: StudentCardProps) {
   const queryClient = useQueryClient();
   const router = useRouter();
 
-  // Navigate to profile on card click
   const handleCardClick = () => {
     router.push(`/dashboard/discovery/profile/${student.id}`);
   };
 
-  // Prefetch profile on hover for instant navigation
   const handleMouseEnter = () => {
     prefetchPublicProfile(queryClient, student.id);
   };
 
-  // Get availability badge config
   const getAvailabilityConfig = () => {
     if (student.isGroupLocked) {
       return {
         label: "Locked",
         icon: <Lock className="w-3 h-3" />,
-        bg: "bg-gray-100 dark:bg-slate-700",
-        text: "text-gray-600 dark:text-gray-300",
-        dot: "bg-gray-400",
+        dotColor: "bg-gray-400",
       };
     }
     
     switch (student.availability) {
       case "AVAILABLE":
-        return {
-          label: "Available",
-          icon: null,
-          bg: "bg-emerald-50 dark:bg-emerald-900/30",
-          text: "text-emerald-700 dark:text-emerald-400",
-          dot: "bg-emerald-500",
-        };
+        return { label: "Available", dotColor: "bg-emerald-500" };
       case "BUSY":
-        return {
-          label: "Busy",
-          icon: null,
-          bg: "bg-amber-50 dark:bg-amber-900/30",
-          text: "text-amber-700 dark:text-amber-400",
-          dot: "bg-amber-500",
-        };
+        return { label: "Busy", dotColor: "bg-amber-500" };
       case "AWAY":
-        return {
-          label: "Away",
-          icon: null,
-          bg: "bg-red-50 dark:bg-red-900/30",
-          text: "text-red-600 dark:text-red-400",
-          dot: "bg-red-500",
-        };
+        return { label: "Away", dotColor: "bg-gray-400" };
       default:
-        return {
-          label: "Unknown",
-          icon: null,
-          bg: "bg-gray-50 dark:bg-slate-700",
-          text: "text-gray-600 dark:text-gray-300",
-          dot: "bg-gray-400",
-        };
+        return { label: "Unknown", dotColor: "bg-gray-400" };
     }
   };
 
-  // Generate initials for avatar fallback
   const getInitials = (name: string) => {
     return name
       .split(" ")
@@ -98,120 +60,102 @@ export function StudentCard({ student }: StudentCardProps) {
       .slice(0, 2);
   };
 
-  const availabilityConfig = getAvailabilityConfig();
+  const availabilityConfig = getAvailabilityConfig();  const availabilityConfig = getAvailabilityConfig();
 
   return (
     <div
       onClick={handleCardClick}
       onMouseEnter={handleMouseEnter}
-      className="group block h-full cursor-pointer"
+      className="group cursor-pointer"
     >
-      <div className="relative bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-500 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 overflow-hidden h-full flex flex-col p-5">
-        {/* Top Row - Avatar + Name + Badges */}
-        <div className="flex items-start gap-4 mb-4">
-          {/* Circular Avatar */}
-          <div className="flex-shrink-0">
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:hover:border-slate-600 transition-all duration-200 overflow-hidden h-full flex flex-col">
+        {/* Header */}
+        <div className="p-4 pb-3">
+          <div className="flex items-start gap-3">
+            {/* Avatar */}
             {student.profilePicture ? (
-              <div className="relative w-16 h-16 rounded-full overflow-hidden ring-2 ring-indigo-100 dark:ring-indigo-900/50 group-hover:ring-indigo-300 dark:group-hover:ring-indigo-600 transition-all">
+              <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-slate-700">
                 <Image
                   src={student.profilePicture}
                   alt={student.name}
                   fill
-                  sizes="64px"
+                  sizes="48px"
                   className="object-cover"
                   loading="lazy"
                 />
               </div>
             ) : (
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xl ring-2 ring-indigo-100 dark:ring-indigo-900/50 group-hover:ring-indigo-300 dark:group-hover:ring-indigo-600 transition-all">
+              <div className="w-12 h-12 rounded-full bg-gray-900 dark:bg-white flex items-center justify-center text-white dark:text-gray-900 font-semibold text-sm flex-shrink-0">
                 {getInitials(student.name)}
               </div>
             )}
-          </div>
 
-          {/* Name, Department & Badges */}
-          <div className="flex-1 min-w-0">
-            <div className="min-w-0">
-              <h3 className="font-bold text-gray-900 dark:text-white text-lg truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+            {/* Info */}
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-gray-900 dark:text-white text-base truncate">
                 {student.name}
               </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                {student.department} • Sem {student.semester}
+              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                {student.department} · Sem {student.semester}
               </p>
-            </div>
-
-            {/* Availability Badge */}
-            <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 mt-2 rounded-full text-xs font-medium ${availabilityConfig.bg} ${availabilityConfig.text}`}>
-              {availabilityConfig.icon || (
-                <span className={`w-1.5 h-1.5 rounded-full ${availabilityConfig.dot} ${student.availability === "AVAILABLE" ? "animate-pulse" : ""}`}></span>
-              )}
-              {availabilityConfig.label}
+              
+              {/* Availability */}
+              <div className="flex items-center gap-1.5 mt-1.5">
+                {availabilityConfig.icon || (
+                  <span className={`w-1.5 h-1.5 rounded-full ${availabilityConfig.dotColor}`} />
+                )}
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {availabilityConfig.label}
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Content Area - Grows to fill space */}
-        <div className="flex-1 flex flex-col min-h-0">
-          {/* Bio */}
-          {student.interests && (
-            <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-4 leading-relaxed">
+        {/* Bio */}
+        {student.interests && (
+          <div className="px-4 pb-3">
+            <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
               {student.interests}
             </p>
-          )}
+          </div>
+        )}
 
-          {/* Skills Section */}
-          {student.skills.length > 0 && (
-            <div className="mb-4">
-              <div className="flex items-center gap-1.5 mb-2">
-                <Code className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
-                <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Skills</span>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {student.skills.slice(0, 4).map((skill, index) => (
-                  <span
-                    key={index}
-                    className="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-xs font-medium rounded-lg"
-                  >
-                    {skill}
-                  </span>
-                ))}
-                {student.skills.length > 4 && (
-                  <span className="px-2.5 py-1 bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 text-xs font-medium rounded-lg">
-                    +{student.skills.length - 4}
-                  </span>
-                )}
-              </div>
+        {/* Skills */}
+        {student.skills.length > 0 && (
+          <div className="px-4 pb-3">
+            <div className="flex flex-wrap gap-1.5">
+              {student.skills.slice(0, 3).map((skill, index) => (
+                <span
+                  key={index}
+                  className="px-2 py-0.5 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 text-xs rounded-md"
+                >
+                  {skill}
+                </span>
+              ))}
+              {student.skills.length > 3 && (
+                <span className="px-2 py-0.5 text-gray-400 dark:text-gray-500 text-xs">
+                  +{student.skills.length - 3}
+                </span>
+              )}
             </div>
-          )}
+          </div>
+        )}
 
-          {/* Projects indicator */}
-          {student.projectCount > 0 && (
-            <div className="mb-4">
-              <div className="flex items-center gap-1.5 mb-2">
-                <Briefcase className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
-                <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Projects</span>
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {student.projectCount} project{student.projectCount > 1 ? 's' : ''} showcased
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Footer - Always at bottom */}
-        <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-slate-700 mt-auto">
+        {/* Footer */}
+        <div className="mt-auto border-t border-gray-100 dark:border-slate-700 px-4 py-3 flex items-center justify-between">
           {/* Social Links */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             {student.githubUrl && (
               <a
                 href={student.githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-slate-700 hover:bg-gray-900 dark:hover:bg-white flex items-center justify-center transition-colors"
+                className="w-7 h-7 rounded-md bg-gray-50 dark:bg-slate-700 hover:bg-gray-100 dark:hover:bg-slate-600 flex items-center justify-center transition-colors"
                 title="GitHub"
               >
-                <Github className="w-4 h-4 text-gray-600 dark:text-gray-300 hover:text-white dark:hover:text-gray-900" />
+                <Github className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
               </a>
             )}
             {student.linkedinUrl && (
@@ -220,23 +164,18 @@ export function StudentCard({ student }: StudentCardProps) {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-slate-700 hover:bg-blue-600 flex items-center justify-center transition-colors"
+                className="w-7 h-7 rounded-md bg-gray-50 dark:bg-slate-700 hover:bg-gray-100 dark:hover:bg-slate-600 flex items-center justify-center transition-colors"
                 title="LinkedIn"
               >
-                <Linkedin className="w-4 h-4 text-gray-600 dark:text-gray-300 hover:text-white" />
+                <Linkedin className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
               </a>
-            )}
-            {!student.githubUrl && !student.linkedinUrl && (
-              <span className="text-xs text-gray-400 dark:text-gray-500">No social links</span>
             )}
           </div>
 
-          {/* View Profile */}
-          <div className="flex items-center gap-2 text-sm font-medium text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-            <span>View Profile</span>
-            <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
+          {/* View */}
+          <div className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
+            <span>View</span>
+            <ChevronRight className="w-3.5 h-3.5" />
           </div>
         </div>
       </div>

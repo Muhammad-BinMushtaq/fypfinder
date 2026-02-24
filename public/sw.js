@@ -227,6 +227,7 @@ self.addEventListener('push', (event) => {
     }
   }
   
+  // Clean minimalist notification options
   const options = {
     body: data.body,
     icon: data.icon || '/icons/icon-192x192.png',
@@ -234,7 +235,7 @@ self.addEventListener('push', (event) => {
     tag: data.tag || 'default',
     renotify: true,
     requireInteraction: false,
-    vibrate: [200, 100, 200],
+    silent: false,
     data: data.data || { url: '/dashboard' },
     actions: data.actions || []
   };
