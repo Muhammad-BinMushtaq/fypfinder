@@ -5,56 +5,69 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useUnreadCount } from "@/hooks/messaging/useUnreadCount";
+import {
+  User,
+  Search,
+  MessageSquare,
+  FileText,
+  Handshake,
+  FolderKanban,
+  BookOpen,
+  Settings,
+  LogOut,
+  ChevronDown,
+  GraduationCap,
+} from "lucide-react";
 
 interface NavItem {
   label: string;
   href: string;
-  icon: string;
+  icon: React.ReactNode;
   badge?: string;
   showUnreadBadge?: boolean;
-  children?: { label: string; href: string; icon: string }[];
+  children?: { label: string; href: string; icon: React.ReactNode }[];
 }
 
 const navItems: NavItem[] = [
   {
     label: "My Profile",
     href: "/dashboard/profile",
-    icon: "👤",
+    icon: <User className="w-5 h-5" />,
   },
   {
     label: "Discovery",
     href: "/dashboard/discovery",
-    icon: "🔍",
+    icon: <Search className="w-5 h-5" />,
   },
   {
     label: "Messages",
     href: "/dashboard/messages",
-    icon: "💬",
+    icon: <MessageSquare className="w-5 h-5" />,
     showUnreadBadge: true,
   },
   {
     label: "Requests",
     href: "/dashboard/requests",
-    icon: "📩",
+    icon: <FileText className="w-5 h-5" />,
     children: [
-      { label: "Partner Requests", href: "/dashboard/requests/partner", icon: "🤝" },
-      { label: "Message Requests", href: "/dashboard/requests/messages", icon: "📨" },
+      { label: "Partner Requests", href: "/dashboard/requests/partner", icon: <Handshake className="w-4 h-4" /> },
+      { label: "Message Requests", href: "/dashboard/requests/messages", icon: <MessageSquare className="w-4 h-4" /> },
     ],
   },
   {
     label: "FYP Management",
     href: "/dashboard/fyp",
-    icon: "📋",
+    icon: <FolderKanban className="w-5 h-5" />,
   },
   {
     label: "Taken FYPs",
     href: "/dashboard/fyp-ideas",
-    icon: "📚",
+    icon: <BookOpen className="w-5 h-5" />,
   },
   {
     label: "Settings",
     href: "/dashboard/settings",
-    icon: "⚙️",
+    icon: <Settings className="w-5 h-5" />,
   },
 ];
 
@@ -67,7 +80,6 @@ interface DashboardSidebarProps {
 export function DashboardSidebar({ userEmail, onLogout, isLoggingOut }: DashboardSidebarProps) {
   const pathname = usePathname();
   const [expandedItems, setExpandedItems] = useState<string[]>(["Requests"]);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { unreadCount } = useUnreadCount();
 
   const toggleExpand = (label: string) => {
@@ -78,13 +90,13 @@ export function DashboardSidebar({ userEmail, onLogout, isLoggingOut }: Dashboar
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
 
-  const NavContent = () => (
-    <>
+  return (
+    <aside className="hidden lg:flex lg:flex-col lg:w-72 lg:fixed lg:inset-y-0 bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700">
       {/* Logo */}
       <div className="p-4 border-b border-gray-200 dark:border-slate-700">
         <Link href="/dashboard/profile" className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gray-900 dark:bg-white rounded-xl flex items-center justify-center text-xl shadow-lg">
-            🎓
+          <div className="w-10 h-10 bg-gray-900 dark:bg-white rounded-xl flex items-center justify-center shadow-lg">
+            <GraduationCap className="w-6 h-6 text-white dark:text-gray-900" />
           </div>
           <span className="text-xl font-bold text-gray-900 dark:text-white">FYP Finder</span>
         </Link>
@@ -106,19 +118,14 @@ export function DashboardSidebar({ userEmail, onLogout, isLoggingOut }: Dashboar
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-xl">{item.icon}</span>
+                    <span className="text-gray-600 dark:text-gray-400">{item.icon}</span>
                     <span className="font-medium">{item.label}</span>
                   </div>
-                  <svg
+                  <ChevronDown
                     className={`w-4 h-4 transition-transform ${
                       expandedItems.includes(item.label) ? "rotate-180" : ""
                     }`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
+                  />
                 </button>
                 {expandedItems.includes(item.label) && (
                   <div className="ml-6 mt-1 space-y-1">
@@ -126,14 +133,13 @@ export function DashboardSidebar({ userEmail, onLogout, isLoggingOut }: Dashboar
                       <Link
                         key={child.href}
                         href={child.href}
-                        onClick={() => setIsMobileMenuOpen(false)}
                         className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all ${
                           pathname === child.href
                             ? "bg-gray-200 dark:bg-slate-600 text-gray-900 dark:text-white font-medium"
                             : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-white"
                         }`}
                       >
-                        <span className="text-lg">{child.icon}</span>
+                        <span className="text-gray-500 dark:text-gray-400">{child.icon}</span>
                         <span className="text-sm">{child.label}</span>
                       </Link>
                     ))}
@@ -144,7 +150,6 @@ export function DashboardSidebar({ userEmail, onLogout, isLoggingOut }: Dashboar
               // Single item
               <Link
                 href={item.href}
-                onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all ${
                   isActive(item.href)
                     ? "bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white shadow-sm"
@@ -152,7 +157,7 @@ export function DashboardSidebar({ userEmail, onLogout, isLoggingOut }: Dashboar
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-xl">{item.icon}</span>
+                  <span className="text-gray-600 dark:text-gray-400">{item.icon}</span>
                   <span className="font-medium">{item.label}</span>
                 </div>
                 {item.badge && (
@@ -197,54 +202,12 @@ export function DashboardSidebar({ userEmail, onLogout, isLoggingOut }: Dashboar
             </>
           ) : (
             <>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
+              <LogOut className="w-5 h-5" />
               Logout
             </>
           )}
         </button>
       </div>
-    </>
-  );
-
-  return (
-    <>
-      {/* Mobile Menu Button */}
-      <button
-        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-gray-200 dark:border-slate-700"
-      >
-        <svg className="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          {isMobileMenuOpen ? (
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          ) : (
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          )}
-        </svg>
-      </button>
-
-      {/* Mobile Overlay */}
-      {isMobileMenuOpen && (
-        <div
-          className="lg:hidden fixed inset-0 bg-black/50 z-40"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
-      )}
-
-      {/* Sidebar - Mobile */}
-      <aside
-        className={`lg:hidden fixed top-0 left-0 h-full w-72 bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700 z-50 transform transition-transform duration-300 flex flex-col ${
-          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <NavContent />
-      </aside>
-
-      {/* Sidebar - Desktop */}
-      <aside className="hidden lg:flex lg:flex-col lg:w-72 lg:fixed lg:inset-y-0 bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700">
-        <NavContent />
-      </aside>
-    </>
+    </aside>
   );
 }

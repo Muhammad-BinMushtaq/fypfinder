@@ -151,18 +151,18 @@ export function SendRequestButtons({
 
   return (
     <>
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-row gap-2 flex-wrap">
         {/* Send Message Request / Start Chat Button */}
         {targetAvailability === "AWAY" ? (
           // Target is away - cannot send message requests
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-50 text-red-600 font-semibold rounded-xl border border-red-200">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-red-50 text-red-600 font-medium rounded-lg border border-red-200">
             <Clock className="w-4 h-4" />
             User is Away
           </div>
         ) : isCheckingPermission ? (
           // Loading permission check
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-50 text-gray-500 font-semibold rounded-xl border border-gray-200">
-            <Loader2 className="w-4 h-4 animate-spin" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-50 text-gray-500 font-medium rounded-lg border border-gray-200">
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
             Checking...
           </div>
         ) : canMessage ? (
@@ -170,47 +170,47 @@ export function SendRequestButtons({
           <button
             onClick={() => startConversation({ targetStudentId })}
             disabled={isStartingChat}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg shadow-green-500/25 hover:shadow-green-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all shadow-md shadow-green-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isStartingChat ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Opening Chat...
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                Opening...
               </>
             ) : (
               <>
-                <Send className="w-4 h-4" />
-                Start Conversation
+                <Send className="w-3.5 h-3.5" />
+                Open Chat
               </>
             )}
           </button>
         ) : hasPendingMessageRequest ? (
           // Request pending
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 font-semibold rounded-xl border border-amber-200 dark:border-amber-800">
-            <Loader2 className="w-4 h-4" />
-            Message Request Pending
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 font-medium rounded-lg border border-amber-200 dark:border-amber-800">
+            <Loader2 className="w-3.5 h-3.5" />
+            Request Pending
           </div>
         ) : (
           // Can send request
           <button
             onClick={() => setShowMessageModal(true)}
             disabled={sendMessageMutation.isPending || messageSuccess}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-semibold rounded-xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-all shadow-lg shadow-gray-900/25 dark:shadow-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {messageSuccess ? (
               <>
-                <Check className="w-4 h-4" />
-                Request Sent!
+                <Check className="w-3.5 h-3.5" />
+                Sent!
               </>
             ) : sendMessageMutation.isPending ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 Sending...
               </>
             ) : (
               <>
-                <MessageSquare className="w-4 h-4" />
-                Send Message Request
+                <MessageSquare className="w-3.5 h-3.5" />
+                Start Messaging
               </>
             )}
           </button>
@@ -219,55 +219,55 @@ export function SendRequestButtons({
         {/* Send Partner Request Button */}
         {targetAvailability === "AWAY" ? (
           // Target is away - cannot send partner requests
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-semibold rounded-xl border border-red-200 dark:border-red-800">
-            <Clock className="w-4 h-4" />
-            User is Away
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-medium rounded-lg border border-red-200 dark:border-red-800">
+            <Clock className="w-3.5 h-3.5" />
+            Away
           </div>
         ) : hasAcceptedPartnerRequest ? (
           // Already partnered
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 font-semibold rounded-xl border border-green-200 dark:border-green-800">
-            <Check className="w-4 h-4" />
-            Already Partners
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 font-medium rounded-lg border border-green-200 dark:border-green-800">
+            <Check className="w-3.5 h-3.5" />
+            Partners
           </div>
         ) : isUserGroupLocked ? (
           // Current user's group is locked - cannot send partner requests
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 font-semibold rounded-xl border border-gray-200 dark:border-slate-600">
-            <Ban className="w-4 h-4" />
-            Your Group is Locked
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 font-medium rounded-lg border border-gray-200 dark:border-slate-600">
+            <Ban className="w-3.5 h-3.5" />
+            Group Locked
           </div>
         ) : isTargetGroupLocked ? (
           // Target's group is locked
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 font-semibold rounded-xl border border-gray-200 dark:border-slate-600">
-            <Ban className="w-4 h-4" />
-            Group Locked
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 font-medium rounded-lg border border-gray-200 dark:border-slate-600">
+            <Ban className="w-3.5 h-3.5" />
+            Locked
           </div>
         ) : hasPendingPartnerRequest ? (
           // Request pending
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 font-semibold rounded-xl border border-amber-200 dark:border-amber-800">
-            <Loader2 className="w-4 h-4" />
-            Partner Request Pending
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 font-medium rounded-lg border border-amber-200 dark:border-amber-800">
+            <Loader2 className="w-3.5 h-3.5" />
+            Request Pending
           </div>
         ) : (
           // Can send request
           <button
             onClick={() => setShowPartnerModal(true)}
             disabled={sendPartnerMutation.isPending || partnerSuccess}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-semibold rounded-xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-all shadow-lg shadow-gray-900/25 dark:shadow-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {partnerSuccess ? (
               <>
-                <Check className="w-4 h-4" />
-                Request Sent!
+                <Check className="w-3.5 h-3.5" />
+                Sent!
               </>
             ) : sendPartnerMutation.isPending ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 Sending...
               </>
             ) : (
               <>
-                <Users className="w-4 h-4" />
-                Send Partner Request
+                <Users className="w-3.5 h-3.5" />
+                Add FYP Partner
               </>
             )}
           </button>

@@ -2,7 +2,9 @@
 
 import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { useQueryClient } from "@tanstack/react-query"
+import { ArrowLeft, User } from "lucide-react"
 import { MessageList } from "./MessageList"
 import { ChatInput } from "./ChatInput"
 import { useMessages, type Message } from "@/hooks/messaging/useMessages"
@@ -210,6 +212,49 @@ export function ChatWindow({
 
   return (
     <div className="h-full flex flex-col bg-white dark:bg-slate-900">
+      {/* Chat Header with Profile Link */}
+      <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+        <button
+          onClick={() => router.push("/dashboard/messages")}
+          className="lg:hidden p-1.5 -ml-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
+        
+        <Link
+          href={`/dashboard/discovery/${otherStudent.id}`}
+          className="flex items-center gap-3 flex-1 min-w-0 group"
+        >
+          {otherStudent.profilePicture ? (
+            <img
+              src={otherStudent.profilePicture}
+              alt={otherStudent.name}
+              className="w-10 h-10 rounded-full object-cover ring-2 ring-transparent group-hover:ring-gray-200 dark:group-hover:ring-slate-600 transition-all"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-slate-700 flex items-center justify-center text-gray-600 dark:text-gray-300 font-medium text-sm ring-2 ring-transparent group-hover:ring-gray-200 dark:group-hover:ring-slate-600 transition-all">
+              {otherStudent.name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
+            </div>
+          )}
+          <div className="min-w-0 flex-1">
+            <p className="font-medium text-gray-900 dark:text-white truncate group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
+              {otherStudent.name}
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
+              View profile
+            </p>
+          </div>
+        </Link>
+        
+        <Link
+          href={`/dashboard/discovery/${otherStudent.id}`}
+          className="hidden sm:flex p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+          title="View Profile"
+        >
+          <User className="w-5 h-5" />
+        </Link>
+      </div>
+
       {/* Connection status indicator (only show when not connected) */}
       {connectionStatus !== "connected" && (
         <div className={`px-3 py-1.5 text-xs font-medium text-center ${

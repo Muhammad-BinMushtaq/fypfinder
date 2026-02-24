@@ -6,7 +6,9 @@ import { SkillsSection } from "@/components/student/SkillsSection";
 import { ProjectsSection } from "@/components/student/ProjectsSection";
 import { ProfileForm } from "@/components/student/ProfileForm";
 import { ProfilePictureUpload } from "@/components/student/ProfilePictureUpload";
+import { ProfileCompletionIndicator } from "@/components/student/ProfileCompletionIndicator";
 import { getDepartmentLabel } from "@/lib/departments";
+import { GraduationCap, BookOpen, AlertTriangle, Circle } from "lucide-react";
 
 export default function ProfilePage() {
   const { profile, isLoading, error } = useMyProfile();
@@ -40,7 +42,7 @@ export default function ProfilePage() {
       <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-slate-900">
         <div className="text-center bg-white dark:bg-slate-800 rounded-3xl p-10 shadow-xl border border-gray-100 dark:border-slate-700 max-w-md mx-4">
           <div className="w-20 h-20 mx-auto mb-6 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
-            <span className="text-4xl">⚠️</span>
+            <AlertTriangle className="w-10 h-10 text-red-600 dark:text-red-400" />
           </div>
           <p className="text-xl font-bold text-gray-900 dark:text-white mb-2">Failed to load profile</p>
           <p className="text-gray-600 dark:text-gray-400">
@@ -60,13 +62,13 @@ export default function ProfilePage() {
   const getAvailabilityConfig = (status: string) => {
     switch (status) {
       case "AVAILABLE":
-        return { label: "Available for FYP", color: "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800", icon: "🟢" };
+        return { label: "Available for FYP", color: "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800", dotColor: "bg-green-500" };
       case "BUSY":
-        return { label: "Busy", color: "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800", icon: "🟡" };
+        return { label: "Busy", color: "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800", dotColor: "bg-yellow-500" };
       case "AWAY":
-        return { label: "Away", color: "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-400 border-gray-200 dark:border-gray-700", icon: "⚫" };
+        return { label: "Away", color: "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-400 border-gray-200 dark:border-gray-700", dotColor: "bg-gray-400" };
       default:
-        return { label: status, color: "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-400 border-gray-200 dark:border-gray-700", icon: "⚫" };
+        return { label: status, color: "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-400 border-gray-200 dark:border-gray-700", dotColor: "bg-gray-400" };
     }
   };
 
@@ -101,17 +103,20 @@ export default function ProfilePage() {
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-4">
                   {/* Department Badge */}
                   <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-slate-700 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-600">
-                    🎓 {getDepartmentLabel(profile.department)}
+                    <GraduationCap className="w-4 h-4" />
+                    {getDepartmentLabel(profile.department)}
                   </span>
                   
                   {/* Semester Badge */}
                   <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-slate-700 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-600">
-                    📚 Semester {profile.semester}
+                    <BookOpen className="w-4 h-4" />
+                    Semester {profile.semester}
                   </span>
                   
                   {/* Availability Badge */}
                   <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold border ${availability.color}`}>
-                    {availability.icon} {availability.label}
+                    <span className={`w-2 h-2 rounded-full ${availability.dotColor}`} />
+                    {availability.label}
                   </span>
                 </div>
 
@@ -149,6 +154,9 @@ export default function ProfilePage() {
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+        {/* Profile Completion Indicator */}
+        <ProfileCompletionIndicator profile={profile} />
+
         {/* Profile Form */}
         <ProfileForm profile={profile} />
 

@@ -17,7 +17,7 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Github, Linkedin, Lock, Sparkles, Code, Briefcase } from "lucide-react";
+import { Github, Linkedin, Lock, Code, Briefcase } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { prefetchPublicProfile } from "@/hooks/student/usePublicProfile";
 import type { MatchedStudent } from "@/services/discovery.service";
@@ -88,14 +88,6 @@ export function StudentCard({ student }: StudentCardProps) {
     }
   };
 
-  // Get match score config
-  const getMatchScoreConfig = (score: number) => {
-    if (score >= 80) return { bg: "from-emerald-500 to-green-500", label: "Excellent" };
-    if (score >= 60) return { bg: "from-blue-500 to-indigo-500", label: "Great" };
-    if (score >= 40) return { bg: "from-amber-500 to-orange-500", label: "Good" };
-    return { bg: "from-gray-400 to-gray-500", label: "Fair" };
-  };
-
   // Generate initials for avatar fallback
   const getInitials = (name: string) => {
     return name
@@ -107,7 +99,6 @@ export function StudentCard({ student }: StudentCardProps) {
   };
 
   const availabilityConfig = getAvailabilityConfig();
-  const matchConfig = getMatchScoreConfig(student.matchScore);
 
   return (
     <div
@@ -140,21 +131,13 @@ export function StudentCard({ student }: StudentCardProps) {
 
           {/* Name, Department & Badges */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0">
-                <h3 className="font-bold text-gray-900 dark:text-white text-lg truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                  {student.name}
-                </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                  {student.department} • Sem {student.semester}
-                </p>
-              </div>
-              
-              {/* Match Score */}
-              <div className={`flex-shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-gradient-to-r ${matchConfig.bg} text-white shadow-sm`}>
-                <Sparkles className="w-3 h-3" />
-                {student.matchScore}%
-              </div>
+            <div className="min-w-0">
+              <h3 className="font-bold text-gray-900 dark:text-white text-lg truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                {student.name}
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                {student.department} • Sem {student.semester}
+              </p>
             </div>
 
             {/* Availability Badge */}

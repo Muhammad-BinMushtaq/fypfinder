@@ -4,7 +4,7 @@
 import { useState } from "react";
 import { useMyGroup, useUpdateGroupProject, useUpdateGroupVisibility } from "@/hooks/group/useMyGroup";
 import { useMyProfile } from "@/hooks/student/useMyProfile";
-import { Users, Lock, Unlock, Eye, EyeOff, Edit2, Save, X, AlertCircle } from "lucide-react";
+import { Users, Lock, Unlock, Eye, EyeOff, Edit2, Save, X, AlertCircle, Target } from "lucide-react";
 
 export default function FYPManagementPage() {
   const { group, isLoading, isInGroup, isGroupLocked } = useMyGroup();
@@ -126,7 +126,7 @@ export default function FYPManagementPage() {
           <div className="px-6 py-5 border-b border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-700/50 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gray-100 dark:bg-slate-600 rounded-lg flex items-center justify-center">
-                <span className="text-xl">🎯</span>
+                <Target className="w-5 h-5 text-gray-600 dark:text-gray-400" />
               </div>
               <div>
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white">Project Details</h2>
@@ -210,34 +210,17 @@ export default function FYPManagementPage() {
         {/* Visibility Settings Card */}
         <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-gray-100 dark:border-slate-700 overflow-hidden">
           <div className="px-6 py-5 border-b border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-700/50">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gray-100 dark:bg-slate-600 rounded-lg flex items-center justify-center">
-                {showGroupOnProfile ? <Eye className="w-5 h-5 text-emerald-600 dark:text-emerald-400" /> : <EyeOff className="w-5 h-5 text-gray-500 dark:text-gray-400" />}
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white">Profile Visibility</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Control what others see on your public profile</p>
-              </div>
-            </div>
-          </div>
-          <div className="p-6">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1">
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Show group on public profile</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                  When enabled, visitors to your public profile will see your FYP group, 
-                  project details, and team members. When disabled, your group membership 
-                  will be hidden from your public profile.
-                </p>
-                <div className="mt-3 p-3 bg-gray-100 dark:bg-slate-700 rounded-xl">
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    <strong>Note:</strong> This only affects your public profile view. 
-                    It doesn't affect group membership, messaging permissions, or partner requests.
-                  </p>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gray-100 dark:bg-slate-600 rounded-lg flex items-center justify-center">
+                  {showGroupOnProfile ? <Eye className="w-5 h-5 text-emerald-600 dark:text-emerald-400" /> : <EyeOff className="w-5 h-5 text-gray-500 dark:text-gray-400" />}
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">Profile Visibility</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Show FYP group on your public profile</p>
                 </div>
               </div>
-            </div>
-            <div className="flex items-center justify-end mt-4">
+              {/* Toggle - aligned with title */}
               <button
                 onClick={handleToggleVisibility}
                 disabled={updateVisibility.isPending}
@@ -252,7 +235,13 @@ export default function FYPManagementPage() {
                 />
               </button>
             </div>
-            <div className={`mt-4 p-4 rounded-xl border ${
+          </div>
+          <div className="p-6">
+            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-4">
+              When enabled, visitors to your public profile will see your FYP group, 
+              project details, and team members.
+            </p>
+            <div className={`p-4 rounded-xl border ${
               showGroupOnProfile 
                 ? "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800" 
                 : "bg-gray-50 dark:bg-slate-700 border-gray-200 dark:border-slate-600"
@@ -262,14 +251,14 @@ export default function FYPManagementPage() {
                   <>
                     <Eye className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                     <p className="text-sm font-medium text-emerald-800 dark:text-emerald-300">
-                      Your group information is <strong>visible</strong> on your public profile
+                      Your group is <strong>visible</strong> on your public profile
                     </p>
                   </>
                 ) : (
                   <>
                     <EyeOff className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                     <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Your group information is <strong>hidden</strong> from your public profile
+                      Your group is <strong>hidden</strong> from your public profile
                     </p>
                   </>
                 )}

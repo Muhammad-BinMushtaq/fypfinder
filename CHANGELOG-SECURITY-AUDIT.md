@@ -14,9 +14,11 @@ This update addresses critical security vulnerabilities, performance issues, and
 ## Critical Security Fixes
 
 ### 1. Admin Signup Route Secured
-**File:** `app/api/admin/signup/route.ts`  
+**File:** `app/api/admin
+
+/signup/route.ts`  
 **Issue:** Admin signup endpoint was publicly accessible - anyone could create admin accounts  
-**Fix:** Added `requireRole(UserRole.ADMIN)` authentication check - only existing admins can now create new admin accounts
+**Fix:** Added `requireRole(UserRole.ADMIN)` authentication check - only existing admins can now create new admin yccounts
 
 ### 2. DELETION_REQUESTED Status Check
 **File:** `lib/auth.ts`  
