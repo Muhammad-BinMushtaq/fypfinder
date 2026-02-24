@@ -115,7 +115,9 @@ export function SkillsSection({ skills }: SkillsSectionProps) {
           <span className="text-xl">💡</span>
           <div>
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Skills</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{skills.length} skills added</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {skills.length > 0 ? `${skills.length} skills added` : "Add technical skills you've learned"}
+            </p>
           </div>
           {isOpen ? (
             <ChevronUp className="w-5 h-5 text-gray-400 ml-2" />
@@ -135,6 +137,15 @@ export function SkillsSection({ skills }: SkillsSectionProps) {
         </button>
         )}
       </div>
+
+      {/* Helper Text */}
+      {isOpen && (
+        <div className="px-4 sm:px-6 pb-2">
+          <p className="text-xs text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-slate-700/30 px-3 py-2 rounded-lg">
+            💡 Add programming languages, frameworks, tools, or any technical skills relevant to your FYP work.
+          </p>
+        </div>
+      )}
 
       {/* Collapsible Content */}
       {isOpen && (

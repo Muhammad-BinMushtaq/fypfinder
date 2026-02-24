@@ -124,8 +124,10 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
         <div className="flex items-center gap-3">
           <span className="text-xl">🚀</span>
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Projects</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{projects.length} projects added</p>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Personal Projects</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {projects.length > 0 ? `${projects.length} projects added` : "Showcase your previous work"}
+            </p>
           </div>
           {isOpen ? (
             <ChevronUp className="w-5 h-5 text-gray-400 ml-2" />
@@ -145,6 +147,15 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
         </button>
         )}
       </div>
+
+      {/* Helper Text */}
+      {isOpen && (
+        <div className="px-4 sm:px-6 pb-2">
+          <p className="text-xs text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-slate-700/30 px-3 py-2 rounded-lg">
+            📁 These are your past or personal projects — not your FYP idea. Add projects that demonstrate your skills and experience.
+          </p>
+        </div>
+      )}
 
       {/* Collapsible Content */}
       {isOpen && (
