@@ -31,7 +31,7 @@ export default async function HomePage({
     <div className="min-h-screen bg-white dark:bg-slate-900 relative">
       {/* Subtle Grid Background - stays behind all content */}
       <div className="fixed inset-0 bg-[linear-gradient(to_right,#e5e5e5_1px,transparent_1px),linear-gradient(to_bottom,#e5e5e5_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:64px_64px] opacity-40 dark:opacity-100" style={{ zIndex: -1 }} />
-      
+
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-gray-100 dark:border-slate-800">
         <div className="max-w-6xl mx-auto px-6 lg:px-8">
@@ -98,11 +98,24 @@ export default async function HomePage({
                 </svg>
                 Continue with Microsoft
               </Link>
+              <SupademoButton />
             </div>
           </div>
 
-          {/* Interactive Demo */}
-          <SupademoButton />
+          {/* Demo Video */}
+          <div className="max-w-4xl mx-auto">
+            <div className="relative aspect-video bg-gray-900 dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 overflow-hidden shadow-2xl">
+              <iframe 
+                className="w-full h-full"
+                src="https://www.youtube.com/embed/l5DJNJ_SBSU?si=AEzaXHlTThwBI7r3" 
+                title="YouTube video player"
+                frameBorder={0} 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                referrerPolicy="strict-origin-when-cross-origin" 
+                allowFullScreen
+              />
+            </div>
+          </div>
         </div>
       </section>
 
