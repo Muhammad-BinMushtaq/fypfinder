@@ -107,7 +107,7 @@ export default async function HomePage({
             <div className="relative aspect-video rounded-2xl border border-gray-200 dark:border-slate-700 overflow-hidden shadow-2xl">
               <iframe 
                 className="absolute inset-0 w-full h-full block"
-                src="https://www.youtube.com/embed/l5DJNJ_SBSU?si=AEzaXHlTThwBI7r3" 
+                src="https://www.youtube.com/embed/l5DJNJ_SBSU?si=AEzaXHlTThwBI7r3&autoplay=1&mute=1" 
                 title="YouTube video player"
                 frameBorder={0} 
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
