@@ -7,3 +7,4 @@
 
 export { PushPermissionBanner } from './PushPermissionBanner';
 export { NotificationSettings } from './NotificationSettings';
+export { InstallButton } from './InstallButton';

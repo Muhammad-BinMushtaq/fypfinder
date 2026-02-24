@@ -34,7 +34,7 @@ export default function ConversationPage() {
   // Profile loading
   if (profileLoading) {
     return (
-      <div className="h-[calc(100vh-4rem)] bg-white dark:bg-slate-900 flex">
+      <div className="h-[calc(100dvh-4rem)] bg-white dark:bg-slate-900 flex">
         <div className="hidden lg:block w-80 xl:w-96 border-r border-gray-200 dark:border-slate-700">
           <ConversationList activeConversationId={conversationId} />
         </div>
@@ -52,7 +52,7 @@ export default function ConversationPage() {
   // Conversation loading (first load only)
   if (conversationsLoading && !currentConversation) {
     return (
-      <div className="h-[calc(100vh-4rem)] bg-white dark:bg-slate-900 flex">
+      <div className="h-[calc(100dvh-4rem)] bg-white dark:bg-slate-900 flex">
         <div className="hidden lg:block w-80 xl:w-96 border-r border-gray-200 dark:border-slate-700">
           <ConversationList activeConversationId={conversationId} />
         </div>
@@ -70,7 +70,7 @@ export default function ConversationPage() {
   // Error or conversation not found
   if (isError || (!conversationsLoading && !currentConversation)) {
     return (
-      <div className="h-[calc(100vh-4rem)] bg-white dark:bg-slate-900 flex">
+      <div className="h-[calc(100dvh-4rem)] bg-white dark:bg-slate-900 flex">
         <div className="hidden lg:block w-80 xl:w-96 border-r border-gray-200 dark:border-slate-700">
           <ConversationList activeConversationId={conversationId} />
         </div>
@@ -117,7 +117,7 @@ export default function ConversationPage() {
   const otherStudent = currentConversation.otherStudent
 
   return (
-    <div className="h-[calc(100vh-4rem)] bg-white dark:bg-slate-900 flex">
+    <div className="h-[calc(100dvh-4rem)] bg-white dark:bg-slate-900 flex overflow-hidden">
       {/* Sidebar */}
       <div className="hidden lg:block w-80 xl:w-96 border-r border-gray-200 dark:border-slate-700">
         <ConversationList activeConversationId={conversationId} />

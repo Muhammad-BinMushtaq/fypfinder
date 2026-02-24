@@ -8,7 +8,7 @@ export default function MessagesPage() {
 
   if (profileLoading) {
     return (
-      <div className="h-[calc(100vh-4rem)] bg-white dark:bg-slate-900">
+      <div className="h-[calc(100dvh-4rem)] bg-white dark:bg-slate-900">
         <div className="h-full flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
             <div className="w-8 h-8 border-3 border-gray-900 dark:border-white border-t-transparent rounded-full animate-spin" />
@@ -20,7 +20,7 @@ export default function MessagesPage() {
   }
 
   return (
-    <div className="h-[calc(100vh-4rem)] bg-white dark:bg-slate-900 flex">
+    <div className="h-[calc(100dvh-4rem)] bg-white dark:bg-slate-900 flex">
       {/* Conversation List */}
       <div className="w-full lg:w-80 xl:w-96 border-r border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900">
         <ConversationList />

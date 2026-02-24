@@ -198,7 +198,7 @@ export function ProfilePictureUpload({ currentPicture, studentId, name }: Profil
       {/* Avatar Container */}
       <div className="relative group">
         {/* Avatar */}
-        <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden border-4 border-white shadow-xl bg-gradient-to-br from-indigo-500 to-purple-600 relative">
+        <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-white dark:border-slate-700 shadow-lg bg-gradient-to-br from-gray-700 to-gray-900 relative">
           {previewUrl ? (
             <img
               src={previewUrl}

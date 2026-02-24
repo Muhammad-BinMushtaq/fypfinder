@@ -117,10 +117,10 @@ export function PublicProfileView({
               <img
                 src={profile.profilePicture}
                 alt={profile.name}
-                className="h-24 w-24 rounded-2xl object-cover ring-1 ring-slate-200 dark:ring-slate-700 sm:h-28 sm:w-28"
+                className="h-24 w-24 rounded-full object-cover ring-2 ring-slate-200 dark:ring-slate-700 sm:h-28 sm:w-28"
               />
             ) : (
-              <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-700 text-2xl font-semibold text-slate-700 dark:text-slate-300 sm:h-28 sm:w-28">
+              <div className="flex h-24 w-24 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700 text-2xl font-semibold text-slate-700 dark:text-slate-300 sm:h-28 sm:w-28">
                 {getInitials(profile.name)}
               </div>
             )}

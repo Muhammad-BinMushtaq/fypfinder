@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
+import { LandingThemeToggle } from "@/components/landing/LandingThemeToggle";
 
 export default async function HomePage({
   searchParams,
@@ -26,30 +27,36 @@ export default async function HomePage({
 
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-slate-900 relative">
+      {/* Subtle Grid Background */}
+      <div className="fixed inset-0 bg-[linear-gradient(to_right,#f1f1f1_1px,transparent_1px),linear-gradient(to_bottom,#f1f1f1_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:64px_64px] pointer-events-none" />
+      
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-gray-100 dark:border-slate-800">
         <div className="max-w-6xl mx-auto px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 bg-gray-900 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-9 h-9 bg-gray-900 dark:bg-white rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-white dark:text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14v7" />
                 </svg>
               </div>
-              <span className="text-lg font-semibold text-gray-900 tracking-tight">FYP Finder</span>
+              <span className="text-lg font-semibold text-gray-900 dark:text-white tracking-tight">FYP Finder</span>
             </div>
 
-            {/* CTA */}
-            <Link
-              href="/login"
-              className="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors"
-            >
-              Get Started
-            </Link>
+            {/* CTA + Theme Toggle */}
+            <div className="flex items-center gap-2">
+              <LandingThemeToggle />
+              <Link
+                href="/login"
+                className="px-4 py-2 text-sm font-medium text-white dark:text-gray-900 bg-gray-900 dark:bg-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+              >
+                Get Started
+              </Link>
+            </div>
           </div>
         </div>
       </nav>
@@ -59,20 +66,20 @@ export default async function HomePage({
         <div className="max-w-6xl mx-auto px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-full mb-8">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-full mb-8">
               <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-              <span className="text-sm text-gray-600 font-medium">PAF-IAST Students Only</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">PAF-IAST Students Only</span>
             </div>
 
             {/* Main Heading - UNCHANGED */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-[1.1] tracking-tight">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6 leading-[1.1] tracking-tight">
               Find your FYP Partner at
               <br />
-              <span className="text-gray-900">PAF-IAST</span>
+              <span className="text-gray-900 dark:text-white">PAF-IAST</span>
             </h1>
 
             {/* Subheading */}
-            <p className="text-lg sm:text-xl text-gray-500 max-w-xl mx-auto mb-10 leading-relaxed">
+            <p className="text-lg sm:text-xl text-gray-500 dark:text-gray-400 max-w-xl mx-auto mb-10 leading-relaxed">
               A university platform that helps PAF-IAST students find the right teammates for their Final Year Projects.
             </p>
 
@@ -80,7 +87,7 @@ export default async function HomePage({
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16">
               <Link
                 href="/login"
-                className="w-full sm:w-auto px-6 py-3 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-6 py-3 text-sm font-medium text-white dark:text-gray-900 bg-gray-900 dark:bg-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
               >
                 <svg className="w-5 h-5" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect width="10" height="10" fill="#F25022" />
@@ -95,19 +102,19 @@ export default async function HomePage({
 
           {/* Demo Video Placeholder */}
           <div className="max-w-4xl mx-auto">
-            <div className="relative aspect-video bg-gray-50 rounded-2xl border border-gray-200 overflow-hidden">
+            <div className="relative aspect-video bg-gray-50 dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 overflow-hidden">
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                    <svg className="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
+                    <svg className="w-8 h-8 text-gray-400 dark:text-gray-500" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M8 5v14l11-7z" />
                     </svg>
                   </div>
-                  <p className="text-sm text-gray-400 font-medium">Platform Demo</p>
+                  <p className="text-sm text-gray-400 dark:text-gray-500 font-medium">Platform Demo</p>
                 </div>
               </div>
               {/* Grid pattern overlay */}
-              <div className="absolute inset-0 bg-[linear-gradient(to_right,#f3f4f6_1px,transparent_1px),linear-gradient(to_bottom,#f3f4f6_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,#f3f4f6_1px,transparent_1px),linear-gradient(to_bottom,#f3f4f6_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#334155_1px,transparent_1px),linear-gradient(to_bottom,#334155_1px,transparent_1px)] bg-[size:24px_24px]"></div>
             </div>
           </div>
         </div>
@@ -120,10 +127,10 @@ export default async function HomePage({
       <section className="py-20 sm:py-28">
         <div className="max-w-6xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 tracking-tight">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight">
               Students Looking for Partners
             </h2>
-            <p className="text-gray-500">
+            <p className="text-gray-500 dark:text-gray-400">
               Login to unlock profiles and start connecting
             </p>
           </div>
@@ -131,25 +138,25 @@ export default async function HomePage({
           {/* Locked Profile Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {/* Preview Card 1 */}
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-              <div className="p-5 border-b border-gray-100">
+            <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
+              <div className="p-5 border-b border-gray-100 dark:border-slate-700">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gray-900 rounded-full flex items-center justify-center text-lg font-semibold text-white flex-shrink-0">
+                  <div className="w-12 h-12 bg-gray-900 dark:bg-white rounded-full flex items-center justify-center text-lg font-semibold text-white dark:text-gray-900 flex-shrink-0">
                     A
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900">Ahmed Khan</h3>
-                    <p className="text-sm text-gray-500">BSCS · 7th Semester</p>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">Ahmed Khan</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">BSCS · 7th Semester</p>
                     <div className="flex items-center gap-1.5 mt-1">
                       <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-                      <span className="text-xs text-gray-500">Available</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">Available</span>
                     </div>
                   </div>
                 </div>
               </div>
               <div className="relative p-5">
-                <div className="absolute inset-0 backdrop-blur-sm bg-white/80 z-10 flex items-center justify-center">
-                  <Link href="/login" className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors">
+                <div className="absolute inset-0 backdrop-blur-sm bg-white/80 dark:bg-slate-800/80 z-10 flex items-center justify-center">
+                  <Link href="/login" className="flex items-center gap-2 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
@@ -158,35 +165,35 @@ export default async function HomePage({
                 </div>
                 <div className="space-y-3 opacity-40">
                   <div className="flex flex-wrap gap-1.5">
-                    <span className="px-2.5 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">React</span>
-                    <span className="px-2.5 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">Node.js</span>
-                    <span className="px-2.5 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">Python</span>
+                    <span className="px-2.5 py-1 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 text-xs rounded-md">React</span>
+                    <span className="px-2.5 py-1 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 text-xs rounded-md">Node.js</span>
+                    <span className="px-2.5 py-1 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 text-xs rounded-md">Python</span>
                   </div>
-                  <p className="text-sm text-gray-500">Passionate developer interested in web technologies...</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Passionate developer interested in web technologies...</p>
                 </div>
               </div>
             </div>
 
             {/* Preview Card 2 */}
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-              <div className="p-5 border-b border-gray-100">
+            <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
+              <div className="p-5 border-b border-gray-100 dark:border-slate-700">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gray-900 rounded-full flex items-center justify-center text-lg font-semibold text-white flex-shrink-0">
+                  <div className="w-12 h-12 bg-gray-900 dark:bg-white rounded-full flex items-center justify-center text-lg font-semibold text-white dark:text-gray-900 flex-shrink-0">
                     S
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900">Sara Malik</h3>
-                    <p className="text-sm text-gray-500">BSSE · 8th Semester</p>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">Sara Malik</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">BSSE · 8th Semester</p>
                     <div className="flex items-center gap-1.5 mt-1">
                       <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-                      <span className="text-xs text-gray-500">Available</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">Available</span>
                     </div>
                   </div>
                 </div>
               </div>
               <div className="relative p-5">
-                <div className="absolute inset-0 backdrop-blur-sm bg-white/80 z-10 flex items-center justify-center">
-                  <Link href="/login" className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors">
+                <div className="absolute inset-0 backdrop-blur-sm bg-white/80 dark:bg-slate-800/80 z-10 flex items-center justify-center">
+                  <Link href="/login" className="flex items-center gap-2 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
@@ -195,11 +202,11 @@ export default async function HomePage({
                 </div>
                 <div className="space-y-3 opacity-40">
                   <div className="flex flex-wrap gap-1.5">
-                    <span className="px-2.5 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">UI/UX</span>
-                    <span className="px-2.5 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">Figma</span>
-                    <span className="px-2.5 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">Flutter</span>
+                    <span className="px-2.5 py-1 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 text-xs rounded-md">UI/UX</span>
+                    <span className="px-2.5 py-1 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 text-xs rounded-md">Figma</span>
+                    <span className="px-2.5 py-1 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 text-xs rounded-md">Flutter</span>
                   </div>
-                  <p className="text-sm text-gray-500">Creative designer focusing on mobile-first experiences...</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Creative designer focusing on mobile-first experiences...</p>
                 </div>
               </div>
             </div>
@@ -208,7 +215,7 @@ export default async function HomePage({
           <div className="text-center mt-10">
             <Link
               href="/login"
-              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
             >
               View All Students
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -220,69 +227,69 @@ export default async function HomePage({
       </section>
 
       {/* Previous FYPs Section */}
-      <section className="py-20 sm:py-28 bg-gray-50 border-y border-gray-100">
+      <section className="py-20 sm:py-28 bg-gray-50 dark:bg-slate-800/50 border-y border-gray-100 dark:border-slate-800">
         <div className="max-w-6xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 tracking-tight">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight">
               Previous FYP Ideas
             </h2>
-            <p className="text-gray-500">
+            <p className="text-gray-500 dark:text-gray-400">
               See what PAF-IAST students have built before
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {/* FYP 1 */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-10 h-10 bg-blue-50 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                 </div>
-                <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-md">Web App</span>
+                <span className="text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-md">Web App</span>
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Smart Attendance System</h3>
-              <p className="text-sm text-gray-500 mb-4">Face recognition-based attendance tracking for university classrooms with real-time reporting.</p>
-              <div className="pt-4 border-t border-gray-100">
-                <p className="text-xs text-gray-400 mb-1">Supervised by</p>
-                <p className="text-sm text-gray-400 blur-[3px] select-none">Dr. Ahmad Hassan</p>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Smart Attendance System</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Face recognition-based attendance tracking for university classrooms with real-time reporting.</p>
+              <div className="pt-4 border-t border-gray-100 dark:border-slate-700">
+                <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">Supervised by</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500 blur-[3px] select-none">Dr. Ahmad Hassan</p>
               </div>
             </div>
 
             {/* FYP 2 */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-10 h-10 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                   </svg>
                 </div>
-                <span className="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">Mobile App</span>
+                <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-1 rounded-md">Mobile App</span>
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Campus Navigation App</h3>
-              <p className="text-sm text-gray-500 mb-4">Indoor navigation system for PAF-IAST campus with AR-based directions and building info.</p>
-              <div className="pt-4 border-t border-gray-100">
-                <p className="text-xs text-gray-400 mb-1">Supervised by</p>
-                <p className="text-sm text-gray-400 blur-[3px] select-none">Prof. Fatima Khan</p>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Campus Navigation App</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Indoor navigation system for PAF-IAST campus with AR-based directions and building info.</p>
+              <div className="pt-4 border-t border-gray-100 dark:border-slate-700">
+                <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">Supervised by</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500 blur-[3px] select-none">Prof. Fatima Khan</p>
               </div>
             </div>
 
             {/* FYP 3 */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-10 h-10 bg-purple-50 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                   </svg>
                 </div>
-                <span className="text-xs font-medium text-purple-600 bg-purple-50 px-2 py-1 rounded-md">AI/ML</span>
+                <span className="text-xs font-medium text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 px-2 py-1 rounded-md">AI/ML</span>
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Exam Paper Generator</h3>
-              <p className="text-sm text-gray-500 mb-4">AI-powered system to generate balanced exam papers from question banks with difficulty scoring.</p>
-              <div className="pt-4 border-t border-gray-100">
-                <p className="text-xs text-gray-400 mb-1">Supervised by</p>
-                <p className="text-sm text-gray-400 blur-[3px] select-none">Dr. Imran Malik</p>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Exam Paper Generator</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">AI-powered system to generate balanced exam papers from question banks with difficulty scoring.</p>
+              <div className="pt-4 border-t border-gray-100 dark:border-slate-700">
+                <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">Supervised by</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500 blur-[3px] select-none">Dr. Imran Malik</p>
               </div>
             </div>
           </div>
@@ -290,13 +297,13 @@ export default async function HomePage({
       </section>
 
       {/* How It Works Section */}
-      <section className="py-20 sm:py-28 bg-gray-50 border-y border-gray-100">
+      <section className="py-20 sm:py-28 bg-gray-50 dark:bg-slate-800/50 border-y border-gray-100 dark:border-slate-800">
         <div className="max-w-6xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 tracking-tight">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight">
               How It Works
             </h2>
-            <p className="text-gray-500">
+            <p className="text-gray-500 dark:text-gray-400">
               Six simple steps to find your FYP partner
             </p>
           </div>
@@ -311,11 +318,11 @@ export default async function HomePage({
               { step: 6, title: "Form Your Team", desc: "Accept requests and lock your FYP group." },
             ].map((item) => (
               <div key={item.step} className="text-center">
-                <div className="w-12 h-12 mx-auto bg-gray-900 rounded-xl flex items-center justify-center text-lg font-semibold text-white mb-4">
+                <div className="w-12 h-12 mx-auto bg-gray-900 dark:bg-white rounded-xl flex items-center justify-center text-lg font-semibold text-white dark:text-gray-900 mb-4">
                   {item.step}
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{item.title}</h3>
-                <p className="text-gray-500 text-sm">{item.desc}</p>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{item.title}</h3>
+                <p className="text-gray-500 dark:text-gray-400 text-sm">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -325,15 +332,15 @@ export default async function HomePage({
       {/* CTA Section */}
       <section className="py-20 sm:py-28">
         <div className="max-w-3xl mx-auto px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 tracking-tight">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight">
             Ready to Find Your FYP Partner?
           </h2>
-          <p className="text-gray-500 mb-8 max-w-xl mx-auto">
+          <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-xl mx-auto">
             Join PAF-IAST students who have already found their perfect teammates.
           </p>
           <Link
             href="/login"
-            className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium text-white dark:text-gray-900 bg-gray-900 dark:bg-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
           >
             Get Started
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -344,20 +351,20 @@ export default async function HomePage({
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 py-12 bg-gray-50">
+      <footer className="border-t border-gray-200 dark:border-slate-800 py-12 bg-gray-50 dark:bg-slate-800/50">
         <div className="max-w-6xl mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
             {/* Brand */}
             <div>
               <div className="flex items-center gap-2.5 mb-4">
-                <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
-                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-8 h-8 bg-gray-900 dark:bg-white rounded-lg flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white dark:text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
                   </svg>
                 </div>
-                <span className="text-lg font-semibold text-gray-900">FYP Finder</span>
+                <span className="text-lg font-semibold text-gray-900 dark:text-white">FYP Finder</span>
               </div>
-              <p className="text-gray-500 text-sm leading-relaxed">
+              <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
                 A platform to help university students find the perfect teammates for Final Year Projects.
               </p>
             </div>
@@ -383,14 +390,14 @@ export default async function HomePage({
 
             {/* Supervisor */}
             <div>
-              <h4 className="text-gray-900 font-semibold mb-4">Supervised By</h4>
-              <p className="text-gray-900 font-medium text-sm mb-1">Dr. Muhammad Shuaib Qureshi</p>
-              <p className="text-gray-500 text-xs mb-3">Chief Scientific Officer at Datalligence.pk</p>
+              <h4 className="text-gray-900 dark:text-white font-semibold mb-4">Supervised By</h4>
+              <p className="text-gray-900 dark:text-white font-medium text-sm mb-1">Dr. Muhammad Shuaib Qureshi</p>
+              <p className="text-gray-500 dark:text-gray-400 text-xs mb-3">Chief Scientific Officer at Datalligence.pk</p>
               <a
                 href="https://datalligence.pk/wps-members/dr-muhammad-shuaib-qureshi/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 View Profile
               </a>
@@ -398,16 +405,16 @@ export default async function HomePage({
           </div>
 
           {/* Creator */}
-          <div className="pt-8 border-t border-gray-200">
-            <p className="text-gray-500 text-sm mb-3">
-              Built by <span className="text-gray-900 font-medium">Muhammad bin Mushtaq</span>
+          <div className="pt-8 border-t border-gray-200 dark:border-slate-700">
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-3">
+              Built by <span className="text-gray-900 dark:text-white font-medium">Muhammad bin Mushtaq</span>
             </p>
             <div className="flex items-center gap-3">
               <a
                 href="https://www.linkedin.com/in/muhammad-bin-mushtaq1/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-200 transition-colors"
+                className="w-9 h-9 bg-gray-100 dark:bg-slate-700 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
@@ -417,7 +424,7 @@ export default async function HomePage({
                 href="https://github.com/Muhammad-BinMushtaq"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-200 transition-colors"
+                className="w-9 h-9 bg-gray-100 dark:bg-slate-700 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                   <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0012 2z" />
@@ -427,12 +434,12 @@ export default async function HomePage({
           </div>
 
           {/* Bottom */}
-          <div className="pt-8 mt-8 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-gray-400">
+          <div className="pt-8 mt-8 border-t border-gray-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-sm text-gray-400 dark:text-gray-500">
               © 2026 FYP Finder. Built for academic purposes.
             </p>
             <div className="flex items-center gap-4">
-              <Link href="/privacy" className="text-sm text-gray-500 hover:text-gray-700 transition-colors">
+              <Link href="/privacy" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors">
                 Privacy Policy
               </Link>
 

@@ -8,6 +8,7 @@ import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { MobileBottomNav } from "@/components/dashboard/MobileBottomNav";
 import { SuspensionBanner } from "@/components/student/SuspensionBanner";
 import { PushPermissionBanner } from "@/components/pwa/PushPermissionBanner";
+import { InstallButton } from "@/components/pwa/InstallButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { GraduationCap, BookOpen } from "lucide-react";
 import clientLogger from "@/lib/client-logger";
@@ -69,6 +70,7 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
               <span className="font-bold text-gray-900 dark:text-white">FYP Finder</span>
             </Link>
             <div className="flex items-center gap-2">
+              <InstallButton />
               <Link
                 href="/dashboard/fyp-ideas"
                 className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-lg transition-colors"
@@ -84,6 +86,7 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
         {/* Desktop Header */}
         <div className="hidden lg:block sticky top-0 z-40 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-gray-200 dark:border-slate-700 px-4 py-3 lg:px-6">
           <div className="flex items-center justify-end gap-3">
+            <InstallButton />
             <Link
               href="/dashboard/fyp-ideas"
               className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-lg transition-colors"

@@ -211,7 +211,7 @@ export function ChatWindow({
   }
 
   return (
-    <div className="h-full flex flex-col bg-white dark:bg-slate-900">
+    <div className="h-full flex flex-col bg-white dark:bg-slate-900 overflow-hidden">
       {/* Chat Header with Profile Link */}
       <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800">
         <button
