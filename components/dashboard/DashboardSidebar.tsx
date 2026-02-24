@@ -10,7 +10,6 @@ import {
   Search,
   MessageSquare,
   FileText,
-  Handshake,
   FolderKanban,
   BookOpen,
   Settings,
@@ -49,10 +48,6 @@ const navItems: NavItem[] = [
     label: "Requests",
     href: "/dashboard/requests",
     icon: <FileText className="w-5 h-5" />,
-    children: [
-      { label: "Partner Requests", href: "/dashboard/requests/partner", icon: <Handshake className="w-4 h-4" /> },
-      { label: "Message Requests", href: "/dashboard/requests/messages", icon: <MessageSquare className="w-4 h-4" /> },
-    ],
   },
   {
     label: "FYP Management",

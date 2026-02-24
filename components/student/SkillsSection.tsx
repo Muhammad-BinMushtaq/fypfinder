@@ -108,41 +108,45 @@ export function SkillsSection({ skills }: SkillsSectionProps) {
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 overflow-hidden">
       {/* Header - Clickable for collapse */}
       <div 
-        className="px-4 sm:px-6 py-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors"
+        className="px-4 sm:px-6 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <div className="flex items-center gap-3">
-          <span className="text-xl">💡</span>
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Skills</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {skills.length > 0 ? `${skills.length} skills added` : "Add technical skills you've learned"}
-            </p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3 min-w-0">
+            <span className="text-lg flex-shrink-0">💡</span>
+            <div className="min-w-0">
+              <h2 className="text-base font-semibold text-gray-900 dark:text-white">Skills</h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                {skills.length > 0 ? `${skills.length} skills added` : "Add your technical skills"}
+              </p>
+            </div>
           </div>
-          {isOpen ? (
-            <ChevronUp className="w-5 h-5 text-gray-400 ml-2" />
-          ) : (
-            <ChevronDown className="w-5 h-5 text-gray-400 ml-2" />
-          )}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {isOpen && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowModal(true);
+                }}
+                className="px-3 py-1.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium text-xs rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+              >
+                + Add
+              </button>
+            )}
+            {isOpen ? (
+              <ChevronUp className="w-4 h-4 text-gray-400" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-gray-400" />
+            )}
+          </div>
         </div>
-        {isOpen && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setShowModal(true);
-          }}
-          className="px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium text-sm rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
-        >
-          + Add Skill
-        </button>
-        )}
       </div>
 
       {/* Helper Text */}
       {isOpen && (
-        <div className="px-4 sm:px-6 pb-2">
-          <p className="text-xs text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-slate-700/30 px-3 py-2 rounded-lg">
-            💡 Add programming languages, frameworks, tools, or any technical skills relevant to your FYP work.
+        <div className="px-4 sm:px-6 pb-3">
+          <p className="text-xs text-gray-400 dark:text-gray-500">
+            Add programming languages, frameworks, or tools relevant to your FYP.
           </p>
         </div>
       )}

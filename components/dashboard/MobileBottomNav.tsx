@@ -32,7 +32,7 @@ const navItems: NavItem[] = [
   },
   {
     label: "Requests",
-    href: "/dashboard/requests/partner",
+    href: "/dashboard/requests",
     icon: <FileText className="w-5 h-5" />,
   },
   {
@@ -47,7 +47,7 @@ export function MobileBottomNav() {
   const { unreadCount } = useUnreadCount();
 
   const isActive = (href: string) => {
-    if (href === "/dashboard/requests/partner") {
+    if (href === "/dashboard/requests") {
       return pathname.startsWith("/dashboard/requests");
     }
     return pathname === href || pathname.startsWith(href + "/");

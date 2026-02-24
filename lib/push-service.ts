@@ -288,7 +288,7 @@ export async function notifyPartnerRequest(
       badge: '/icons/icon-96x96.png',
       tag: `request-partner-${requestId}`,
       data: {
-        url: '/dashboard/requests/partner',
+        url: '/dashboard/requests',
         type: 'partner_request',
         requestId,
         senderName: fromStudentName,
