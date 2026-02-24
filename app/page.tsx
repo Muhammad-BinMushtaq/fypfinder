@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { LandingThemeToggle } from "@/components/landing/LandingThemeToggle";
+import { SupademoButton } from "@/components/landing/SupademoButton";
 
 export default async function HomePage({
   searchParams,
@@ -100,23 +101,8 @@ export default async function HomePage({
             </div>
           </div>
 
-          {/* Demo Video Placeholder */}
-          <div className="max-w-4xl mx-auto">
-            <div className="relative aspect-video bg-gray-50 dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 overflow-hidden">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
-                    <svg className="w-8 h-8 text-gray-400 dark:text-gray-500" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                  </div>
-                  <p className="text-sm text-gray-400 dark:text-gray-500 font-medium">Platform Demo</p>
-                </div>
-              </div>
-              {/* Grid pattern overlay */}
-              <div className="absolute inset-0 bg-[linear-gradient(to_right,#f3f4f6_1px,transparent_1px),linear-gradient(to_bottom,#f3f4f6_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#334155_1px,transparent_1px),linear-gradient(to_bottom,#334155_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-            </div>
-          </div>
+          {/* Interactive Demo */}
+          <SupademoButton />
         </div>
       </section>
 
