@@ -222,7 +222,7 @@ export function ChatWindow({
         </button>
         
         <Link
-          href={`/dashboard/discovery/${otherStudent.id}`}
+          href={`/dashboard/discovery/profile/${otherStudent.id}`}
           className="flex items-center gap-3 flex-1 min-w-0 group"
         >
           {otherStudent.profilePicture ? (
@@ -247,7 +247,7 @@ export function ChatWindow({
         </Link>
         
         <Link
-          href={`/dashboard/discovery/${otherStudent.id}`}
+          href={`/dashboard/discovery/profile/${otherStudent.id}`}
           className="hidden sm:flex p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
           title="View Profile"
         >

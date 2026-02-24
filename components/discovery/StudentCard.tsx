@@ -4,12 +4,12 @@
 /**
  * StudentCard Component
  * ---------------------
- * Minimalist student preview card for discovery grid.
+ * Content-rich student preview card for discovery grid.
  */
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Github, Linkedin, Lock, ChevronRight } from "lucide-react";
+import { Github, Linkedin, Lock, ChevronRight, FolderGit2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { prefetchPublicProfile } from "@/hooks/student/usePublicProfile";
 import type { MatchedStudent } from "@/services/discovery.service";
@@ -74,18 +74,18 @@ export function StudentCard({ student }: StudentCardProps) {
           <div className="flex items-start gap-3">
             {/* Avatar */}
             {student.profilePicture ? (
-              <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-slate-700">
+              <div className="relative w-14 h-14 rounded-full overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-slate-700 ring-2 ring-gray-100 dark:ring-slate-700">
                 <Image
                   src={student.profilePicture}
                   alt={student.name}
                   fill
-                  sizes="48px"
+                  sizes="56px"
                   className="object-cover"
                   loading="lazy"
                 />
               </div>
             ) : (
-              <div className="w-12 h-12 rounded-full bg-gray-900 dark:bg-white flex items-center justify-center text-white dark:text-gray-900 font-semibold text-sm flex-shrink-0">
+              <div className="w-14 h-14 rounded-full bg-gray-900 dark:bg-white flex items-center justify-center text-white dark:text-gray-900 font-semibold text-base flex-shrink-0 ring-2 ring-gray-100 dark:ring-slate-700">
                 {getInitials(student.name)}
               </div>
             )}
@@ -99,14 +99,22 @@ export function StudentCard({ student }: StudentCardProps) {
                 {student.department} · Sem {student.semester}
               </p>
               
-              {/* Availability */}
-              <div className="flex items-center gap-1.5 mt-1.5">
-                {availabilityConfig.icon || (
-                  <span className={`w-1.5 h-1.5 rounded-full ${availabilityConfig.dotColor}`} />
+              {/* Availability & Projects */}
+              <div className="flex items-center gap-3 mt-1.5">
+                <div className="flex items-center gap-1.5">
+                  {availabilityConfig.icon || (
+                    <span className={`w-1.5 h-1.5 rounded-full ${availabilityConfig.dotColor}`} />
+                  )}
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {availabilityConfig.label}
+                  </span>
+                </div>
+                {student.projectCount > 0 && (
+                  <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                    <FolderGit2 className="w-3 h-3" />
+                    <span>{student.projectCount} project{student.projectCount !== 1 ? "s" : ""}</span>
+                  </div>
                 )}
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  {availabilityConfig.label}
-                </span>
               </div>
             </div>
           </div>
@@ -115,7 +123,7 @@ export function StudentCard({ student }: StudentCardProps) {
         {/* Bio */}
         {student.interests && (
           <div className="px-4 pb-3">
-            <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+            <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 leading-relaxed">
               {student.interests}
             </p>
           </div>
@@ -124,21 +132,31 @@ export function StudentCard({ student }: StudentCardProps) {
         {/* Skills */}
         {student.skills.length > 0 && (
           <div className="px-4 pb-3">
+            <p className="text-xs text-gray-400 dark:text-gray-500 mb-1.5 font-medium">Skills</p>
             <div className="flex flex-wrap gap-1.5">
-              {student.skills.slice(0, 3).map((skill, index) => (
+              {student.skills.slice(0, 5).map((skill, index) => (
                 <span
                   key={index}
-                  className="px-2 py-0.5 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 text-xs rounded-md"
+                  className="px-2.5 py-1 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 text-xs rounded-md font-medium"
                 >
                   {skill}
                 </span>
               ))}
-              {student.skills.length > 3 && (
-                <span className="px-2 py-0.5 text-gray-400 dark:text-gray-500 text-xs">
-                  +{student.skills.length - 3}
+              {student.skills.length > 5 && (
+                <span className="px-2 py-1 text-gray-400 dark:text-gray-500 text-xs font-medium">
+                  +{student.skills.length - 5} more
                 </span>
               )}
             </div>
+          </div>
+        )}
+
+        {/* Empty state if no bio and no skills */}
+        {!student.interests && student.skills.length === 0 && (
+          <div className="px-4 pb-3">
+            <p className="text-sm text-gray-400 dark:text-gray-500 italic">
+              No bio or skills added yet
+            </p>
           </div>
         )}
 
@@ -170,11 +188,14 @@ export function StudentCard({ student }: StudentCardProps) {
                 <Linkedin className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
               </a>
             )}
+            {!student.githubUrl && !student.linkedinUrl && (
+              <span className="text-xs text-gray-400 dark:text-gray-500">No links</span>
+            )}
           </div>
 
           {/* View */}
           <div className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
-            <span>View</span>
+            <span>View Profile</span>
             <ChevronRight className="w-3.5 h-3.5" />
           </div>
         </div>
