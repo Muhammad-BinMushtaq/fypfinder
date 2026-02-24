@@ -83,10 +83,10 @@ export default async function HomePage({
                 className="w-full sm:w-auto px-6 py-3 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
               >
                 <svg className="w-5 h-5" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="10" height="10" fill="#F25022"/>
-                  <rect x="11" width="10" height="10" fill="#7FBA00"/>
-                  <rect y="11" width="10" height="10" fill="#00A4EF"/>
-                  <rect x="11" y="11" width="10" height="10" fill="#FFB900"/>
+                  <rect width="10" height="10" fill="#F25022" />
+                  <rect x="11" width="10" height="10" fill="#7FBA00" />
+                  <rect y="11" width="10" height="10" fill="#00A4EF" />
+                  <rect x="11" y="11" width="10" height="10" fill="#FFB900" />
                 </svg>
                 Continue with Microsoft
               </Link>
@@ -100,7 +100,7 @@ export default async function HomePage({
                 <div className="text-center">
                   <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
                     <svg className="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z"/>
+                      <path d="M8 5v14l11-7z" />
                     </svg>
                   </div>
                   <p className="text-sm text-gray-400 font-medium">Platform Demo</p>
@@ -113,60 +113,8 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* Idea Awareness Section */}
-      <section className="py-20 sm:py-28 bg-gray-50 border-y border-gray-100">
-        <div className="max-w-6xl mx-auto px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 tracking-tight">
-              Avoid Duplicate Ideas
-            </h2>
-            <p className="text-lg text-gray-500">
-              Check existing FYP ideas before finalizing yours. Make sure your project stands out.
-            </p>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Feature 1 */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
-                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Previous FYP Database</h3>
-              <p className="text-gray-500 text-sm leading-relaxed">
-                Access a database of previously submitted FYP ideas from past batches.
-              </p>
-            </div>
 
-            {/* Feature 2 */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
-                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Search & Compare</h3>
-              <p className="text-gray-500 text-sm leading-relaxed">
-                Search through existing ideas to ensure your concept is unique and original.
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
-                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Get Inspired</h3>
-              <p className="text-gray-500 text-sm leading-relaxed">
-                Browse past projects for inspiration while keeping your idea distinct.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Profile Preview Section */}
       <section className="py-20 sm:py-28">
@@ -271,6 +219,76 @@ export default async function HomePage({
         </div>
       </section>
 
+      {/* Previous FYPs Section */}
+      <section className="py-20 sm:py-28 bg-gray-50 border-y border-gray-100">
+        <div className="max-w-6xl mx-auto px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 tracking-tight">
+              Previous FYP Ideas
+            </h2>
+            <p className="text-gray-500">
+              See what PAF-IAST students have built before
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {/* FYP 1 */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-md">Web App</span>
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Smart Attendance System</h3>
+              <p className="text-sm text-gray-500 mb-4">Face recognition-based attendance tracking for university classrooms with real-time reporting.</p>
+              <div className="pt-4 border-t border-gray-100">
+                <p className="text-xs text-gray-400 mb-1">Supervised by</p>
+                <p className="text-sm text-gray-400 blur-[3px] select-none">Dr. Ahmad Hassan</p>
+              </div>
+            </div>
+
+            {/* FYP 2 */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <span className="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">Mobile App</span>
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Campus Navigation App</h3>
+              <p className="text-sm text-gray-500 mb-4">Indoor navigation system for PAF-IAST campus with AR-based directions and building info.</p>
+              <div className="pt-4 border-t border-gray-100">
+                <p className="text-xs text-gray-400 mb-1">Supervised by</p>
+                <p className="text-sm text-gray-400 blur-[3px] select-none">Prof. Fatima Khan</p>
+              </div>
+            </div>
+
+            {/* FYP 3 */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                </div>
+                <span className="text-xs font-medium text-purple-600 bg-purple-50 px-2 py-1 rounded-md">AI/ML</span>
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Exam Paper Generator</h3>
+              <p className="text-sm text-gray-500 mb-4">AI-powered system to generate balanced exam papers from question banks with difficulty scoring.</p>
+              <div className="pt-4 border-t border-gray-100">
+                <p className="text-xs text-gray-400 mb-1">Supervised by</p>
+                <p className="text-sm text-gray-400 blur-[3px] select-none">Dr. Imran Malik</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* How It Works Section */}
       <section className="py-20 sm:py-28 bg-gray-50 border-y border-gray-100">
         <div className="max-w-6xl mx-auto px-6 lg:px-8">
@@ -345,7 +363,7 @@ export default async function HomePage({
             </div>
 
             {/* Open Source */}
-            <div>
+            {/* <div>
               <h4 className="text-gray-900 font-semibold mb-4">Open Source</h4>
               <p className="text-gray-500 text-sm mb-4">
                 This project is open source and available for educational purposes.
@@ -361,7 +379,7 @@ export default async function HomePage({
                 </svg>
                 View on GitHub
               </a>
-            </div>
+            </div> */}
 
             {/* Supervisor */}
             <div>
@@ -392,7 +410,7 @@ export default async function HomePage({
                 className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-200 transition-colors"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                 </svg>
               </a>
               <a
@@ -417,10 +435,8 @@ export default async function HomePage({
               <Link href="/privacy" className="text-sm text-gray-500 hover:text-gray-700 transition-colors">
                 Privacy Policy
               </Link>
-              <span className="text-gray-300">|</span>
-              <p className="text-xs text-gray-400">
-                Next.js · TypeScript · Prisma · Supabase
-              </p>
+
+
             </div>
           </div>
         </div>
