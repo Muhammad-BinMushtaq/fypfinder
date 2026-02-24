@@ -104,9 +104,9 @@ export default async function HomePage({
 
           {/* Demo Video */}
           <div className="max-w-4xl mx-auto">
-            <div className="relative aspect-video bg-gray-900 dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 overflow-hidden shadow-2xl">
+            <div className="relative aspect-video rounded-2xl border border-gray-200 dark:border-slate-700 overflow-hidden shadow-2xl">
               <iframe 
-                className="w-full h-full"
+                className="absolute inset-0 w-full h-full block"
                 src="https://www.youtube.com/embed/l5DJNJ_SBSU?si=AEzaXHlTThwBI7r3" 
                 title="YouTube video player"
                 frameBorder={0} 
