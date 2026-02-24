@@ -139,7 +139,7 @@ export default function ProfilePage() {
               {/* Divider */}
               <div className="border-t border-gray-50 dark:border-slate-700/50" />
 
-              {/* Info Section */
+              {/* Info Section */}
               <div className="p-4 space-y-3">
                 <div className="flex items-center gap-3 text-sm">
                   <GraduationCap className="w-4 h-4 text-gray-400" />
