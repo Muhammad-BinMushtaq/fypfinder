@@ -60,7 +60,7 @@ export function StudentCard({ student }: StudentCardProps) {
       .slice(0, 2);
   };
 
-  const availabilityConfig = getAvailabilityConfig();  const availabilityConfig = getAvailabilityConfig();
+  const availabilityConfig = getAvailabilityConfig();
 
   return (
     <div
