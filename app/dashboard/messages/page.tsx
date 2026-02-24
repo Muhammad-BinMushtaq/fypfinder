@@ -242,7 +242,7 @@ export default function MessagesPage() {
             ) : (
               <RequestList
                 requests={currentRequests}
-                activeTab={directionTab}
+                variant={directionTab}
                 onAccept={handleAccept}
                 onReject={handleReject}
                 loadingRequestId={loadingRequestId}
