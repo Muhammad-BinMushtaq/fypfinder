@@ -20,6 +20,20 @@ export interface Project {
   githubLink?: string;
 }
 
+export interface Industry {
+  id: string;
+  name: string;
+}
+
+export interface Internship {
+  id: string;
+  companyName: string;
+  position: string;
+  duration: string;
+  description?: string;
+  certificateLink?: string;
+}
+
 export interface StudentProfile {
   id: string;
   name: string;
@@ -31,8 +45,14 @@ export interface StudentProfile {
   linkedinUrl?: string;
   githubUrl?: string;
   availability: AvailabilityStatus;
+  // New professional fields
+  careerGoal?: string;
+  hobbies?: string;
+  preferredTechStack?: string;
   skills: Skill[];
   projects: Project[];
+  industries: Industry[];
+  internships: Internship[];
   user?: {
     status: "ACTIVE" | "SUSPENDED" | "DELETION_REQUESTED";
     email: string;
@@ -65,6 +85,10 @@ export async function updateMyProfile(data: Partial<{
   availability: AvailabilityStatus;
   currentSemester: number;
   profilePicture: string;
+  // New professional fields
+  careerGoal: string;
+  hobbies: string;
+  preferredTechStack: string;
 }>): Promise<StudentProfile> {
   const response = await apiClient.patch<ApiResponse<StudentProfile>>(
     "/api/student/update-my-profile",
@@ -196,4 +220,57 @@ export async function cancelDeletionRequest(): Promise<DeletionRequestResponse> 
     success: true,
     message: data.message || "Deletion request cancelled",
   }
+}
+
+/* ---------- INDUSTRIES ---------- */
+
+export async function getAllIndustries(): Promise<Industry[]> {
+  const response = await apiClient.get<ApiResponse<Industry[]>>(
+    "/api/industry/get-all"
+  );
+  return response.data;
+}
+
+export async function setIndustryPreferences(industryIds: string[]): Promise<Industry[]> {
+  const response = await apiClient.post<ApiResponse<Industry[]>>(
+    "/api/student/industry/set",
+    { industryIds }
+  );
+  return response.data;
+}
+
+/* ---------- INTERNSHIPS ---------- */
+
+export async function addInternship(data: {
+  companyName: string;
+  position: string;
+  duration: string;
+  description?: string;
+  certificateLink?: string;
+}): Promise<Internship> {
+  const response = await apiClient.post<ApiResponse<Internship>>(
+    "/api/student/internship/add",
+    data
+  );
+  return response.data;
+}
+
+export async function updateInternship(internshipId: string, data: {
+  companyName?: string;
+  position?: string;
+  duration?: string;
+  description?: string;
+  certificateLink?: string;
+}): Promise<Internship> {
+  const response = await apiClient.patch<ApiResponse<Internship>>(
+    `/api/student/internship/update/${internshipId}`,
+    data
+  );
+  return response.data;
+}
+
+export async function removeInternship(internshipId: string): Promise<void> {
+  await apiClient.delete<ApiResponse<void>>(
+    `/api/student/internship/remove/${internshipId}`
+  );
 }

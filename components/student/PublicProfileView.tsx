@@ -8,7 +8,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronDown, ChevronUp, Github, Linkedin, ExternalLink, Mail } from "lucide-react";
+import { ChevronDown, ChevronUp, Github, Linkedin, ExternalLink, Mail, Building2, Briefcase, Calendar, Award } from "lucide-react";
 import type { PublicStudentProfile } from "@/services/studentPublic.service";
 import { SendRequestButtons } from "@/components/request/SendRequestButtons";
 import { getDepartmentLabel } from "@/lib/departments";
@@ -31,6 +31,7 @@ export function PublicProfileView({
   const isSameStudent = currentStudentId === profile.id;
   const [isSkillsOpen, setIsSkillsOpen] = useState(true);
   const [isProjectsOpen, setIsProjectsOpen] = useState(true);
+  const [isInternshipsOpen, setIsInternshipsOpen] = useState(true);
 
   const getInitials = (name: string) =>
     name
@@ -209,6 +210,50 @@ export function PublicProfileView({
         </section>
       )}
 
+      {/* Career & Professional Info */}
+      {(profile.careerGoal || profile.hobbies || profile.preferredTechStack || (profile.industries && profile.industries.length > 0)) && (
+        <section className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Professional Profile</p>
+          
+          {profile.careerGoal && (
+            <div className="mt-4">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">🎯 Career Goal</p>
+              <p className="mt-1 text-sm text-slate-700 dark:text-slate-300">{profile.careerGoal}</p>
+            </div>
+          )}
+
+          {profile.preferredTechStack && (
+            <div className="mt-4">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">💻 Preferred Tech Stack</p>
+              <p className="mt-1 text-sm text-slate-700 dark:text-slate-300">{profile.preferredTechStack}</p>
+            </div>
+          )}
+
+          {profile.hobbies && (
+            <div className="mt-4">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">🎮 Hobbies</p>
+              <p className="mt-1 text-sm text-slate-700 dark:text-slate-300">{profile.hobbies}</p>
+            </div>
+          )}
+
+          {profile.industries && profile.industries.length > 0 && (
+            <div className="mt-4">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">🏢 Industry Interests</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {profile.industries.map((industry) => (
+                  <span
+                    key={industry.id}
+                    className="rounded-full border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 px-3 py-1 text-xs font-medium text-slate-700 dark:text-slate-300"
+                  >
+                    {industry.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+      )}
+
       {/* Group */}
       {profile.isGrouped && profile.groupInfo && (
         <section className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6">
@@ -345,6 +390,63 @@ export function PublicProfileView({
           </div>
         )}
       </section>
+
+      {/* Internships */}
+      {profile.internships && profile.internships.length > 0 && (
+        <section className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+          <button
+            onClick={() => setIsInternshipsOpen(!isInternshipsOpen)}
+            className="flex w-full items-center justify-between px-6 py-4"
+          >
+            <div className="text-left">
+              <p className="text-sm font-semibold text-slate-900 dark:text-white">Internship Experience</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{profile.internships.length} listed</p>
+            </div>
+            {isInternshipsOpen ? <ChevronUp className="h-5 w-5 text-slate-400" /> : <ChevronDown className="h-5 w-5 text-slate-400" />}
+          </button>
+
+          {isInternshipsOpen && (
+            <div className="px-6 pb-6">
+              <div className="space-y-4">
+                {profile.internships.map((internship) => (
+                  <div key={internship.id} className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50 p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-200 dark:bg-slate-600 flex-shrink-0">
+                        <Building2 className="h-5 w-5 text-slate-600 dark:text-slate-300" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-slate-900 dark:text-white">{internship.companyName}</p>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1 mt-0.5">
+                          <Briefcase className="h-3 w-3" />
+                          {internship.position}
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-500 flex items-center gap-1 mt-1">
+                          <Calendar className="h-3 w-3" />
+                          {internship.duration}
+                        </p>
+                        {internship.description && (
+                          <p className="mt-2 text-xs text-slate-600 dark:text-slate-400 line-clamp-2">{internship.description}</p>
+                        )}
+                        {internship.certificateLink && (
+                          <a
+                            href={internship.certificateLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-2 inline-flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                          >
+                            <Award className="h-3 w-3" />
+                            View Certificate
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+      )}
     </div>
   );
 }

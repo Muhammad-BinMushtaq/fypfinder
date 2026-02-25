@@ -45,6 +45,20 @@ export interface GroupInfo {
   members: GroupMemberPublic[];
 }
 
+export interface PublicIndustry {
+  id: string;
+  name: string;
+}
+
+export interface PublicInternship {
+  id: string;
+  companyName: string;
+  position: string;
+  duration: string;
+  description?: string;
+  certificateLink?: string;
+}
+
 export interface PublicStudentProfile {
   id: string;
   name: string;
@@ -54,6 +68,10 @@ export interface PublicStudentProfile {
   profilePicture?: string | null;
   interests?: string;
   availability: "AVAILABLE" | "BUSY" | "AWAY";
+  // New professional fields
+  careerGoal?: string | null;
+  hobbies?: string | null;
+  preferredTechStack?: string | null;
   // Social Links
   linkedinUrl?: string | null;
   githubUrl?: string | null;
@@ -64,6 +82,9 @@ export interface PublicStudentProfile {
   // Skills & Projects
   skills: PublicSkill[];
   projects: PublicProject[];
+  // Industries & Internships
+  industries: PublicIndustry[];
+  internships: PublicInternship[];
 }
 
 // API Response wrapper

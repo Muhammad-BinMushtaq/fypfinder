@@ -23,6 +23,10 @@ export function ProfileForm({ profile }: ProfileFormProps) {
     githubUrl: "",
     availability: "AVAILABLE" as AvailabilityStatus,
     currentSemester: 5,
+    // New professional fields
+    careerGoal: "",
+    hobbies: "",
+    preferredTechStack: "",
   });
 
   useEffect(() => {
@@ -34,6 +38,10 @@ export function ProfileForm({ profile }: ProfileFormProps) {
         githubUrl: profile.githubUrl || "",
         availability: profile.availability || "AVAILABLE",
         currentSemester: profile.semester || 5,
+        // New professional fields
+        careerGoal: profile.careerGoal || "",
+        hobbies: profile.hobbies || "",
+        preferredTechStack: profile.preferredTechStack || "",
       });
     }
   }, [profile]);
@@ -62,6 +70,10 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       githubUrl: profile.githubUrl || "",
       availability: profile.availability || "AVAILABLE",
       currentSemester: profile.semester || 5,
+      // New professional fields
+      careerGoal: profile.careerGoal || "",
+      hobbies: profile.hobbies || "",
+      preferredTechStack: profile.preferredTechStack || "",
     });
     setIsEditing(false);
     setError("");
@@ -288,6 +300,66 @@ export function ProfileForm({ profile }: ProfileFormProps) {
             ) : (
               <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-700 dark:text-gray-300 font-medium min-h-20 sm:min-h-24 flex items-center text-sm sm:text-base border border-gray-200 dark:border-slate-600">
                 {profile.interests || "Not provided"}
+              </div>
+            )}
+          </div>
+
+          {/* Career Goal - Full Width */}
+          <div className="md:col-span-2">
+            <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
+              🎯 Career Goal
+            </label>
+            {isEditing ? (
+              <input
+                type="text"
+                value={formData.careerGoal}
+                onChange={(e) => setFormData({ ...formData, careerGoal: e.target.value })}
+                placeholder="e.g., Become AI/ML Engineer at a startup"
+                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent outline-none transition-all text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+              />
+            ) : (
+              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-700 dark:text-gray-300 font-medium text-sm sm:text-base border border-gray-200 dark:border-slate-600">
+                {profile.careerGoal || "Not provided"}
+              </div>
+            )}
+          </div>
+
+          {/* Hobbies */}
+          <div>
+            <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
+              🎮 Hobbies
+            </label>
+            {isEditing ? (
+              <input
+                type="text"
+                value={formData.hobbies}
+                onChange={(e) => setFormData({ ...formData, hobbies: e.target.value })}
+                placeholder="e.g., Coding, Gaming, Open-source"
+                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent outline-none transition-all text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+              />
+            ) : (
+              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-700 dark:text-gray-300 font-medium text-sm sm:text-base border border-gray-200 dark:border-slate-600">
+                {profile.hobbies || "Not provided"}
+              </div>
+            )}
+          </div>
+
+          {/* Preferred Tech Stack */}
+          <div>
+            <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
+              💻 Preferred Tech Stack
+            </label>
+            {isEditing ? (
+              <input
+                type="text"
+                value={formData.preferredTechStack}
+                onChange={(e) => setFormData({ ...formData, preferredTechStack: e.target.value })}
+                placeholder="e.g., React, Node.js, Python, MongoDB"
+                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent outline-none transition-all text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+              />
+            ) : (
+              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-700 dark:text-gray-300 font-medium text-sm sm:text-base border border-gray-200 dark:border-slate-600">
+                {profile.preferredTechStack || "Not provided"}
               </div>
             )}
           </div>
