@@ -84,6 +84,11 @@ model Student {
   showGroupOnProfile Boolean       @default(true) // Visibility preference for public profile
   createdAt      DateTime         @default(now())
 
+  // New professional/career fields
+  careerGoal        String?       // Long-term career aspiration (e.g., "Become AI/ML Engineer at startup")
+  hobbies           String?       // Comma-separated hobbies (e.g., "Coding, Gaming, Open-source")
+  preferredTechStack String?      // Technologies for FYP (e.g., "React, Node.js, Python, MongoDB")
+
   user           User             @relation(fields: [userId], references: [id])
 
   skills         Skill[]
@@ -98,6 +103,12 @@ model Student {
   conversationsAsA Conversation[] @relation("ConversationsAsA")
   conversationsAsB Conversation[] @relation("ConversationsAsB")
   sentMessages     Message[]
+
+  // Industry preferences (many-to-many)
+  industries     StudentIndustry[]
+  
+  // Internship experiences
+  internships    Internship[]
 }
 
 // =====================
@@ -265,4 +276,53 @@ model PushSubscription {
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+// =====================
+// 14️⃣ Industry (Lookup Table)
+// =====================
+
+model Industry {
+  id        String   @id @default(uuid())
+  name      String   @unique  // e.g., "Finance", "Healthcare", "E-commerce", "EdTech"
+  createdAt DateTime @default(now())
+
+  students  StudentIndustry[]
+}
+
+// =====================
+// 15️⃣ Student Industry (Many-to-Many Junction)
+// =====================
+
+model StudentIndustry {
+  id         String   @id @default(uuid())
+  studentId  String
+  industryId String
+  createdAt  DateTime @default(now())
+
+  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  industry   Industry @relation(fields: [industryId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, industryId])
+  @@index([studentId])
+  @@index([industryId])
+}
+
+// =====================
+// 16️⃣ Internship (Student Experience)
+// =====================
+
+model Internship {
+  id             String   @id @default(uuid())
+  studentId      String
+  companyName    String
+  position       String
+  duration       String   // e.g., "3 months", "Jun 2025 - Aug 2025"
+  description    String?  @db.Text
+  certificateLink String? // URL to certificate
+  createdAt      DateTime @default(now())
+
+  student        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
 }

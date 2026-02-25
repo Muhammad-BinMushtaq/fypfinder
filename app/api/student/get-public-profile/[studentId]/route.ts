@@ -35,6 +35,29 @@ export async function GET(
                 },
                 skills: true,
                 projects: true,
+                // Industry preferences
+                industries: {
+                    include: {
+                        industry: {
+                            select: {
+                                id: true,
+                                name: true,
+                            },
+                        },
+                    },
+                },
+                // Internships
+                internships: {
+                    select: {
+                        id: true,
+                        companyName: true,
+                        position: true,
+                        duration: true,
+                        description: true,
+                        certificateLink: true,
+                    },
+                    orderBy: { createdAt: "desc" },
+                },
                 groupMember: {
                     include: {
                         group: {
@@ -122,6 +145,10 @@ export async function GET(
                     profilePicture: student.profilePicture,
                     interests: student.interests,
                     availability: student.availability,
+                    // New professional fields
+                    careerGoal: student.careerGoal,
+                    hobbies: student.hobbies,
+                    preferredTechStack: student.preferredTechStack,
                     // Social Links
                     linkedinUrl: student.linkedinUrl,
                     githubUrl: student.githubUrl,
@@ -136,6 +163,10 @@ export async function GET(
                         level: s.level,
                     })),
                     projects: student.projects,
+                    // Industry preferences (flattened)
+                    industries: student.industries.map((i) => i.industry),
+                    // Internships
+                    internships: student.internships,
                 },
             },
             { status: 200 }

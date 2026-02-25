@@ -22,6 +22,10 @@ export async function GET() {
                 linkedinUrl: true,
                 githubUrl: true,
                 availability: true,
+                // New professional fields
+                careerGoal: true,
+                hobbies: true,
+                preferredTechStack: true,
                 user: {
                     select: {
                         status: true,
@@ -45,6 +49,29 @@ export async function GET() {
                         liveLink: true,
                         githubLink: true,
                     },
+                },
+                // Industry preferences
+                industries: {
+                    select: {
+                        industry: {
+                            select: {
+                                id: true,
+                                name: true,
+                            },
+                        },
+                    },
+                },
+                // Internships
+                internships: {
+                    select: {
+                        id: true,
+                        companyName: true,
+                        position: true,
+                        duration: true,
+                        description: true,
+                        certificateLink: true,
+                    },
+                    orderBy: { createdAt: "desc" },
                 },
             },
         })
@@ -76,8 +103,16 @@ export async function GET() {
                     linkedinUrl: student.linkedinUrl,
                     githubUrl: student.githubUrl,
                     availability: student.availability,
+                    // New professional fields
+                    careerGoal: student.careerGoal,
+                    hobbies: student.hobbies,
+                    preferredTechStack: student.preferredTechStack,
                     skills: student.skills,
                     projects: student.projects,
+                    // Industry preferences (flattened)
+                    industries: student.industries.map((i) => i.industry),
+                    // Internships
+                    internships: student.internships,
                     user: student.user,
                 },
             },

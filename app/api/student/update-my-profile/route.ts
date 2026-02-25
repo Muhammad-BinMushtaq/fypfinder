@@ -21,6 +21,10 @@ export async function PATCH(req: Request) {
             linkedinUrl,
             githubUrl,
             availability,
+            // New professional fields
+            careerGoal,
+            hobbies,
+            preferredTechStack,
         } = body
 
         //  Update only provided fields (excluding name and department)
@@ -36,6 +40,10 @@ export async function PATCH(req: Request) {
                 ...(linkedinUrl !== undefined && { linkedinUrl }),
                 ...(githubUrl !== undefined && { githubUrl }),
                 ...(availability !== undefined && { availability }),
+                // New professional fields
+                ...(careerGoal !== undefined && { careerGoal }),
+                ...(hobbies !== undefined && { hobbies }),
+                ...(preferredTechStack !== undefined && { preferredTechStack }),
             },
 
         })
