@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { useMyProfile } from "@/hooks/student/useMyProfile";
 import { ChevronDown, ChevronUp, Pencil, Trash2, Lightbulb, Award, TrendingUp, Sprout } from "lucide-react";
+import { SkillCombobox } from "@/components/ui/SkillCombobox";
 import type { Skill, ExperienceLevel } from "@/services/student.service";
 
 interface SkillsSectionProps {
@@ -264,13 +265,12 @@ export function SkillsSection({ skills }: SkillsSectionProps) {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                   Skill Name *
                 </label>
-                <input
-                  type="text"
+                <SkillCombobox
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="e.g., React, Python, UI Design"
-                  className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-400 dark:focus:ring-slate-500 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
-                  required
+                  onChange={(name) => setFormData({ ...formData, name })}
+                  existingSkills={skills.map(s => s.name)}
+                  placeholder="Search for a skill..."
+                  autoFocus={!editingSkill}
                 />
               </div>
 
