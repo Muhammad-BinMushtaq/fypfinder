@@ -277,22 +277,22 @@ export function ProfilePictureUpload({ currentPicture, studentId, name }: Profil
       {/* Upload Status Messages - Compact */}
       <div className="mt-2 min-h-[24px] text-center max-w-[200px]">
         {error && (
-          <p className="text-red-600 text-xs font-medium bg-red-50 px-3 py-1.5 rounded-lg border border-red-200">
-            ⚠️ {error}
+          <p className="text-red-600 text-xs font-medium bg-red-50 dark:bg-red-900/20 px-3 py-1.5 rounded-lg border border-red-200 dark:border-red-800">
+            {error}
           </p>
         )}
         {success && (
-          <p className="text-green-600 text-xs font-medium bg-green-50 px-3 py-1.5 rounded-lg border border-green-200">
-            ✅ {success}
+          <p className="text-green-600 dark:text-green-400 text-xs font-medium bg-green-50 dark:bg-green-900/20 px-3 py-1.5 rounded-lg border border-green-200 dark:border-green-800">
+            {success}
           </p>
         )}
         {!error && !success && !isUploading && (
           <p className="text-gray-400 text-xs">
-            Click 📷 to change photo
+            Click camera to change photo
           </p>
         )}
         {isUploading && (
-          <p className="text-indigo-600 text-xs font-medium">
+          <p className="text-indigo-600 dark:text-indigo-400 text-xs font-medium">
             Uploading...
           </p>
         )}

@@ -139,7 +139,7 @@ export async function GET(
                     careerGoal: student.careerGoal,
                     hobbies: student.hobbies,
                     preferredTechStack: student.preferredTechStack,
-                    fypIndustry: student.fypIndustry,
+                    fypIndustry: student.industryPreference,
                     // Social Links
                     linkedinUrl: student.linkedinUrl,
                     githubUrl: student.githubUrl,

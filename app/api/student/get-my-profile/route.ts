@@ -97,7 +97,7 @@ export async function GET() {
                     careerGoal: student.careerGoal,
                     hobbies: student.hobbies,
                     preferredTechStack: student.preferredTechStack,
-                    industryPreference: student.industryPreference,
+                    fypIndustry: student.industryPreference,
                     skills: student.skills,
                     projects: student.projects,
                     // Internships

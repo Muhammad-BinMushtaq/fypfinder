@@ -125,11 +125,6 @@ export default function ProfilePage() {
                   />
                 </div>
 
-                {/* Name */}
-                <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  {profile.name}
-                </h1>
-
                 {/* Availability Badge */}
                 <div className={`inline-flex items-center gap-1.5 px-3 py-1 mt-2 rounded-full text-xs font-medium ${availability.bgColor} ${availability.textColor}`}>
                   <span className={`w-1.5 h-1.5 rounded-full ${availability.dotColor}`} />

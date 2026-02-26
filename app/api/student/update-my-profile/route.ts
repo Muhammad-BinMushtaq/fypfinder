@@ -45,7 +45,7 @@ export async function PATCH(req: Request) {
                 ...(careerGoal !== undefined && { careerGoal }),
                 ...(hobbies !== undefined && { hobbies }),
                 ...(preferredTechStack !== undefined && { preferredTechStack }),
-                ...(fypIndustry !== undefined && { fypIndustry }),
+                ...(fypIndustry !== undefined && { industryPreference: fypIndustry }),
             },
 
         })
