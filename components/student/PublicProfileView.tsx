@@ -12,6 +12,7 @@ import { ChevronDown, ChevronUp, Github, Linkedin, ExternalLink, Mail, Building2
 import type { PublicStudentProfile } from "@/services/studentPublic.service";
 import { SendRequestButtons } from "@/components/request/SendRequestButtons";
 import { getDepartmentLabel } from "@/lib/departments";
+import { getIndustryLabel } from "@/lib/industries";
 
 interface PublicProfileViewProps {
   profile: PublicStudentProfile;
@@ -229,7 +230,7 @@ export function PublicProfileView({
               <p className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
                 <Briefcase className="h-3.5 w-3.5" /> FYP Industry
               </p>
-              <p className="mt-1 text-sm text-slate-700 dark:text-slate-300">{profile.fypIndustry}</p>
+              <p className="mt-1 text-sm text-slate-700 dark:text-slate-300">{getIndustryLabel(profile.fypIndustry)}</p>
             </div>
           )}
 

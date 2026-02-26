@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useMyProfile } from "@/hooks/student/useMyProfile";
 import { ChevronDown, ChevronUp, User, Target, Gamepad2, Code, Briefcase } from "lucide-react";
 import type { StudentProfile, AvailabilityStatus } from "@/services/student.service";
+import { FYP_INDUSTRIES, getIndustryLabel, getIndustriesByCategory } from "@/lib/industries";
 
 interface ProfileFormProps {
   profile: StudentProfile;
@@ -334,16 +335,25 @@ export function ProfileForm({ profile }: ProfileFormProps) {
               <Briefcase className="w-4 h-4" /> FYP Industry
             </label>
             {isEditing ? (
-              <input
-                type="text"
+              <select
                 value={formData.fypIndustry}
                 onChange={(e) => setFormData({ ...formData, fypIndustry: e.target.value })}
-                placeholder="e.g., AI/ML, FinTech, Healthcare"
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent outline-none transition-all text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
-              />
+                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent outline-none transition-all text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
+              >
+                <option value="">Select an industry...</option>
+                {Object.entries(getIndustriesByCategory()).map(([category, industries]) => (
+                  <optgroup key={category} label={category}>
+                    {industries.map((ind) => (
+                      <option key={ind.value} value={ind.value}>
+                        {ind.label}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
             ) : (
               <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-700 dark:text-gray-300 font-medium text-sm sm:text-base border border-gray-200 dark:border-slate-600">
-                {profile.fypIndustry || "Not provided"}
+                {profile.fypIndustry ? getIndustryLabel(profile.fypIndustry) : "Not provided"}
               </div>
             )}
           </div>
