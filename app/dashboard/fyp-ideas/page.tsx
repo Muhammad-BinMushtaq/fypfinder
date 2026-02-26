@@ -190,9 +190,9 @@ export default function FYPIdeasPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Already Taken FYPs</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">FYP Ideas</h1>
               <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-                Browse {ALL_PROJECTS.length} projects for inspiration and avoid duplicating ideas
+                Browse {ALL_PROJECTS.length} past projects for inspiration
               </p>
             </div>
             <div className="flex items-center gap-2">

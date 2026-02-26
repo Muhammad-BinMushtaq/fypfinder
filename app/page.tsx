@@ -225,15 +225,15 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* Previous FYPs Section */}
+      {/* FYP Ideas Section */}
       <section className="py-20 sm:py-28 bg-gray-50 dark:bg-slate-800/50 border-y border-gray-100 dark:border-slate-800">
         <div className="max-w-6xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight">
-              Previous FYP Ideas
+              FYP Ideas & Inspiration
             </h2>
             <p className="text-gray-500 dark:text-gray-400">
-              See what PAF-IAST students have built before
+              Explore what PAF-IAST students have built before
             </p>
           </div>
 

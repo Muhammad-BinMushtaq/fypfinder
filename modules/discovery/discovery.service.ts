@@ -17,6 +17,7 @@ export interface MatchedStudent {
     isGroupLocked: boolean // If student's group is locked
     availability: "AVAILABLE" | "BUSY" | "AWAY" // Student's availability status
     projectCount: number // Number of projects for matching
+    industryPreference: string | null // FYP industry preference
 }
 
 export interface DiscoveryResult {
@@ -24,6 +25,48 @@ export interface DiscoveryResult {
     total: number
     limit: number
     offset: number
+}
+
+/**
+ * Calculate profile completeness score (0-100)
+ * Used to prioritize more complete profiles in discovery
+ */
+function calculateProfileCompleteness(student: {
+    profilePicture: string | null
+    interests: string | null
+    skills: { name: string }[]
+    projects: { id: string }[]
+    linkedinUrl: string | null
+    githubUrl: string | null
+    careerGoal: string | null
+    industryPreference: string | null
+}): number {
+    let score = 0
+    
+    // Profile picture (25 points) - High impact on discovery
+    if (student.profilePicture) score += 25
+    
+    // Bio/interests (15 points)
+    if (student.interests && student.interests.trim().length > 0) score += 15
+    
+    // Skills (20 points) - At least 3 skills for full points
+    const skillCount = student.skills.length
+    if (skillCount >= 3) score += 20
+    else if (skillCount >= 1) score += skillCount * 5
+    
+    // Projects (20 points) - At least 1 project
+    if (student.projects.length >= 1) score += 20
+    
+    // Social links (10 points)
+    if (student.linkedinUrl || student.githubUrl) score += 10
+    
+    // Career goal (5 points)
+    if (student.careerGoal && student.careerGoal.trim().length > 0) score += 5
+    
+    // FYP Industry (5 points)
+    if (student.industryPreference && student.industryPreference.trim().length > 0) score += 5
+    
+    return Math.min(100, score)
 }
 
 export async function getMatchedStudents(
@@ -97,6 +140,7 @@ export async function getMatchedStudents(
         select: {
             department: true,
             currentSemester: true,
+            industryPreference: true,
             skills: {
                 select: { name: true },
             },
@@ -109,13 +153,15 @@ export async function getMatchedStudents(
     const userDepartment = currentUserData?.department || ""
     const userSemester = currentUserData?.currentSemester || 0
     const userProjectCount = currentUserData?.projects.length || 0
+    const userIndustryPref = currentUserData?.industryPreference || ""
+    const isNewUser = userSkillNames.length === 0 // No skills = new user
 
     const [students, total] = await Promise.all([
         prisma.student.findMany({
             where,
             skip: offset,
             take: limit,
-            orderBy: { createdAt: "desc" },
+            orderBy: { createdAt: "asc" },
             select: {
                 id: true,
                 name: true,
@@ -126,6 +172,9 @@ export async function getMatchedStudents(
                 linkedinUrl: true,
                 githubUrl: true,
                 availability: true,
+                careerGoal: true,
+                industryPreference: true,
+                createdAt: true,
                 skills: {
                     select: {
                         name: true,
@@ -155,49 +204,100 @@ export async function getMatchedStudents(
         const studentSkillNames = s.skills.map((sk) => sk.name.toLowerCase())
         const studentProjectCount = s.projects.length
         
+        // Calculate profile completeness for this student
+        const profileCompleteness = calculateProfileCompleteness({
+            profilePicture: s.profilePicture,
+            interests: s.interests,
+            skills: s.skills,
+            projects: s.projects,
+            linkedinUrl: s.linkedinUrl,
+            githubUrl: s.githubUrl,
+            careerGoal: s.careerGoal,
+            industryPreference: s.industryPreference,
+        })
+        
         // Calculate match score based on multiple factors:
-        // 1. Skill overlap (40% weight) - How many skills match
-        // 2. Same department (20% weight) - Bonus for same department
-        // 3. Same semester (20% weight) - Important for FYP timing
-        // 4. Project experience (20% weight) - Having projects shows commitment
+        // For NEW USERS (no skills): Prioritize profile completeness
+        // For ESTABLISHED USERS: Balance all factors
         let matchScore = 0
         
-        // 1. Skill matching (40%): percentage of overlapping skills
-        if (userSkillNames.length > 0 && studentSkillNames.length > 0) {
-            const matchingSkills = studentSkillNames.filter((skill) => 
-                userSkillNames.includes(skill)
-            ).length
-            // Calculate both directions and average them
-            const userMatchPercent = matchingSkills / userSkillNames.length
-            const studentMatchPercent = matchingSkills / studentSkillNames.length
-            const skillScore = ((userMatchPercent + studentMatchPercent) / 2) * 40
-            matchScore += skillScore
-        } else if (studentSkillNames.length > 0) {
-            // If user has no skills but student does, give partial score
-            matchScore += 10
-        }
-        
-        // 2. Department matching (20%): same department = better collaboration
-        if (userDepartment && s.department.toLowerCase() === userDepartment.toLowerCase()) {
-            matchScore += 20
+        if (isNewUser) {
+            // NEW USER SCORING (no skills to match):
+            // Profile completeness: 40%, Department: 20%, Semester: 20%, Projects: 20%
+            matchScore += (profileCompleteness / 100) * 40
+            
+            if (s.department.toLowerCase() === userDepartment.toLowerCase()) {
+                matchScore += 20
+            } else {
+                matchScore += 5
+            }
+            
+            if (userSemester > 0 && s.currentSemester === userSemester) {
+                matchScore += 20
+            } else if (userSemester > 0 && Math.abs(s.currentSemester - userSemester) === 1) {
+                matchScore += 10
+            }
+            
+            if (studentProjectCount > 0) {
+                matchScore += Math.min(studentProjectCount * 5, 20)
+            }
         } else {
-            // Partial score for different but related departments
-            matchScore += 5
-        }
-        
-        // 3. Semester matching (20%): same semester = aligned FYP timeline
-        if (userSemester > 0 && s.currentSemester === userSemester) {
-            matchScore += 20
-        } else if (userSemester > 0 && Math.abs(s.currentSemester - userSemester) === 1) {
-            // Adjacent semester gets partial score
-            matchScore += 10
-        }
-        
-        // 4. Project experience (20%): having projects shows experience
-        if (studentProjectCount > 0) {
-            // More projects = higher score, cap at 20
-            const projectScore = Math.min(studentProjectCount * 5, 20)
-            matchScore += projectScore
+            // ESTABLISHED USER SCORING:
+            // Skill overlap: 25%, Complementary skills: 15%, Department: 15%, 
+            // Semester: 15%, Profile completeness: 15%, FYP Industry: 10%, Projects: 5%
+            
+            // 1. Skill overlap (25%): percentage of matching skills
+            if (studentSkillNames.length > 0) {
+                const matchingSkills = studentSkillNames.filter((skill) => 
+                    userSkillNames.includes(skill)
+                ).length
+                const userMatchPercent = matchingSkills / userSkillNames.length
+                const studentMatchPercent = matchingSkills / studentSkillNames.length
+                const skillScore = ((userMatchPercent + studentMatchPercent) / 2) * 25
+                matchScore += skillScore
+            }
+            
+            // 2. Complementary skills (15%): skills they have that user doesn't
+            // This encourages diverse team building
+            if (studentSkillNames.length > 0) {
+                const complementarySkills = studentSkillNames.filter((skill) => 
+                    !userSkillNames.includes(skill)
+                ).length
+                // More unique skills = higher complementary score, cap at 15%
+                const complementaryScore = Math.min((complementarySkills / studentSkillNames.length) * 15, 15)
+                matchScore += complementaryScore
+            }
+            
+            // 3. Department matching (15%): same department = better collaboration
+            if (userDepartment && s.department.toLowerCase() === userDepartment.toLowerCase()) {
+                matchScore += 15
+            } else {
+                matchScore += 3
+            }
+            
+            // 4. Semester matching (15%): same semester = aligned FYP timeline
+            if (userSemester > 0 && s.currentSemester === userSemester) {
+                matchScore += 15
+            } else if (userSemester > 0 && Math.abs(s.currentSemester - userSemester) === 1) {
+                matchScore += 8
+            }
+            
+            // 5. Profile completeness (15%): well-filled profiles are more trustworthy
+            matchScore += (profileCompleteness / 100) * 15
+            
+            // 6. FYP Industry matching (10%): same industry interest = shared vision
+            if (userIndustryPref && s.industryPreference && 
+                s.industryPreference.toLowerCase() === userIndustryPref.toLowerCase()) {
+                matchScore += 10
+            } else if (s.industryPreference) {
+                // Has an industry preference (even if different) shows commitment
+                matchScore += 3
+            }
+            
+            // 7. Project experience (5%): having projects shows commitment
+            if (studentProjectCount > 0) {
+                matchScore += Math.min(studentProjectCount * 2, 5)
+            }
         }
         
         // Ensure score is between 0-100
@@ -217,11 +317,18 @@ export async function getMatchedStudents(
             isGroupLocked: s.groupMember?.group?.isLocked ?? false,
             availability: s.availability as "AVAILABLE" | "BUSY" | "AWAY",
             projectCount: studentProjectCount,
+            industryPreference: s.industryPreference,
         }
     })
 
-    // Sort by match score (highest first)
-    items.sort((a, b) => b.matchScore - a.matchScore)
+    // Sort by match score (highest first), then by profile completeness as tiebreaker
+    items.sort((a, b) => {
+        if (b.matchScore !== a.matchScore) {
+            return b.matchScore - a.matchScore
+        }
+        // Tiebreaker: more projects = more active
+        return (b.projectCount || 0) - (a.projectCount || 0)
+    })
 
 
     return ({

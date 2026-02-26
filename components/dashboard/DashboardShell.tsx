@@ -8,9 +8,11 @@ import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { MobileBottomNav } from "@/components/dashboard/MobileBottomNav";
 import { SuspensionBanner } from "@/components/student/SuspensionBanner";
 import { PushPermissionBanner } from "@/components/pwa/PushPermissionBanner";
+import { InstallPromptBanner } from "@/components/pwa/InstallPromptBanner";
 import { InstallButton } from "@/components/pwa/InstallButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { GraduationCap, BookOpen } from "lucide-react";
+import { MobileHeaderMenu } from "@/components/dashboard/MobileHeaderMenu";
+import { GraduationCap, BookOpen, Lightbulb } from "lucide-react";
 import clientLogger from "@/lib/client-logger";
 
 interface DashboardShellProps {
@@ -69,16 +71,9 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
               </div>
               <span className="font-bold text-gray-900 dark:text-white">FYP Finder</span>
             </Link>
-            <div className="flex items-center gap-2">
-              <InstallButton />
-              <Link
-                href="/dashboard/fyp-ideas"
-                className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-lg transition-colors"
-              >
-                <BookOpen className="w-3.5 h-3.5" />
-                Previous FYP Ideas
-              </Link>
+            <div className="flex items-center gap-1">
               <ThemeToggle />
+              <MobileHeaderMenu />
             </div>
           </div>
         </div>
@@ -91,8 +86,8 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
               href="/dashboard/fyp-ideas"
               className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-lg transition-colors"
             >
-              <BookOpen className="w-4 h-4" />
-             Already Taken FYPs
+              <Lightbulb className="w-4 h-4" />
+              FYP Ideas
             </Link>
             <ThemeToggle />
           </div>
@@ -103,6 +98,7 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
         <div>{children}</div>
 
         <PushPermissionBanner />
+        <InstallPromptBanner />
       </main>
 
       {/* Mobile Bottom Navigation */}

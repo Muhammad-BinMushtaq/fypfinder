@@ -55,7 +55,7 @@ const navItems: NavItem[] = [
     icon: <FolderKanban className="w-5 h-5" />,
   },
   {
-    label: "Taken FYPs",
+    label: "FYP Ideas",
     href: "/dashboard/fyp-ideas",
     icon: <BookOpen className="w-5 h-5" />,
   },
