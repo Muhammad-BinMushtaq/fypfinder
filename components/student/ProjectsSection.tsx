@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { useMyProfile } from "@/hooks/student/useMyProfile";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Pencil, Trash2, ExternalLink, Github, FolderGit2 } from "lucide-react";
 import type { Project } from "@/services/student.service";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -51,7 +51,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
         setError("");
         setSuccess("");
         await removeProjectAsync(projectId);
-        setSuccess("Project deleted successfully! ✅");
+        setSuccess("Project deleted successfully!");
         setTimeout(() => setSuccess(""), 2000);
       } catch (error) {
         setError(error instanceof Error ? error.message : "Failed to delete project");
@@ -95,7 +95,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
       } else {
         await addProjectAsync(formData);
       }
-      setSuccess(editingProject ? "Project updated successfully! ✅" : "Project added successfully! ✅");
+      setSuccess(editingProject ? "Project updated successfully!" : "Project added successfully!");
       resetForm();
       setTimeout(() => setSuccess(""), 2000);
     } catch (error) {
@@ -123,7 +123,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 min-w-0">
-            <span className="text-lg flex-shrink-0">🚀</span>
+            <FolderGit2 className="w-5 h-5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
             <div className="min-w-0">
               <h2 className="text-base font-semibold text-gray-900 dark:text-white">Personal Projects</h2>
               <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
@@ -182,7 +182,9 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
       <div className="p-4 sm:p-6 pt-0">
         {projects.length === 0 ? (
           <div className="text-center py-10">
-            <div className="text-5xl mb-3 opacity-50">🚀</div>
+            <div className="w-16 h-16 mx-auto mb-3 bg-gray-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
+              <FolderGit2 className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+            </div>
             <p className="text-gray-600 dark:text-gray-400 text-base font-medium">No projects added yet</p>
             <p className="text-gray-500 dark:text-gray-500 mt-2 text-sm">Add your first project to showcase your work</p>
           </div>
@@ -206,7 +208,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                         className="p-1.5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-lg transition-colors duration-200 disabled:opacity-50"
                         title="Edit project"
                       >
-                        ✏️
+                        <Pencil className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(project.id)}
@@ -214,7 +216,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                         className="p-1.5 text-gray-600 dark:text-gray-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors duration-200 disabled:opacity-50"
                         title="Delete project"
                       >
-                        🗑️
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
@@ -233,7 +235,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200"
                       >
-                        🌐 Live Demo
+                        <ExternalLink className="w-3 h-3" /> Live Demo
                       </a>
                     )}
                     {project.githubLink && isValidUrl(project.githubLink) && (
@@ -243,7 +245,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200"
                       >
-                        💻 GitHub
+                        <Github className="w-3 h-3" /> GitHub
                       </a>
                     )}
                   </div>

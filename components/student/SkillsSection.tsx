@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { useMyProfile } from "@/hooks/student/useMyProfile";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Pencil, Trash2, Lightbulb, Award, TrendingUp, Sprout } from "lucide-react";
 import type { Skill, ExperienceLevel } from "@/services/student.service";
 
 interface SkillsSectionProps {
@@ -47,7 +47,7 @@ export function SkillsSection({ skills }: SkillsSectionProps) {
         setError("");
         setSuccess("");
         await removeSkillAsync(skillId);
-        setSuccess("Skill deleted successfully! ✅");
+        setSuccess("Skill deleted successfully!");
         setTimeout(() => setSuccess(""), 2000);
       } catch (error) {
         setError(error instanceof Error ? error.message : "Failed to delete skill");
@@ -73,7 +73,7 @@ export function SkillsSection({ skills }: SkillsSectionProps) {
       } else {
         await addSkillAsync(formData);
       }
-      setSuccess(editingSkill ? "Skill updated successfully! ✅" : "Skill added successfully! ✅");
+      setSuccess(editingSkill ? "Skill updated successfully!" : "Skill added successfully!");
       resetForm();
       setTimeout(() => setSuccess(""), 2000);
     } catch (error) {
@@ -88,17 +88,17 @@ export function SkillsSection({ skills }: SkillsSectionProps) {
       BEGINNER: {
         badge: "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700",
         label: "Beginner",
-        icon: "🌱",
+        Icon: Sprout,
       },
       INTERMEDIATE: {
         badge: "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700",
         label: "Intermediate",
-        icon: "📈",
+        Icon: TrendingUp,
       },
       ADVANCED: {
         badge: "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700",
         label: "Advanced",
-        icon: "⭐",
+        Icon: Award,
       },
     };
     return config[level];
@@ -113,7 +113,7 @@ export function SkillsSection({ skills }: SkillsSectionProps) {
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 min-w-0">
-            <span className="text-lg flex-shrink-0">💡</span>
+            <Lightbulb className="w-5 h-5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
             <div className="min-w-0">
               <h2 className="text-base font-semibold text-gray-900 dark:text-white">Skills</h2>
               <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
@@ -172,7 +172,9 @@ export function SkillsSection({ skills }: SkillsSectionProps) {
       <div className="p-4 sm:p-6 pt-0">
         {skills.length === 0 ? (
           <div className="text-center py-10">
-            <div className="text-5xl mb-3 opacity-50">🎯</div>
+            <div className="w-16 h-16 mx-auto mb-3 bg-gray-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
+              <Lightbulb className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+            </div>
             <p className="text-gray-600 dark:text-gray-400 text-base font-medium">No skills added yet</p>
             <p className="text-gray-500 dark:text-gray-500 mt-2 text-sm">Start by adding your first skill to showcase your expertise</p>
           </div>
@@ -198,7 +200,7 @@ export function SkillsSection({ skills }: SkillsSectionProps) {
                           className="p-1.5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-lg transition-colors duration-200 disabled:opacity-50"
                           title="Edit skill"
                         >
-                          ✏️
+                          <Pencil className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(skill.id)}
@@ -206,14 +208,14 @@ export function SkillsSection({ skills }: SkillsSectionProps) {
                           className="p-1.5 text-gray-600 dark:text-gray-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors duration-200 disabled:opacity-50"
                           title="Delete skill"
                         >
-                          🗑️
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
 
                     {/* Level Badge */}
                     <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${config.badge} mb-2`}>
-                      <span>{config.icon}</span>
+                      <config.Icon className="w-3 h-3" />
                       {config.label}
                     </div>
 
@@ -282,9 +284,9 @@ export function SkillsSection({ skills }: SkillsSectionProps) {
                   onChange={(e) => setFormData({ ...formData, level: e.target.value as ExperienceLevel })}
                   className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-400 dark:focus:ring-slate-500 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white"
                 >
-                  <option value="BEGINNER">🌱 Beginner</option>
-                  <option value="INTERMEDIATE">📈 Intermediate</option>
-                  <option value="ADVANCED">⭐ Advanced</option>
+                  <option value="BEGINNER">Beginner</option>
+                  <option value="INTERMEDIATE">Intermediate</option>
+                  <option value="ADVANCED">Advanced</option>
                 </select>
               </div>
 

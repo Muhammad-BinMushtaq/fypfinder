@@ -124,7 +124,7 @@ export default function ConversationPage() {
       </div>
 
       {/* Chat */}
-      <div className="flex-1">
+      <div className="flex-1 min-h-0 h-full">
         <ChatWindow
           conversationId={conversationId}
           currentStudent={{
