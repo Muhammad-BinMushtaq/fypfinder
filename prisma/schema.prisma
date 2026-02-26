@@ -88,6 +88,7 @@ model Student {
   careerGoal        String?       // Long-term career aspiration (e.g., "Become AI/ML Engineer at startup")
   hobbies           String?       // Comma-separated hobbies (e.g., "Coding, Gaming, Open-source")
   preferredTechStack String?      // Technologies for FYP (e.g., "React, Node.js, Python, MongoDB")
+  industryPreference String?      // FYP industry focus (e.g., "AI/ML, FinTech, Healthcare")
 
   user           User             @relation(fields: [userId], references: [id])
 
@@ -103,9 +104,6 @@ model Student {
   conversationsAsA Conversation[] @relation("ConversationsAsA")
   conversationsAsB Conversation[] @relation("ConversationsAsB")
   sentMessages     Message[]
-
-  // Industry preferences (many-to-many)
-  industries     StudentIndustry[]
   
   // Internship experiences
   internships    Internship[]
@@ -279,37 +277,7 @@ model PushSubscription {
 }
 
 // =====================
-// 14️⃣ Industry (Lookup Table)
-// =====================
-
-model Industry {
-  id        String   @id @default(uuid())
-  name      String   @unique  // e.g., "Finance", "Healthcare", "E-commerce", "EdTech"
-  createdAt DateTime @default(now())
-
-  students  StudentIndustry[]
-}
-
-// =====================
-// 15️⃣ Student Industry (Many-to-Many Junction)
-// =====================
-
-model StudentIndustry {
-  id         String   @id @default(uuid())
-  studentId  String
-  industryId String
-  createdAt  DateTime @default(now())
-
-  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  industry   Industry @relation(fields: [industryId], references: [id], onDelete: Cascade)
-
-  @@unique([studentId, industryId])
-  @@index([studentId])
-  @@index([industryId])
-}
-
-// =====================
-// 16️⃣ Internship (Student Experience)
+// 14️⃣ Internship (Student Experience)
 // =====================
 
 model Internship {

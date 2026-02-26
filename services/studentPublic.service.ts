@@ -45,11 +45,6 @@ export interface GroupInfo {
   members: GroupMemberPublic[];
 }
 
-export interface PublicIndustry {
-  id: string;
-  name: string;
-}
-
 export interface PublicInternship {
   id: string;
   companyName: string;
@@ -72,6 +67,7 @@ export interface PublicStudentProfile {
   careerGoal?: string | null;
   hobbies?: string | null;
   preferredTechStack?: string | null;
+  fypIndustry?: string | null;
   // Social Links
   linkedinUrl?: string | null;
   githubUrl?: string | null;
@@ -82,8 +78,7 @@ export interface PublicStudentProfile {
   // Skills & Projects
   skills: PublicSkill[];
   projects: PublicProject[];
-  // Industries & Internships
-  industries: PublicIndustry[];
+  // Internships
   internships: PublicInternship[];
 }
 

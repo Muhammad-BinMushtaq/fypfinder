@@ -7,7 +7,6 @@ import { ProjectsSection } from "@/components/student/ProjectsSection";
 import { ProfileForm } from "@/components/student/ProfileForm";
 import { ProfilePictureUpload } from "@/components/student/ProfilePictureUpload";
 import { ProfileCompletionProgress } from "@/components/student/ProfileCompletionProgress";
-import { IndustriesSection } from "@/components/student/IndustriesSection";
 import { InternshipsSection } from "@/components/student/InternshipsSection";
 import { getDepartmentLabel } from "@/lib/departments";
 import { 
@@ -231,12 +230,6 @@ export default function ProfilePage() {
 
             {/* Profile Form */}
             <ProfileForm profile={profile} />
-
-            {/* Industries Section */}
-            <IndustriesSection 
-              industries={profile.industries || []} 
-              onUpdate={() => refetch()}
-            />
 
             {/* Skills Section */}
             <SkillsSection skills={profile.skills || []} />

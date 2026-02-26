@@ -20,11 +20,6 @@ export interface Project {
   githubLink?: string;
 }
 
-export interface Industry {
-  id: string;
-  name: string;
-}
-
 export interface Internship {
   id: string;
   companyName: string;
@@ -49,9 +44,9 @@ export interface StudentProfile {
   careerGoal?: string;
   hobbies?: string;
   preferredTechStack?: string;
+  fypIndustry?: string;
   skills: Skill[];
   projects: Project[];
-  industries: Industry[];
   internships: Internship[];
   user?: {
     status: "ACTIVE" | "SUSPENDED" | "DELETION_REQUESTED";
@@ -89,6 +84,7 @@ export async function updateMyProfile(data: Partial<{
   careerGoal: string;
   hobbies: string;
   preferredTechStack: string;
+  fypIndustry: string;
 }>): Promise<StudentProfile> {
   const response = await apiClient.patch<ApiResponse<StudentProfile>>(
     "/api/student/update-my-profile",
@@ -220,23 +216,6 @@ export async function cancelDeletionRequest(): Promise<DeletionRequestResponse> 
     success: true,
     message: data.message || "Deletion request cancelled",
   }
-}
-
-/* ---------- INDUSTRIES ---------- */
-
-export async function getAllIndustries(): Promise<Industry[]> {
-  const response = await apiClient.get<ApiResponse<Industry[]>>(
-    "/api/industry/get-all"
-  );
-  return response.data;
-}
-
-export async function setIndustryPreferences(industryIds: string[]): Promise<Industry[]> {
-  const response = await apiClient.post<ApiResponse<Industry[]>>(
-    "/api/student/industry/set",
-    { industryIds }
-  );
-  return response.data;
 }
 
 /* ---------- INTERNSHIPS ---------- */

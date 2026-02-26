@@ -8,7 +8,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronDown, ChevronUp, Github, Linkedin, ExternalLink, Mail, Building2, Briefcase, Calendar, Award } from "lucide-react";
+import { ChevronDown, ChevronUp, Github, Linkedin, ExternalLink, Mail, Building2, Briefcase, Calendar, Award, Target, Code, Gamepad2 } from "lucide-react";
 import type { PublicStudentProfile } from "@/services/studentPublic.service";
 import { SendRequestButtons } from "@/components/request/SendRequestButtons";
 import { getDepartmentLabel } from "@/lib/departments";
@@ -211,44 +211,43 @@ export function PublicProfileView({
       )}
 
       {/* Career & Professional Info */}
-      {(profile.careerGoal || profile.hobbies || profile.preferredTechStack || (profile.industries && profile.industries.length > 0)) && (
+      {(profile.careerGoal || profile.hobbies || profile.preferredTechStack || profile.fypIndustry) && (
         <section className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Professional Profile</p>
           
           {profile.careerGoal && (
             <div className="mt-4">
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">🎯 Career Goal</p>
+              <p className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
+                <Target className="h-3.5 w-3.5" /> Career Goal
+              </p>
               <p className="mt-1 text-sm text-slate-700 dark:text-slate-300">{profile.careerGoal}</p>
+            </div>
+          )}
+
+          {profile.fypIndustry && (
+            <div className="mt-4">
+              <p className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
+                <Briefcase className="h-3.5 w-3.5" /> FYP Industry
+              </p>
+              <p className="mt-1 text-sm text-slate-700 dark:text-slate-300">{profile.fypIndustry}</p>
             </div>
           )}
 
           {profile.preferredTechStack && (
             <div className="mt-4">
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">💻 Preferred Tech Stack</p>
+              <p className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
+                <Code className="h-3.5 w-3.5" /> Preferred Tech Stack
+              </p>
               <p className="mt-1 text-sm text-slate-700 dark:text-slate-300">{profile.preferredTechStack}</p>
             </div>
           )}
 
           {profile.hobbies && (
             <div className="mt-4">
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">🎮 Hobbies</p>
+              <p className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
+                <Gamepad2 className="h-3.5 w-3.5" /> Hobbies
+              </p>
               <p className="mt-1 text-sm text-slate-700 dark:text-slate-300">{profile.hobbies}</p>
-            </div>
-          )}
-
-          {profile.industries && profile.industries.length > 0 && (
-            <div className="mt-4">
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">🏢 Industry Interests</p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {profile.industries.map((industry) => (
-                  <span
-                    key={industry.id}
-                    className="rounded-full border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 px-3 py-1 text-xs font-medium text-slate-700 dark:text-slate-300"
-                  >
-                    {industry.name}
-                  </span>
-                ))}
-              </div>
             </div>
           )}
         </section>

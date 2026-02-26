@@ -35,17 +35,7 @@ export async function GET(
                 },
                 skills: true,
                 projects: true,
-                // Industry preferences
-                industries: {
-                    include: {
-                        industry: {
-                            select: {
-                                id: true,
-                                name: true,
-                            },
-                        },
-                    },
-                },
+
                 // Internships
                 internships: {
                     select: {
@@ -149,6 +139,7 @@ export async function GET(
                     careerGoal: student.careerGoal,
                     hobbies: student.hobbies,
                     preferredTechStack: student.preferredTechStack,
+                    fypIndustry: student.fypIndustry,
                     // Social Links
                     linkedinUrl: student.linkedinUrl,
                     githubUrl: student.githubUrl,
@@ -163,8 +154,7 @@ export async function GET(
                         level: s.level,
                     })),
                     projects: student.projects,
-                    // Industry preferences (flattened)
-                    industries: student.industries.map((i) => i.industry),
+
                     // Internships
                     internships: student.internships,
                 },

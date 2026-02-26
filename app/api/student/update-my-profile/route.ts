@@ -25,6 +25,7 @@ export async function PATCH(req: Request) {
             careerGoal,
             hobbies,
             preferredTechStack,
+            fypIndustry,
         } = body
 
         //  Update only provided fields (excluding name and department)
@@ -44,6 +45,7 @@ export async function PATCH(req: Request) {
                 ...(careerGoal !== undefined && { careerGoal }),
                 ...(hobbies !== undefined && { hobbies }),
                 ...(preferredTechStack !== undefined && { preferredTechStack }),
+                ...(fypIndustry !== undefined && { fypIndustry }),
             },
 
         })

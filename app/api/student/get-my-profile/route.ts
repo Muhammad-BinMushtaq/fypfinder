@@ -26,6 +26,7 @@ export async function GET() {
                 careerGoal: true,
                 hobbies: true,
                 preferredTechStack: true,
+                industryPreference: true,
                 user: {
                     select: {
                         status: true,
@@ -48,17 +49,6 @@ export async function GET() {
                         description: true,
                         liveLink: true,
                         githubLink: true,
-                    },
-                },
-                // Industry preferences
-                industries: {
-                    select: {
-                        industry: {
-                            select: {
-                                id: true,
-                                name: true,
-                            },
-                        },
                     },
                 },
                 // Internships
@@ -107,10 +97,9 @@ export async function GET() {
                     careerGoal: student.careerGoal,
                     hobbies: student.hobbies,
                     preferredTechStack: student.preferredTechStack,
+                    industryPreference: student.industryPreference,
                     skills: student.skills,
                     projects: student.projects,
-                    // Industry preferences (flattened)
-                    industries: student.industries.map((i) => i.industry),
                     // Internships
                     internships: student.internships,
                     user: student.user,

@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { useMyProfile } from "@/hooks/student/useMyProfile";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, User, Target, Gamepad2, Code, Briefcase } from "lucide-react";
 import type { StudentProfile, AvailabilityStatus } from "@/services/student.service";
 
 interface ProfileFormProps {
@@ -27,6 +27,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
     careerGoal: "",
     hobbies: "",
     preferredTechStack: "",
+    fypIndustry: "",
   });
 
   useEffect(() => {
@@ -42,6 +43,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
         careerGoal: profile.careerGoal || "",
         hobbies: profile.hobbies || "",
         preferredTechStack: profile.preferredTechStack || "",
+        fypIndustry: profile.fypIndustry || "",
       });
     }
   }, [profile]);
@@ -52,7 +54,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       setError("");
       setSuccess("");
       await updateProfileAsync(formData);
-      setSuccess("Profile updated successfully! ✅");
+      setSuccess("Profile updated successfully!");
       setIsEditing(false);
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(""), 3000);
@@ -74,6 +76,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       careerGoal: profile.careerGoal || "",
       hobbies: profile.hobbies || "",
       preferredTechStack: profile.preferredTechStack || "",
+      fypIndustry: profile.fypIndustry || "",
     });
     setIsEditing(false);
     setError("");
@@ -98,7 +101,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 min-w-0">
-            <span className="text-lg flex-shrink-0">👤</span>
+            <User className="w-5 h-5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
             <div className="min-w-0">
               <h2 className="text-base font-semibold text-gray-900 dark:text-white">Personal Information</h2>
               <p className="text-xs text-gray-500 dark:text-gray-400 truncate">Manage your profile and preferences</p>
@@ -199,15 +202,16 @@ export function ProfileForm({ profile }: ProfileFormProps) {
                 onChange={(e) => setFormData({ ...formData, availability: e.target.value as AvailabilityStatus })}
                 className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent outline-none transition-all text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
               >
-                <option value="AVAILABLE">🟢 Available</option>
-                <option value="BUSY">🟡 Busy</option>
-                <option value="AWAY">⚫ Away</option>
+                <option value="AVAILABLE">Available</option>
+                <option value="BUSY">Busy</option>
+                <option value="AWAY">Away</option>
               </select>
             ) : (
-              <div className={`inline-flex items-center px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-semibold text-xs sm:text-sm ${getAvailabilityColor(profile.availability)}`}>
-                {profile.availability === "AVAILABLE" && "🟢 Available"}
-                {profile.availability === "BUSY" && "🟡 Busy"}
-                {profile.availability === "AWAY" && "⚫ Away"}
+              <div className={`inline-flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-semibold text-xs sm:text-sm ${getAvailabilityColor(profile.availability)}`}>
+                <span className={`w-2 h-2 rounded-full ${profile.availability === "AVAILABLE" ? "bg-green-500" : profile.availability === "BUSY" ? "bg-yellow-500" : "bg-gray-500"}`} />
+                {profile.availability === "AVAILABLE" && "Available"}
+                {profile.availability === "BUSY" && "Busy"}
+                {profile.availability === "AWAY" && "Away"}
               </div>
             )}
           </div>
@@ -306,8 +310,8 @@ export function ProfileForm({ profile }: ProfileFormProps) {
 
           {/* Career Goal - Full Width */}
           <div className="md:col-span-2">
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
-              🎯 Career Goal
+            <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
+              <Target className="w-4 h-4" /> Career Goal
             </label>
             {isEditing ? (
               <input
@@ -324,10 +328,30 @@ export function ProfileForm({ profile }: ProfileFormProps) {
             )}
           </div>
 
+          {/* FYP Industry */}
+          <div>
+            <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
+              <Briefcase className="w-4 h-4" /> FYP Industry
+            </label>
+            {isEditing ? (
+              <input
+                type="text"
+                value={formData.fypIndustry}
+                onChange={(e) => setFormData({ ...formData, fypIndustry: e.target.value })}
+                placeholder="e.g., AI/ML, FinTech, Healthcare"
+                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent outline-none transition-all text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+              />
+            ) : (
+              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-700 dark:text-gray-300 font-medium text-sm sm:text-base border border-gray-200 dark:border-slate-600">
+                {profile.fypIndustry || "Not provided"}
+              </div>
+            )}
+          </div>
+
           {/* Hobbies */}
           <div>
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
-              🎮 Hobbies
+            <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
+              <Gamepad2 className="w-4 h-4" /> Hobbies
             </label>
             {isEditing ? (
               <input
@@ -346,8 +370,8 @@ export function ProfileForm({ profile }: ProfileFormProps) {
 
           {/* Preferred Tech Stack */}
           <div>
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
-              💻 Preferred Tech Stack
+            <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
+              <Code className="w-4 h-4" /> Preferred Tech Stack
             </label>
             {isEditing ? (
               <input
