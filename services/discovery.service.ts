@@ -65,7 +65,7 @@ interface ApiResponse<T> {
  * - Auth via cookies
  * - Excludes current user
  * - Only AVAILABLE students
- * - Only semester 5-7
+ * - Only semester 5-8 (Semester 8 students can view but not send partner requests)
  * - Only ACTIVE accounts
  */
 export async function getMatchedStudents(

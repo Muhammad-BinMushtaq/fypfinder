@@ -223,6 +223,12 @@ export function SendRequestButtons({
             <Clock className="w-3.5 h-3.5" />
             Away
           </div>
+        ) : currentSemester === 8 ? (
+          // Semester 8 students cannot send partner requests (read-only mode)
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 font-medium rounded-lg border border-slate-200 dark:border-slate-600">
+            <Ban className="w-3.5 h-3.5" />
+            View Only
+          </div>
         ) : hasAcceptedPartnerRequest ? (
           // Already partnered
           <div className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 font-medium rounded-lg border border-green-200 dark:border-green-800">
@@ -274,9 +280,16 @@ export function SendRequestButtons({
         )}
 
         {/* Semester mismatch hint */}
-        {!canPartner && targetSemester !== undefined && currentSemester !== undefined && (
+        {!canPartner && targetSemester !== undefined && currentSemester !== undefined && currentSemester !== 8 && (
           <div className="w-full mt-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 rounded-lg border border-amber-200 dark:border-amber-800">
             ⚠️ Partner requests require the same semester. You're in Semester {currentSemester}, they're in Semester {targetSemester}.
+          </div>
+        )}
+
+        {/* Semester 8 info message */}
+        {currentSemester === 8 && (
+          <div className="w-full mt-2 text-xs text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-700/50 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600">
+            ℹ️ Semester 8 students can view profiles and send messages, but cannot send partner requests.
           </div>
         )}
       </div>

@@ -256,6 +256,12 @@ export async function sendPartnerRequest(
         throw new Error("One or both students do not exist")
     }
 
+    // 2.5️⃣ Semester 8 restriction - Semester 8 students cannot send partner requests
+    // They can still receive requests, appear in discovery, and use messaging
+    if (sender.currentSemester === 8) {
+        throw new Error("Semester 8 students cannot send partner requests. You can still view profiles and send messages.")
+    }
+
     // 3️⃣ Eligibility checks (semester rule)
     if (sender.currentSemester !== receiver.currentSemester) {
         throw new Error("Both students must be in same semesters")

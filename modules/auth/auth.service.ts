@@ -79,15 +79,17 @@ export function validateStudentID(studentId: string): StudentIDValidationResult 
     currentSemester += 1
   }
 
-  // ❌ Semester validation (UNCHANGED)
+  // ❌ Semester validation
+  // Semesters 5-8 are allowed (FYP eligible)
+  // Note: Semester 8 students have read-only access for partner requests
   if (currentSemester < 5) {
     return {
       valid: false,
-      error: `Semester ${currentSemester}: Only students in semester 5, 6, or 7 can signup`,
+      error: `Semester ${currentSemester}: Only students in semester 5, 6, 7, or 8 can signup`,
     }
   }
 
-  if (currentSemester > 7) {
+  if (currentSemester > 8) {
     return {
       valid: false,
       error: `Semester ${currentSemester}: Registration closed for advanced students`,

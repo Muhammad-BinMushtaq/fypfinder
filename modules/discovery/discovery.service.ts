@@ -87,10 +87,11 @@ export async function getMatchedStudents(
         // exclude current user
         userId: { not: userId },
 
-        // enforce eligibility
+        // enforce eligibility (semesters 5-8 are FYP eligible)
+        // Note: Semester 8 students can appear in discovery but cannot send partner requests
         currentSemester: {
             gte: 5,
-            lte: 7,
+            lte: 8,
         },
 
         // user account must be active
