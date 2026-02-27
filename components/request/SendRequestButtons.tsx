@@ -253,6 +253,12 @@ export function SendRequestButtons({
             <Loader2 className="w-3.5 h-3.5" />
             Request Pending
           </div>
+        ) : !canPartner ? (
+          // Semester mismatch - cannot send partner requests
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 font-medium rounded-lg border border-gray-200 dark:border-slate-600">
+            <Ban className="w-3.5 h-3.5" />
+            Different Semester
+          </div>
         ) : (
           // Can send request
           <button
