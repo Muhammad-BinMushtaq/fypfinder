@@ -11,8 +11,7 @@ import { PushPermissionBanner } from "@/components/pwa/PushPermissionBanner";
 import { InstallPromptBanner } from "@/components/pwa/InstallPromptBanner";
 import { InstallButton } from "@/components/pwa/InstallButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { MobileHeaderMenu } from "@/components/dashboard/MobileHeaderMenu";
-import { GraduationCap, BookOpen, Lightbulb } from "lucide-react";
+import { GraduationCap, Lightbulb } from "lucide-react";
 import clientLogger from "@/lib/client-logger";
 
 interface DashboardShellProps {
@@ -71,9 +70,18 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
               </div>
               <span className="font-bold text-gray-900 dark:text-white">FYP Finder</span>
             </Link>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
+              {/* FYP Ideas - Always visible */}
+              <Link
+                href="/dashboard/fyp-ideas"
+                className="flex items-center gap-1 px-2 py-1.5 text-xs font-medium text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 rounded-lg transition-colors border border-amber-200 dark:border-amber-800"
+              >
+                <Lightbulb className="w-3.5 h-3.5" />
+                <span>Ideas</span>
+              </Link>
+              {/* Install Button - Always visible */}
+              <InstallButton />
               <ThemeToggle />
-              <MobileHeaderMenu />
             </div>
           </div>
         </div>
