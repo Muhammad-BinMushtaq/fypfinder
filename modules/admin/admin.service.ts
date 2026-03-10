@@ -11,6 +11,9 @@ interface GetAllStudentsParams {
     department?: string
     semester?: number
     status?: UserStatus
+    skill?: string
+    availability?: string
+    hasGroup?: boolean
 }
 
 export async function getAllStudents(params: GetAllStudentsParams) {
@@ -22,6 +25,9 @@ export async function getAllStudents(params: GetAllStudentsParams) {
         department,
         semester,
         status,
+        skill,
+        availability,
+        hasGroup,
     } = params
 
     /**
@@ -61,6 +67,30 @@ export async function getAllStudents(params: GetAllStudentsParams) {
         where.user = {
             status,
         }
+    }
+
+    // 🛠️ Skill filter (students who have a skill matching this name)
+    if (skill) {
+        where.skills = {
+            some: {
+                name: {
+                    contains: skill,
+                    mode: "insensitive",
+                },
+            },
+        }
+    }
+
+    // 📡 Availability filter
+    if (availability) {
+        where.availability = availability
+    }
+
+    // 👥 Group membership filter
+    if (hasGroup === true) {
+        where.groupMember = { isNot: null }
+    } else if (hasGroup === false) {
+        where.groupMember = null
     }
 
     /**

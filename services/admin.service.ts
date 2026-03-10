@@ -99,6 +99,25 @@ export interface AdminReports {
     departments: Array<{ department: string; count: number }>
     semesters: Array<{ semester: number; count: number }>
     statuses: Array<{ status: string; count: number }>
+    availability: Array<{ status: string; count: number }>
+  }
+  skills: {
+    totalSkills: number
+    topSkills: Array<{ name: string; count: number }>
+    levelDistribution: Array<{ level: string; count: number }>
+  }
+  profileCompletion: {
+    totalStudents: number
+    missingPhone: number
+    missingInterests: number
+    missingCareerGoal: number
+    noSkills: number
+    noProjects: number
+  }
+  groupStats: {
+    totalGroups: number
+    studentsInGroups: number
+    studentsWithoutGroup: number
   }
 }
 
@@ -147,6 +166,10 @@ export interface PaginatedResponse<T> {
 export interface StudentFilters {
   search?: string
   status?: "ACTIVE" | "SUSPENDED" | "DELETION_REQUESTED" | "ALL"
+  department?: string
+  skill?: string
+  availability?: "AVAILABLE" | "BUSY" | "AWAY" | "ALL"
+  hasGroup?: "true" | "false" | "ALL"
   page?: number
   pageSize?: number
 }
@@ -223,6 +246,10 @@ export async function getAllStudents(
   
   if (filters.search) params.set("name", filters.search)
   if (filters.status && filters.status !== "ALL") params.set("status", filters.status)
+  if (filters.department) params.set("department", filters.department)
+  if (filters.skill) params.set("skill", filters.skill)
+  if (filters.availability && filters.availability !== "ALL") params.set("availability", filters.availability)
+  if (filters.hasGroup && filters.hasGroup !== "ALL") params.set("hasGroup", filters.hasGroup)
 
   const response = await fetch(`/api/admin/get-all-students?${params.toString()}`)
   const json = await response.json()

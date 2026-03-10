@@ -70,6 +70,20 @@ export async function GET(req: Request) {
       departmentBreakdown,
       semesterBreakdown,
       statusBreakdown,
+      // Skills analytics
+      topSkills,
+      skillLevelBreakdown,
+      totalSkills,
+      // Availability breakdown
+      availabilityBreakdown,
+      // Profile completion helpers
+      noPhoneCount,
+      noInterestsCount,
+      noCareerGoalCount,
+      noSkillsCount,
+      noProjectsCount,
+      // Group membership
+      studentsInGroups,
     ] = await Promise.all([
       // Current period
       prisma.student.count({
@@ -132,6 +146,39 @@ export async function GET(req: Request) {
         where: { role: UserRole.STUDENT },
         _count: { id: true },
       }),
+
+      // Top skills (most common skill names across all students)
+      prisma.skill.groupBy({
+        by: ["name"],
+        _count: { id: true },
+        orderBy: { _count: { id: "desc" } },
+        take: 15,
+      }),
+
+      // Skill level distribution
+      prisma.skill.groupBy({
+        by: ["level"],
+        _count: { id: true },
+      }),
+
+      // Total unique skills
+      prisma.skill.count(),
+
+      // Availability breakdown
+      prisma.student.groupBy({
+        by: ["availability"],
+        _count: { id: true },
+      }),
+
+      // Profile completion: students missing key fields
+      prisma.student.count({ where: { phone: null } }),
+      prisma.student.count({ where: { OR: [{ interests: null }, { interests: "" }] } }),
+      prisma.student.count({ where: { OR: [{ careerGoal: null }, { careerGoal: "" }] } }),
+      prisma.student.count({ where: { skills: { none: {} } } }),
+      prisma.student.count({ where: { projects: { none: {} } } }),
+
+      // Students in groups
+      prisma.fYPGroupMember.count(),
     ])
 
     // Calculate trend percentages
@@ -183,6 +230,34 @@ export async function GET(req: Request) {
               status: s.status,
               count: s._count.id,
             })),
+            availability: availabilityBreakdown.map((a) => ({
+              status: a.availability,
+              count: a._count.id,
+            })),
+          },
+          skills: {
+            totalSkills,
+            topSkills: topSkills.map((s) => ({
+              name: s.name,
+              count: s._count.id,
+            })),
+            levelDistribution: skillLevelBreakdown.map((l) => ({
+              level: l.level,
+              count: l._count.id,
+            })),
+          },
+          profileCompletion: {
+            totalStudents,
+            missingPhone: noPhoneCount,
+            missingInterests: noInterestsCount,
+            missingCareerGoal: noCareerGoalCount,
+            noSkills: noSkillsCount,
+            noProjects: noProjectsCount,
+          },
+          groupStats: {
+            totalGroups,
+            studentsInGroups,
+            studentsWithoutGroup: totalStudents - studentsInGroups,
           },
         },
       },

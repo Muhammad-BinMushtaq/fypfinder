@@ -15,6 +15,10 @@ import {
   Loader2,
   AlertTriangle,
   Calendar,
+  Code2,
+  ShieldCheck,
+  UserCheck,
+  Zap,
 } from "lucide-react"
 import { useAdminReports } from "@/hooks/admin"
 
@@ -159,7 +163,175 @@ export default function AdminReportsPage() {
             />
           </div>
 
-          {/* Breakdown Section */}
+          {/* Skills Analytics Section */}
+          <div className="grid gap-6 lg:grid-cols-2">
+            {/* Top Skills */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+              <h3 className="mb-1 flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-white">
+                <Code2 className="h-5 w-5 text-indigo-500" />
+                Most Common Skills
+              </h3>
+              <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">
+                {report.skills.totalSkills} total skills across all students
+              </p>
+              {report.skills.topSkills.length === 0 ? (
+                <p className="text-sm text-slate-500">No skills data available</p>
+              ) : (
+                <div className="space-y-2.5">
+                  {report.skills.topSkills.map((skill, i) => {
+                    const maxCount = report.skills.topSkills[0]?.count || 1
+                    const percentage = Math.round((skill.count / maxCount) * 100)
+                    return (
+                      <div key={skill.name}>
+                        <div className="mb-1 flex items-center justify-between text-sm">
+                          <span className="flex items-center gap-2 font-medium text-slate-700 dark:text-slate-300">
+                            <span className="flex h-5 w-5 items-center justify-center rounded-md bg-indigo-100 text-[10px] font-bold text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-400">
+                              {i + 1}
+                            </span>
+                            {skill.name}
+                          </span>
+                          <span className="text-slate-500">{skill.count} students</span>
+                        </div>
+                        <div className="h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
+                          <div
+                            className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 transition-all"
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Skill Level Distribution */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+              <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-white">
+                <Zap className="h-5 w-5 text-amber-500" />
+                Skill Level Distribution
+              </h3>
+              {report.skills.levelDistribution.length === 0 ? (
+                <p className="text-sm text-slate-500">No skill level data</p>
+              ) : (
+                <div className="space-y-4">
+                  {report.skills.levelDistribution.map((level) => {
+                    const totalInLevels = report.skills.levelDistribution.reduce((s, l) => s + l.count, 0)
+                    const pct = totalInLevels > 0 ? Math.round((level.count / totalInLevels) * 100) : 0
+                    const config: Record<string, { color: string; bg: string }> = {
+                      BEGINNER: { color: "from-blue-400 to-blue-500", bg: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400" },
+                      INTERMEDIATE: { color: "from-amber-400 to-amber-500", bg: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" },
+                      ADVANCED: { color: "from-emerald-400 to-emerald-500", bg: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" },
+                    }
+                    const c = config[level.level] || { color: "from-slate-400 to-slate-500", bg: "bg-slate-100 text-slate-700" }
+                    return (
+                      <div key={level.level}>
+                        <div className="mb-1.5 flex items-center justify-between">
+                          <span className={`inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-semibold ${c.bg}`}>
+                            {level.level}
+                          </span>
+                          <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                            {level.count} ({pct}%)
+                          </span>
+                        </div>
+                        <div className="h-2.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
+                          <div
+                            className={`h-full rounded-full bg-gradient-to-r ${c.color} transition-all`}
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Profile Completion & Group Stats */}
+          <div className="grid gap-6 lg:grid-cols-2">
+            {/* Profile Completion */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+              <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-white">
+                <UserCheck className="h-5 w-5 text-emerald-500" />
+                Profile Completion
+              </h3>
+              <div className="space-y-3">
+                {[
+                  { label: "Missing Phone", value: report.profileCompletion.missingPhone, color: "bg-red-500" },
+                  { label: "Missing Interests", value: report.profileCompletion.missingInterests, color: "bg-amber-500" },
+                  { label: "Missing Career Goal", value: report.profileCompletion.missingCareerGoal, color: "bg-orange-500" },
+                  { label: "No Skills Added", value: report.profileCompletion.noSkills, color: "bg-rose-500" },
+                  { label: "No Projects Added", value: report.profileCompletion.noProjects, color: "bg-purple-500" },
+                ].map((item) => {
+                  const pct = report.profileCompletion.totalStudents > 0
+                    ? Math.round((item.value / report.profileCompletion.totalStudents) * 100)
+                    : 0
+                  return (
+                    <div key={item.label} className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className={`h-2.5 w-2.5 rounded-full ${item.color}`} />
+                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{item.label}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-slate-900 dark:text-white">{item.value}</span>
+                        <span className="rounded-md bg-slate-100 px-1.5 py-0.5 text-xs text-slate-500 dark:bg-slate-700 dark:text-slate-400">
+                          {pct}%
+                        </span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Group & Availability Stats */}
+            <div className="space-y-6">
+              {/* Group Membership */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-white">
+                  <UsersRound className="h-5 w-5 text-blue-500" />
+                  Group Membership
+                </h3>
+                <div className="flex gap-3">
+                  <div className="flex-1 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-center dark:border-emerald-800 dark:bg-emerald-900/20">
+                    <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">{report.groupStats.studentsInGroups}</p>
+                    <p className="text-xs font-medium text-emerald-600 dark:text-emerald-500">In a Group</p>
+                  </div>
+                  <div className="flex-1 rounded-xl border border-slate-200 bg-slate-50 p-4 text-center dark:border-slate-600 dark:bg-slate-700">
+                    <p className="text-2xl font-bold text-slate-700 dark:text-slate-300">{report.groupStats.studentsWithoutGroup}</p>
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">No Group</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Availability Breakdown */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-white">
+                  <ShieldCheck className="h-5 w-5 text-teal-500" />
+                  Availability Status
+                </h3>
+                <div className="flex flex-wrap gap-3">
+                  {report.breakdown.availability.map((a) => {
+                    const config: Record<string, { border: string; text: string }> = {
+                      AVAILABLE: { border: "border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-900/20", text: "text-emerald-700 dark:text-emerald-400" },
+                      BUSY: { border: "border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20", text: "text-red-700 dark:text-red-400" },
+                      AWAY: { border: "border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/20", text: "text-amber-700 dark:text-amber-400" },
+                    }
+                    const c = config[a.status] || { border: "border-slate-200 bg-slate-50", text: "text-slate-700" }
+                    return (
+                      <div key={a.status} className={`flex-1 min-w-[80px] rounded-xl border p-3 text-center ${c.border}`}>
+                        <p className={`text-xl font-bold ${c.text}`}>{a.count}</p>
+                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{a.status}</p>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Existing Breakdown Section */}
           <div className="grid gap-6 lg:grid-cols-2">
             {/* Department Breakdown */}
             <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">

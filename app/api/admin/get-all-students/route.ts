@@ -23,6 +23,11 @@ export async function GET(req: Request) {
             : undefined
 
         const status = searchParams.get("status") as UserStatus | undefined
+        const skill = searchParams.get("skill") || undefined
+        const availability = searchParams.get("availability") || undefined
+
+        const hasGroupParam = searchParams.get("hasGroup")
+        const hasGroup = hasGroupParam === "true" ? true : hasGroupParam === "false" ? false : undefined
 
         const result = await getAllStudents({
             limit,
@@ -32,6 +37,9 @@ export async function GET(req: Request) {
             department,
             semester,
             status,
+            skill,
+            availability,
+            hasGroup,
         })
 
         if (!result || !result.pagination) {

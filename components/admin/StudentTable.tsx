@@ -11,7 +11,8 @@ import {
   Eye,
   MoreVertical,
   Users,
-  Loader2
+  Loader2,
+  X,
 } from "lucide-react"
 import { useStudents, type StudentListItem, type StudentFilters } from "@/hooks/admin"
 import { StudentActions } from "./StudentActions"
@@ -35,7 +36,12 @@ export function StudentTable() {
     pageSize: 10,
     status: "ALL",
     search: "",
+    department: "",
+    skill: "",
+    availability: "ALL",
+    hasGroup: "ALL",
   })
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
   const [selectedStudent, setSelectedStudent] = useState<StudentListItem | null>(null)
   const [viewingStudent, setViewingStudent] = useState<StudentListItem | null>(null)
 
@@ -51,6 +57,24 @@ export function StudentTable() {
 
   const handlePageChange = (newPage: number) => {
     setFilters((prev) => ({ ...prev, page: newPage }))
+  }
+
+  const activeFilterCount = [
+    filters.department,
+    filters.skill,
+    filters.availability !== "ALL" ? filters.availability : "",
+    filters.hasGroup !== "ALL" ? filters.hasGroup : "",
+  ].filter(Boolean).length
+
+  const clearAdvancedFilters = () => {
+    setFilters((prev) => ({
+      ...prev,
+      department: "",
+      skill: "",
+      availability: "ALL",
+      hasGroup: "ALL",
+      page: 1,
+    }))
   }
 
   if (isLoading) {
@@ -88,33 +112,125 @@ export function StudentTable() {
   return (
     <div>
       {/* Filters */}
-      <div className="flex flex-col gap-4 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between lg:p-6">
-        {/* Search */}
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search by name or email..."
-            value={filters.search}
-            onChange={handleSearch}
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
-          />
+      <div className="border-b border-slate-200 p-4 lg:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          {/* Search */}
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search by name or email..."
+              value={filters.search}
+              onChange={handleSearch}
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Status Filter */}
+            <Filter className="h-4 w-4 text-slate-400" />
+            <select
+              value={filters.status}
+              onChange={(e) => handleStatusFilter(e.target.value as StudentFilters["status"])}
+              className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            >
+              <option value="ALL">All Status</option>
+              <option value="ACTIVE">Active</option>
+              <option value="SUSPENDED">Suspended</option>
+              <option value="DELETION_REQUESTED">Deletion Requested</option>
+            </select>
+
+            {/* Advanced Filters Toggle */}
+            <button
+              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+              className={`relative flex items-center gap-1.5 rounded-xl border px-4 py-2.5 text-sm font-medium transition-colors ${
+                showAdvancedFilters || activeFilterCount > 0
+                  ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+                  : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              <Filter className="h-4 w-4" />
+              Filters
+              {activeFilterCount > 0 && (
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-[10px] font-bold text-white">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
 
-        {/* Status Filter */}
-        <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-slate-400" />
-          <select
-            value={filters.status}
-            onChange={(e) => handleStatusFilter(e.target.value as StudentFilters["status"])}
-            className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
-          >
-            <option value="ALL">All Status</option>
-            <option value="ACTIVE">Active</option>
-            <option value="SUSPENDED">Suspended</option>
-            <option value="DELETION_REQUESTED">Deletion Requested</option>
-          </select>
-        </div>
+        {/* Advanced Filters Panel */}
+        {showAdvancedFilters && (
+          <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <p className="text-sm font-semibold text-slate-700">Advanced Filters</p>
+              {activeFilterCount > 0 && (
+                <button
+                  onClick={clearAdvancedFilters}
+                  className="flex items-center gap-1 text-xs font-medium text-red-600 hover:text-red-700"
+                >
+                  <X className="h-3 w-3" />
+                  Clear all
+                </button>
+              )}
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {/* Department */}
+              <div>
+                <label className="mb-1 block text-xs font-medium text-slate-500">Department</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Computer Science"
+                  value={filters.department || ""}
+                  onChange={(e) => setFilters((prev) => ({ ...prev, department: e.target.value, page: 1 }))}
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
+
+              {/* Skill */}
+              <div>
+                <label className="mb-1 block text-xs font-medium text-slate-500">Skill</label>
+                <input
+                  type="text"
+                  placeholder="e.g. React, Python"
+                  value={filters.skill || ""}
+                  onChange={(e) => setFilters((prev) => ({ ...prev, skill: e.target.value, page: 1 }))}
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
+
+              {/* Availability */}
+              <div>
+                <label className="mb-1 block text-xs font-medium text-slate-500">Availability</label>
+                <select
+                  value={filters.availability || "ALL"}
+                  onChange={(e) => setFilters((prev) => ({ ...prev, availability: e.target.value as StudentFilters["availability"], page: 1 }))}
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                >
+                  <option value="ALL">All</option>
+                  <option value="AVAILABLE">Available</option>
+                  <option value="BUSY">Busy</option>
+                  <option value="AWAY">Away</option>
+                </select>
+              </div>
+
+              {/* Group Membership */}
+              <div>
+                <label className="mb-1 block text-xs font-medium text-slate-500">Group Status</label>
+                <select
+                  value={filters.hasGroup || "ALL"}
+                  onChange={(e) => setFilters((prev) => ({ ...prev, hasGroup: e.target.value as StudentFilters["hasGroup"], page: 1 }))}
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                >
+                  <option value="ALL">All</option>
+                  <option value="true">In a Group</option>
+                  <option value="false">No Group</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Table */}

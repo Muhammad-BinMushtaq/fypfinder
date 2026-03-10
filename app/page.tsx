@@ -8,11 +8,12 @@ import { SupademoButton } from "@/components/landing/SupademoButton";
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: { code?: string };
+  searchParams: Promise<{ code?: string }>;
 }) {
+  const params = await searchParams;
   // If OAuth code arrives at root (Supabase redirect fallback), forward it to callback
-  if (searchParams?.code) {
-    redirect(`/api/auth/callback?code=${searchParams.code}`);
+  if (params?.code) {
+    redirect(`/api/auth/callback?code=${params.code}`);
   }
 
   // Check if user is already logged in - redirect to dashboard
