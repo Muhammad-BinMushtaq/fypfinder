@@ -1,15 +1,13 @@
 import { requireRole } from "@/lib/auth"
-import prisma from "@/lib/db"
 import { UserRole } from "@/lib/generated/prisma/enums"
 import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
+import { removeProject } from "@/modules/student/student.service"
 
 export async function DELETE(req: Request) {
     try {
-        // 🔐 Auth
         const user = await requireRole(UserRole.STUDENT)
 
-        // Get projectId from query parameters
         const { searchParams } = new URL(req.url)
         const projectId = searchParams.get("projectId")
 
@@ -20,42 +18,20 @@ export async function DELETE(req: Request) {
             )
         }
 
-        // ✅ Optimized: Single query with joined ownership check
-        // Instead of 4 separate queries, use 1 query with relation filter
-        const deletedProject = await prisma.project.deleteMany({
-            where: {
-                id: projectId,
-                student: {
-                    userId: user.id,  // ✅ Join check ensures ownership
-                },
-            },
-        })
-
-        if (deletedProject.count === 0) {
-            return NextResponse.json(
-                { success: false, message: "Project not found or unauthorized" },
-                { status: 404 }
-            )
-        }
+        await removeProject(user.id, projectId)
 
         return NextResponse.json(
-            {
-                success: true,
-                message: "Project deleted successfully",
-            },
+            { success: true, message: "Project deleted successfully" },
             { status: 200 }
         )
-
-          
     } catch (error: any) {
         logger.error("Delete project error:", error)
 
+        const status = error.message === "Project not found or unauthorized" ? 404 : 500
+
         return NextResponse.json(
-            {
-                success: false,
-                message: error.message || "Internal server error",
-            },
-            { status: 500 }
+            { success: false, message: error.message || "Internal server error" },
+            { status }
         )
     }
 }

@@ -10,11 +10,13 @@ import { toast } from "react-toastify"
 import {
   getAllStudents,
   getStudentDetails,
+  updateStudent,
   suspendStudent,
   unsuspendStudent,
   type StudentFilters,
   type StudentListItem,
   type StudentDetails,
+  type StudentFullProfile,
 } from "@/services/admin.service"
 import { adminKeys } from "./useAdminSession"
 
@@ -92,7 +94,31 @@ export function useUnsuspendStudent() {
   })
 }
 
+/**
+ * Update student name/semester (admin only)
+ */
+export function useUpdateStudent() {
+  const queryClient = useQueryClient()
 
+  return useMutation({
+    mutationFn: ({
+      studentId,
+      updates,
+    }: {
+      studentId: string
+      updates: { name?: string; currentSemester?: number }
+    }) => updateStudent(studentId, updates),
+    onSuccess: (data, { studentId }) => {
+      // Invalidate the students list and the specific student
+      queryClient.invalidateQueries({ queryKey: adminKeys.students() })
+      queryClient.invalidateQueries({ queryKey: adminKeys.student(studentId) })
+      toast.success("Student updated successfully")
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to update student")
+    },
+  })
+}
 
 // Re-export types for convenience
-export type { StudentListItem, StudentDetails, StudentFilters }
+export type { StudentListItem, StudentDetails, StudentFilters, StudentFullProfile }

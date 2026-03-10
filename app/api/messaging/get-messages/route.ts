@@ -8,27 +8,30 @@ import { getMessages, markMessagesAsRead } from "@/modules/messaging/messaging.s
 
 export async function GET(request: NextRequest) {
   try {
-    // 🔐 Auth
     const user = await requireRole(UserRole.STUDENT)
 
-    // Get query parameters
     const { searchParams } = new URL(request.url)
     const conversationId = searchParams.get("conversationId")
     const cursor = searchParams.get("cursor") || undefined
     const limit = parseInt(searchParams.get("limit") || "50", 10)
 
     if (!conversationId) {
-      return NextResponse.json({ error: "conversationId is required" }, { status: 400 })
+      return NextResponse.json(
+        { success: false, message: "conversationId is required" },
+        { status: 400 }
+      )
     }
 
-    // Get student ID from user ID
     const student = await prisma.student.findUnique({
       where: { userId: user.id },
       select: { id: true },
     })
 
     if (!student) {
-      return NextResponse.json({ error: "Student profile not found" }, { status: 404 })
+      return NextResponse.json(
+        { success: false, message: "Student profile not found" },
+        { status: 404 }
+      )
     }
 
     const messages = await getMessages(conversationId, student.id, { cursor, limit })
@@ -36,10 +39,16 @@ export async function GET(request: NextRequest) {
     // Mark messages as read when fetching
     await markMessagesAsRead(conversationId, student.id)
 
-    return NextResponse.json({ messages })
+    return NextResponse.json(
+      { success: true, message: "Messages fetched", data: { messages } },
+      { status: 200 }
+    )
   } catch (error) {
     logger.error("Get messages error:", error)
-    const message = error instanceof Error ? error.message : "Failed to get messages"
-    return NextResponse.json({ error: message }, { status: 500 })
+    const errorMessage = error instanceof Error ? error.message : "Failed to get messages"
+    return NextResponse.json(
+      { success: false, message: errorMessage },
+      { status: 500 }
+    )
   }
 }

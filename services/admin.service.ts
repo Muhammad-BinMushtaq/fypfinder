@@ -25,12 +25,81 @@ export interface StudentListItem {
   status: "ACTIVE" | "SUSPENDED" | "DELETION_REQUESTED"
   createdAt: string
   profilePicture: string | null
+  currentSemester?: number
 }
 
+export interface StudentFullProfile {
+  id: string
+  userId: string
+  name: string
+  department: string
+  currentSemester: number
+  profilePicture: string | null
+  interests: string | null
+  phone: string | null
+  linkedinUrl: string | null
+  githubUrl: string | null
+  availability: string
+  careerGoal: string | null
+  hobbies: string | null
+  preferredTechStack: string | null
+  industryPreference: string | null
+  showGroupOnProfile: boolean
+  createdAt: string
+  user: {
+    email: string
+    status: string
+    createdAt: string
+  }
+  skills: Array<{ id: string; name: string; level: string }>
+  projects: Array<{ id: string; name: string; description: string | null; liveLink: string | null; githubLink: string | null }>
+  internships: Array<{ id: string; companyName: string; position: string; duration: string; description: string | null; certificateLink: string | null }>
+  groupMember: {
+    joinedAt: string
+    group: {
+      id: string
+      projectName: string
+      isLocked: boolean
+      members: Array<{ student: { id: string; name: string } }>
+    }
+  } | null
+}
+
+// Keep backward compat alias
 export interface StudentDetails extends StudentListItem {
   bio: string | null
   skills: Array<{ id: string; name: string; level: string }>
   projects: Array<{ id: string; title: string; description: string }>
+}
+
+export interface AdminReports {
+  period: "week" | "month"
+  dateRange: { start: string; end: string }
+  overview: {
+    totalStudents: number
+    activeStudents: number
+    suspendedStudents: number
+    totalGroups: number
+  }
+  currentPeriod: {
+    newStudents: number
+    newMessages: number
+    newConversations: number
+    newRequests: number
+    acceptedRequests: number
+    newGroups: number
+  }
+  trends: {
+    students: number
+    messages: number
+    conversations: number
+    requests: number
+  }
+  breakdown: {
+    departments: Array<{ department: string; count: number }>
+    semesters: Array<{ semester: number; count: number }>
+    statuses: Array<{ status: string; count: number }>
+  }
 }
 
 export interface AdminConversation {
@@ -97,7 +166,7 @@ export async function adminLogin(email: string, password: string): Promise<Admin
     throw new Error(data.message || "Login failed")
   }
 
-  return data.admin
+  return data.data.admin
 }
 
 export async function adminSignup(name: string, email: string, password: string): Promise<AdminUser> {
@@ -113,7 +182,7 @@ export async function adminSignup(name: string, email: string, password: string)
     throw new Error(data.message || "Signup failed")
   }
 
-  return data.admin
+  return data.data.admin
 }
 
 export async function getAdminSession(): Promise<AdminUser | null> {
@@ -124,7 +193,7 @@ export async function getAdminSession(): Promise<AdminUser | null> {
   }
 
   const data = await response.json()
-  return data.admin || null
+  return data.data?.admin || null
 }
 
 export async function adminLogout(): Promise<void> {
@@ -186,7 +255,7 @@ export async function getAllStudents(
   }
 }
 
-export async function getStudentDetails(studentId: string): Promise<StudentDetails> {
+export async function getStudentDetails(studentId: string): Promise<StudentFullProfile> {
   const response = await fetch(`/api/admin/get-student/${studentId}`)
   const data = await response.json()
 
@@ -194,7 +263,26 @@ export async function getStudentDetails(studentId: string): Promise<StudentDetai
     throw new Error(data.message || "Failed to fetch student details")
   }
 
-  return data.student
+  return data.data
+}
+
+export async function updateStudent(
+  studentId: string,
+  updates: { name?: string; currentSemester?: number }
+): Promise<{ id: string; name: string; currentSemester: number }> {
+  const response = await fetch(`/api/admin/update-student/${studentId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(updates),
+  })
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to update student")
+  }
+
+  return data.data
 }
 
 export async function suspendStudent(studentId: string): Promise<void> {
@@ -287,5 +375,18 @@ export async function getAdminStats(): Promise<AdminStats> {
     throw new Error(data.message || "Failed to fetch stats")
   }
 
-  return data
+  return data.data
+}
+
+// ============ REPORTS ============
+
+export async function getAdminReports(period: "week" | "month" = "week"): Promise<AdminReports> {
+  const response = await fetch(`/api/admin/reports?period=${period}`)
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to fetch reports")
+  }
+
+  return data.data
 }

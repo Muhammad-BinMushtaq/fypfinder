@@ -15,7 +15,7 @@ export async function POST(req: Request) {
         const { error } = await supabase.auth.signOut();
         if (error) {
             return NextResponse.json(
-                { error: error.message },
+                { success: false, message: error.message },
                 { status: 400 }
             );
         }
@@ -28,14 +28,14 @@ export async function POST(req: Request) {
         }
 
         return NextResponse.json(
-            { message: "Logged out successfully" },
+            { success: true, message: "Logged out successfully" },
             { status: 200 }
         );
     }
     catch (err) {
         logger.error("Logout error:", err);
         return NextResponse.json(
-            { error: "Internal server error" },
+            { success: false, message: "Internal server error" },
             { status: 500 }
         );
     }

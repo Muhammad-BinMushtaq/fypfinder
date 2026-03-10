@@ -4,39 +4,26 @@
 import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
 import { requireRole } from "@/lib/auth"
-import { UserRole, UserStatus } from "@/lib/generated/prisma/enums"
-import prisma from "@/lib/db"
+import { UserRole } from "@/lib/generated/prisma/enums"
+import { cancelDeletion } from "@/modules/student/student.service"
 
 export async function PATCH() {
   try {
-    // 🔐 Student only
     const user = await requireRole(UserRole.STUDENT)
 
-    // Verify user has pending deletion request
-    if (user.status !== UserStatus.DELETION_REQUESTED) {
-      return NextResponse.json(
-        { success: false, message: "No pending deletion request" },
-        { status: 400 }
-      )
-    }
+    await cancelDeletion(user.id, user.status)
 
-    // Update user status back to ACTIVE
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { status: UserStatus.ACTIVE },
-    })
-
-    return NextResponse.json({
-      success: true,
-      message: "Deletion request cancelled. Your account is now active.",
-    })
+    return NextResponse.json(
+      { success: true, message: "Deletion request cancelled. Your account is now active." },
+      { status: 200 }
+    )
   } catch (error: any) {
     logger.error("Cancel deletion error:", error)
 
-    if (error.message === "Unauthorized") {
+    if (error.message === "No pending deletion request") {
       return NextResponse.json(
-        { success: false, message: "Unauthorized" },
-        { status: 401 }
+        { success: false, message: error.message },
+        { status: 400 }
       )
     }
 

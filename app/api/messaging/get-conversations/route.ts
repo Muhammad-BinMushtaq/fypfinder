@@ -8,26 +8,30 @@ import { getConversationsForStudent } from "@/modules/messaging/messaging.servic
 
 export async function GET() {
   try {
-    // 🔐 Auth
     const user = await requireRole(UserRole.STUDENT)
 
-    // Get student ID from user ID
     const student = await prisma.student.findUnique({
       where: { userId: user.id },
       select: { id: true },
     })
 
     if (!student) {
-      return NextResponse.json({ error: "Student profile not found" }, { status: 404 })
+      return NextResponse.json(
+        { success: false, message: "Student profile not found" },
+        { status: 404 }
+      )
     }
 
     const conversations = await getConversationsForStudent(student.id)
 
-    return NextResponse.json({ conversations })
+    return NextResponse.json(
+      { success: true, message: "Conversations fetched", data: { conversations } },
+      { status: 200 }
+    )
   } catch (error) {
     logger.error("Get conversations error:", error)
     return NextResponse.json(
-      { error: "Failed to get conversations" },
+      { success: false, message: "Failed to get conversations" },
       { status: 500 }
     )
   }

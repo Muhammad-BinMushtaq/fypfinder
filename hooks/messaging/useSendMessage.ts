@@ -23,10 +23,10 @@ async function sendMessage(params: SendMessageParams): Promise<Message> {
   const data = await response.json()
 
   if (!response.ok) {
-    throw new Error(data.error || "Failed to send message")
+    throw new Error(data.message || "Failed to send message")
   }
 
-  return data.message
+  return data.data.message
 }
 
 export function useSendMessage() {

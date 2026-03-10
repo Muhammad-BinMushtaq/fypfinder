@@ -13,7 +13,7 @@ export async function POST(req: Request) {
         const rateLimit = authRateLimiter.check(getClientIdentifier(req.headers))
         if (!rateLimit.allowed) {
             return NextResponse.json(
-                { error: "Too many login attempts. Please try again later." },
+                { success: false, message: "Too many login attempts. Please try again later." },
                 {
                     status: 429,
                     headers: rateLimit.retryAfter
@@ -26,23 +26,20 @@ export async function POST(req: Request) {
         const body = await req.json()
         const { email, password } = body
 
-        // ✅ Basic payload validation (simple - any email)
         if (!email || !password) {
             return NextResponse.json(
-                { error: "Email and password are required" },
+                { success: false, message: "Email and password are required" },
                 { status: 400 }
             )
         }
 
-        // ✅ Validate input types
         if (typeof email !== "string" || typeof password !== "string") {
             return NextResponse.json(
-                { error: "Invalid input types" },
+                { success: false, message: "Invalid input types" },
                 { status: 400 }
             )
         }
 
-        // 🔑 Sign in with Supabase
         const supabase = await createSupabaseServerClient()
 
         const { data, error } = await supabase.auth.signInWithPassword({
@@ -52,15 +49,11 @@ export async function POST(req: Request) {
 
         if (error || !data.user) {
             return NextResponse.json(
-                { error: error?.message || "Login failed" },
+                { success: false, message: error?.message || "Login failed" },
                 { status: 401 }
-
             )
         }
 
-
-
-        // 👤 Verify user exists and has ADMIN role
         const user = await prisma.user.findUnique({
             where: { id: data.user.id },
             include: {
@@ -75,30 +68,28 @@ export async function POST(req: Request) {
 
         if (!user) {
             return NextResponse.json(
-                { error: "User not found in database" },
+                { success: false, message: "User not found in database" },
                 { status: 404 }
             )
         }
 
         if (user.status !== UserStatus.ACTIVE) {
             return NextResponse.json(
-                { error: "Account is not active" },
+                { success: false, message: "Account is not active" },
                 { status: 403 }
             )
         }
 
-        // ✅ Verify user is ADMIN
         if (user.role !== UserRole.ADMIN) {
             return NextResponse.json(
-                { error: "Only admins can access this route" },
+                { success: false, message: "Only admins can access this route" },
                 { status: 403 }
             )
         }
 
-        // ✅ Verify admin profile exists
         if (!user.admin) {
             return NextResponse.json(
-                { error: "Admin profile not found" },
+                { success: false, message: "Admin profile not found" },
                 { status: 404 }
             )
         }
@@ -107,20 +98,22 @@ export async function POST(req: Request) {
             {
                 success: true,
                 message: "Admin login successful",
-                admin: {
-                    id: user.admin.id,
-                    userId: data.user.id,
-                    name: user.admin.name,
-                    email: user.email,
-                    role: user.role,
-                }
+                data: {
+                    admin: {
+                        id: user.admin.id,
+                        userId: data.user.id,
+                        name: user.admin.name,
+                        email: user.email,
+                        role: user.role,
+                    },
+                },
             },
             { status: 200 }
         )
     } catch (err: any) {
         logger.error("Admin login error:", err)
         return NextResponse.json(
-            { error: "Internal server error" },
+            { success: false, message: "Internal server error" },
             { status: 500 }
         )
     }

@@ -2,7 +2,6 @@
 
 import prisma from "@/lib/db"
 import { RequestType, RequestStatus } from "@/lib/generated/prisma/enums"
-import { request } from "http"
 import { notifyMessageRequest, notifyPartnerRequest, notifyRequestAccepted } from "@/lib/push-service"
 
 
@@ -97,8 +96,8 @@ export async function getSentMessageRequests(studentId: string) {
 
 }
 
-// get recieved messages requests
-export async function getRecievedMessageRequests(studentId: string) {
+// get received messages requests
+export async function getReceivedMessageRequests(studentId: string) {
     return prisma.request.findMany({
         where: {
             toStudentId: studentId,
@@ -360,8 +359,8 @@ export async function getSentPartnerRequests(studentId: string) {
     })
 }
 
-// get recieved partner requests 
-export async function getRecievedPartnerRequests(studentId: string) {
+// get received partner requests 
+export async function getReceivedPartnerRequests(studentId: string) {
     return prisma.request.findMany({
         where: {
             toStudentId: studentId,

@@ -3,13 +3,12 @@
 
 import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
-import prisma from "@/lib/db"
 import { requireRole } from "@/lib/auth"
 import { UserRole } from "@/lib/generated/prisma/enums"
+import { addInternship } from "@/modules/student/student.service"
 
 export async function POST(req: Request) {
     try {
-        // 🔐 Auth + Role
         const user = await requireRole(UserRole.STUDENT)
 
         const body = await req.json()
@@ -18,30 +17,21 @@ export async function POST(req: Request) {
         // Validation
         if (!companyName || typeof companyName !== "string" || companyName.trim().length === 0) {
             return NextResponse.json(
-                {
-                    success: false,
-                    message: "Company name is required",
-                },
+                { success: false, message: "Company name is required" },
                 { status: 400 }
             )
         }
 
         if (!position || typeof position !== "string" || position.trim().length === 0) {
             return NextResponse.json(
-                {
-                    success: false,
-                    message: "Position is required",
-                },
+                { success: false, message: "Position is required" },
                 { status: 400 }
             )
         }
 
         if (!duration || typeof duration !== "string" || duration.trim().length === 0) {
             return NextResponse.json(
-                {
-                    success: false,
-                    message: "Duration is required",
-                },
+                { success: false, message: "Duration is required" },
                 { status: 400 }
             )
         }
@@ -52,70 +42,43 @@ export async function POST(req: Request) {
                 new URL(certificateLink)
             } catch {
                 return NextResponse.json(
-                    {
-                        success: false,
-                        message: "Invalid certificate URL format",
-                    },
+                    { success: false, message: "Invalid certificate URL format" },
                     { status: 400 }
                 )
             }
         }
 
-        // Get student
-        const student = await prisma.student.findUnique({
-            where: { userId: user.id },
-        })
-
-        if (!student) {
-            return NextResponse.json(
-                { success: false, message: "Student profile not found" },
-                { status: 404 }
-            )
-        }
-
-        // Limit internships (max 10)
-        const internshipCount = await prisma.internship.count({
-            where: { studentId: student.id },
-        })
-
-        if (internshipCount >= 10) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "Maximum 10 internships allowed",
-                },
-                { status: 400 }
-            )
-        }
-
-        // Create internship
-        const internship = await prisma.internship.create({
-            data: {
-                studentId: student.id,
-                companyName: companyName.trim(),
-                position: position.trim(),
-                duration: duration.trim(),
-                description: description?.trim() || null,
-                certificateLink: certificateLink?.trim() || null,
-            },
+        const internship = await addInternship(user.id, {
+            companyName,
+            position,
+            duration,
+            description: description || null,
+            certificateLink: certificateLink || null,
         })
 
         return NextResponse.json(
-            {
-                success: true,
-                message: "Internship added successfully",
-                data: internship,
-            },
+            { success: true, message: "Internship added successfully", data: internship },
             { status: 201 }
         )
     } catch (error: any) {
         logger.error("Add internship error:", error)
 
+        if (error.message === "Student profile not found") {
+            return NextResponse.json(
+                { success: false, message: error.message },
+                { status: 404 }
+            )
+        }
+
+        if (error.message === "Maximum 10 internships allowed") {
+            return NextResponse.json(
+                { success: false, message: error.message },
+                { status: 400 }
+            )
+        }
+
         return NextResponse.json(
-            {
-                success: false,
-                message: "Failed to add internship",
-            },
+            { success: false, message: "Failed to add internship" },
             { status: 500 }
         )
     }

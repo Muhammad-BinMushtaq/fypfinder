@@ -1,7 +1,7 @@
 {
   "name": "FYP Finder",
   "short_name": "FYP Finder",
-  "description": "Find your perfect FYP partner at FAST NUCES",
+  "description": "Find your perfect FYP partner at PAF-IAST",
   "start_url": "/dashboard/discovery",
   "display": "standalone",
   "background_color": "#1f2937",

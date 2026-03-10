@@ -1,12 +1,11 @@
 import { requireRole } from "@/lib/auth"
-import prisma from "@/lib/db"
 import { UserRole } from "@/lib/generated/prisma/enums"
 import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
+import { updateProject } from "@/modules/student/student.service"
 
 export async function PATCH(req: Request) {
   try {
-    // 🔐 Auth
     const user = await requireRole(UserRole.STUDENT)
 
     const body = await req.json()
@@ -19,61 +18,27 @@ export async function PATCH(req: Request) {
       )
     }
 
-    // 🔗 Get student
-    const student = await prisma.student.findUnique({
-      where: { userId: user.id },
-    })
-
-    if (!student) {
-      return NextResponse.json(
-        { success: false, message: "Student profile not found" },
-        { status: 404 }
-      )
-    }
-
-    // 🔒 Ownership check
-    const existingProject = await prisma.project.findFirst({
-      where: {
-        id: projectId,
-        studentId: student.id,
-      },
-    })
-
-    if (!existingProject) {
-      return NextResponse.json(
-        { success: false, message: "Project not found or unauthorized" },
-        { status: 404 }
-      )
-    }
-
-    // ✏️ Update project (partial update)
-    const updatedProject = await prisma.project.update({
-      where: { id: projectId },
-      data: {
-        ...(name !== undefined && { name }),
-        ...(description !== undefined && { description }),
-        ...(liveLink !== undefined && { liveLink }),
-        ...(githubLink !== undefined && { githubLink }),
-      },
+    const updatedProject = await updateProject(user.id, projectId, {
+      name,
+      description,
+      liveLink,
+      githubLink,
     })
 
     return NextResponse.json(
-      {
-        success: true,
-        message: "Project updated successfully",
-        data: updatedProject,
-      },
+      { success: true, message: "Project updated successfully", data: updatedProject },
       { status: 200 }
     )
   } catch (error: any) {
     logger.error("Update project error:", error)
 
+    const status = error.message === "Student profile not found" ? 404
+      : error.message === "Project not found or unauthorized" ? 404
+      : 500
+
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message || "Internal server error",
-      },
-      { status: 500 }
+      { success: false, message: error.message || "Internal server error" },
+      { status }
     )
   }
 }

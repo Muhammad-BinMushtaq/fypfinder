@@ -29,10 +29,10 @@ async function fetchConversations(): Promise<Conversation[]> {
   const data = await response.json()
 
   if (!response.ok) {
-    throw new Error(data.error || "Failed to fetch conversations")
+    throw new Error(data.message || "Failed to fetch conversations")
   }
 
-  return data.conversations
+  return data.data?.conversations || []
 }
 
 export function useConversations() {

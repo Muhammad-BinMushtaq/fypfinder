@@ -26,10 +26,10 @@ async function fetchMessages(conversationId: string): Promise<Message[]> {
   const data = await response.json()
 
   if (!response.ok) {
-    throw new Error(data.error || "Failed to fetch messages")
+    throw new Error(data.message || "Failed to fetch messages")
   }
 
-  return data.messages || []
+  return data.data?.messages || []
 }
 
 export function useMessages(conversationId: string | null) {

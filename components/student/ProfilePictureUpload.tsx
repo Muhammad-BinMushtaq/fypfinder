@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
+import { getSupabaseClient } from "@/lib/supabaseClient";
 import { useMyProfile } from "@/hooks/student/useMyProfile";
 import clientLogger from "@/lib/client-logger";
 
@@ -99,7 +99,7 @@ export function ProfilePictureUpload({ currentPicture, studentId, name }: Profil
         throw new Error("Compressed image is still too large. Try a smaller image.");
       }
 
-      const supabase = createSupabaseBrowserClient();
+      const supabase = getSupabaseClient();
       
       // Generate unique filename
       const fileExt = compressedFile.name.split(".").pop();

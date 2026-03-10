@@ -8,7 +8,6 @@ import { sendMessage } from "@/modules/messaging/messaging.service"
 
 export async function POST(request: NextRequest) {
   try {
-    // 🔐 Auth
     const user = await requireRole(UserRole.STUDENT)
 
     const body = await request.json()
@@ -16,27 +15,35 @@ export async function POST(request: NextRequest) {
 
     if (!conversationId || !content) {
       return NextResponse.json(
-        { error: "conversationId and content are required" },
+        { success: false, message: "conversationId and content are required" },
         { status: 400 }
       )
     }
 
-    // Get student ID from user ID
     const student = await prisma.student.findUnique({
       where: { userId: user.id },
       select: { id: true },
     })
 
     if (!student) {
-      return NextResponse.json({ error: "Student profile not found" }, { status: 404 })
+      return NextResponse.json(
+        { success: false, message: "Student profile not found" },
+        { status: 404 }
+      )
     }
 
     const message = await sendMessage(conversationId, student.id, content)
 
-    return NextResponse.json({ message })
+    return NextResponse.json(
+      { success: true, message: "Message sent", data: { message } },
+      { status: 200 }
+    )
   } catch (error) {
     logger.error("Send message error:", error)
     const errorMessage = error instanceof Error ? error.message : "Failed to send message"
-    return NextResponse.json({ error: errorMessage }, { status: 500 })
+    return NextResponse.json(
+      { success: false, message: errorMessage },
+      { status: 500 }
+    )
   }
 }

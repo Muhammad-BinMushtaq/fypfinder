@@ -1,125 +1,31 @@
-import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
-import { requireAuth, requireRole } from "@/lib/auth"
-import prisma from "@/lib/db"
+import { requireRole } from "@/lib/auth"
 import { UserRole } from "@/lib/generated/prisma/enums"
+import { getMyProfile } from "@/modules/student/student.service"
 
 export async function GET() {
     try {
         const currentUser = await requireRole(UserRole.STUDENT)
 
-        // ✅ Optimized: Single query with select for only needed fields
-        const student = await prisma.student.findUnique({
-            where: { userId: currentUser.id },
-            select: {
-                id: true,
-                name: true,
-                department: true,
-                currentSemester: true,
-                profilePicture: true,
-                interests: true,
-                phone: true,
-                linkedinUrl: true,
-                githubUrl: true,
-                availability: true,
-                // New professional fields
-                careerGoal: true,
-                hobbies: true,
-                preferredTechStack: true,
-                industryPreference: true,
-                user: {
-                    select: {
-                        status: true,
-                        email: true,
-                        createdAt: true,
-                    },
-                },
-                skills: {
-                    select: {
-                        id: true,
-                        name: true,
-                        description: true,
-                        level: true,
-                    },
-                },
-                projects: {
-                    select: {
-                        id: true,
-                        name: true,
-                        description: true,
-                        liveLink: true,
-                        githubLink: true,
-                    },
-                },
-                // Internships
-                internships: {
-                    select: {
-                        id: true,
-                        companyName: true,
-                        position: true,
-                        duration: true,
-                        description: true,
-                        certificateLink: true,
-                    },
-                    orderBy: { createdAt: "desc" },
-                },
-            },
-        })
+        const profile = await getMyProfile(currentUser.id)
 
-        if (!student) {
+        if (!profile) {
             return NextResponse.json(
-                {
-                    success: false,
-                    message: "Student profile not found",
-                    data: null,
-                },
+                { success: false, message: "Student profile not found", data: null },
                 { status: 404 }
             )
         }
 
-        // ✅ Add cache headers: Allow client to cache for 5 minutes
         const response = NextResponse.json(
-            {
-                success: true,
-                message: "Profile fetched",
-                data: {
-                    id: student.id,
-                    name: student.name,
-                    department: student.department,
-                    semester: student.currentSemester,
-                    profilePicture: student.profilePicture,
-                    interests: student.interests,
-                    phone: student.phone,
-                    linkedinUrl: student.linkedinUrl,
-                    githubUrl: student.githubUrl,
-                    availability: student.availability,
-                    // New professional fields
-                    careerGoal: student.careerGoal,
-                    hobbies: student.hobbies,
-                    preferredTechStack: student.preferredTechStack,
-                    fypIndustry: student.industryPreference,
-                    skills: student.skills,
-                    projects: student.projects,
-                    // Internships
-                    internships: student.internships,
-                    user: student.user,
-                },
-            },
+            { success: true, message: "Profile fetched", data: profile },
             { status: 200 }
         )
 
-        // ✅ No-cache to ensure fresh data after mutations
         response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate")
         return response
     } catch (error) {
-        // logger.error("Get my profile error:", error)
-
         return NextResponse.json(
-            {
-                success: false,
-                message: "Unauthorized: not logged in",
-                data: null,
-            },
+            { success: false, message: "Unauthorized: not logged in", data: null },
             { status: 401 }
         )
     }

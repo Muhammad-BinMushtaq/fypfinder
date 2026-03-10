@@ -8,9 +8,10 @@ export {
   useStudents, 
   useStudentDetails, 
   useSuspendStudent, 
-  useUnsuspendStudent, 
+  useUnsuspendStudent,
+  useUpdateStudent,
 } from "./useStudents"
-export type { StudentListItem, StudentDetails, StudentFilters } from "./useStudents"
+export type { StudentListItem, StudentDetails, StudentFilters, StudentFullProfile } from "./useStudents"
 export { 
   useAdminConversations, 
   useAdminMessages,
@@ -18,3 +19,5 @@ export {
 export type { AdminConversation, AdminMessage } from "./useAdminConversations"
 export { useAdminStats } from "./useAdminStats"
 export type { AdminStats } from "./useAdminStats"
+export { useAdminReports } from "./useAdminReports"
+export type { AdminReports } from "./useAdminReports"

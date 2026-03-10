@@ -14,7 +14,7 @@ export async function POST(req: Request) {
         const rateLimit = authRateLimiter.check(getClientIdentifier(req.headers))
         if (!rateLimit.allowed) {
             return NextResponse.json(
-                { error: "Too many requests. Please try again later." },
+                { success: false, message: "Too many requests. Please try again later." },
                 {
                     status: 429,
                     headers: rateLimit.retryAfter
@@ -24,54 +24,47 @@ export async function POST(req: Request) {
             )
         }
 
-        // 🔐 SECURITY: Only existing admins can create new admins
         await requireRole(UserRole.ADMIN)
 
         const body = await req.json()
         const { email, password, name } = body
 
-        // ✅ Basic payload validation (simple - any email)
         if (!email || !password || !name) {
             return NextResponse.json(
-                { error: "Email, password, and name are required" },
+                { success: false, message: "Email, password, and name are required" },
                 { status: 400 }
             )
         }
 
-        // ✅ Validate input types
         if (typeof email !== "string" || typeof password !== "string" || typeof name !== "string") {
             return NextResponse.json(
-                { error: "Invalid input types" },
+                { success: false, message: "Invalid input types" },
                 { status: 400 }
             )
         }
 
-        // ✅ Validate email format (basic - just check for @)
         if (!email.includes("@")) {
             return NextResponse.json(
-                { error: "Please provide a valid email address" },
+                { success: false, message: "Please provide a valid email address" },
                 { status: 400 }
             )
         }
 
-        // ✅ Validate password strength
         if (password.length < 6) {
             return NextResponse.json(
-                { error: "Password must be at least 6 characters" },
+                { success: false, message: "Password must be at least 6 characters" },
                 { status: 400 }
             )
         }
 
-        // ✅ Validate name
         const trimmedName = name.trim()
         if (trimmedName.length < 2) {
             return NextResponse.json(
-                { error: "Name must be at least 2 characters" },
+                { success: false, message: "Name must be at least 2 characters" },
                 { status: 400 }
             )
         }
 
-        // 🔑 Create auth user in Supabase
         const supabase = await createSupabaseServerClient()
 
         const { data, error } = await supabase.auth.signUp({
@@ -81,21 +74,19 @@ export async function POST(req: Request) {
 
         if (error || !data.user) {
             return NextResponse.json(
-                { error: error?.message || "Signup failed" },
+                { success: false, message: error?.message || "Signup failed" },
                 { status: 400 }
             )
         }
 
-        // 👤 Create User record in Prisma
         await prisma.user.create({
             data: {
-                id: data.user.id,      // SAME ID AS SUPABASE
+                id: data.user.id,
                 email,
-                role: UserRole.ADMIN,  // ✅ Set role to ADMIN
+                role: UserRole.ADMIN,
             },
         })
 
-        // 🏢 Create Admin profile record
         await prisma.admin.create({
             data: {
                 userId: data.user.id,
@@ -107,20 +98,26 @@ export async function POST(req: Request) {
             {
                 success: true,
                 message: "Admin signup successful",
-                userId: data.user.id,
-                email,
-                role: UserRole.ADMIN,
+                data: {
+                    admin: {
+                        userId: data.user.id,
+                        email,
+                        name: trimmedName,
+                        role: UserRole.ADMIN,
+                    },
+                },
             },
             { status: 201 }
         )
     } catch (err: any) {
-        // Error logged server-side only in development
         if (process.env.NODE_ENV === "development") {
             logger.error("Admin signup error:", err)
         }
+
+        const isUnauthorized = err.message?.includes("Unauthorized")
         return NextResponse.json(
-            { error: err.message === "Unauthorized: insufficient role" ? "Unauthorized" : "Internal server error" },
-            { status: err.message?.includes("Unauthorized") ? 403 : 500 }
+            { success: false, message: isUnauthorized ? "Unauthorized" : "Internal server error" },
+            { status: isUnauthorized ? 403 : 500 }
         )
     }
 }

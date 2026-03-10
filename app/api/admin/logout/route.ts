@@ -14,19 +14,19 @@ export async function POST() {
     if (error) {
       logger.error("Admin logout error:", error)
       return NextResponse.json(
-        { error: "Logout failed" },
+        { success: false, message: "Logout failed" },
         { status: 500 }
       )
     }
 
-    return NextResponse.json({
-      success: true,
-      message: "Logged out successfully",
-    })
+    return NextResponse.json(
+      { success: true, message: "Logged out successfully" },
+      { status: 200 }
+    )
   } catch (err: any) {
     logger.error("Admin logout error:", err)
     return NextResponse.json(
-      { error: "Internal server error" },
+      { success: false, message: "Internal server error" },
       { status: 500 }
     )
   }

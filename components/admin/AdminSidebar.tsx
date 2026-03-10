@@ -7,6 +7,7 @@ import {
   LayoutDashboard, 
   Users, 
   MessageSquare, 
+  BarChart3,
   LogOut,
   Shield,
   ChevronRight,
@@ -33,6 +34,12 @@ const navItems = [
     href: "/admin/messages",
     icon: MessageSquare,
     description: "View conversations",
+  },
+  {
+    label: "Reports",
+    href: "/admin/reports",
+    icon: BarChart3,
+    description: "Weekly & monthly stats",
   },
 ]
 
@@ -117,11 +124,19 @@ export function AdminSidebar({ isMobileOpen, onMobileClose }: AdminSidebarProps)
           System
         </p>
         <Link
-          href="/admin/dashboard"
+          href="/admin/settings"
           onClick={onMobileClose}
-          className="group flex items-center gap-3 rounded-xl px-3 py-3 text-slate-600 dark:text-slate-300 transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white"
+          className={`group flex items-center gap-3 rounded-xl px-3 py-3 transition-all duration-200 ${
+            pathname === "/admin/settings"
+              ? "bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-900/30 text-indigo-700 dark:text-indigo-300 shadow-sm"
+              : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white"
+          }`}
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 group-hover:bg-slate-200 dark:group-hover:bg-slate-600 group-hover:text-slate-700 dark:group-hover:text-white">
+          <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${
+            pathname === "/admin/settings"
+              ? "bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/30"
+              : "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 group-hover:bg-slate-200 dark:group-hover:bg-slate-600 group-hover:text-slate-700 dark:group-hover:text-white"
+          }`}>
             <Settings className="h-5 w-5" />
           </div>
           <div className="flex-1">

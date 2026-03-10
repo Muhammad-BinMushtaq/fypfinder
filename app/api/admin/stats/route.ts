@@ -9,10 +9,8 @@ import prisma from "@/lib/db"
 
 export async function GET() {
   try {
-    // 🔐 Admin only
     await requireRole(UserRole.ADMIN)
 
-    // Get all stats in parallel
     const [
       totalStudents,
       activeStudents,
@@ -21,57 +19,47 @@ export async function GET() {
       totalConversations,
       totalMessages,
     ] = await Promise.all([
-      // Total students
       prisma.student.count(),
-      
-      // Active students
       prisma.student.count({
-        where: {
-          user: { status: UserStatus.ACTIVE },
-        },
+        where: { user: { status: UserStatus.ACTIVE } },
       }),
-      
-      // Suspended students
       prisma.student.count({
-        where: {
-          user: { status: UserStatus.SUSPENDED },
-        },
+        where: { user: { status: UserStatus.SUSPENDED } },
       }),
-      
-      // Deletion requested students
       prisma.student.count({
-        where: {
-          user: { status: UserStatus.DELETION_REQUESTED },
-        },
+        where: { user: { status: UserStatus.DELETION_REQUESTED } },
       }),
-      
-      // Total conversations
       prisma.conversation.count(),
-      
-      // Total messages
       prisma.message.count(),
     ])
 
-    return NextResponse.json({
-      totalStudents,
-      activeStudents,
-      suspendedStudents,
-      deletionRequestedStudents,
-      totalConversations,
-      totalMessages,
-    })
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Stats fetched",
+        data: {
+          totalStudents,
+          activeStudents,
+          suspendedStudents,
+          deletionRequestedStudents,
+          totalConversations,
+          totalMessages,
+        },
+      },
+      { status: 200 }
+    )
   } catch (error: any) {
     logger.error("Admin stats error:", error)
 
     if (error.message === "Unauthorized" || error.message === "Forbidden") {
       return NextResponse.json(
-        { error: error.message },
+        { success: false, message: error.message },
         { status: error.message === "Unauthorized" ? 401 : 403 }
       )
     }
 
     return NextResponse.json(
-      { error: "Failed to fetch statistics" },
+      { success: false, message: "Failed to fetch statistics" },
       { status: 500 }
     )
   }

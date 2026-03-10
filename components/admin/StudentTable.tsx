@@ -8,12 +8,14 @@ import {
   ChevronLeft, 
   ChevronRight,
   User,
+  Eye,
   MoreVertical,
   Users,
   Loader2
 } from "lucide-react"
 import { useStudents, type StudentListItem, type StudentFilters } from "@/hooks/admin"
 import { StudentActions } from "./StudentActions"
+import { StudentProfileModal } from "./StudentProfileModal"
 
 const STATUS_COLORS = {
   ACTIVE: "bg-emerald-100 text-emerald-700 border-emerald-200",
@@ -35,6 +37,7 @@ export function StudentTable() {
     search: "",
   })
   const [selectedStudent, setSelectedStudent] = useState<StudentListItem | null>(null)
+  const [viewingStudent, setViewingStudent] = useState<StudentListItem | null>(null)
 
   const { data, isLoading, isError, error } = useStudents(filters)
 
@@ -195,12 +198,22 @@ export function StudentTable() {
                     })}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-right">
-                    <button
-                      onClick={() => setSelectedStudent(student)}
-                      className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
-                    >
-                      <MoreVertical className="h-5 w-5" />
-                    </button>
+                    <div className="flex items-center justify-end gap-1">
+                      <button
+                        onClick={() => setViewingStudent(student)}
+                        title="View Profile"
+                        className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-indigo-50 hover:text-indigo-600"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => setSelectedStudent(student)}
+                        title="Actions"
+                        className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+                      >
+                        <MoreVertical className="h-5 w-5" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -258,6 +271,14 @@ export function StudentTable() {
         <StudentActions
           student={selectedStudent}
           onClose={() => setSelectedStudent(null)}
+        />
+      )}
+
+      {/* Profile View Modal */}
+      {viewingStudent && (
+        <StudentProfileModal
+          student={viewingStudent}
+          onClose={() => setViewingStudent(null)}
         />
       )}
     </div>

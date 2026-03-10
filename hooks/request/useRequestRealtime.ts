@@ -19,7 +19,7 @@
 
 import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
+import { getSupabaseClient } from "@/lib/supabaseClient";
 import { messageRequestKeys } from "./useMessageRequests";
 import { partnerRequestKeys, groupKeys } from "./usePartnerRequests";
 
@@ -36,7 +36,7 @@ export function useRequestRealtime({
 }: UseRequestRealtimeOptions) {
   const queryClient = useQueryClient();
   const channelRef = useRef<ReturnType<
-    ReturnType<typeof createSupabaseBrowserClient>["channel"]
+    ReturnType<typeof getSupabaseClient>["channel"]
   > | null>(null);
 
   useEffect(() => {
@@ -45,7 +45,7 @@ export function useRequestRealtime({
       return;
     }
 
-    const supabase = createSupabaseBrowserClient();
+    const supabase = getSupabaseClient();
 
     // Create a channel for Request table changes
     const channel = supabase
@@ -58,7 +58,7 @@ export function useRequestRealtime({
           table: "Request",
           // We could filter by column, but it's simpler to check in handler
         },
-        (payload) => {
+        (payload: any) => {
           // Get the request data
           const request = payload.new as {
             id: string;

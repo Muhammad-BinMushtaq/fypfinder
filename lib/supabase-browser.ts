@@ -1,9 +1,6 @@
 // lib/supabase-browser.ts
-import { createBrowserClient } from '@supabase/ssr'
+// @deprecated — This file is kept only for backward compatibility.
+// All browser-side Supabase usage should import from "@/lib/supabaseClient" instead.
+// This re-exports the singleton client to avoid breaking any remaining references.
 
-export function createSupabaseBrowserClient() {
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
-}
+export { getSupabaseClient as createSupabaseBrowserClient } from './supabaseClient'

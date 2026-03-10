@@ -3,7 +3,7 @@ import { NextResponse } from "next/server"
 import { requireRole } from "@/lib/auth"
 import { UserRole } from "@/lib/generated/prisma/enums"
 import prisma from "@/lib/db"
-import { getRecievedPartnerRequests } from "@/modules/request/request.service"
+import { getReceivedPartnerRequests } from "@/modules/request/request.service"
 
 export async function GET() {
     try {
@@ -23,19 +23,19 @@ export async function GET() {
             )
         }
 
-        // 📤 Fetch sent message requests
-        const requests = await getRecievedPartnerRequests(student.id)
+        // 📤 Fetch received partner requests
+        const requests = await getReceivedPartnerRequests(student.id)
 
         return NextResponse.json(
             {
                 success: true,
-                message: "Recieved partner requests fetched",
+                message: "Received partner requests fetched",
                 data: requests,
             },
             { status: 200 }
         )
     } catch (error: any) {
-        logger.error("Get recieved partner requests error:", error)
+        logger.error("Get received partner requests error:", error)
 
         return NextResponse.json(
             {

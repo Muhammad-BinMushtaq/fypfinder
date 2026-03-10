@@ -6,10 +6,10 @@ async function fetchUnreadCount(): Promise<number> {
   const data = await response.json()
 
   if (!response.ok) {
-    throw new Error(data.error || "Failed to fetch unread count")
+    throw new Error(data.message || "Failed to fetch unread count")
   }
 
-  return data.unreadCount
+  return data.data?.unreadCount ?? 0
 }
 
 export function useUnreadCount() {

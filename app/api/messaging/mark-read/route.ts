@@ -8,7 +8,6 @@ import logger from "@/lib/logger"
 
 export async function POST(request: NextRequest) {
   try {
-    // 🔐 Auth
     const user = await requireRole(UserRole.STUDENT)
 
     const body = await request.json()
@@ -16,28 +15,36 @@ export async function POST(request: NextRequest) {
 
     if (!conversationId) {
       return NextResponse.json(
-        { error: "conversationId is required" },
+        { success: false, message: "conversationId is required" },
         { status: 400 }
       )
     }
 
-    // Get student ID from user ID
     const student = await prisma.student.findUnique({
       where: { userId: user.id },
       select: { id: true },
     })
 
     if (!student) {
-      return NextResponse.json({ error: "Student profile not found" }, { status: 404 })
+      return NextResponse.json(
+        { success: false, message: "Student profile not found" },
+        { status: 404 }
+      )
     }
 
     const result = await markMessagesAsRead(conversationId, student.id)
 
-    return NextResponse.json(result)
+    return NextResponse.json(
+      { success: true, message: "Messages marked as read", data: result },
+      { status: 200 }
+    )
   } catch (error) {
     logger.error("Mark read error:", error)
     const errorMessage = error instanceof Error ? error.message : "Failed to mark messages as read"
-    return NextResponse.json({ error: errorMessage }, { status: 500 })
+    return NextResponse.json(
+      { success: false, message: errorMessage },
+      { status: 500 }
+    )
   }
 }
 

@@ -29,10 +29,10 @@ async function startConversation(
   const data = await response.json()
 
   if (!response.ok) {
-    throw new Error(data.error || "Failed to start conversation")
+    throw new Error(data.message || "Failed to start conversation")
   }
 
-  return data
+  return data.data
 }
 
 export function useStartConversation() {

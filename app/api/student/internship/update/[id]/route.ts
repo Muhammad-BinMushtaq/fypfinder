@@ -3,58 +3,20 @@
 
 import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
-import prisma from "@/lib/db"
 import { requireRole } from "@/lib/auth"
 import { UserRole } from "@/lib/generated/prisma/enums"
+import { updateInternship } from "@/modules/student/student.service"
 
 export async function PATCH(
     req: Request,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        // 🔐 Auth + Role
         const user = await requireRole(UserRole.STUDENT)
 
         const { id } = await params
         const body = await req.json()
         const { companyName, position, duration, description, certificateLink } = body
-
-        // Get student
-        const student = await prisma.student.findUnique({
-            where: { userId: user.id },
-        })
-
-        if (!student) {
-            return NextResponse.json(
-                { success: false, message: "Student profile not found" },
-                { status: 404 }
-            )
-        }
-
-        // Check if internship exists and belongs to student
-        const existingInternship = await prisma.internship.findUnique({
-            where: { id },
-        })
-
-        if (!existingInternship) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "Internship not found",
-                },
-                { status: 404 }
-            )
-        }
-
-        if (existingInternship.studentId !== student.id) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "You can only update your own internships",
-                },
-                { status: 403 }
-            )
-        }
 
         // Validate certificate URL if provided
         if (certificateLink) {
@@ -62,44 +24,35 @@ export async function PATCH(
                 new URL(certificateLink)
             } catch {
                 return NextResponse.json(
-                    {
-                        success: false,
-                        message: "Invalid certificate URL format",
-                    },
+                    { success: false, message: "Invalid certificate URL format" },
                     { status: 400 }
                 )
             }
         }
 
-        // Update internship
-        const internship = await prisma.internship.update({
-            where: { id },
-            data: {
-                ...(companyName !== undefined && { companyName: companyName.trim() }),
-                ...(position !== undefined && { position: position.trim() }),
-                ...(duration !== undefined && { duration: duration.trim() }),
-                ...(description !== undefined && { description: description?.trim() || null }),
-                ...(certificateLink !== undefined && { certificateLink: certificateLink?.trim() || null }),
-            },
+        const internship = await updateInternship(user.id, id, {
+            companyName,
+            position,
+            duration,
+            description: description !== undefined ? description : undefined,
+            certificateLink: certificateLink !== undefined ? certificateLink : undefined,
         })
 
         return NextResponse.json(
-            {
-                success: true,
-                message: "Internship updated successfully",
-                data: internship,
-            },
+            { success: true, message: "Internship updated successfully", data: internship },
             { status: 200 }
         )
     } catch (error: any) {
         logger.error("Update internship error:", error)
 
+        const status = error.message === "Student profile not found" ? 404
+            : error.message === "Internship not found" ? 404
+            : error.message === "You can only update your own internships" ? 403
+            : 500
+
         return NextResponse.json(
-            {
-                success: false,
-                message: "Failed to update internship",
-            },
-            { status: 500 }
+            { success: false, message: error.message || "Failed to update internship" },
+            { status }
         )
     }
 }
