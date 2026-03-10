@@ -417,3 +417,72 @@ export async function getAdminReports(period: "week" | "month" = "week"): Promis
 
   return data.data
 }
+
+// ============ EMAIL NOTIFICATIONS ============
+
+export interface EmailFilters {
+  noSkills: boolean
+  noProjects: boolean
+  noInternships: boolean
+  noHobbies: boolean
+  noPhone: boolean
+  noInterests: boolean
+  noCareerGoal: boolean
+  noPreferredTechStack: boolean
+  noLinkedinUrl: boolean
+  noGithubUrl: boolean
+  selectAll: boolean
+  studentIds?: string[]
+  limit?: number
+}
+
+export interface EmailPreviewStudent {
+  id: string
+  name: string
+  email: string
+  missingSections: string[]
+}
+
+export interface EmailPreviewResponse {
+  total: number
+  students: EmailPreviewStudent[]
+}
+
+export interface EmailSendResult {
+  totalTargeted: number
+  totalSent: number
+  totalFailed: number
+  errors: string[]
+}
+
+export async function previewEmailRecipients(filters: EmailFilters): Promise<EmailPreviewResponse> {
+  const response = await fetch("/api/admin/email/preview", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(filters),
+  })
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to preview recipients")
+  }
+
+  return data.data
+}
+
+export async function sendEmails(filters: EmailFilters): Promise<EmailSendResult> {
+  const response = await fetch("/api/admin/email/send", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(filters),
+  })
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to send emails")
+  }
+
+  return data.data
+}

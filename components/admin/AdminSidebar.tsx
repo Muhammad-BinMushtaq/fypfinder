@@ -12,7 +12,8 @@ import {
   Shield,
   ChevronRight,
   Settings,
-  X
+  X,
+  Mail,
 } from "lucide-react"
 import { useAdminSession } from "@/hooks/admin"
 
@@ -40,6 +41,12 @@ const navItems = [
     href: "/admin/reports",
     icon: BarChart3,
     description: "Weekly & monthly stats",
+  },
+  {
+    label: "Emails",
+    href: "/admin/emails",
+    icon: Mail,
+    description: "Send notifications",
   },
 ]
 
