@@ -2,8 +2,13 @@
 /**
  * Email Templates
  * ---------------
- * Dynamic, personalized HTML email templates for profile completion reminders.
- * Each template adapts based on which profile sections are missing.
+ * Single HTML template with {{placeholders}} for Maileroo bulk sending.
+ * Dynamic data is provided per-student via template_data.
+ *
+ * Placeholders used:
+ *   {{name}}          – student's first name
+ *   {{missing_count}} – number of missing sections
+ *   {{missing_list}}  – HTML <li> items for each missing section
  */
 
 export type MissingSection =
@@ -17,11 +22,6 @@ export type MissingSection =
   | "preferredTechStack"
   | "linkedinUrl"
   | "githubUrl"
-
-interface EmailTemplateParams {
-  studentName: string
-  missingSections: MissingSection[]
-}
 
 // Human-readable labels for each section
 const SECTION_LABELS: Record<MissingSection, string> = {
@@ -37,81 +37,18 @@ const SECTION_LABELS: Record<MissingSection, string> = {
   githubUrl: "GitHub Profile",
 }
 
-// Focused messages when a specific section is the primary missing item
-const SECTION_MESSAGES: Record<MissingSection, string> = {
-  skills:
-    "Adding your skills helps potential FYP partners understand your strengths. Whether it's React, Python, Machine Learning, or UI Design — listing your skills makes it much easier for the right teammates to find you.",
-  projects:
-    "Showcasing your projects demonstrates what you've built and what you're capable of. Even small personal or academic projects can make a great impression on potential FYP partners.",
-  internships:
-    "Sharing your internship experience highlights your real-world exposure. It tells others that you have hands-on experience and are ready for meaningful collaboration.",
-  hobbies:
-    "Adding your hobbies helps others connect with you beyond academics. It's a great way to find teammates who share similar interests and working styles.",
-  phone:
-    "Adding your phone number makes it easier for teammates and admins to reach you quickly when needed.",
-  interests:
-    "Sharing your interests helps our matching algorithm connect you with like-minded FYP partners who share your passion areas.",
-  careerGoal:
-    "Defining your career goal helps you find FYP partners aligned with your long-term aspirations — whether that's AI research, startup building, or software engineering.",
-  preferredTechStack:
-    "Telling us your preferred tech stack helps match you with partners who complement your technical preferences for your FYP project.",
-  linkedinUrl:
-    "Adding your LinkedIn profile lets potential partners and mentors learn more about your professional background.",
-  githubUrl:
-    "Linking your GitHub profile showcases your coding activity and open-source contributions to potential FYP partners.",
-}
-
 /**
- * Build the HTML email body for a profile completion reminder.
+ * Returns the static email subject and HTML template (with {{placeholders}}).
+ * Called ONCE per batch — not per student.
  */
-export function buildProfileReminderEmail({ studentName, missingSections }: EmailTemplateParams): {
-  subject: string
-  html: string
-} {
-  const firstName = studentName.split(" ")[0] || studentName
+export function getProfileReminderTemplate(): { subject: string; html: string } {
+  const profileUrl = process.env.NEXT_PUBLIC_APP_URL
+    ? `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/profile`
+    : "https://fypfinder.com/dashboard/profile"
 
-  // Determine the primary focus of the email
-  const primarySection = missingSections[0]
-  const otherSections = missingSections.slice(1)
+  const subject = "Complete Your FYP Finder Profile"
 
-  // Build subject line
-  let subject: string
-  if (missingSections.length === 1 && primarySection) {
-    subject = `Complete your ${SECTION_LABELS[primarySection]} on FYP Finder`
-  } else if (missingSections.length <= 3) {
-    subject = `Your FYP Finder profile is almost complete!`
-  } else {
-    subject = `Complete your FYP Finder profile to find better partners`
-  }
-
-  // Build the primary message paragraph
-  const primaryMessage = primarySection
-    ? SECTION_MESSAGES[primarySection]
-    : "Completing your profile helps potential FYP partners find and connect with you."
-
-  // Build the missing sections list
-  const missingListItems = missingSections
-    .map(
-      (s) =>
-        `<li style="padding: 6px 0; color: #475569;">${SECTION_LABELS[s]}</li>`
-    )
-    .join("")
-
-  // Build the additional context paragraph
-  let additionalContext = ""
-  if (otherSections.length > 0) {
-    additionalContext = `
-      <p style="color: #475569; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0;">
-        We also noticed that the following sections of your profile are still incomplete:
-      </p>
-      <ul style="margin: 0 0 24px 0; padding-left: 20px; color: #475569;">
-        ${otherSections.map((s) => `<li style="padding: 4px 0;">${SECTION_LABELS[s]}</li>`).join("")}
-      </ul>
-    `
-  }
-
-  const html = `
-<!DOCTYPE html>
+  const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -122,7 +59,7 @@ export function buildProfileReminderEmail({ studentName, missingSections }: Emai
     <tr>
       <td align="center">
         <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.07);">
-          
+
           <!-- Header -->
           <tr>
             <td style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); padding: 32px 40px; text-align: center;">
@@ -139,38 +76,37 @@ export function buildProfileReminderEmail({ studentName, missingSections }: Emai
           <tr>
             <td style="padding: 40px;">
               <h2 style="margin: 0 0 8px 0; color: #1e293b; font-size: 20px; font-weight: 600;">
-                Hi ${firstName},
+                Hi {{name}},
               </h2>
               <p style="color: #64748b; font-size: 14px; margin: 0 0 24px 0;">
                 We hope you're making great progress on your academic journey!
               </p>
 
-              <!-- Primary message -->
               <p style="color: #334155; font-size: 15px; line-height: 1.7; margin: 0 0 24px 0;">
-                ${primaryMessage}
+                We noticed that <strong>{{missing_count}}</strong> section(s) of your FYP Finder profile are still incomplete.
+                Completing your profile helps potential FYP partners find and connect with you more easily.
               </p>
 
-              ${additionalContext}
-
-              <!-- Missing sections summary box -->
+              <!-- Missing sections box -->
               <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px 24px; margin: 0 0 28px 0;">
                 <p style="margin: 0 0 12px 0; color: #1e293b; font-size: 14px; font-weight: 600;">
                   📋 Sections to complete:
                 </p>
                 <ul style="margin: 0; padding-left: 18px; list-style-type: disc;">
-                  ${missingListItems}
+                  {{missing_list}}
                 </ul>
               </div>
 
               <p style="color: #475569; font-size: 15px; line-height: 1.6; margin: 0 0 28px 0;">
-                A complete profile significantly increases your chances of being matched with the right FYP partner. Students with complete profiles receive <strong>3× more partner requests</strong> on average.
+                A complete profile significantly increases your chances of being matched with the right FYP partner.
+                Students with complete profiles receive <strong>3× more partner requests</strong> on average.
               </p>
 
               <!-- CTA Button -->
               <table role="presentation" cellspacing="0" cellpadding="0" style="margin: 0 auto;">
                 <tr>
                   <td style="border-radius: 12px; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);">
-                    <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://fypfinder.com"}/dashboard/profile"
+                    <a href="${profileUrl}"
                        style="display: inline-block; padding: 14px 36px; color: #ffffff; font-size: 15px; font-weight: 600; text-decoration: none; border-radius: 12px;">
                       Complete My Profile →
                     </a>
@@ -197,8 +133,27 @@ export function buildProfileReminderEmail({ studentName, missingSections }: Emai
     </tr>
   </table>
 </body>
-</html>
-`.trim()
+</html>`
 
   return { subject, html }
+}
+
+/**
+ * Build Maileroo template_data for a single student.
+ * Called once per student in the batch.
+ */
+export function buildTemplateData(
+  studentName: string,
+  missingSections: MissingSection[]
+): Record<string, string> {
+  const firstName = studentName.split(" ")[0] || studentName
+  const labels = missingSections.map((s) => SECTION_LABELS[s])
+
+  return {
+    name: firstName,
+    missing_count: String(missingSections.length),
+    missing_list: labels
+      .map((l) => `<li style="padding: 6px 0; color: #475569;">${l}</li>`)
+      .join(""),
+  }
 }

@@ -1,32 +1,32 @@
 // lib/email.ts
 /**
- * Email Client (Resend)
- * ---------------------
- * Lazy-initialized Resend instance for the entire app.
- * Set RESEND_API_KEY in .env to enable email sending.
+ * Email Client (Maileroo)
+ * -----------------------
+ * Lazy-initialized Maileroo client for the entire app.
+ * Set MAILEROO_API_KEY in .env to enable email sending.
  */
 
-import { Resend } from "resend"
+import { MailerooClient } from "maileroo-sdk"
 
-let _resend: Resend | null = null
+let _client: MailerooClient | null = null
 
 /**
- * Get the Resend client. Throws a clear error if the API key is missing.
+ * Get the Maileroo client. Throws a clear error if the API key is missing.
  * Lazy init avoids build-time crashes when the key isn't set.
  */
-export function getResend(): Resend {
-  if (!_resend) {
-    const apiKey = process.env.RESEND_API_KEY
+export function getMaileroo(): MailerooClient {
+  if (!_client) {
+    const apiKey = process.env.MAILEROO_API_KEY
     if (!apiKey) {
-      throw new Error("RESEND_API_KEY environment variable is not set. Email sending is disabled.")
+      throw new Error("MAILEROO_API_KEY environment variable is not set. Email sending is disabled.")
     }
-    _resend = new Resend(apiKey)
+    _client = new MailerooClient(apiKey)
   }
-  return _resend
+  return _client
 }
 
-/**
- * The default "from" address for all outgoing emails.
- * Update domain after verifying it in Resend dashboard.
- */
-export const EMAIL_FROM = process.env.EMAIL_FROM || "FYP Finder <onboarding@resend.dev>"
+/** Default sender email address. */
+export const EMAIL_FROM_ADDRESS = process.env.EMAIL_FROM_ADDRESS || "onboarding@maileroo.com"
+
+/** Default sender display name. */
+export const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME || "FYP Finder"

@@ -3,13 +3,15 @@
  * Admin Email Service
  * --------------------
  * Server-side logic for querying students by profile completeness
- * and sending batch emails via Resend. Single optimized query per operation.
+ * and sending bulk emails via Maileroo. Single optimized query per operation.
  */
 
 import prisma from "@/lib/db"
-import { getResend, EMAIL_FROM } from "@/lib/email"
+import { getMaileroo, EMAIL_FROM_ADDRESS, EMAIL_FROM_NAME } from "@/lib/email"
+import { EmailAddress } from "maileroo-sdk"
 import {
-  buildProfileReminderEmail,
+  getProfileReminderTemplate,
+  buildTemplateData,
   type MissingSection,
 } from "@/lib/email-templates"
 
@@ -152,7 +154,8 @@ export async function getStudentsForEmail(
 
 /**
  * Send personalized profile-completion emails to targeted students.
- * Sends in batches of 50 to stay within Resend rate limits.
+ * Uses Maileroo bulk API — one template with per-student template_data.
+ * Sends in batches of 50 to stay within rate limits.
  */
 export async function sendProfileEmails(
   students: EmailPreviewStudent[]
@@ -166,37 +169,33 @@ export async function sendProfileEmails(
 
   if (students.length === 0) return result
 
+  // Get the template once — same subject & HTML for all students
+  const { subject, html } = getProfileReminderTemplate()
+  const fromAddress = new EmailAddress(EMAIL_FROM_ADDRESS, EMAIL_FROM_NAME)
+
   // Process in batches of 50
   const BATCH_SIZE = 50
   for (let i = 0; i < students.length; i += BATCH_SIZE) {
     const batch = students.slice(i, i + BATCH_SIZE)
 
-    const emails = batch.map((student) => {
-      const { subject, html } = buildProfileReminderEmail({
-        studentName: student.name,
-        missingSections: student.missingSections,
-      })
-
-      return {
-        from: EMAIL_FROM,
-        to: student.email,
-        subject,
-        html,
-      }
-    })
+    const messages = batch.map((student) => ({
+      from: fromAddress,
+      to: new EmailAddress(student.email, student.name),
+      template_data: buildTemplateData(student.name, student.missingSections),
+    }))
 
     try {
-      const response = await getResend().batch.send(emails)
+      await getMaileroo().sendBulkEmails({
+        subject,
+        html,
+        tracking: false,
+        messages,
+      })
 
-      if (response.error) {
-        result.totalFailed += batch.length
-        result.errors.push(response.error.message || "Batch send failed")
-      } else {
-        result.totalSent += batch.length
-      }
+      result.totalSent += batch.length
     } catch (err: any) {
       result.totalFailed += batch.length
-      result.errors.push(err.message || "Unknown batch send error")
+      result.errors.push(err.message || "Unknown bulk send error")
     }
 
     // Rate-limit pause between batches (1 second)
