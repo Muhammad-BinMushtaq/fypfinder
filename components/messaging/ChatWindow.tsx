@@ -9,6 +9,7 @@ import { MessageList } from "./MessageList"
 import { ChatInput } from "./ChatInput"
 import { useMessages, type Message } from "@/hooks/messaging/useMessages"
 import { useSendMessage } from "@/hooks/messaging/useSendMessage"
+import { useEditMessage } from "@/hooks/messaging/useEditMessage"
 import { getSupabaseClient } from "@/lib/supabaseClient"
 import clientLogger from "@/lib/client-logger"
 
@@ -57,6 +58,7 @@ export function ChatWindow({
 
   const { messages, isLoading, isError, error, refetch } = useMessages(conversationId)
   const { sendMessage, isPending } = useSendMessage()
+  const { editMessage } = useEditMessage()
 
   // Always-on polling as the primary message update mechanism
   // This ensures messages update even if Supabase Realtime isn't working
@@ -178,6 +180,14 @@ export function ChatWindow({
     })
   }
 
+  const handleEditMessage = (messageId: string, newContent: string) => {
+    editMessage({
+      messageId,
+      conversationId,
+      content: newContent,
+    })
+  }
+
   if (isError) {
     return (
       <div className="h-full flex items-center justify-center">
@@ -274,6 +284,7 @@ export function ChatWindow({
         messages={messages}
         currentStudentId={currentStudent.id}
         isLoading={isLoading}
+        onEditMessage={handleEditMessage}
       />
       <ChatInput onSend={handleSendMessage} isPending={isPending} />
     </div>

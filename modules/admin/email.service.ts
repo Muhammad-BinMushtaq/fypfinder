@@ -185,11 +185,30 @@ export async function sendProfileEmails(
     }))
 
     try {
+      // await getMaileroo().sendBulkEmails({
+      //   subject,
+      //   html,
+      //   tracking: true,
+      //   messages,
+      // })
+
       await getMaileroo().sendBulkEmails({
-        subject,
-        html,
-        tracking: false,
-        messages,
+        subject: "complete your profile",
+        html: "<h1>Hello {{name}}!</h1><p>Here's your newsletter.</p>",
+        tracking: true,
+        messages: [
+          {
+            from: new EmailAddress("fyp-partnerfinder@b449c30a8bbae4db.maileroo.org", "fyp partner finder"),
+            to: new EmailAddress("shamsimema@gmail.com", "shamsi "),
+            template_data: { name: "shmasi" }
+          },
+          {
+            from: new EmailAddress("fyp-partnerfinder@b449c30a8bbae4db.maileroo.org", "fyp partner finder"),
+            to: new EmailAddress("muhammadcode3@gmail.com", "coder "),
+            template_data: { name: "coder" }
+          },
+
+        ]
       })
 
       result.totalSent += batch.length

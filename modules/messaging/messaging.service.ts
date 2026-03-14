@@ -393,3 +393,57 @@ export async function getTotalUnreadCount(studentId: string) {
 
   return unreadCount
 }
+
+/** Maximum time (ms) after sending during which a message can be edited. */
+const EDIT_WINDOW_MS = 15 * 60 * 1000 // 15 minutes
+
+/**
+ * Edit a message's content.
+ * Only the sender can edit, and only within 15 minutes of creation.
+ */
+export async function editMessage(
+  messageId: string,
+  senderId: string,
+  newContent: string
+) {
+  if (!newContent || newContent.trim().length === 0) {
+    throw new Error("Message content cannot be empty")
+  }
+
+  if (newContent.length > 1000) {
+    throw new Error("Message content cannot exceed 1000 characters")
+  }
+
+  const message = await prisma.message.findUnique({
+    where: { id: messageId },
+    select: { senderId: true, createdAt: true },
+  })
+
+  if (!message) {
+    throw new Error("Message not found")
+  }
+
+  if (message.senderId !== senderId) {
+    throw new Error("You can only edit your own messages")
+  }
+
+  const elapsed = Date.now() - new Date(message.createdAt).getTime()
+  if (elapsed > EDIT_WINDOW_MS) {
+    throw new Error("Messages can only be edited within 15 minutes of sending")
+  }
+
+  const updated = await prisma.message.update({
+    where: { id: messageId },
+    data: {
+      content: newContent.trim(),
+      isEdited: true,
+    },
+    include: {
+      sender: {
+        select: { id: true, name: true, profilePicture: true },
+      },
+    },
+  })
+
+  return updated
+}

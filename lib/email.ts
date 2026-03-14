@@ -26,7 +26,7 @@ export function getMaileroo(): MailerooClient {
 }
 
 /** Default sender email address. */
-export const EMAIL_FROM_ADDRESS = process.env.EMAIL_FROM_ADDRESS || "onboarding@maileroo.com"
+export const EMAIL_FROM_ADDRESS = process.env.EMAIL_FROM_ADDRESS || "shamsimema@gmail.com"
 
 /** Default sender display name. */
 export const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME || "FYP Finder"

@@ -247,6 +247,7 @@ model Message {
   senderId       String
   content        String       @db.Text
   isRead         Boolean      @default(false)
+  isEdited       Boolean      @default(false)
   createdAt      DateTime     @default(now())
 
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)

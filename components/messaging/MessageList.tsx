@@ -9,12 +9,14 @@ interface MessageListProps {
   messages: Message[]
   currentStudentId: string
   isLoading: boolean
+  onEditMessage?: (messageId: string, newContent: string) => void
 }
 
 export function MessageList({
   messages,
   currentStudentId,
   isLoading,
+  onEditMessage,
 }: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -113,6 +115,7 @@ export function MessageList({
           key={message.id || `msg-${index}`}
           message={message}
           isOwn={message.senderId === currentStudentId}
+          onEdit={onEditMessage}
         />
       ))}
       <div ref={bottomRef} />

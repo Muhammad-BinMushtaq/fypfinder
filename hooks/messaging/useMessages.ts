@@ -14,6 +14,7 @@ export interface Message {
   senderId: string
   content: string
   isRead: boolean
+  isEdited?: boolean
   createdAt: string
   sender: MessageSender
   isOptimistic?: boolean // For optimistic updates
@@ -122,6 +123,13 @@ export function useMessages(conversationId: string | null) {
     )
   }
 
+  const updateMessageInCache = (messageId: string, updatedMessage: Message) => {
+    queryClient.setQueryData<Message[]>(
+      queryKey,
+      (old = []) => old.map(m => (m.id === messageId ? updatedMessage : m))
+    )
+  }
+
   return {
     messages: query.data || [],
     isLoading: query.isLoading,
@@ -132,5 +140,6 @@ export function useMessages(conversationId: string | null) {
     addMessageToCache,
     replaceOptimisticMessage,
     removeOptimisticMessage,
+    updateMessageInCache,
   }
 }

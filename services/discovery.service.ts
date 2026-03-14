@@ -20,14 +20,16 @@ export interface MatchedStudent {
   semester: number;
   profilePicture: string | null;
   skills: string[];
-  // New fields
   interests: string | null;
   linkedinUrl: string | null;
   githubUrl: string | null;
-  matchScore: number; // 0-100 percentage
+  profileCompletion: number; // 0-100 percentage
   isGroupLocked: boolean; // If student's group is locked
   availability: "AVAILABLE" | "BUSY" | "AWAY"; // Student's availability status
   projectCount: number; // Number of projects for matching
+  industryPreference: string | null;
+  hobbies: string | null;
+  projectNames: string[];
 }
 
 export interface DiscoveryPagination {
