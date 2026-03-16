@@ -49,6 +49,19 @@ enum RequestStatus {
   REJECTED
 }
 
+enum ValidationStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum ValidationRecommendation {
+  STRONGLY_RECOMMENDED
+  RECOMMENDED_WITH_CHANGES
+  NEEDS_MAJOR_REVISION
+  NOT_RECOMMENDED
+}
+
 // =====================
 // 2️⃣ User (Authentication Only)
 // =====================
@@ -107,6 +120,9 @@ model Student {
   
   // Internship experiences
   internships    Internship[]
+
+  // FYP Idea Validations
+  ideaValidations FYPIdeaValidation[]
 }
 
 // =====================
@@ -278,7 +294,37 @@ model PushSubscription {
 }
 
 // =====================
-// 14️⃣ Internship (Student Experience)
+// 14️⃣ FYP Idea Validation
+// =====================
+
+model FYPIdeaValidation {
+  id               String                   @id @default(uuid())
+  studentId        String
+  title            String
+  problemStatement String                   @db.Text
+  ideaDescription  String                   @db.Text
+  coreFeatures     String                   @db.Text
+  teamSize         Int?
+  inputHash        String                   // SHA-256 of normalized inputs for cache dedup
+  panelEvaluation  Json?                    // Raw Call 1 output (5 evaluator roles)
+  finalResult      Json?                    // Raw Call 2 output (synthesized result)
+  feasibilityScore Int?
+  innovationScore  Int?
+  recommendation   ValidationRecommendation?
+  status           ValidationStatus         @default(PENDING)
+  tokensUsed       Int                      @default(0)
+  errorMessage     String?
+  createdAt        DateTime                 @default(now())
+
+  student          Student                  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([inputHash])
+  @@index([createdAt])
+}
+
+// =====================
+// 15️⃣ Internship (Student Experience)
 // =====================
 
 model Internship {

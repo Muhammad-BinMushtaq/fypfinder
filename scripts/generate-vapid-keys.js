@@ -19,4 +19,4 @@ console.log('# Web Push VAPID Keys');
 console.log(`VAPID_PUBLIC_KEY=${vapidKeys.publicKey}`);
 console.log(`VAPID_PRIVATE_KEY=${vapidKeys.privateKey}`);
 console.log('VAPID_SUBJECT=mailto:support@fypfinder.com');
-console.log('\n⚠️  Keep VAPID_PRIVATE_KEY secret! Never expose it in client code.\n');
+console.log('\n⚠️ Keep VAPID_PRIVATE_KEY secret! Never expose it in client code.\n');

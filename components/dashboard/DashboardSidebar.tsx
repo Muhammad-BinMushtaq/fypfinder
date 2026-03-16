@@ -16,6 +16,7 @@ import {
   LogOut,
   ChevronDown,
   GraduationCap,
+  Sparkles,
 } from "lucide-react";
 
 interface NavItem {
@@ -58,6 +59,12 @@ const navItems: NavItem[] = [
     label: "FYP Ideas",
     href: "/dashboard/fyp-ideas",
     icon: <BookOpen className="w-5 h-5" />,
+  },
+  {
+    label: "Idea Validator",
+    href: "/dashboard/fyp-ideas/validate",
+    icon: <Sparkles className="w-5 h-5" />,
+    badge: "AI",
   },
   {
     label: "Settings",
