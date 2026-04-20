@@ -33,6 +33,7 @@ export interface PanelEvaluation {
   }
   technicalEvaluator: {
     feasibilityScore: number
+    feasibilityReasoning: string
     difficultyLevel: "beginner" | "intermediate" | "advanced"
     requiredSkills: string[]
     estimatedWeeks: number
@@ -41,6 +42,7 @@ export interface PanelEvaluation {
   }
   industryEvaluator: {
     industryRelevanceScore: number
+    industryRelevanceReasoning: string
     trendAlignment: "outdated" | "current" | "emerging"
     realWorldApplicability: "low" | "medium" | "high"
     similarExistingProducts: string[]
@@ -48,7 +50,9 @@ export interface PanelEvaluation {
   }
   academicEvaluator: {
     fypSuitabilityScore: number
+    fypSuitabilityReasoning: string
     innovationScore: number
+    innovationReasoning: string
     researchDepth: "shallow" | "moderate" | "deep"
     academicStrengths: string[]
     academicWeaknesses: string[]
@@ -64,15 +68,21 @@ export interface PanelEvaluation {
 
 export interface SynthesizerResult {
   feasibilityScore: number
+  feasibilityReasoning: string
   innovationScore: number
+  innovationReasoning: string
   difficultyLevel: "beginner" | "intermediate" | "advanced"
   industryRelevanceScore: number
+  industryRelevanceReasoning: string
   requiredSkills: string[]
   riskFactors: string[]
   technologySuggestions: string[]
+  technologyJustification: string
   implementationRoadmap: RoadmapPhase[]
   teamSizeSuitability: string
   projectScopeRealism: "realistic" | "ambitious" | "unrealistic"
+  scopeRecommendation: string
+  improvementSuggestions: string[]
   summaryEvaluation: string
   finalRecommendation:
     | "Strongly Recommended"
@@ -83,13 +93,16 @@ export interface SynthesizerResult {
 
 export interface ValidationResult {
   id: string
-  status: "completed" | "failed"
+  status: "pending" | "completed" | "failed"
   feasibilityScore: number | null
   innovationScore: number | null
+  industryRelevanceScore: number | null
   recommendation: string | null
   panelEvaluation: PanelEvaluation | null
   finalResult: SynthesizerResult | null
   tokensUsed: number
+  modelUsed: string | null
+  latencyMs: number | null
   createdAt: string
 }
 

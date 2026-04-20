@@ -12,7 +12,15 @@ export async function POST(request: NextRequest) {
   try {
     const user = await requireRole(UserRole.STUDENT)
 
-    const body = await request.json()
+    let body: unknown
+    try {
+      body = await request.json()
+    } catch {
+      return NextResponse.json(
+        { success: false, message: "Request body must be valid JSON" },
+        { status: 400 }
+      )
+    }
 
     // Validate input with Zod
     const parsed = ideaInputSchema.safeParse(body)
@@ -71,6 +79,27 @@ export async function POST(request: NextRequest) {
           message: "AI validation service is not configured",
         },
         { status: 503 }
+      )
+    }
+
+    if (errorMessage.includes("Unauthorized")) {
+      return NextResponse.json(
+        { success: false, message: errorMessage },
+        { status: 401 }
+      )
+    }
+
+    if (errorMessage.includes("Account suspended")) {
+      return NextResponse.json(
+        { success: false, message: errorMessage },
+        { status: 403 }
+      )
+    }
+
+    if (errorMessage.includes("Student profile not found")) {
+      return NextResponse.json(
+        { success: false, message: errorMessage },
+        { status: 404 }
       )
     }
 

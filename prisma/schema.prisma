@@ -298,29 +298,35 @@ model PushSubscription {
 // =====================
 
 model FYPIdeaValidation {
-  id               String                   @id @default(uuid())
-  studentId        String
-  title            String
-  problemStatement String                   @db.Text
-  ideaDescription  String                   @db.Text
-  coreFeatures     String                   @db.Text
-  teamSize         Int?
-  inputHash        String                   // SHA-256 of normalized inputs for cache dedup
-  panelEvaluation  Json?                    // Raw Call 1 output (5 evaluator roles)
-  finalResult      Json?                    // Raw Call 2 output (synthesized result)
-  feasibilityScore Int?
-  innovationScore  Int?
-  recommendation   ValidationRecommendation?
-  status           ValidationStatus         @default(PENDING)
-  tokensUsed       Int                      @default(0)
-  errorMessage     String?
-  createdAt        DateTime                 @default(now())
+  id                     String                   @id @default(uuid())
+  studentId              String
+  title                  String
+  problemStatement       String                   @db.Text
+  ideaDescription        String                   @db.Text
+  coreFeatures           String                   @db.Text
+  teamSize               Int?
+  inputHash              String                   // SHA-256 of normalized inputs for cache dedup
+  panelEvaluation        Json?                    // Raw Call 1 output (5 evaluator roles)
+  finalResult            Json?                    // Raw Call 2 output (synthesized result)
+  detailedRoadmap        Json?                    // Raw Call 3 output (on-demand detailed roadmap)
+  feasibilityScore       Int?
+  innovationScore        Int?
+  industryRelevanceScore Int?
+  recommendation         ValidationRecommendation?
+  status                 ValidationStatus         @default(PENDING)
+  modelUsed              String?                  // Which LLM model produced the result
+  tokensUsed             Int                      @default(0)
+  latencyMs              Int?                     // Total API round-trip time
+  errorMessage           String?
+  createdAt              DateTime                 @default(now())
 
-  student          Student                  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student                Student                  @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
+  @@unique([studentId, inputHash])
   @@index([studentId])
   @@index([inputHash])
   @@index([createdAt])
+  @@index([recommendation])
 }
 
 // =====================

@@ -27,64 +27,140 @@ function getGroqClient(): Groq {
   return groqClient
 }
 
+export interface ModelConfig {
+  id: string
+  maxTokens: number
+  temperature: number
+  label: string
+}
+
 export interface GroqChatResult {
   content: string
   tokensUsed: number
+  modelUsed: string
+  latencyMs: number
+}
+
+const REQUEST_TIMEOUT_MS = 30_000
+const RETRY_DELAYS_MS = [1_000, 2_500] as const
+
+// Model configurations with fallback strategy
+const MODELS: ModelConfig[] = [
+  { id: "openai/gpt-oss-120b", maxTokens: 4096, temperature: 0.2, label: "GPT-OSS-120B" },
+  { id: "llama-3.3-70b-versatile", maxTokens: 3000, temperature: 0.3, label: "Llama-3.3-70B" },
+]
+
+/**
+ * Send a chat completion request to Groq with automatic model fallback.
+ * Returns the raw text content, token usage, model used, and latency.
+ *
+ * Strategy:
+ * 1. Try primary model (GPT-OSS-120B)
+ * 2. On failure (429/500/timeout/parse-fail), fallback to secondary model
+ * 3. Return result with metadata about which model succeeded
+ */
+export async function groqChatWithFallback(
+  systemPrompt: string,
+  userPrompt: string,
+  maxTokens: number,
+  options?: {
+    validateResponse?: (content: string) => void
+  }
+): Promise<GroqChatResult> {
+  const client = getGroqClient()
+
+  const makeRequest = async (model: ModelConfig): Promise<GroqChatResult> => {
+    let lastError: unknown = null
+
+    for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt++) {
+      const startTime = Date.now()
+
+      try {
+        const completion = await client.chat.completions.create({
+          model: model.id,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+          temperature: model.temperature,
+          max_tokens: Math.min(maxTokens, model.maxTokens),
+          response_format: { type: "json_object" },
+        }, {
+          signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+        })
+
+        const latencyMs = Date.now() - startTime
+        const content = completion.choices[0]?.message?.content
+
+        if (!content) {
+          throw new Error("Groq returned empty response")
+        }
+
+        const tokensUsed =
+          (completion.usage?.prompt_tokens ?? 0) +
+          (completion.usage?.completion_tokens ?? 0)
+
+        options?.validateResponse?.(content)
+
+        return { content, tokensUsed, modelUsed: model.label, latencyMs }
+      } catch (error) {
+        lastError = error
+
+        const shouldRetry =
+          attempt < RETRY_DELAYS_MS.length && isRetryableGroqError(error)
+
+        if (!shouldRetry) {
+          throw error
+        }
+
+        const retryDelay = RETRY_DELAYS_MS[attempt]
+        logger.warn(
+          `Groq request failed for ${model.label} on attempt ${attempt + 1}. Retrying in ${retryDelay}ms...`,
+          error
+        )
+        await delay(retryDelay)
+      }
+    }
+
+    throw lastError instanceof Error
+      ? lastError
+      : new Error(`Groq request failed for ${model.label}`)
+  }
+
+  // Try primary model first
+  try {
+    return await makeRequest(MODELS[0])
+  } catch (error) {
+    logger.warn(`Primary model (${MODELS[0].label}) failed:`, error)
+
+    // Try fallback model
+    try {
+      return await makeRequest(MODELS[1])
+    } catch (fallbackError) {
+      logger.error(`Fallback model (${MODELS[1].label}) also failed:`, fallbackError)
+      throw new Error(`Both models failed. Primary: ${error instanceof Error ? error.message : 'Unknown error'}. Fallback: ${fallbackError instanceof Error ? fallbackError.message : 'Unknown error'}`)
+    }
+  }
 }
 
 /**
- * Send a chat completion request to Groq.
- * Returns the raw text content and token usage.
- *
- * - Uses low temperature (0.3) for deterministic JSON output.
- * - Retries once on 429 (rate limit) after a delay.
+ * Legacy function for backward compatibility - uses fallback mechanism
  */
 export async function groqChat(
   systemPrompt: string,
   userPrompt: string,
   maxTokens: number
-): Promise<GroqChatResult> {
-  const client = getGroqClient()
-
-  const makeRequest = async (): Promise<GroqChatResult> => {
-    const completion = await client.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-      ],
-      temperature: 0.3,
-      max_tokens: maxTokens,
-      response_format: { type: "json_object" },
-    })
-
-    const content = completion.choices[0]?.message?.content
-    if (!content) {
-      throw new Error("Groq returned empty response")
-    }
-
-    const tokensUsed =
-      (completion.usage?.prompt_tokens ?? 0) +
-      (completion.usage?.completion_tokens ?? 0)
-
-    return { content, tokensUsed }
-  }
-
-  try {
-    return await makeRequest()
-  } catch (error: unknown) {
-    // Retry once on rate limit (429)
-    if (isRateLimitError(error)) {
-      logger.warn("Groq rate limited, retrying after 3s delay...")
-      await delay(3000)
-      return await makeRequest()
-    }
-    throw error
+): Promise<Omit<GroqChatResult, 'modelUsed' | 'latencyMs'>> {
+  const result = await groqChatWithFallback(systemPrompt, userPrompt, maxTokens)
+  return {
+    content: result.content,
+    tokensUsed: result.tokensUsed,
   }
 }
 
 /**
- * Parse a JSON string from Groq response, with one retry prompt if malformed.
+ * Parse a JSON string from Groq response.
+ * Handles fenced responses and extra prose around the JSON body.
  */
 export function parseGroqJson<T>(raw: string): T {
   // Strip markdown code fences if the model adds them despite instructions
@@ -92,7 +168,19 @@ export function parseGroqJson<T>(raw: string): T {
   if (cleaned.startsWith("```")) {
     cleaned = cleaned.replace(/^```(?:json)?\s*/, "").replace(/\s*```$/, "")
   }
-  return JSON.parse(cleaned) as T
+
+  try {
+    return JSON.parse(cleaned) as T
+  } catch {
+    const jsonStart = cleaned.indexOf("{")
+    const jsonEnd = cleaned.lastIndexOf("}")
+
+    if (jsonStart >= 0 && jsonEnd > jsonStart) {
+      return JSON.parse(cleaned.slice(jsonStart, jsonEnd + 1)) as T
+    }
+
+    throw new Error("Groq response did not contain valid JSON")
+  }
 }
 
 function isRateLimitError(error: unknown): boolean {
@@ -100,6 +188,28 @@ function isRateLimitError(error: unknown): boolean {
     return (error as { status: number }).status === 429
   }
   return false
+}
+
+function isServerError(error: unknown): boolean {
+  if (error && typeof error === "object" && "status" in error) {
+    const status = (error as { status: number }).status
+    return status >= 500
+  }
+  return false
+}
+
+function isTimeoutError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false
+
+  return (
+    error.name === "AbortError" ||
+    error.message.toLowerCase().includes("timeout") ||
+    error.message.toLowerCase().includes("timed out")
+  )
+}
+
+function isRetryableGroqError(error: unknown): boolean {
+  return isRateLimitError(error) || isServerError(error) || isTimeoutError(error)
 }
 
 function delay(ms: number): Promise<void> {

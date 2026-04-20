@@ -1,7 +1,7 @@
 // app/dashboard/fyp-ideas/validate/page.tsx
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Sparkles, History, ChevronDown, ChevronUp, Clock, CheckCircle, XCircle } from "lucide-react"
 import { useValidateIdea, useMyValidations } from "@/hooks/fyp-ideas"
 import { IdeaForm } from "@/components/fyp-ideas/IdeaForm"
@@ -18,13 +18,14 @@ function LoadingOverlay() {
   const [stageIndex, setStageIndex] = useState(0)
 
   // Cycle through stages
-  useState(() => {
+  useEffect(() => {
     const timers = [
       setTimeout(() => setStageIndex(1), 4000),
       setTimeout(() => setStageIndex(2), 10000),
     ]
+
     return () => timers.forEach(clearTimeout)
-  })
+  }, [])
 
   return (
     <div className="flex flex-col items-center justify-center py-16 space-y-6">

@@ -61,6 +61,7 @@ const ideaInterpreterSchema = z.object({
 
 const technicalEvaluatorSchema = z.object({
   feasibilityScore: z.number().min(1).max(10),
+  feasibilityReasoning: z.string(),
   difficultyLevel: z.enum(["beginner", "intermediate", "advanced"]),
   requiredSkills: z.array(z.string()).min(1),
   estimatedWeeks: z.number().min(1),
@@ -70,6 +71,7 @@ const technicalEvaluatorSchema = z.object({
 
 const industryEvaluatorSchema = z.object({
   industryRelevanceScore: z.number().min(1).max(10),
+  industryRelevanceReasoning: z.string(),
   trendAlignment: z.enum(["outdated", "current", "emerging"]),
   realWorldApplicability: z.enum(["low", "medium", "high"]),
   similarExistingProducts: z.array(z.string()),
@@ -78,7 +80,9 @@ const industryEvaluatorSchema = z.object({
 
 const academicEvaluatorSchema = z.object({
   fypSuitabilityScore: z.number().min(1).max(10),
+  fypSuitabilityReasoning: z.string(),
   innovationScore: z.number().min(1).max(10),
+  innovationReasoning: z.string(),
   researchDepth: z.enum(["shallow", "moderate", "deep"]),
   academicStrengths: z.array(z.string()).min(1),
   academicWeaknesses: z.array(z.string()).min(1),
@@ -114,15 +118,21 @@ const roadmapPhaseSchema = z.object({
 
 export const synthesizerOutputSchema = z.object({
   feasibilityScore: z.number().min(1).max(10),
+  feasibilityReasoning: z.string(),
   innovationScore: z.number().min(1).max(10),
+  innovationReasoning: z.string(),
   difficultyLevel: z.enum(["beginner", "intermediate", "advanced"]),
   industryRelevanceScore: z.number().min(1).max(10),
+  industryRelevanceReasoning: z.string(),
   requiredSkills: z.array(z.string()).min(1),
   riskFactors: z.array(z.string()).min(1),
   technologySuggestions: z.array(z.string()).min(1),
+  technologyJustification: z.string(),
   implementationRoadmap: z.array(roadmapPhaseSchema).min(1),
   teamSizeSuitability: z.string(),
   projectScopeRealism: z.enum(["realistic", "ambitious", "unrealistic"]),
+  scopeRecommendation: z.string(),
+  improvementSuggestions: z.array(z.string()).min(1),
   summaryEvaluation: z.string(),
   finalRecommendation: z.enum([
     "Strongly Recommended",

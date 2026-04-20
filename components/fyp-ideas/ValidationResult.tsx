@@ -118,6 +118,26 @@ export function ValidationResult({ result, onReset }: ValidationResultProps) {
     )
   }
 
+  const feasibilityReasoning =
+    final_.feasibilityReasoning || "Detailed feasibility reasoning is not available for this validation."
+  const innovationReasoning =
+    final_.innovationReasoning || "Detailed innovation reasoning is not available for this validation."
+  const industryReasoning =
+    final_.industryRelevanceReasoning || "Detailed industry-fit reasoning is not available for this validation."
+  const technologyJustification =
+    final_.technologyJustification || "Technology justification is not available for this validation."
+  const scopeRecommendation =
+    final_.scopeRecommendation || "No extra scope recommendation was stored for this validation."
+  const improvementSuggestions = final_.improvementSuggestions ?? []
+  const panelFeasibilityReasoning =
+    panel.technicalEvaluator.feasibilityReasoning || "Technical feasibility reasoning is not available for this validation."
+  const panelIndustryReasoning =
+    panel.industryEvaluator.industryRelevanceReasoning || "Industry relevance reasoning is not available for this validation."
+  const panelFypSuitabilityReasoning =
+    panel.academicEvaluator.fypSuitabilityReasoning || "FYP suitability reasoning is not available for this validation."
+  const panelInnovationReasoning =
+    panel.academicEvaluator.innovationReasoning || "Innovation reasoning is not available for this validation."
+
   return (
     <div className="space-y-6">
       {/* Back button */}
@@ -168,6 +188,29 @@ export function ValidationResult({ result, onReset }: ValidationResultProps) {
       <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-5 space-y-5">
         {activeTab === "overview" && (
           <>
+            <Section title="Why This Verdict" icon={<Star className="w-4 h-4 text-amber-500" />}>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <div className="rounded-xl border border-gray-200 dark:border-slate-700 p-3">
+                  <p className="text-xs text-gray-400 dark:text-gray-500">Feasibility</p>
+                  <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
+                    {feasibilityReasoning}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-gray-200 dark:border-slate-700 p-3">
+                  <p className="text-xs text-gray-400 dark:text-gray-500">Innovation</p>
+                  <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
+                    {innovationReasoning}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-gray-200 dark:border-slate-700 p-3">
+                  <p className="text-xs text-gray-400 dark:text-gray-500">Industry Fit</p>
+                  <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
+                    {industryReasoning}
+                  </p>
+                </div>
+              </div>
+            </Section>
+
             {/* Idea Interpretation */}
             <Section title="Project Domain" icon={<Globe className="w-4 h-4 text-blue-500" />}>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
@@ -197,6 +240,9 @@ export function ValidationResult({ result, onReset }: ValidationResultProps) {
             {/* Technology Suggestions */}
             <Section title="Suggested Technologies" icon={<Cpu className="w-4 h-4 text-violet-500" />}>
               <TagList items={final_.technologySuggestions} color="violet" />
+              <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
+                {technologyJustification}
+              </p>
             </Section>
 
             {/* Required Skills */}
@@ -224,6 +270,22 @@ export function ValidationResult({ result, onReset }: ValidationResultProps) {
             <Section title="Team Size Assessment" icon={<Users className="w-4 h-4 text-gray-500" />}>
               <p className="text-sm text-gray-700 dark:text-gray-300">{final_.teamSizeSuitability}</p>
             </Section>
+
+            <Section title="Scope Recommendation" icon={<TrendingUp className="w-4 h-4 text-blue-500" />}>
+              <p className="text-sm text-gray-700 dark:text-gray-300">{scopeRecommendation}</p>
+            </Section>
+
+            {improvementSuggestions.length > 0 && (
+              <Section title="Recommended Next Improvements" icon={<Lightbulb className="w-4 h-4 text-emerald-500" />}>
+                <ul className="space-y-1.5">
+                  {improvementSuggestions.map((suggestion, i) => (
+                    <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
+                      <span className="text-emerald-500 mt-0.5">-</span> {suggestion}
+                    </li>
+                  ))}
+                </ul>
+              </Section>
+            )}
 
             {/* Implementation Roadmap */}
             <Section title="Implementation Roadmap" icon={<Clock className="w-4 h-4 text-emerald-500" />}>
@@ -279,6 +341,12 @@ export function ValidationResult({ result, onReset }: ValidationResultProps) {
               </div>
             </div>
 
+            <Section title="Feasibility Reasoning">
+              <p className="text-sm text-gray-700 dark:text-gray-300">
+                {panelFeasibilityReasoning}
+              </p>
+            </Section>
+
             <Section title="Required Skills">
               <TagList items={panel.technicalEvaluator.requiredSkills} color="blue" />
             </Section>
@@ -314,6 +382,12 @@ export function ValidationResult({ result, onReset }: ValidationResultProps) {
               </div>
             </div>
 
+            <Section title="Relevance Reasoning">
+              <p className="text-sm text-gray-700 dark:text-gray-300">
+                {panelIndustryReasoning}
+              </p>
+            </Section>
+
             <Section title="Real-World Applicability">
               <p className="text-sm text-gray-700 dark:text-gray-300 capitalize font-medium">
                 {panel.industryEvaluator.realWorldApplicability}
@@ -340,6 +414,18 @@ export function ValidationResult({ result, onReset }: ValidationResultProps) {
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Research Depth</p>
               </div>
             </div>
+
+            <Section title="FYP Suitability Reasoning">
+              <p className="text-sm text-gray-700 dark:text-gray-300">
+                {panelFypSuitabilityReasoning}
+              </p>
+            </Section>
+
+            <Section title="Innovation Reasoning">
+              <p className="text-sm text-gray-700 dark:text-gray-300">
+                {panelInnovationReasoning}
+              </p>
+            </Section>
 
             <Section title="Academic Strengths" icon={<CheckCircle className="w-4 h-4 text-emerald-500" />}>
               <ul className="space-y-1.5">
@@ -424,6 +510,27 @@ export function ValidationResult({ result, onReset }: ValidationResultProps) {
             </Section>
           </>
         )}
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 text-xs text-gray-500 dark:text-gray-400 sm:grid-cols-3">
+        <div className="rounded-xl border border-gray-200 dark:border-slate-700 p-3 bg-gray-50 dark:bg-slate-800">
+          <p className="text-[11px] uppercase tracking-wide">Model Usage</p>
+          <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
+            {result.modelUsed ?? "Not recorded"}
+          </p>
+        </div>
+        <div className="rounded-xl border border-gray-200 dark:border-slate-700 p-3 bg-gray-50 dark:bg-slate-800">
+          <p className="text-[11px] uppercase tracking-wide">Tokens Used</p>
+          <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
+            {result.tokensUsed.toLocaleString()}
+          </p>
+        </div>
+        <div className="rounded-xl border border-gray-200 dark:border-slate-700 p-3 bg-gray-50 dark:bg-slate-800">
+          <p className="text-[11px] uppercase tracking-wide">AI Latency</p>
+          <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
+            {result.latencyMs != null ? `${(result.latencyMs / 1000).toFixed(1)}s` : "Not recorded"}
+          </p>
+        </div>
       </div>
     </div>
   )

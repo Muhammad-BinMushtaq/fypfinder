@@ -50,9 +50,31 @@ export async function GET(request: NextRequest) {
     logger.error("Get validations error:", error)
     const errorMessage =
       error instanceof Error ? error.message : "Failed to fetch validations"
+
+    if (errorMessage.includes("Unauthorized")) {
+      return NextResponse.json(
+        { success: false, message: errorMessage },
+        { status: 401 }
+      )
+    }
+
+    if (errorMessage.includes("Account suspended")) {
+      return NextResponse.json(
+        { success: false, message: errorMessage },
+        { status: 403 }
+      )
+    }
+
+    if (errorMessage.includes("Student profile not found")) {
+      return NextResponse.json(
+        { success: false, message: errorMessage },
+        { status: 404 }
+      )
+    }
+
     return NextResponse.json(
       { success: false, message: errorMessage },
-      { status: error instanceof Error && errorMessage.includes("Unauthorized") ? 401 : 500 }
+      { status: 500 }
     )
   }
 }

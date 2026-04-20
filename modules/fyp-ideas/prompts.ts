@@ -6,6 +6,7 @@
  * Contains the two prompt templates used for multi-agent evaluation.
  * Call 1: Panel of 5 evaluators in a single prompt.
  * Call 2: Final synthesizer that merges all panel results.
+ * Call 3: Detailed roadmap generator (on-demand).
  */
 
 export interface PanelPromptInput {
@@ -62,6 +63,7 @@ Output JSON with keys:
 Analyze technical feasibility. Be specific about skills and time.
 Output JSON with keys:
 - "feasibilityScore": number (1-10, where 10 = fully feasible for FYP students)
+- "feasibilityReasoning": string (2-3 sentence explanation of why this score)
 - "difficultyLevel": "beginner" | "intermediate" | "advanced"
 - "requiredSkills": string[] (at least 3 specific skills)
 - "estimatedWeeks": number (realistic dev time for a student team)
@@ -72,6 +74,7 @@ Output JSON with keys:
 Analyze real-world relevance. Be honest about market saturation.
 Output JSON with keys:
 - "industryRelevanceScore": number (1-10, where 10 = highly relevant)
+- "industryRelevanceReasoning": string (2-3 sentence explanation of why this score)
 - "trendAlignment": "outdated" | "current" | "emerging"
 - "realWorldApplicability": "low" | "medium" | "high"
 - "similarExistingProducts": string[] (name actual products, max 3)
@@ -81,7 +84,9 @@ Output JSON with keys:
 Analyze suitability as a university FYP. Consider research depth and innovation.
 Output JSON with keys:
 - "fypSuitabilityScore": number (1-10, where 10 = ideal FYP project)
+- "fypSuitabilityReasoning": string (2-3 sentence explanation of why this score)
 - "innovationScore": number (1-10, where 10 = highly innovative)
+- "innovationReasoning": string (2-3 sentence explanation of why this score)
 - "researchDepth": "shallow" | "moderate" | "deep"
 - "academicStrengths": string[] (at least 2)
 - "academicWeaknesses": string[] (at least 1)
@@ -123,15 +128,60 @@ ${panelOutput}
 ## Produce Final Verdict
 Return a JSON object with exactly these keys:
 - "feasibilityScore": number (1-10)
+- "feasibilityReasoning": string (2-3 sentence explanation of why this score)
 - "innovationScore": number (1-10)
-- "difficultyLevel": "beginner" | "intermediate" | "advanced"
+- "innovationReasoning": string (2-3 sentence explanation of why this score)
 - "industryRelevanceScore": number (1-10)
+- "industryRelevanceReasoning": string (2-3 sentence explanation of why this score)
+- "difficultyLevel": "beginner" | "intermediate" | "advanced"
 - "requiredSkills": string[] (top 5-8 most important)
 - "riskFactors": string[] (top 3 most critical risks)
 - "technologySuggestions": string[] (recommended tech stack, 4-6 items)
+- "technologyJustification": string (2-3 sentence explanation of why these technologies)
 - "implementationRoadmap": array of exactly 4 objects, each with: "phase" (string), "duration" (string like "2-3 weeks"), "tasks" (string[], 2-4 items)
 - "teamSizeSuitability": string (one sentence assessing team size fit)
 - "projectScopeRealism": "realistic" | "ambitious" | "unrealistic"
+- "scopeRecommendation": string (1-2 sentence advice on adjusting scope if needed)
+- "improvementSuggestions": string[] (3-5 actionable next steps for the student)
 - "summaryEvaluation": string (2-3 sentence summary)
 - "finalRecommendation": "Strongly Recommended" | "Recommended with Changes" | "Needs Major Revision" | "Not Recommended"`
+}
+
+/**
+ * Build the system prompt for Call 3 — detailed roadmap generator.
+ */
+export function buildRoadmapSystemPrompt(): string {
+  return `You are a senior project manager creating a detailed, actionable implementation roadmap for an FYP project. You receive a project evaluation and must produce a comprehensive roadmap with 4-8 phases depending on project complexity.
+
+Rules:
+- Include research phase if project requires ML/data/algorithms
+- Include dataset requirements if applicable
+- Include deployment/hosting considerations
+- Be specific: "Set up Next.js project with TypeScript" not "Set up project"
+- Durations should be realistic for university students (weekends + evenings)
+- Each phase includes: name, duration, description (2-3 sentences), tasks (3-6 specific items), deliverables, technologies used
+
+Respond ONLY with a single valid JSON object. No markdown, no explanations, no code fences.`
+}
+
+/**
+ * Build the user prompt for Call 3 — generates detailed roadmap.
+ */
+export function buildRoadmapUserPrompt(validationData: string): string {
+  return `## Project Evaluation Data
+${validationData}
+
+## Generate Detailed Implementation Roadmap
+Return a JSON object with exactly these keys:
+- "phases": array of 4-8 objects, each with:
+  - "name": string (phase title)
+  - "duration": string (realistic time estimate like "2-3 weeks")
+  - "description": string (2-3 sentences explaining what happens in this phase)
+  - "tasks": string[] (3-6 specific, actionable tasks)
+  - "deliverables": string[] (concrete outputs from this phase)
+  - "technologiesUsed": string[] (specific tools/frameworks for this phase)
+- "totalEstimatedWeeks": number (sum of all phase durations)
+- "criticalPath": string[] (3-5 most important tasks that must be done sequentially)
+- "datasetRequirements": string (if applicable, describe data needs and sources)
+- "deploymentConsiderations": string (hosting, scaling, security considerations)`
 }

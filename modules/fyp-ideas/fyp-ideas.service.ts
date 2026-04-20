@@ -17,8 +17,9 @@
 
 import crypto from "crypto"
 import prisma from "@/lib/db"
+import { Prisma } from "@/lib/generated/prisma/client"
 import { logger } from "@/lib/logger"
-import { groqChat, parseGroqJson } from "./groq-client"
+import { groqChatWithFallback, parseGroqJson } from "./groq-client"
 import {
   buildPanelSystemPrompt,
   buildPanelUserPrompt,
@@ -43,13 +44,16 @@ const SYNTHESIZER_MAX_TOKENS = 1500
 
 export interface ValidationResult {
   id: string
-  status: "completed" | "failed"
+  status: "pending" | "completed" | "failed"
   feasibilityScore: number | null
   innovationScore: number | null
+  industryRelevanceScore: number | null
   recommendation: string | null
   panelEvaluation: PanelOutput | null
   finalResult: SynthesizerOutput | null
   tokensUsed: number
+  modelUsed: string | null
+  latencyMs: number | null
   createdAt: Date
 }
 
@@ -60,27 +64,57 @@ export async function validateIdea(
   studentId: string,
   input: IdeaInput
 ): Promise<ValidationResult> {
-  // 1. Check daily rate limit
-  await enforceRateLimit(studentId)
-
-  // 2. Compute input hash and check cache
+  // 1. Compute input hash and check cache first.
+  // Cached results should not consume a fresh daily validation slot.
   const inputHash = computeInputHash(input)
-  const cached = await findCachedValidation(studentId, inputHash)
+  const existing = await findExistingValidation(studentId, inputHash)
+  const cached = existing && existing.status === "COMPLETED"
+    ? formatResult(existing)
+    : null
+
   if (cached) return cached
 
-  // 3. Create a pending record
-  const record = await prisma.fYPIdeaValidation.create({
-    data: {
-      studentId,
-      title: input.title,
-      problemStatement: input.problemStatement,
-      ideaDescription: input.ideaDescription,
-      coreFeatures: input.coreFeatures,
-      teamSize: input.teamSize,
-      inputHash,
-      status: "PENDING",
-    },
-  })
+  // 2. Check daily rate limit for new runs / retries.
+  await enforceRateLimit(studentId)
+
+  // 3. Create or reset the pending record.
+  const record = existing
+    ? await prisma.fYPIdeaValidation.update({
+        where: { id: existing.id },
+        data: {
+          title: input.title,
+          problemStatement: input.problemStatement,
+          ideaDescription: input.ideaDescription,
+          coreFeatures: input.coreFeatures,
+          teamSize: input.teamSize,
+          inputHash,
+          panelEvaluation: Prisma.DbNull,
+          finalResult: Prisma.DbNull,
+          detailedRoadmap: Prisma.DbNull,
+          feasibilityScore: null,
+          innovationScore: null,
+          industryRelevanceScore: null,
+          recommendation: null,
+          status: "PENDING",
+          modelUsed: null,
+          tokensUsed: 0,
+          latencyMs: null,
+          errorMessage: null,
+          createdAt: new Date(),
+        },
+      })
+    : await prisma.fYPIdeaValidation.create({
+        data: {
+          studentId,
+          title: input.title,
+          problemStatement: input.problemStatement,
+          ideaDescription: input.ideaDescription,
+          coreFeatures: input.coreFeatures,
+          teamSize: input.teamSize,
+          inputHash,
+          status: "PENDING",
+        },
+      })
 
   try {
     // 4. Call 1: Panel evaluation
@@ -93,20 +127,44 @@ export async function validateIdea(
       teamSize: input.teamSize,
     })
 
-    const panelResult = await groqChat(panelSystem, panelUser, PANEL_MAX_TOKENS)
+    const panelResult = await groqChatWithFallback(
+      panelSystem,
+      panelUser,
+      PANEL_MAX_TOKENS,
+      {
+        validateResponse: (content) => {
+          parseAndValidatePanel(content)
+        },
+      }
+    )
     const panelParsed = parseAndValidatePanel(panelResult.content)
     let totalTokens = panelResult.tokensUsed
+    let totalLatencyMs = panelResult.latencyMs
 
     // 5. Call 2: Synthesizer
     const synthSystem = buildSynthesizerSystemPrompt()
     const synthUser = buildSynthesizerUserPrompt(JSON.stringify(panelParsed))
 
-    const synthResult = await groqChat(synthSystem, synthUser, SYNTHESIZER_MAX_TOKENS)
+    const synthResult = await groqChatWithFallback(
+      synthSystem,
+      synthUser,
+      SYNTHESIZER_MAX_TOKENS,
+      {
+        validateResponse: (content) => {
+          parseAndValidateSynthesizer(content)
+        },
+      }
+    )
     const synthParsed = parseAndValidateSynthesizer(synthResult.content)
     totalTokens += synthResult.tokensUsed
+    totalLatencyMs += synthResult.latencyMs
 
     // 6. Map recommendation string to enum value
     const recommendation = mapRecommendation(synthParsed.finalRecommendation)
+    const modelUsed = [
+      `Panel: ${panelResult.modelUsed}`,
+      `Synthesizer: ${synthResult.modelUsed}`,
+    ].join(" | ")
 
     // 7. Persist completed result
     const updated = await prisma.fYPIdeaValidation.update({
@@ -116,9 +174,12 @@ export async function validateIdea(
         finalResult: JSON.parse(JSON.stringify(synthParsed)),
         feasibilityScore: synthParsed.feasibilityScore,
         innovationScore: synthParsed.innovationScore,
+        industryRelevanceScore: synthParsed.industryRelevanceScore,
         recommendation,
         status: "COMPLETED",
+        modelUsed,
         tokensUsed: totalTokens,
+        latencyMs: totalLatencyMs,
       },
     })
 
@@ -212,20 +273,17 @@ function computeInputHash(input: IdeaInput): string {
   return crypto.createHash("sha256").update(normalized).digest("hex")
 }
 
-async function findCachedValidation(
+async function findExistingValidation(
   studentId: string,
   inputHash: string
-): Promise<ValidationResult | null> {
-  const existing = await prisma.fYPIdeaValidation.findFirst({
+){
+  return prisma.fYPIdeaValidation.findFirst({
     where: {
       studentId,
       inputHash,
-      status: "COMPLETED",
     },
     orderBy: { createdAt: "desc" },
   })
-
-  return existing ? formatResult(existing) : null
 }
 
 function parseAndValidatePanel(raw: string): PanelOutput {
@@ -274,21 +332,44 @@ function formatResult(record: {
   status: string
   feasibilityScore: number | null
   innovationScore: number | null
+  industryRelevanceScore: number | null
   recommendation: string | null
   panelEvaluation: unknown
   finalResult: unknown
   tokensUsed: number
+  modelUsed: string | null
+  latencyMs: number | null
   createdAt: Date
 }): ValidationResult {
   return {
     id: record.id,
-    status: record.status as "completed" | "failed",
+    status: normalizeStatus(record.status),
     feasibilityScore: record.feasibilityScore,
     innovationScore: record.innovationScore,
+    industryRelevanceScore: record.industryRelevanceScore,
     recommendation: record.recommendation,
     panelEvaluation: record.panelEvaluation as PanelOutput | null,
     finalResult: record.finalResult as SynthesizerOutput | null,
     tokensUsed: record.tokensUsed,
+    modelUsed: record.modelUsed,
+    latencyMs: record.latencyMs,
     createdAt: record.createdAt,
+  }
+}
+
+function normalizeStatus(
+  status: string
+): ValidationResult["status"] {
+  switch (status) {
+    case "COMPLETED":
+    case "completed":
+      return "completed"
+    case "FAILED":
+    case "failed":
+      return "failed"
+    case "PENDING":
+    case "pending":
+    default:
+      return "pending"
   }
 }
