@@ -1,24 +1,19 @@
-// components/fyp-ideas/ValidationResult.tsx
 "use client"
 
-import { useState } from "react"
+import Link from "next/link"
 import {
-  CheckCircle,
   AlertTriangle,
-  XCircle,
-  Star,
-  Shield,
-  TrendingUp,
-  GraduationCap,
-  AlertOctagon,
-  ChevronDown,
-  ChevronUp,
-  Cpu,
-  Globe,
-  Clock,
-  Users,
-  Lightbulb,
   ArrowLeft,
+  CheckCircle2,
+  Clock3,
+  Lightbulb,
+  Lock,
+  Map,
+  ShieldAlert,
+  Sparkles,
+  Target,
+  Users,
+  Wrench,
 } from "lucide-react"
 import type { ValidationResult as ValidationResultType } from "@/services/fypIdeas.service"
 
@@ -27,511 +22,383 @@ interface ValidationResultProps {
   onReset: () => void
 }
 
-type TabKey = "overview" | "technical" | "industry" | "academic" | "risks"
-
-const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
-  { key: "overview", label: "Overview", icon: <Star className="w-4 h-4" /> },
-  { key: "technical", label: "Technical", icon: <Cpu className="w-4 h-4" /> },
-  { key: "industry", label: "Industry", icon: <Globe className="w-4 h-4" /> },
-  { key: "academic", label: "Academic", icon: <GraduationCap className="w-4 h-4" /> },
-  { key: "risks", label: "Risks", icon: <AlertOctagon className="w-4 h-4" /> },
-]
-
-function getRecommendationConfig(rec: string | null) {
-  switch (rec) {
-    case "STRONGLY_RECOMMENDED":
-      return { label: "Strongly Recommended", color: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800", icon: <CheckCircle className="w-5 h-5" /> }
-    case "RECOMMENDED_WITH_CHANGES":
-      return { label: "Recommended with Changes", color: "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800", icon: <Lightbulb className="w-5 h-5" /> }
-    case "NEEDS_MAJOR_REVISION":
-      return { label: "Needs Major Revision", color: "bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800", icon: <AlertTriangle className="w-5 h-5" /> }
-    case "NOT_RECOMMENDED":
-      return { label: "Not Recommended", color: "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 border-red-200 dark:border-red-800", icon: <XCircle className="w-5 h-5" /> }
-    default:
-      return { label: rec || "Unknown", color: "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700", icon: <Star className="w-5 h-5" /> }
-  }
-}
-
-function ScoreBadge({ score, label }: { score: number; label: string }) {
-  const color =
-    score >= 8 ? "text-emerald-600 dark:text-emerald-400" :
-    score >= 6 ? "text-blue-600 dark:text-blue-400" :
-    score >= 4 ? "text-amber-600 dark:text-amber-400" :
-    "text-red-600 dark:text-red-400"
-
-  return (
-    <div className="text-center p-3 bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700">
-      <p className={`text-2xl font-bold ${color}`}>{score}/10</p>
-      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{label}</p>
-    </div>
-  )
-}
-
-function TagList({ items, color = "gray" }: { items: string[]; color?: string }) {
-  const colorMap: Record<string, string> = {
-    gray: "bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300",
-    blue: "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300",
-    violet: "bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300",
-    red: "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300",
-    emerald: "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300",
-    amber: "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300",
-  }
-
-  return (
-    <div className="flex flex-wrap gap-1.5">
-      {items.map((item, i) => (
-        <span key={i} className={`px-2.5 py-1 rounded-lg text-xs font-medium ${colorMap[color] ?? colorMap.gray}`}>
-          {item}
-        </span>
-      ))}
-    </div>
-  )
-}
-
-function Section({ title, icon, children }: { title: string; icon?: React.ReactNode; children: React.ReactNode }) {
-  return (
-    <div className="space-y-2">
-      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
-        {icon} {title}
-      </h4>
-      {children}
-    </div>
-  )
-}
-
 export function ValidationResult({ result, onReset }: ValidationResultProps) {
-  const [activeTab, setActiveTab] = useState<TabKey>("overview")
-  const [roadmapExpanded, setRoadmapExpanded] = useState(false)
+  const report = result.report
 
-  const panel = result.panelEvaluation
-  const final_ = result.finalResult
-  const rec = getRecommendationConfig(result.recommendation)
-
-  if (!panel || !final_) {
+  if (!report) {
     return (
-      <div className="text-center py-8">
-        <p className="text-gray-500 dark:text-gray-400">Validation data is incomplete.</p>
-        <button onClick={onReset} className="mt-4 text-sm text-blue-600 dark:text-blue-400 hover:underline">
-          Try again
+      <div className="rounded-3xl border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          This validation could not be displayed properly. Please try again.
+        </p>
+        <button
+          onClick={onReset}
+          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gray-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-gray-900"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Try another idea
         </button>
       </div>
     )
   }
 
-  const feasibilityReasoning =
-    final_.feasibilityReasoning || "Detailed feasibility reasoning is not available for this validation."
-  const innovationReasoning =
-    final_.innovationReasoning || "Detailed innovation reasoning is not available for this validation."
-  const industryReasoning =
-    final_.industryRelevanceReasoning || "Detailed industry-fit reasoning is not available for this validation."
-  const technologyJustification =
-    final_.technologyJustification || "Technology justification is not available for this validation."
-  const scopeRecommendation =
-    final_.scopeRecommendation || "No extra scope recommendation was stored for this validation."
-  const improvementSuggestions = final_.improvementSuggestions ?? []
-  const panelFeasibilityReasoning =
-    panel.technicalEvaluator.feasibilityReasoning || "Technical feasibility reasoning is not available for this validation."
-  const panelIndustryReasoning =
-    panel.industryEvaluator.industryRelevanceReasoning || "Industry relevance reasoning is not available for this validation."
-  const panelFypSuitabilityReasoning =
-    panel.academicEvaluator.fypSuitabilityReasoning || "FYP suitability reasoning is not available for this validation."
-  const panelInnovationReasoning =
-    panel.academicEvaluator.innovationReasoning || "Innovation reasoning is not available for this validation."
+  const recommendationTone = getRecommendationTone(result.recommendation)
+  const originalityTone = getOriginalityTone(report.originalityVerdict)
 
   return (
-    <div className="space-y-6">
-      {/* Back button */}
+    <div className="space-y-5">
       <button
         onClick={onReset}
-        className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+        className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 transition hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
       >
-        <ArrowLeft className="w-4 h-4" />
-        Validate Another Idea
+        <ArrowLeft className="h-4 w-4" />
+        Check another idea
       </button>
 
-      {/* Recommendation Banner */}
-      <div className={`flex items-center gap-3 p-4 rounded-xl border ${rec.color}`}>
-        {rec.icon}
-        <div>
-          <p className="font-semibold text-sm">{rec.label}</p>
-          <p className="text-xs mt-0.5 opacity-80">{final_.summaryEvaluation}</p>
+      <div className={`rounded-[28px] border p-5 shadow-sm ${recommendationTone.shell}`}>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="space-y-3">
+            <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]">
+              {recommendationTone.icon}
+              {recommendationTone.label}
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight text-gray-950 dark:text-white">
+                {report.plainSummary}
+              </h2>
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-gray-700 dark:text-gray-300">
+                {report.shouldBuild}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3 lg:w-[320px]">
+            <ScoreCard label="Can it work?" value={report.feasibilityScore} />
+            <ScoreCard label="How fresh?" value={report.originalityScore} />
+            <ScoreCard label="How useful?" value={report.usefulnessScore} />
+          </div>
         </div>
       </div>
 
-      {/* Score Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <ScoreBadge score={final_.feasibilityScore} label="Feasibility" />
-        <ScoreBadge score={final_.innovationScore} label="Innovation" />
-        <ScoreBadge score={final_.industryRelevanceScore} label="Industry Fit" />
-        <ScoreBadge score={panel.academicEvaluator.fypSuitabilityScore} label="FYP Fit" />
-      </div>
-
-      {/* Tabs */}
-      <div className="flex gap-1 overflow-x-auto pb-1 border-b border-gray-200 dark:border-slate-700">
-        {TABS.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-t-lg transition-colors whitespace-nowrap ${
-              activeTab === tab.key
-                ? "bg-white dark:bg-slate-800 text-gray-900 dark:text-white border border-b-0 border-gray-200 dark:border-slate-700"
-                : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-            }`}
-          >
-            {tab.icon}
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Tab Content */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-5 space-y-5">
-        {activeTab === "overview" && (
-          <>
-            <Section title="Why This Verdict" icon={<Star className="w-4 h-4 text-amber-500" />}>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <div className="rounded-xl border border-gray-200 dark:border-slate-700 p-3">
-                  <p className="text-xs text-gray-400 dark:text-gray-500">Feasibility</p>
-                  <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
-                    {feasibilityReasoning}
-                  </p>
-                </div>
-                <div className="rounded-xl border border-gray-200 dark:border-slate-700 p-3">
-                  <p className="text-xs text-gray-400 dark:text-gray-500">Innovation</p>
-                  <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
-                    {innovationReasoning}
-                  </p>
-                </div>
-                <div className="rounded-xl border border-gray-200 dark:border-slate-700 p-3">
-                  <p className="text-xs text-gray-400 dark:text-gray-500">Industry Fit</p>
-                  <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
-                    {industryReasoning}
-                  </p>
-                </div>
-              </div>
-            </Section>
-
-            {/* Idea Interpretation */}
-            <Section title="Project Domain" icon={<Globe className="w-4 h-4 text-blue-500" />}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                <div>
-                  <p className="text-xs text-gray-400 dark:text-gray-500">Domain</p>
-                  <p className="text-gray-900 dark:text-white font-medium">{panel.ideaInterpreter.domain}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-400 dark:text-gray-500">Scope</p>
-                  <p className="text-gray-900 dark:text-white font-medium capitalize">{panel.ideaInterpreter.systemScope}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-400 dark:text-gray-500">Architecture</p>
-                  <p className="text-gray-900 dark:text-white font-medium">{panel.ideaInterpreter.expectedArchitecture}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-400 dark:text-gray-500">Target Users</p>
-                  <p className="text-gray-900 dark:text-white font-medium">{panel.ideaInterpreter.targetUsers}</p>
-                </div>
-              </div>
-              <div className="mt-2">
-                <p className="text-xs text-gray-400 dark:text-gray-500">Core Problem</p>
-                <p className="text-sm text-gray-700 dark:text-gray-300">{panel.ideaInterpreter.coreProblemRestated}</p>
-              </div>
-            </Section>
-
-            {/* Technology Suggestions */}
-            <Section title="Suggested Technologies" icon={<Cpu className="w-4 h-4 text-violet-500" />}>
-              <TagList items={final_.technologySuggestions} color="violet" />
-              <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
-                {technologyJustification}
-              </p>
-            </Section>
-
-            {/* Required Skills */}
-            <Section title="Required Skills" icon={<Star className="w-4 h-4 text-blue-500" />}>
-              <TagList items={final_.requiredSkills} color="blue" />
-            </Section>
-
-            {/* Quick Stats */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              <div className="p-3 bg-gray-50 dark:bg-slate-700/50 rounded-lg text-center">
-                <p className="text-xs text-gray-400 dark:text-gray-500">Difficulty</p>
-                <p className="text-sm font-semibold text-gray-900 dark:text-white capitalize">{final_.difficultyLevel}</p>
-              </div>
-              <div className="p-3 bg-gray-50 dark:bg-slate-700/50 rounded-lg text-center">
-                <p className="text-xs text-gray-400 dark:text-gray-500">Scope</p>
-                <p className="text-sm font-semibold text-gray-900 dark:text-white capitalize">{final_.projectScopeRealism}</p>
-              </div>
-              <div className="p-3 bg-gray-50 dark:bg-slate-700/50 rounded-lg text-center sm:col-span-1 col-span-2">
-                <p className="text-xs text-gray-400 dark:text-gray-500">Est. Time</p>
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">{panel.technicalEvaluator.estimatedWeeks} weeks</p>
-              </div>
+      <div className={`rounded-3xl border p-5 shadow-sm ${originalityTone.shell}`}>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]">
+              {originalityTone.icon}
+              {originalityTone.label}
             </div>
+            <h3 className="mt-3 text-lg font-semibold text-gray-950 dark:text-white">
+              Similarity check against past FYP ideas
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-gray-700 dark:text-gray-300">
+              {report.originalityReason}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-400">
+              {report.pastIdeaComparisonSummary}
+            </p>
+          </div>
 
-            {/* Team Size Suitability */}
-            <Section title="Team Size Assessment" icon={<Users className="w-4 h-4 text-gray-500" />}>
-              <p className="text-sm text-gray-700 dark:text-gray-300">{final_.teamSizeSuitability}</p>
-            </Section>
+          <div className="rounded-2xl bg-white/80 px-4 py-3 text-sm shadow-sm backdrop-blur dark:bg-slate-950/40">
+            <div className="font-semibold text-gray-900 dark:text-white">
+              Difficulty: <span className="capitalize">{report.difficultyLevel}</span>
+            </div>
+            <div className="mt-1 text-gray-600 dark:text-gray-300">{report.estimatedTimeline}</div>
+            <div className="mt-1 text-gray-600 dark:text-gray-300">{report.teamFit}</div>
+          </div>
+        </div>
 
-            <Section title="Scope Recommendation" icon={<TrendingUp className="w-4 h-4 text-blue-500" />}>
-              <p className="text-sm text-gray-700 dark:text-gray-300">{scopeRecommendation}</p>
-            </Section>
-
-            {improvementSuggestions.length > 0 && (
-              <Section title="Recommended Next Improvements" icon={<Lightbulb className="w-4 h-4 text-emerald-500" />}>
-                <ul className="space-y-1.5">
-                  {improvementSuggestions.map((suggestion, i) => (
-                    <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
-                      <span className="text-emerald-500 mt-0.5">-</span> {suggestion}
-                    </li>
-                  ))}
-                </ul>
-              </Section>
-            )}
-
-            {/* Implementation Roadmap */}
-            <Section title="Implementation Roadmap" icon={<Clock className="w-4 h-4 text-emerald-500" />}>
-              <button
-                onClick={() => setRoadmapExpanded(!roadmapExpanded)}
-                className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+        <div className="mt-4 grid gap-3">
+          {report.similarPastIdeas.length > 0 ? (
+            report.similarPastIdeas.map((idea, index) => (
+              <div
+                key={`${idea.title}-${index}`}
+                className="rounded-2xl border border-white/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-950/50"
               >
-                {roadmapExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-                {roadmapExpanded ? "Collapse" : "Show roadmap"}
-              </button>
-
-              {roadmapExpanded && (
-                <div className="space-y-3 mt-2">
-                  {final_.implementationRoadmap.map((phase, i) => (
-                    <div key={i} className="flex gap-3">
-                      <div className="flex flex-col items-center">
-                        <div className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-xs font-bold text-emerald-700 dark:text-emerald-300">
-                          {i + 1}
-                        </div>
-                        {i < final_.implementationRoadmap.length - 1 && (
-                          <div className="w-0.5 flex-1 bg-gray-200 dark:bg-slate-600 mt-1" />
-                        )}
-                      </div>
-                      <div className="flex-1 pb-4">
-                        <div className="flex items-center gap-2">
-                          <p className="text-sm font-semibold text-gray-900 dark:text-white">{phase.phase}</p>
-                          <span className="text-xs text-gray-400 dark:text-gray-500">{phase.duration}</span>
-                        </div>
-                        <ul className="mt-1 space-y-0.5">
-                          {phase.tasks.map((task, j) => (
-                            <li key={j} className="text-xs text-gray-600 dark:text-gray-400 flex items-start gap-1.5">
-                              <span className="text-gray-300 dark:text-gray-600 mt-0.5">•</span>
-                              {task}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  ))}
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <h4 className="font-semibold text-gray-900 dark:text-white">
+                      {idea.title}
+                    </h4>
+                    <p className="mt-1 text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">
+                      {idea.batch} • Group {idea.groupNumber}
+                      {idea.supervisor ? ` • ${idea.supervisor}` : ""}
+                    </p>
+                  </div>
+                  <div className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800 dark:bg-amber-950/50 dark:text-amber-200">
+                    Similarity {idea.similarityScore}/10
+                  </div>
                 </div>
-              )}
-            </Section>
-          </>
-        )}
-
-        {activeTab === "technical" && (
-          <>
-            <div className="grid grid-cols-2 gap-3">
-              <ScoreBadge score={panel.technicalEvaluator.feasibilityScore} label="Feasibility" />
-              <div className="text-center p-3 bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700">
-                <p className="text-2xl font-bold text-gray-900 dark:text-white capitalize">{panel.technicalEvaluator.difficultyLevel}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Difficulty</p>
+                <p className="mt-3 text-sm text-gray-700 dark:text-gray-300">{idea.similarityReason}</p>
+                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                  How yours can differ: {idea.keyDifference}
+                </p>
               </div>
+            ))
+          ) : (
+            <div className="rounded-2xl border border-dashed border-emerald-200 bg-white/80 p-4 text-sm text-emerald-800 dark:border-emerald-900/40 dark:bg-slate-950/40 dark:text-emerald-200">
+              No strong match was found in the past FYP idea list.
             </div>
+          )}
+        </div>
+      </div>
 
-            <Section title="Feasibility Reasoning">
-              <p className="text-sm text-gray-700 dark:text-gray-300">
-                {panelFeasibilityReasoning}
-              </p>
-            </Section>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <InfoCard title="Who would use it?" icon={<Users className="h-4 w-4" />}>
+          <p>{report.whoWillUseIt}</p>
+          <p className="mt-3">{report.whyItMatters}</p>
+        </InfoCard>
 
-            <Section title="Required Skills">
-              <TagList items={panel.technicalEvaluator.requiredSkills} color="blue" />
-            </Section>
+        <InfoCard title="How to make it stand out" icon={<Sparkles className="h-4 w-4" />}>
+          <BulletList items={report.uniquenessImprovements} />
+        </InfoCard>
 
-            <Section title="Suggested Tech Stack">
-              <TagList items={panel.technicalEvaluator.suggestedTechStack} color="violet" />
-            </Section>
+        <InfoCard title="What already looks strong" icon={<CheckCircle2 className="h-4 w-4" />}>
+          <BulletList items={report.strongPoints} />
+        </InfoCard>
 
-            <Section title="Technical Challenges" icon={<AlertTriangle className="w-4 h-4 text-amber-500" />}>
-              <ul className="space-y-1.5">
-                {panel.technicalEvaluator.technicalChallenges.map((c, i) => (
-                  <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
-                    <span className="text-amber-500 mt-0.5">⚠</span> {c}
-                  </li>
-                ))}
-              </ul>
-            </Section>
+        <InfoCard title="What needs work" icon={<AlertTriangle className="h-4 w-4" />}>
+          <BulletList items={report.concernPoints} />
+        </InfoCard>
 
-            <div className="p-3 bg-gray-50 dark:bg-slate-700/50 rounded-lg">
-              <p className="text-xs text-gray-400 dark:text-gray-500">Estimated Development Time</p>
-              <p className="text-sm font-semibold text-gray-900 dark:text-white">{panel.technicalEvaluator.estimatedWeeks} weeks</p>
-            </div>
-          </>
-        )}
+        <InfoCard title="What to do next" icon={<Target className="h-4 w-4" />}>
+          <BulletList items={report.simpleNextSteps} />
+        </InfoCard>
 
-        {activeTab === "industry" && (
-          <>
-            <div className="grid grid-cols-2 gap-3">
-              <ScoreBadge score={panel.industryEvaluator.industryRelevanceScore} label="Relevance" />
-              <div className="text-center p-3 bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700">
-                <p className="text-2xl font-bold text-gray-900 dark:text-white capitalize">{panel.industryEvaluator.trendAlignment}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Trend Alignment</p>
-              </div>
-            </div>
-
-            <Section title="Relevance Reasoning">
-              <p className="text-sm text-gray-700 dark:text-gray-300">
-                {panelIndustryReasoning}
-              </p>
-            </Section>
-
-            <Section title="Real-World Applicability">
-              <p className="text-sm text-gray-700 dark:text-gray-300 capitalize font-medium">
-                {panel.industryEvaluator.realWorldApplicability}
-              </p>
-            </Section>
-
-            <Section title="Similar Existing Products">
-              <TagList items={panel.industryEvaluator.similarExistingProducts} />
-            </Section>
-
-            <Section title="Market Potential" icon={<TrendingUp className="w-4 h-4 text-emerald-500" />}>
-              <p className="text-sm text-gray-700 dark:text-gray-300">{panel.industryEvaluator.marketPotential}</p>
-            </Section>
-          </>
-        )}
-
-        {activeTab === "academic" && (
-          <>
-            <div className="grid grid-cols-3 gap-3">
-              <ScoreBadge score={panel.academicEvaluator.fypSuitabilityScore} label="FYP Fit" />
-              <ScoreBadge score={panel.academicEvaluator.innovationScore} label="Innovation" />
-              <div className="text-center p-3 bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700">
-                <p className="text-2xl font-bold text-gray-900 dark:text-white capitalize">{panel.academicEvaluator.researchDepth}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Research Depth</p>
-              </div>
-            </div>
-
-            <Section title="FYP Suitability Reasoning">
-              <p className="text-sm text-gray-700 dark:text-gray-300">
-                {panelFypSuitabilityReasoning}
-              </p>
-            </Section>
-
-            <Section title="Innovation Reasoning">
-              <p className="text-sm text-gray-700 dark:text-gray-300">
-                {panelInnovationReasoning}
-              </p>
-            </Section>
-
-            <Section title="Academic Strengths" icon={<CheckCircle className="w-4 h-4 text-emerald-500" />}>
-              <ul className="space-y-1.5">
-                {panel.academicEvaluator.academicStrengths.map((s, i) => (
-                  <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
-                    <span className="text-emerald-500 mt-0.5">✓</span> {s}
-                  </li>
-                ))}
-              </ul>
-            </Section>
-
-            <Section title="Academic Weaknesses" icon={<AlertTriangle className="w-4 h-4 text-amber-500" />}>
-              <ul className="space-y-1.5">
-                {panel.academicEvaluator.academicWeaknesses.map((w, i) => (
-                  <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
-                    <span className="text-amber-500 mt-0.5">⚠</span> {w}
-                  </li>
-                ))}
-              </ul>
-            </Section>
-          </>
-        )}
-
-        {activeTab === "risks" && (
-          <>
-            <div className="flex items-center gap-2 p-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-700/50">
-              <Shield className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-              <div>
-                <p className="text-xs text-gray-400 dark:text-gray-500">Overall Risk Level</p>
-                <p className="text-sm font-semibold text-gray-900 dark:text-white capitalize">{panel.riskCritic.riskLevel}</p>
-              </div>
-            </div>
-
-            <Section title="Top Risk Factors">
-              <ul className="space-y-1.5">
-                {final_.riskFactors.map((r, i) => (
-                  <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
-                    <span className="text-red-500 mt-0.5">●</span> {r}
-                  </li>
-                ))}
-              </ul>
-            </Section>
-
-            <Section title="Hidden Challenges" icon={<AlertOctagon className="w-4 h-4 text-red-500" />}>
-              <ul className="space-y-1.5">
-                {panel.riskCritic.hiddenChallenges.map((c, i) => (
-                  <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
-                    <span className="text-red-500 mt-0.5">!</span> {c}
-                  </li>
-                ))}
-              </ul>
-            </Section>
-
-            <Section title="Unrealistic Assumptions">
-              <ul className="space-y-1.5">
-                {panel.riskCritic.unrealisticAssumptions.map((a, i) => (
-                  <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
-                    <span className="text-amber-500 mt-0.5">?</span> {a}
-                  </li>
-                ))}
-              </ul>
-            </Section>
-
-            <Section title="Potential Failure Points">
-              <ul className="space-y-1.5">
-                {panel.riskCritic.potentialFailurePoints.map((f, i) => (
-                  <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
-                    <span className="text-red-500 mt-0.5">✕</span> {f}
-                  </li>
-                ))}
-              </ul>
-            </Section>
-
-            <Section title="Mitigation Suggestions" icon={<Lightbulb className="w-4 h-4 text-emerald-500" />}>
-              <ul className="space-y-1.5">
-                {panel.riskCritic.mitigationSuggestions.map((s, i) => (
-                  <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
-                    <span className="text-emerald-500 mt-0.5">→</span> {s}
-                  </li>
-                ))}
-              </ul>
-            </Section>
-          </>
+        {!result.previewLocked ? (
+          <InfoCard title="Simple build direction" icon={<Wrench className="h-4 w-4" />}>
+            <BulletList items={report.simpleTechDirection} />
+          </InfoCard>
+        ) : (
+          <LockedCard />
         )}
       </div>
 
-      <div className="grid grid-cols-1 gap-3 text-xs text-gray-500 dark:text-gray-400 sm:grid-cols-3">
-        <div className="rounded-xl border border-gray-200 dark:border-slate-700 p-3 bg-gray-50 dark:bg-slate-800">
-          <p className="text-[11px] uppercase tracking-wide">Model Usage</p>
-          <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
-            {result.modelUsed ?? "Not recorded"}
-          </p>
+      {!result.previewLocked ? (
+        <>
+          <InfoCard title="Ways to reduce the risk" icon={<ShieldAlert className="h-4 w-4" />}>
+            <BulletList items={report.riskReductionSteps} />
+          </InfoCard>
+
+          <InfoCard title="Simple project roadmap" icon={<Map className="h-4 w-4" />}>
+            <div className="space-y-4">
+              {report.roadmap.map((phase, index) => (
+                <div key={`${phase.phase}-${index}`} className="flex gap-4 rounded-2xl border border-gray-200 bg-gray-50 p-4 dark:border-slate-800 dark:bg-slate-950/40">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-sm font-semibold text-amber-800 dark:bg-amber-950/60 dark:text-amber-200">
+                    {index + 1}
+                  </div>
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h4 className="font-semibold text-gray-900 dark:text-white">{phase.phase}</h4>
+                      <span className="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                        <Clock3 className="h-3.5 w-3.5" />
+                        {phase.duration}
+                      </span>
+                    </div>
+                    <ul className="mt-3 space-y-2">
+                      {phase.tasks.map((task, taskIndex) => (
+                        <li key={taskIndex} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
+                          <span className="mt-1 h-1.5 w-1.5 rounded-full bg-amber-500" />
+                          <span>{task}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </InfoCard>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <InfoCard title="Pitch it simply" icon={<Lightbulb className="h-4 w-4" />}>
+              <p>{report.elevatorPitch}</p>
+            </InfoCard>
+
+            <InfoCard title="Extra plain-language advice" icon={<Sparkles className="h-4 w-4" />}>
+              <BulletList items={report.plainLanguageAdvice} />
+            </InfoCard>
+          </div>
+        </>
+      ) : (
+        <div className="rounded-[28px] border border-dashed border-amber-300 bg-gradient-to-br from-amber-50 via-white to-white p-6 shadow-sm dark:border-amber-900/40 dark:from-slate-900 dark:via-slate-900 dark:to-amber-950/20">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-amber-700 dark:border-amber-900/40 dark:bg-slate-900 dark:text-amber-300">
+                <Lock className="h-3.5 w-3.5" />
+                Preview Limit Reached
+              </div>
+              <h3 className="mt-3 text-xl font-semibold text-gray-950 dark:text-white">
+                Sign up to unlock the full report
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-gray-700 dark:text-gray-300">
+                The free preview hides a few deeper sections like the roadmap, the build direction, and the full improvement plan.
+              </p>
+              <ul className="mt-3 space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                {result.hiddenSections.map((item) => (
+                  <li key={item} className="flex items-start gap-2">
+                    <span className="mt-1 h-1.5 w-1.5 rounded-full bg-amber-500" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/signup"
+                className="inline-flex items-center justify-center rounded-2xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
+              >
+                Sign Up Free
+              </Link>
+              <Link
+                href="/login"
+                className="inline-flex items-center justify-center rounded-2xl border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-slate-700 dark:text-gray-200 dark:hover:bg-slate-900"
+              >
+                Log In
+              </Link>
+            </div>
+          </div>
         </div>
-        <div className="rounded-xl border border-gray-200 dark:border-slate-700 p-3 bg-gray-50 dark:bg-slate-800">
-          <p className="text-[11px] uppercase tracking-wide">Tokens Used</p>
-          <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
-            {result.tokensUsed.toLocaleString()}
-          </p>
-        </div>
-        <div className="rounded-xl border border-gray-200 dark:border-slate-700 p-3 bg-gray-50 dark:bg-slate-800">
-          <p className="text-[11px] uppercase tracking-wide">AI Latency</p>
-          <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
-            {result.latencyMs != null ? `${(result.latencyMs / 1000).toFixed(1)}s` : "Not recorded"}
-          </p>
-        </div>
+      )}
+
+      <div className="grid gap-3 sm:grid-cols-3">
+        <MetaCard label="Model used" value={result.modelUsed ?? "Not recorded"} />
+        <MetaCard label="Tokens used" value={result.tokensUsed.toLocaleString()} />
+        <MetaCard
+          label="Response time"
+          value={result.latencyMs != null ? `${(result.latencyMs / 1000).toFixed(1)}s` : "Not recorded"}
+        />
       </div>
     </div>
   )
+}
+
+function ScoreCard({ label, value }: { label: string; value: number }) {
+  const tone =
+    value >= 8 ? "text-emerald-700 dark:text-emerald-300" :
+    value >= 6 ? "text-blue-700 dark:text-blue-300" :
+    value >= 4 ? "text-amber-700 dark:text-amber-300" :
+    "text-red-700 dark:text-red-300"
+
+  return (
+    <div className="rounded-2xl border border-white/60 bg-white/80 p-4 text-center shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-950/50">
+      <div className={`text-2xl font-bold ${tone}`}>{value}/10</div>
+      <div className="mt-1 text-xs font-medium text-gray-500 dark:text-gray-400">{label}</div>
+    </div>
+  )
+}
+
+function InfoCard({
+  title,
+  icon,
+  children,
+}: {
+  title: string
+  icon: React.ReactNode
+  children: React.ReactNode
+}) {
+  return (
+    <section className="rounded-[26px] border border-gray-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
+        <span className="text-amber-500">{icon}</span>
+        <h3>{title}</h3>
+      </div>
+      <div className="mt-4 text-sm leading-6 text-gray-700 dark:text-gray-300">{children}</div>
+    </section>
+  )
+}
+
+function BulletList({ items }: { items: string[] }) {
+  return (
+    <ul className="space-y-2">
+      {items.map((item, index) => (
+        <li key={`${item}-${index}`} className="flex items-start gap-2">
+          <span className="mt-2 h-1.5 w-1.5 rounded-full bg-amber-500" />
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+function LockedCard() {
+  return (
+    <div className="rounded-[26px] border border-dashed border-amber-300 bg-amber-50/70 p-5 shadow-sm dark:border-amber-900/40 dark:bg-amber-950/10">
+      <div className="flex items-center gap-2 text-sm font-semibold text-amber-800 dark:text-amber-200">
+        <Lock className="h-4 w-4" />
+        Full section hidden in guest preview
+      </div>
+      <p className="mt-3 text-sm leading-6 text-amber-900/80 dark:text-amber-100/80">
+        Sign up to unlock the deeper build direction, full roadmap, and full improvement plan.
+      </p>
+    </div>
+  )
+}
+
+function MetaCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-400 dark:text-gray-500">
+        {label}
+      </div>
+      <div className="mt-2 text-sm text-gray-800 dark:text-gray-200">{value}</div>
+    </div>
+  )
+}
+
+function getRecommendationTone(recommendation: string | null) {
+  switch (recommendation) {
+    case "STRONGLY_RECOMMENDED":
+      return {
+        label: "Strong match for an FYP",
+        shell: "border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-white dark:border-emerald-900/40 dark:from-emerald-950/20 dark:via-slate-900 dark:to-slate-900",
+        icon: <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-300" />,
+      }
+    case "RECOMMENDED_WITH_CHANGES":
+      return {
+        label: "Good idea with changes",
+        shell: "border-blue-200 bg-gradient-to-br from-blue-50 via-white to-white dark:border-blue-900/40 dark:from-blue-950/20 dark:via-slate-900 dark:to-slate-900",
+        icon: <Lightbulb className="h-4 w-4 text-blue-600 dark:text-blue-300" />,
+      }
+    case "NEEDS_MAJOR_REVISION":
+      return {
+        label: "Needs a stronger shape",
+        shell: "border-amber-200 bg-gradient-to-br from-amber-50 via-white to-white dark:border-amber-900/40 dark:from-amber-950/20 dark:via-slate-900 dark:to-slate-900",
+        icon: <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-300" />,
+      }
+    default:
+      return {
+        label: "Not ready yet",
+        shell: "border-red-200 bg-gradient-to-br from-red-50 via-white to-white dark:border-red-900/40 dark:from-red-950/20 dark:via-slate-900 dark:to-slate-900",
+        icon: <ShieldAlert className="h-4 w-4 text-red-600 dark:text-red-300" />,
+      }
+  }
+}
+
+function getOriginalityTone(verdict: "appears_unique" | "some_overlap" | "very_similar" | "already_done") {
+  switch (verdict) {
+    case "appears_unique":
+      return {
+        label: "Looks fresh",
+        shell: "border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-white dark:border-emerald-900/40 dark:from-emerald-950/20 dark:via-slate-900 dark:to-slate-900",
+        icon: <Sparkles className="h-4 w-4 text-emerald-600 dark:text-emerald-300" />,
+      }
+    case "some_overlap":
+      return {
+        label: "Some overlap found",
+        shell: "border-blue-200 bg-gradient-to-br from-blue-50 via-white to-white dark:border-blue-900/40 dark:from-blue-950/20 dark:via-slate-900 dark:to-slate-900",
+        icon: <Lightbulb className="h-4 w-4 text-blue-600 dark:text-blue-300" />,
+      }
+    case "very_similar":
+      return {
+        label: "Very close to past work",
+        shell: "border-amber-200 bg-gradient-to-br from-amber-50 via-white to-white dark:border-amber-900/40 dark:from-amber-950/20 dark:via-slate-900 dark:to-slate-900",
+        icon: <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-300" />,
+      }
+    default:
+      return {
+        label: "Already done before",
+        shell: "border-red-200 bg-gradient-to-br from-red-50 via-white to-white dark:border-red-900/40 dark:from-red-950/20 dark:via-slate-900 dark:to-slate-900",
+        icon: <ShieldAlert className="h-4 w-4 text-red-600 dark:text-red-300" />,
+      }
+  }
 }

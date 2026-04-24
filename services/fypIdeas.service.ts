@@ -1,13 +1,3 @@
-// services/fypIdeas.service.ts
-
-/**
- * FYP Ideas Service — Client API Layer
- * -------------------------------------
- * Pure API contract layer. No React, no hooks, no caching.
- */
-
-/* ---------- TYPES ---------- */
-
 export interface IdeaInput {
   title: string
   problemStatement: string
@@ -22,84 +12,58 @@ export interface RoadmapPhase {
   tasks: string[]
 }
 
-export interface PanelEvaluation {
-  ideaInterpreter: {
-    domain: string
-    impliedTechnologies: string[]
-    expectedArchitecture: string
-    systemScope: "small" | "medium" | "large"
-    targetUsers: string
-    coreProblemRestated: string
-  }
-  technicalEvaluator: {
-    feasibilityScore: number
-    feasibilityReasoning: string
-    difficultyLevel: "beginner" | "intermediate" | "advanced"
-    requiredSkills: string[]
-    estimatedWeeks: number
-    technicalChallenges: string[]
-    suggestedTechStack: string[]
-  }
-  industryEvaluator: {
-    industryRelevanceScore: number
-    industryRelevanceReasoning: string
-    trendAlignment: "outdated" | "current" | "emerging"
-    realWorldApplicability: "low" | "medium" | "high"
-    similarExistingProducts: string[]
-    marketPotential: string
-  }
-  academicEvaluator: {
-    fypSuitabilityScore: number
-    fypSuitabilityReasoning: string
-    innovationScore: number
-    innovationReasoning: string
-    researchDepth: "shallow" | "moderate" | "deep"
-    academicStrengths: string[]
-    academicWeaknesses: string[]
-  }
-  riskCritic: {
-    riskLevel: "low" | "medium" | "high"
-    hiddenChallenges: string[]
-    unrealisticAssumptions: string[]
-    potentialFailurePoints: string[]
-    mitigationSuggestions: string[]
-  }
+export interface SimilarPastIdea {
+  title: string
+  batch: string
+  groupNumber: number
+  supervisor: string | null
+  similarityScore: number
+  similarityReason: string
+  keyDifference: string
 }
 
-export interface SynthesizerResult {
-  feasibilityScore: number
-  feasibilityReasoning: string
-  innovationScore: number
-  innovationReasoning: string
-  difficultyLevel: "beginner" | "intermediate" | "advanced"
-  industryRelevanceScore: number
-  industryRelevanceReasoning: string
-  requiredSkills: string[]
-  riskFactors: string[]
-  technologySuggestions: string[]
-  technologyJustification: string
-  implementationRoadmap: RoadmapPhase[]
-  teamSizeSuitability: string
-  projectScopeRealism: "realistic" | "ambitious" | "unrealistic"
-  scopeRecommendation: string
-  improvementSuggestions: string[]
-  summaryEvaluation: string
-  finalRecommendation:
+export interface ValidationReport {
+  plainSummary: string
+  shouldBuild: string
+  recommendation:
     | "Strongly Recommended"
     | "Recommended with Changes"
     | "Needs Major Revision"
     | "Not Recommended"
+  feasibilityScore: number
+  originalityScore: number
+  usefulnessScore: number
+  difficultyLevel: "easy" | "moderate" | "challenging"
+  estimatedTimeline: string
+  teamFit: string
+  whoWillUseIt: string
+  whyItMatters: string
+  originalityVerdict: "appears_unique" | "some_overlap" | "very_similar" | "already_done"
+  originalityReason: string
+  pastIdeaComparisonSummary: string
+  uniquenessImprovements: string[]
+  strongPoints: string[]
+  concernPoints: string[]
+  riskReductionSteps: string[]
+  simpleTechDirection: string[]
+  simpleNextSteps: string[]
+  roadmap: RoadmapPhase[]
+  elevatorPitch: string
+  plainLanguageAdvice: string[]
+  similarPastIdeas: SimilarPastIdea[]
 }
 
 export interface ValidationResult {
   id: string
   status: "pending" | "completed" | "failed"
-  feasibilityScore: number | null
-  innovationScore: number | null
-  industryRelevanceScore: number | null
   recommendation: string | null
-  panelEvaluation: PanelEvaluation | null
-  finalResult: SynthesizerResult | null
+  feasibilityScore: number | null
+  originalityScore: number | null
+  usefulnessScore: number | null
+  report: ValidationReport | null
+  previewLocked: boolean
+  accessMode: "student" | "guest"
+  hiddenSections: string[]
   tokensUsed: number
   modelUsed: string | null
   latencyMs: number | null
@@ -120,8 +84,6 @@ interface ApiResponse<T> {
   data: T
   errors?: { field: string; message: string }[]
 }
-
-/* ---------- API FUNCTIONS ---------- */
 
 export async function validateIdea(input: IdeaInput): Promise<ValidationResult> {
   const response = await fetch("/api/fyp-ideas/validate", {

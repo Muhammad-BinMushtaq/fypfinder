@@ -312,6 +312,8 @@ model FYPIdeaValidation {
   feasibilityScore       Int?
   innovationScore        Int?
   industryRelevanceScore Int?
+  originalityScore       Int?
+  usefulnessScore        Int?
   recommendation         ValidationRecommendation?
   status                 ValidationStatus         @default(PENDING)
   modelUsed              String?                  // Which LLM model produced the result
@@ -330,7 +332,30 @@ model FYPIdeaValidation {
 }
 
 // =====================
-// 15️⃣ Internship (Student Experience)
+// 15️⃣ Past FYP Idea Catalog
+// =====================
+
+model PastFypIdea {
+  id             String   @id @default(uuid())
+  sourceKey      String   @unique
+  batch          String
+  groupNumber    Int
+  title          String
+  abstract       String   @db.Text
+  supervisor     String
+  students       Json
+  keywords       Json
+  searchText     String   @db.Text
+  sourceHash     String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([batch])
+  @@index([groupNumber])
+}
+
+// =====================
+// 16️⃣ Internship (Student Experience)
 // =====================
 
 model Internship {

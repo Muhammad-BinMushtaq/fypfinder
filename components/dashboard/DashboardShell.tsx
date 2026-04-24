@@ -11,7 +11,7 @@ import { PushPermissionBanner } from "@/components/pwa/PushPermissionBanner";
 import { InstallPromptBanner } from "@/components/pwa/InstallPromptBanner";
 import { InstallButton } from "@/components/pwa/InstallButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { GraduationCap, Lightbulb } from "lucide-react";
+import { GraduationCap, Lightbulb, Sparkles } from "lucide-react";
 import clientLogger from "@/lib/client-logger";
 
 interface DashboardShellProps {
@@ -79,6 +79,13 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
                 <Lightbulb className="w-3.5 h-3.5" />
                 <span>Ideas</span>
               </Link>
+              <Link
+                href="/dashboard/fyp-ideas/validate"
+                className="flex items-center gap-1 px-2 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 dark:hover:bg-blue-950/50 rounded-lg transition-colors border border-blue-200 dark:border-blue-900/40"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Validate</span>
+              </Link>
               {/* Install Button - Always visible */}
               <InstallButton />
               <ThemeToggle />
@@ -96,6 +103,13 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
             >
               <Lightbulb className="w-4 h-4" />
               FYP Ideas
+            </Link>
+            <Link
+              href="/dashboard/fyp-ideas/validate"
+              className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 dark:hover:bg-blue-950/50 rounded-lg transition-colors border border-blue-200 dark:border-blue-900/40"
+            >
+              <Sparkles className="w-4 h-4" />
+              Validate Idea
             </Link>
             <ThemeToggle />
           </div>

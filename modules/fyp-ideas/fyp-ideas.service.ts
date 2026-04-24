@@ -1,214 +1,130 @@
-// modules/fyp-ideas/fyp-ideas.service.ts
-
-/**
- * FYP Idea Validator — Service Layer
- * -----------------------------------
- * Orchestrates the full validation pipeline:
- * 1. Input preprocessing & hash
- * 2. Cache check (same idea → return cached result)
- * 3. Rate limit check (max 3 per student per day)
- * 4. Call 1: Panel evaluation (5 roles in one LLM call)
- * 5. Call 2: Final synthesis
- * 6. Persist to database
- *
- * This module is fully isolated. Failures here do not affect
- * messaging, discovery, or any other feature.
- */
-
 import crypto from "crypto"
-import prisma from "@/lib/db"
 import { Prisma } from "@/lib/generated/prisma/client"
+import prisma from "@/lib/db"
 import { logger } from "@/lib/logger"
 import { groqChatWithFallback, parseGroqJson } from "./groq-client"
-import {
-  buildPanelSystemPrompt,
-  buildPanelUserPrompt,
-  buildSynthesizerSystemPrompt,
-  buildSynthesizerUserPrompt,
-} from "./prompts"
+import { findSimilarPastIdeas } from "./past-ideas"
+import { buildValidatorSystemPrompt, buildValidatorUserPrompt } from "./prompts"
 import {
   type IdeaInput,
-  type PanelOutput,
-  type SynthesizerOutput,
-  panelOutputSchema,
-  synthesizerOutputSchema,
+  type ValidationReport,
+  validationReportSchema,
 } from "./schemas"
 
 const MAX_VALIDATIONS_PER_DAY = 3
-const PANEL_MAX_TOKENS = 3000
-const SYNTHESIZER_MAX_TOKENS = 1500
-
-// =====================
-// Public API
-// =====================
+const SINGLE_CALL_MAX_TOKENS = 3200
 
 export interface ValidationResult {
   id: string
   status: "pending" | "completed" | "failed"
-  feasibilityScore: number | null
-  innovationScore: number | null
-  industryRelevanceScore: number | null
   recommendation: string | null
-  panelEvaluation: PanelOutput | null
-  finalResult: SynthesizerOutput | null
+  feasibilityScore: number | null
+  originalityScore: number | null
+  usefulnessScore: number | null
+  report: ValidationReport | null
+  previewLocked: boolean
+  accessMode: "student" | "guest"
+  hiddenSections: string[]
   tokensUsed: number
   modelUsed: string | null
   latencyMs: number | null
   createdAt: Date
 }
 
-/**
- * Run the full idea validation pipeline for a student.
- */
-export async function validateIdea(
-  studentId: string,
-  input: IdeaInput
-): Promise<ValidationResult> {
-  // 1. Compute input hash and check cache first.
-  // Cached results should not consume a fresh daily validation slot.
-  const inputHash = computeInputHash(input)
-  const existing = await findExistingValidation(studentId, inputHash)
-  const cached = existing && existing.status === "COMPLETED"
-    ? formatResult(existing)
-    : null
-
-  if (cached) return cached
-
-  // 2. Check daily rate limit for new runs / retries.
-  await enforceRateLimit(studentId)
-
-  // 3. Create or reset the pending record.
-  const record = existing
-    ? await prisma.fYPIdeaValidation.update({
-        where: { id: existing.id },
-        data: {
-          title: input.title,
-          problemStatement: input.problemStatement,
-          ideaDescription: input.ideaDescription,
-          coreFeatures: input.coreFeatures,
-          teamSize: input.teamSize,
-          inputHash,
-          panelEvaluation: Prisma.DbNull,
-          finalResult: Prisma.DbNull,
-          detailedRoadmap: Prisma.DbNull,
-          feasibilityScore: null,
-          innovationScore: null,
-          industryRelevanceScore: null,
-          recommendation: null,
-          status: "PENDING",
-          modelUsed: null,
-          tokensUsed: 0,
-          latencyMs: null,
-          errorMessage: null,
-          createdAt: new Date(),
-        },
-      })
-    : await prisma.fYPIdeaValidation.create({
-        data: {
-          studentId,
-          title: input.title,
-          problemStatement: input.problemStatement,
-          ideaDescription: input.ideaDescription,
-          coreFeatures: input.coreFeatures,
-          teamSize: input.teamSize,
-          inputHash,
-          status: "PENDING",
-        },
-      })
-
-  try {
-    // 4. Call 1: Panel evaluation
-    const panelSystem = buildPanelSystemPrompt()
-    const panelUser = buildPanelUserPrompt({
-      title: input.title,
-      problemStatement: truncate(input.problemStatement, 400),
-      ideaDescription: truncate(input.ideaDescription, 800),
-      coreFeatures: truncate(input.coreFeatures, 500),
-      teamSize: input.teamSize,
-    })
-
-    const panelResult = await groqChatWithFallback(
-      panelSystem,
-      panelUser,
-      PANEL_MAX_TOKENS,
-      {
-        validateResponse: (content) => {
-          parseAndValidatePanel(content)
-        },
-      }
-    )
-    const panelParsed = parseAndValidatePanel(panelResult.content)
-    let totalTokens = panelResult.tokensUsed
-    let totalLatencyMs = panelResult.latencyMs
-
-    // 5. Call 2: Synthesizer
-    const synthSystem = buildSynthesizerSystemPrompt()
-    const synthUser = buildSynthesizerUserPrompt(JSON.stringify(panelParsed))
-
-    const synthResult = await groqChatWithFallback(
-      synthSystem,
-      synthUser,
-      SYNTHESIZER_MAX_TOKENS,
-      {
-        validateResponse: (content) => {
-          parseAndValidateSynthesizer(content)
-        },
-      }
-    )
-    const synthParsed = parseAndValidateSynthesizer(synthResult.content)
-    totalTokens += synthResult.tokensUsed
-    totalLatencyMs += synthResult.latencyMs
-
-    // 6. Map recommendation string to enum value
-    const recommendation = mapRecommendation(synthParsed.finalRecommendation)
-    const modelUsed = [
-      `Panel: ${panelResult.modelUsed}`,
-      `Synthesizer: ${synthResult.modelUsed}`,
-    ].join(" | ")
-
-    // 7. Persist completed result
-    const updated = await prisma.fYPIdeaValidation.update({
-      where: { id: record.id },
-      data: {
-        panelEvaluation: JSON.parse(JSON.stringify(panelParsed)),
-        finalResult: JSON.parse(JSON.stringify(synthParsed)),
-        feasibilityScore: synthParsed.feasibilityScore,
-        innovationScore: synthParsed.innovationScore,
-        industryRelevanceScore: synthParsed.industryRelevanceScore,
-        recommendation,
-        status: "COMPLETED",
-        modelUsed,
-        tokensUsed: totalTokens,
-        latencyMs: totalLatencyMs,
-      },
-    })
-
-    return formatResult(updated)
-  } catch (error) {
-    // Mark as failed but don't throw — let caller handle gracefully
-    const errorMsg = error instanceof Error ? error.message : "Unknown error"
-    logger.error("FYP idea validation failed:", error)
-
-    await prisma.fYPIdeaValidation.update({
-      where: { id: record.id },
-      data: {
-        status: "FAILED",
-        errorMessage: errorMsg,
-      },
-    })
-
-    throw new Error(`Validation failed: ${errorMsg}`)
-  }
+interface ValidateIdeaOptions {
+  studentId?: string | null
+  accessMode: "student" | "guest"
 }
 
-/**
- * Get all validation history for a student.
- */
-export async function getStudentValidations(
-  studentId: string,
-  limit = 10,
-  offset = 0
-) {
+const GUEST_HIDDEN_SECTIONS = [
+  "Detailed roadmap",
+  "Detailed risk reduction plan",
+  "Simple tech direction",
+  "Long-form advice",
+  "Full elevator pitch",
+] as const
+
+export async function validateIdea(
+  input: IdeaInput,
+  options: ValidateIdeaOptions
+): Promise<ValidationResult> {
+  const isStudent = options.accessMode === "student" && Boolean(options.studentId)
+  const studentId = options.studentId ?? null
+
+  if (isStudent && studentId) {
+    const inputHash = computeInputHash(input)
+    const existing = await findExistingValidation(studentId, inputHash)
+    const cached = existing && existing.status === "COMPLETED"
+      ? formatStoredValidation(existing, "student")
+      : null
+
+    if (cached) {
+      return cached
+    }
+
+    await enforceStudentRateLimit(studentId)
+
+    const record = existing
+      ? await resetExistingValidation(existing.id, input, inputHash)
+      : await prisma.fYPIdeaValidation.create({
+          data: {
+            studentId,
+            title: input.title,
+            problemStatement: input.problemStatement,
+            ideaDescription: input.ideaDescription,
+            coreFeatures: input.coreFeatures,
+            teamSize: input.teamSize,
+            inputHash,
+            status: "PENDING",
+          },
+        })
+
+    try {
+      const reportResult = await generateValidationReport(input)
+      const recommendation = mapRecommendation(reportResult.report.recommendation)
+
+      const updated = await prisma.fYPIdeaValidation.update({
+        where: { id: record.id },
+        data: {
+          panelEvaluation: Prisma.DbNull,
+          finalResult: JSON.parse(JSON.stringify(reportResult.report)),
+          detailedRoadmap: JSON.parse(JSON.stringify(reportResult.report.roadmap)),
+          feasibilityScore: reportResult.report.feasibilityScore,
+          innovationScore: reportResult.report.originalityScore,
+          industryRelevanceScore: reportResult.report.usefulnessScore,
+          originalityScore: reportResult.report.originalityScore,
+          usefulnessScore: reportResult.report.usefulnessScore,
+          recommendation,
+          status: "COMPLETED",
+          modelUsed: reportResult.modelUsed,
+          tokensUsed: reportResult.tokensUsed,
+          latencyMs: reportResult.latencyMs,
+          errorMessage: null,
+        },
+      })
+
+      return formatStoredValidation(updated, "student")
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error"
+      logger.error("Student idea validation failed:", error)
+
+      await prisma.fYPIdeaValidation.update({
+        where: { id: record.id },
+        data: {
+          status: "FAILED",
+          errorMessage,
+        },
+      })
+
+      throw new Error(`Validation failed: ${errorMessage}`)
+    }
+  }
+
+  const guestResult = await generateValidationReport(input)
+  return buildGuestPreviewResult(guestResult)
+}
+
+export async function getStudentValidations(studentId: string, limit = 10, offset = 0) {
   const [validations, total] = await Promise.all([
     prisma.fYPIdeaValidation.findMany({
       where: { studentId, status: "COMPLETED" },
@@ -222,27 +138,51 @@ export async function getStudentValidations(
   ])
 
   return {
-    items: validations.map(formatResult),
+    items: validations.map((record) => formatStoredValidation(record, "student")),
     total,
     limit,
     offset,
   }
 }
 
-/**
- * Get remaining validations for today.
- */
 export async function getRemainingValidations(studentId: string): Promise<number> {
-  const todayCount = await getTodayCount(studentId)
+  const todayCount = await getStudentValidationCountToday(studentId)
   return Math.max(0, MAX_VALIDATIONS_PER_DAY - todayCount)
 }
 
-// =====================
-// Internal Helpers
-// =====================
+async function generateValidationReport(input: IdeaInput) {
+  const similarIdeas = await findSimilarPastIdeas(input, 3)
+  const systemPrompt = buildValidatorSystemPrompt()
+  const userPrompt = buildValidatorUserPrompt(
+    {
+      title: input.title,
+      problemStatement: truncate(input.problemStatement, 500),
+      ideaDescription: truncate(input.ideaDescription, 1200),
+      coreFeatures: truncate(input.coreFeatures, 700),
+      teamSize: input.teamSize,
+    },
+    similarIdeas
+  )
 
-async function enforceRateLimit(studentId: string): Promise<void> {
-  const todayCount = await getTodayCount(studentId)
+  const result = await groqChatWithFallback(systemPrompt, userPrompt, SINGLE_CALL_MAX_TOKENS, {
+    validateResponse: (content) => {
+      parseValidationReport(content)
+    },
+  })
+
+  const report = parseValidationReport(result.content)
+
+  return {
+    report,
+    tokensUsed: result.tokensUsed,
+    modelUsed: result.modelUsed,
+    latencyMs: result.latencyMs,
+  }
+}
+
+async function enforceStudentRateLimit(studentId: string): Promise<void> {
+  const todayCount = await getStudentValidationCountToday(studentId)
+
   if (todayCount >= MAX_VALIDATIONS_PER_DAY) {
     throw new Error(
       `Daily limit reached. You can validate up to ${MAX_VALIDATIONS_PER_DAY} ideas per day.`
@@ -250,7 +190,7 @@ async function enforceRateLimit(studentId: string): Promise<void> {
   }
 }
 
-async function getTodayCount(studentId: string): Promise<number> {
+async function getStudentValidationCountToday(studentId: string): Promise<number> {
   const startOfDay = new Date()
   startOfDay.setHours(0, 0, 0, 0)
 
@@ -273,10 +213,7 @@ function computeInputHash(input: IdeaInput): string {
   return crypto.createHash("sha256").update(normalized).digest("hex")
 }
 
-async function findExistingValidation(
-  studentId: string,
-  inputHash: string
-){
+async function findExistingValidation(studentId: string, inputHash: string) {
   return prisma.fYPIdeaValidation.findFirst({
     where: {
       studentId,
@@ -286,70 +223,116 @@ async function findExistingValidation(
   })
 }
 
-function parseAndValidatePanel(raw: string): PanelOutput {
+async function resetExistingValidation(id: string, input: IdeaInput, inputHash: string) {
+  return prisma.fYPIdeaValidation.update({
+    where: { id },
+    data: {
+      title: input.title,
+      problemStatement: input.problemStatement,
+      ideaDescription: input.ideaDescription,
+      coreFeatures: input.coreFeatures,
+      teamSize: input.teamSize,
+      inputHash,
+      panelEvaluation: Prisma.DbNull,
+      finalResult: Prisma.DbNull,
+      detailedRoadmap: Prisma.DbNull,
+      feasibilityScore: null,
+      innovationScore: null,
+      industryRelevanceScore: null,
+      originalityScore: null,
+      usefulnessScore: null,
+      recommendation: null,
+      status: "PENDING",
+      modelUsed: null,
+      tokensUsed: 0,
+      latencyMs: null,
+      errorMessage: null,
+      createdAt: new Date(),
+    },
+  })
+}
+
+function parseValidationReport(raw: string): ValidationReport {
   const parsed = parseGroqJson<unknown>(raw)
-  const result = panelOutputSchema.safeParse(parsed)
+  const result = validationReportSchema.safeParse(parsed)
 
   if (!result.success) {
-    logger.error("Panel output validation failed:", result.error.issues)
-    throw new Error("AI panel response had invalid structure")
+    logger.error("Validation report schema check failed:", result.error.issues)
+    throw new Error("AI validation response had an invalid structure")
   }
 
   return result.data
 }
 
-function parseAndValidateSynthesizer(raw: string): SynthesizerOutput {
-  const parsed = parseGroqJson<unknown>(raw)
-  const result = synthesizerOutputSchema.safeParse(parsed)
-
-  if (!result.success) {
-    logger.error("Synthesizer output validation failed:", result.error.issues)
-    throw new Error("AI synthesizer response had invalid structure")
-  }
-
-  return result.data
-}
-
-function mapRecommendation(
-  rec: SynthesizerOutput["finalRecommendation"]
-): "STRONGLY_RECOMMENDED" | "RECOMMENDED_WITH_CHANGES" | "NEEDS_MAJOR_REVISION" | "NOT_RECOMMENDED" {
-  const map = {
-    "Strongly Recommended": "STRONGLY_RECOMMENDED",
-    "Recommended with Changes": "RECOMMENDED_WITH_CHANGES",
-    "Needs Major Revision": "NEEDS_MAJOR_REVISION",
-    "Not Recommended": "NOT_RECOMMENDED",
-  } as const
-  return map[rec]
-}
-
-function truncate(text: string, maxLen: number): string {
-  if (text.length <= maxLen) return text
-  return text.slice(0, maxLen - 3) + "..."
-}
-
-function formatResult(record: {
-  id: string
-  status: string
-  feasibilityScore: number | null
-  innovationScore: number | null
-  industryRelevanceScore: number | null
-  recommendation: string | null
-  panelEvaluation: unknown
-  finalResult: unknown
+function buildGuestPreviewResult(result: {
+  report: ValidationReport
   tokensUsed: number
-  modelUsed: string | null
-  latencyMs: number | null
-  createdAt: Date
+  modelUsed: string
+  latencyMs: number
 }): ValidationResult {
+  const previewReport: ValidationReport = {
+    ...result.report,
+    riskReductionSteps: [],
+    simpleTechDirection: [],
+    plainLanguageAdvice: result.report.plainLanguageAdvice.slice(0, 2),
+    roadmap: result.report.roadmap.slice(0, 2).map((phase) => ({
+      ...phase,
+      tasks: phase.tasks.slice(0, 1),
+    })),
+    elevatorPitch: "Sign up to unlock the polished project pitch for this idea.",
+    similarPastIdeas: result.report.similarPastIdeas.map((idea) => ({
+      ...idea,
+      supervisor: null,
+    })),
+  }
+
+  return {
+    id: crypto.randomUUID(),
+    status: "completed",
+    recommendation: mapRecommendation(result.report.recommendation),
+    feasibilityScore: result.report.feasibilityScore,
+    originalityScore: result.report.originalityScore,
+    usefulnessScore: result.report.usefulnessScore,
+    report: previewReport,
+    previewLocked: true,
+    accessMode: "guest",
+    hiddenSections: [...GUEST_HIDDEN_SECTIONS],
+    tokensUsed: result.tokensUsed,
+    modelUsed: result.modelUsed,
+    latencyMs: result.latencyMs,
+    createdAt: new Date(),
+  }
+}
+
+function formatStoredValidation(
+  record: {
+    id: string
+    status: string
+    recommendation: string | null
+    feasibilityScore: number | null
+    originalityScore: number | null
+    usefulnessScore: number | null
+    finalResult: unknown
+    tokensUsed: number
+    modelUsed: string | null
+    latencyMs: number | null
+    createdAt: Date
+  },
+  accessMode: "student" | "guest"
+): ValidationResult {
+  const report = parseStoredReport(record.finalResult)
+
   return {
     id: record.id,
     status: normalizeStatus(record.status),
-    feasibilityScore: record.feasibilityScore,
-    innovationScore: record.innovationScore,
-    industryRelevanceScore: record.industryRelevanceScore,
     recommendation: record.recommendation,
-    panelEvaluation: record.panelEvaluation as PanelOutput | null,
-    finalResult: record.finalResult as SynthesizerOutput | null,
+    feasibilityScore: record.feasibilityScore,
+    originalityScore: record.originalityScore,
+    usefulnessScore: record.usefulnessScore,
+    report,
+    previewLocked: accessMode === "guest",
+    accessMode,
+    hiddenSections: accessMode === "guest" ? [...GUEST_HIDDEN_SECTIONS] : [],
     tokensUsed: record.tokensUsed,
     modelUsed: record.modelUsed,
     latencyMs: record.latencyMs,
@@ -357,9 +340,25 @@ function formatResult(record: {
   }
 }
 
-function normalizeStatus(
-  status: string
-): ValidationResult["status"] {
+function parseStoredReport(value: unknown): ValidationReport | null {
+  const parsed = validationReportSchema.safeParse(value)
+  return parsed.success ? parsed.data : null
+}
+
+function mapRecommendation(
+  recommendation: ValidationReport["recommendation"]
+): "STRONGLY_RECOMMENDED" | "RECOMMENDED_WITH_CHANGES" | "NEEDS_MAJOR_REVISION" | "NOT_RECOMMENDED" {
+  const map = {
+    "Strongly Recommended": "STRONGLY_RECOMMENDED",
+    "Recommended with Changes": "RECOMMENDED_WITH_CHANGES",
+    "Needs Major Revision": "NEEDS_MAJOR_REVISION",
+    "Not Recommended": "NOT_RECOMMENDED",
+  } as const
+
+  return map[recommendation]
+}
+
+function normalizeStatus(status: string): ValidationResult["status"] {
   switch (status) {
     case "COMPLETED":
     case "completed":
@@ -367,9 +366,15 @@ function normalizeStatus(
     case "FAILED":
     case "failed":
       return "failed"
-    case "PENDING":
-    case "pending":
     default:
       return "pending"
   }
+}
+
+function truncate(text: string, maxLength: number): string {
+  if (text.length <= maxLength) {
+    return text
+  }
+
+  return `${text.slice(0, maxLength - 3)}...`
 }

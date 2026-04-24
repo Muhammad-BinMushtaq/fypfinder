@@ -1,17 +1,4 @@
-// modules/fyp-ideas/schemas.ts
-
-/**
- * FYP Idea Validator — Zod Schemas
- * --------------------------------
- * Validates student input and LLM output shapes.
- * Shared between API route (input) and service layer (LLM output).
- */
-
 import { z } from "zod"
-
-// =====================
-// Input Validation
-// =====================
 
 export const ideaInputSchema = z.object({
   title: z
@@ -41,105 +28,64 @@ export const ideaInputSchema = z.object({
     .max(6, "Team size must be at most 6")
     .nullable()
     .optional()
-    .transform((v) => v ?? null),
+    .transform((value) => value ?? null),
 })
 
 export type IdeaInput = z.infer<typeof ideaInputSchema>
 
-// =====================
-// LLM Output Validation — Call 1 (Panel)
-// =====================
-
-const ideaInterpreterSchema = z.object({
-  domain: z.string(),
-  impliedTechnologies: z.array(z.string()),
-  expectedArchitecture: z.string(),
-  systemScope: z.enum(["small", "medium", "large"]),
-  targetUsers: z.string(),
-  coreProblemRestated: z.string(),
-})
-
-const technicalEvaluatorSchema = z.object({
-  feasibilityScore: z.number().min(1).max(10),
-  feasibilityReasoning: z.string(),
-  difficultyLevel: z.enum(["beginner", "intermediate", "advanced"]),
-  requiredSkills: z.array(z.string()).min(1),
-  estimatedWeeks: z.number().min(1),
-  technicalChallenges: z.array(z.string()).min(1),
-  suggestedTechStack: z.array(z.string()).min(1),
-})
-
-const industryEvaluatorSchema = z.object({
-  industryRelevanceScore: z.number().min(1).max(10),
-  industryRelevanceReasoning: z.string(),
-  trendAlignment: z.enum(["outdated", "current", "emerging"]),
-  realWorldApplicability: z.enum(["low", "medium", "high"]),
-  similarExistingProducts: z.array(z.string()),
-  marketPotential: z.string(),
-})
-
-const academicEvaluatorSchema = z.object({
-  fypSuitabilityScore: z.number().min(1).max(10),
-  fypSuitabilityReasoning: z.string(),
-  innovationScore: z.number().min(1).max(10),
-  innovationReasoning: z.string(),
-  researchDepth: z.enum(["shallow", "moderate", "deep"]),
-  academicStrengths: z.array(z.string()).min(1),
-  academicWeaknesses: z.array(z.string()).min(1),
-})
-
-const riskCriticSchema = z.object({
-  riskLevel: z.enum(["low", "medium", "high"]),
-  hiddenChallenges: z.array(z.string()).min(1),
-  unrealisticAssumptions: z.array(z.string()).min(1),
-  potentialFailurePoints: z.array(z.string()).min(1),
-  mitigationSuggestions: z.array(z.string()).min(1),
-})
-
-export const panelOutputSchema = z.object({
-  ideaInterpreter: ideaInterpreterSchema,
-  technicalEvaluator: technicalEvaluatorSchema,
-  industryEvaluator: industryEvaluatorSchema,
-  academicEvaluator: academicEvaluatorSchema,
-  riskCritic: riskCriticSchema,
-})
-
-export type PanelOutput = z.infer<typeof panelOutputSchema>
-
-// =====================
-// LLM Output Validation — Call 2 (Synthesizer)
-// =====================
-
-const roadmapPhaseSchema = z.object({
+export const roadmapPhaseSchema = z.object({
   phase: z.string(),
   duration: z.string(),
   tasks: z.array(z.string()).min(1),
 })
 
-export const synthesizerOutputSchema = z.object({
-  feasibilityScore: z.number().min(1).max(10),
-  feasibilityReasoning: z.string(),
-  innovationScore: z.number().min(1).max(10),
-  innovationReasoning: z.string(),
-  difficultyLevel: z.enum(["beginner", "intermediate", "advanced"]),
-  industryRelevanceScore: z.number().min(1).max(10),
-  industryRelevanceReasoning: z.string(),
-  requiredSkills: z.array(z.string()).min(1),
-  riskFactors: z.array(z.string()).min(1),
-  technologySuggestions: z.array(z.string()).min(1),
-  technologyJustification: z.string(),
-  implementationRoadmap: z.array(roadmapPhaseSchema).min(1),
-  teamSizeSuitability: z.string(),
-  projectScopeRealism: z.enum(["realistic", "ambitious", "unrealistic"]),
-  scopeRecommendation: z.string(),
-  improvementSuggestions: z.array(z.string()).min(1),
-  summaryEvaluation: z.string(),
-  finalRecommendation: z.enum([
+export const similarPastIdeaSchema = z.object({
+  title: z.string(),
+  batch: z.string(),
+  groupNumber: z.number().int().nonnegative(),
+  supervisor: z.string().nullable(),
+  similarityScore: z.number().min(0).max(10),
+  similarityReason: z.string(),
+  keyDifference: z.string(),
+})
+
+export const validationReportSchema = z.object({
+  plainSummary: z.string(),
+  shouldBuild: z.string(),
+  recommendation: z.enum([
     "Strongly Recommended",
     "Recommended with Changes",
     "Needs Major Revision",
     "Not Recommended",
   ]),
+  feasibilityScore: z.number().min(1).max(10),
+  originalityScore: z.number().min(1).max(10),
+  usefulnessScore: z.number().min(1).max(10),
+  difficultyLevel: z.enum(["easy", "moderate", "challenging"]),
+  estimatedTimeline: z.string(),
+  teamFit: z.string(),
+  whoWillUseIt: z.string(),
+  whyItMatters: z.string(),
+  originalityVerdict: z.enum([
+    "appears_unique",
+    "some_overlap",
+    "very_similar",
+    "already_done",
+  ]),
+  originalityReason: z.string(),
+  pastIdeaComparisonSummary: z.string(),
+  uniquenessImprovements: z.array(z.string()).min(1),
+  strongPoints: z.array(z.string()).min(1),
+  concernPoints: z.array(z.string()).min(1),
+  riskReductionSteps: z.array(z.string()).min(1),
+  simpleTechDirection: z.array(z.string()).min(1),
+  simpleNextSteps: z.array(z.string()).min(1),
+  roadmap: z.array(roadmapPhaseSchema).min(3).max(5),
+  elevatorPitch: z.string(),
+  plainLanguageAdvice: z.array(z.string()).min(1),
+  similarPastIdeas: z.array(similarPastIdeaSchema).max(3),
 })
 
-export type SynthesizerOutput = z.infer<typeof synthesizerOutputSchema>
+export type RoadmapPhase = z.infer<typeof roadmapPhaseSchema>
+export type SimilarPastIdea = z.infer<typeof similarPastIdeaSchema>
+export type ValidationReport = z.infer<typeof validationReportSchema>

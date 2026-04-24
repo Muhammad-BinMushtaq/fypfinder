@@ -99,6 +99,15 @@ export default async function HomePage({
                 </svg>
                 Continue with Microsoft
               </Link>
+              <Link
+                href="/idea-validator"
+                className="w-full sm:w-auto px-6 py-3 text-sm font-medium text-gray-900 dark:text-white bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-950/50 transition-colors flex items-center justify-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3a7 7 0 017 7c0 2.395-1.19 4.513-3.013 5.781-.63.438-.987 1.145-.987 1.913V18a2 2 0 01-2 2h-1.326a2 2 0 01-2-2v-.306c0-.768-.358-1.475-.987-1.913A6.993 6.993 0 015 10a7 7 0 017-7z" />
+                </svg>
+                Try Idea Validator
+              </Link>
               <SupademoButton />
             </div>
           </div>
@@ -290,6 +299,38 @@ export default async function HomePage({
               <div className="pt-4 border-t border-gray-100 dark:border-slate-700">
                 <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">Supervised by</p>
                 <p className="text-sm text-gray-400 dark:text-gray-500 blur-[3px] select-none">Dr. Imran Malik</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 sm:py-28">
+        <div className="max-w-5xl mx-auto px-6 lg:px-8">
+          <div className="rounded-3xl border border-amber-200 dark:border-amber-900/40 bg-gradient-to-br from-amber-50 via-white to-orange-50 dark:from-slate-900 dark:via-slate-900 dark:to-amber-950/20 p-8 sm:p-10">
+            <div className="max-w-3xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white dark:bg-slate-900 border border-amber-200 dark:border-amber-900/40 text-xs font-semibold uppercase tracking-[0.18em] text-amber-700 dark:text-amber-300">
+                AI Idea Validator
+              </div>
+              <h2 className="mt-4 text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">
+                Check if your FYP idea is fresh before you commit to it
+              </h2>
+              <p className="mt-4 text-gray-600 dark:text-gray-300 leading-relaxed">
+                Paste your idea, compare it with past projects, and get a simple explanation of what feels strong, what feels repeated, and how to make it stand out.
+              </p>
+              <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                <Link
+                  href="/idea-validator"
+                  className="inline-flex items-center justify-center px-5 py-3 text-sm font-medium text-white dark:text-gray-900 bg-gray-900 dark:bg-white rounded-xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+                >
+                  Try 1 Free Preview
+                </Link>
+                <Link
+                  href="/signup"
+                  className="inline-flex items-center justify-center px-5 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-slate-700 rounded-xl hover:bg-white/70 dark:hover:bg-slate-900 transition-colors"
+                >
+                  Sign Up For Full Reports
+                </Link>
               </div>
             </div>
           </div>

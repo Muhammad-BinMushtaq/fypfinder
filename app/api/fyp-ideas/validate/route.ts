@@ -2,16 +2,20 @@
 
 import { NextRequest, NextResponse } from "next/server"
 import prisma from "@/lib/db"
-import { requireRole } from "@/lib/auth"
+import { getCurrentUser } from "@/lib/auth"
 import { UserRole } from "@/lib/generated/prisma/enums"
 import { logger } from "@/lib/logger"
+import { createRateLimiter, getClientIdentifier } from "@/lib/rate-limit"
 import { ideaInputSchema } from "@/modules/fyp-ideas/schemas"
 import { validateIdea } from "@/modules/fyp-ideas/fyp-ideas.service"
 
+const guestIdeaValidatorRateLimiter = createRateLimiter({
+  windowMs: 24 * 60 * 60 * 1000,
+  maxRequests: 1,
+})
+
 export async function POST(request: NextRequest) {
   try {
-    const user = await requireRole(UserRole.STUDENT)
-
     let body: unknown
     try {
       body = await request.json()
@@ -39,20 +43,54 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get student profile
-    const student = await prisma.student.findUnique({
-      where: { userId: user.id },
-      select: { id: true },
-    })
-
-    if (!student) {
-      return NextResponse.json(
-        { success: false, message: "Student profile not found" },
-        { status: 404 }
-      )
+    let currentUser = null
+    try {
+      currentUser = await getCurrentUser()
+    } catch (authError) {
+      logger.warn("Continuing validator request without authenticated user context:", authError)
     }
 
-    const result = await validateIdea(student.id, parsed.data)
+    const isStudentUser =
+      currentUser?.role === UserRole.STUDENT &&
+      currentUser?.status === "ACTIVE"
+
+    let studentId: string | null = null
+    let accessMode: "student" | "guest" = "guest"
+
+    if (isStudentUser && currentUser) {
+      const student = await prisma.student.findUnique({
+        where: { userId: currentUser.id },
+        select: { id: true },
+      })
+
+      if (!student) {
+        return NextResponse.json(
+          { success: false, message: "Student profile not found" },
+          { status: 404 }
+        )
+      }
+
+      studentId = student.id
+      accessMode = "student"
+    } else {
+      const guestIdentifier = getClientIdentifier(request.headers, "guest:fyp-idea-validator")
+      const rateLimit = guestIdeaValidatorRateLimiter.check(guestIdentifier)
+
+      if (!rateLimit.allowed) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Guests can validate only one idea per day. Sign up to unlock full unlimited-style daily access.",
+          },
+          { status: 429 }
+        )
+      }
+    }
+
+    const result = await validateIdea(parsed.data, {
+      studentId,
+      accessMode,
+    })
 
     return NextResponse.json(
       { success: true, message: "Idea validated successfully", data: result },
@@ -79,13 +117,6 @@ export async function POST(request: NextRequest) {
           message: "AI validation service is not configured",
         },
         { status: 503 }
-      )
-    }
-
-    if (errorMessage.includes("Unauthorized")) {
-      return NextResponse.json(
-        { success: false, message: errorMessage },
-        { status: 401 }
       )
     }
 
