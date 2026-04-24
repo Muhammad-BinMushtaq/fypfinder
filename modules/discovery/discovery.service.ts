@@ -140,8 +140,6 @@ export async function getMatchedStudents(
     const [students, total] = await Promise.all([
         prisma.student.findMany({
             where,
-            skip: offset,
-            take: limit,
             select: {
                 id: true,
                 name: true,
@@ -214,12 +212,27 @@ export async function getMatchedStudents(
         }
     })
 
-    // Sort by profile completion (100% first, then descending)
-    items.sort((a, b) => b.profileCompletion - a.profileCompletion)
+    // Sort by profile completion (100% first), then use stable tie breakers.
+    items.sort((a, b) => {
+        if (b.profileCompletion !== a.profileCompletion) {
+            return b.profileCompletion - a.profileCompletion
+        }
 
+        if (b.projectCount !== a.projectCount) {
+            return b.projectCount - a.projectCount
+        }
+
+        if (b.skills.length !== a.skills.length) {
+            return b.skills.length - a.skills.length
+        }
+
+        return a.name.localeCompare(b.name)
+    })
+
+    const paginatedItems = items.slice(offset, offset + limit)
 
     return ({
-        items,
+        items: paginatedItems,
         limit,
         offset,
         total
