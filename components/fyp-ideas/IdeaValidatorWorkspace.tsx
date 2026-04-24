@@ -44,7 +44,11 @@ export function IdeaValidatorWorkspace({ mode }: IdeaValidatorWorkspaceProps) {
         {isPending ? (
           <LoadingState />
         ) : activeResult ? (
-          <ValidationResult result={activeResult} onReset={() => setActiveResult(null)} />
+          <ValidationResult
+            result={activeResult}
+            onReset={() => setActiveResult(null)}
+            remainingToday={mode === "student" ? remainingToday : undefined}
+          />
         ) : (
           <IdeaForm
             onSubmit={handleSubmit}

@@ -22,6 +22,24 @@ export interface SimilarPastIdea {
   keyDifference: string
 }
 
+export interface DetailedScore {
+  score: number
+  maxScore: number
+  summary: string
+  feedback: string[]
+  action: string
+}
+
+export interface ScoringBreakdown {
+  problemClarityRelevance: DetailedScore
+  ideaExplanationUsability: DetailedScore
+  keyFeaturesCompleteness: DetailedScore
+  feasibilityResources: DetailedScore
+  originalityNovelty: DetailedScore
+  impactUsefulness: DetailedScore
+  improvementPotential: DetailedScore
+}
+
 export interface ValidationReport {
   plainSummary: string
   shouldBuild: string
@@ -33,6 +51,8 @@ export interface ValidationReport {
   feasibilityScore: number
   originalityScore: number
   usefulnessScore: number
+  finalScore: number
+  scoringBreakdown: ScoringBreakdown
   difficultyLevel: "easy" | "moderate" | "challenging"
   estimatedTimeline: string
   teamFit: string
@@ -47,6 +67,9 @@ export interface ValidationReport {
   riskReductionSteps: string[]
   simpleTechDirection: string[]
   simpleNextSteps: string[]
+  advancedFeatureSuggestions: string[]
+  mvpRecommendations: string[]
+  roadmapPriorities: string[]
   roadmap: RoadmapPhase[]
   elevatorPitch: string
   plainLanguageAdvice: string[]
@@ -64,9 +87,6 @@ export interface ValidationResult {
   previewLocked: boolean
   accessMode: "student" | "guest"
   hiddenSections: string[]
-  tokensUsed: number
-  modelUsed: string | null
-  latencyMs: number | null
   createdAt: string
 }
 

@@ -98,7 +98,7 @@ export function IdeaForm({
             </div>
             <p className="mt-3 text-sm text-gray-700 dark:text-gray-300">
               {mode === "student"
-                ? "You’ll get the full report, similarity check, and practical improvement plan."
+                ? "You'll get the full report, similarity check, and practical improvement plan."
                 : "Guests can try one free preview per day. Sign up to unlock the full report and save your history."}
             </p>
           </div>
@@ -115,7 +115,7 @@ export function IdeaForm({
       {studentLimitReached && (
         <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-200">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-          <p>You’ve used all student validations for today. Come back tomorrow for another full check.</p>
+          <p>You've used all student validations for today. Come back tomorrow for another full check.</p>
         </div>
       )}
 

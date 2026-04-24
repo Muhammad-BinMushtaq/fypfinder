@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { User, Search, MessageSquare, Sparkles, FileText } from "lucide-react";
+import { User, Search, MessageSquare, Sparkles, FileText, Settings } from "lucide-react";
 import { useUnreadCount } from "@/hooks/messaging/useUnreadCount";
 
 interface NavItem {
@@ -39,6 +39,11 @@ const navItems: NavItem[] = [
     label: "Validate",
     href: "/dashboard/fyp-ideas/validate",
     icon: <Sparkles className="w-5 h-5" />,
+  },
+  {
+    label: "Settings",
+    href: "/dashboard/settings",
+    icon: <Settings className="w-5 h-5" />,
   },
 ];
 

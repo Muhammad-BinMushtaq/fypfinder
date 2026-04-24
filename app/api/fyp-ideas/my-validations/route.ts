@@ -8,6 +8,7 @@ import { logger } from "@/lib/logger"
 import {
   getStudentValidations,
   getRemainingValidations,
+  toStudentFacingValidationResult,
 } from "@/modules/fyp-ideas/fyp-ideas.service"
 
 export async function GET(request: NextRequest) {
@@ -41,6 +42,7 @@ export async function GET(request: NextRequest) {
         message: "Validations fetched",
         data: {
           ...validations,
+          items: validations.items.map(toStudentFacingValidationResult),
           remainingToday: remaining,
         },
       },

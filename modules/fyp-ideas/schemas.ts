@@ -49,7 +49,46 @@ export const similarPastIdeaSchema = z.object({
   keyDifference: z.string(),
 })
 
-export const validationReportSchema = z.object({
+export const detailedScoreSchema = z.object({
+  score: z.number().min(0),
+  maxScore: z.number().positive(),
+  summary: z.string(),
+  feedback: z.array(z.string()).min(1),
+  action: z.string(),
+})
+
+export const scoringBreakdownSchema = z.object({
+  problemClarityRelevance: detailedScoreSchema.extend({
+    score: z.number().min(0).max(20),
+    maxScore: z.literal(20),
+  }),
+  ideaExplanationUsability: detailedScoreSchema.extend({
+    score: z.number().min(0).max(20),
+    maxScore: z.literal(20),
+  }),
+  keyFeaturesCompleteness: detailedScoreSchema.extend({
+    score: z.number().min(0).max(15),
+    maxScore: z.literal(15),
+  }),
+  feasibilityResources: detailedScoreSchema.extend({
+    score: z.number().min(0).max(10),
+    maxScore: z.literal(10),
+  }),
+  originalityNovelty: detailedScoreSchema.extend({
+    score: z.number().min(0).max(10),
+    maxScore: z.literal(10),
+  }),
+  impactUsefulness: detailedScoreSchema.extend({
+    score: z.number().min(0).max(10),
+    maxScore: z.literal(10),
+  }),
+  improvementPotential: detailedScoreSchema.extend({
+    score: z.number().min(0).max(15),
+    maxScore: z.literal(15),
+  }),
+})
+
+const validationReportBaseSchema = z.object({
   plainSummary: z.string(),
   shouldBuild: z.string(),
   recommendation: z.enum([
@@ -86,6 +125,18 @@ export const validationReportSchema = z.object({
   similarPastIdeas: z.array(similarPastIdeaSchema).max(3),
 })
 
+export const legacyValidationReportSchema = validationReportBaseSchema
+
+export const validationReportSchema = validationReportBaseSchema.extend({
+  finalScore: z.number().min(0).max(100),
+  scoringBreakdown: scoringBreakdownSchema,
+  advancedFeatureSuggestions: z.array(z.string()).min(6).max(10),
+  mvpRecommendations: z.array(z.string()).min(3).max(6),
+  roadmapPriorities: z.array(z.string()).min(3).max(6),
+})
+
 export type RoadmapPhase = z.infer<typeof roadmapPhaseSchema>
 export type SimilarPastIdea = z.infer<typeof similarPastIdeaSchema>
+export type DetailedScore = z.infer<typeof detailedScoreSchema>
+export type ScoringBreakdown = z.infer<typeof scoringBreakdownSchema>
 export type ValidationReport = z.infer<typeof validationReportSchema>

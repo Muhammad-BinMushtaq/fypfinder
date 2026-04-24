@@ -11,7 +11,7 @@ import { PushPermissionBanner } from "@/components/pwa/PushPermissionBanner";
 import { InstallPromptBanner } from "@/components/pwa/InstallPromptBanner";
 import { InstallButton } from "@/components/pwa/InstallButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { GraduationCap, Lightbulb, Sparkles } from "lucide-react";
+import { GraduationCap, Lightbulb, Settings, Sparkles } from "lucide-react";
 import clientLogger from "@/lib/client-logger";
 
 interface DashboardShellProps {
@@ -85,6 +85,13 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
               >
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>Validate</span>
+              </Link>
+              <Link
+                href="/dashboard/settings"
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-gray-600 transition-colors hover:bg-gray-100 dark:border-slate-700 dark:bg-slate-900 dark:text-gray-300 dark:hover:bg-slate-700"
+                aria-label="Settings"
+              >
+                <Settings className="h-4 w-4" />
               </Link>
               {/* Install Button - Always visible */}
               <InstallButton />

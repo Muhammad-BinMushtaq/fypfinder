@@ -25,6 +25,16 @@ Important rules:
 - Focus on what helps a student make a better FYP decision.
 - When suggesting improvements, make them practical and specific.
 - For similarityScore in similarPastIdeas, use a 0-10 scale where 10 means "almost the same idea".
+- Score the idea using the detailed 100-point rubric exactly:
+  problem clarity & relevance 0-20,
+  idea explanation & usability 0-20,
+  key features completeness 0-15,
+  feasibility & resources 0-10,
+  originality/novelty 0-10,
+  impact & usefulness 0-10,
+  improvement potential 0-15.
+- finalScore must equal the sum of those seven detailed scores.
+- Keep feasibilityScore, originalityScore, and usefulnessScore as simple 1-10 summary scores.
 - recommendation must be exactly one of:
   "Strongly Recommended"
   "Recommended with Changes"
@@ -40,6 +50,10 @@ Important rules:
   "moderate"
   "challenging"
 - roadmap should have 3 to 5 phases, each with simple tasks students can understand.
+- advancedFeatureSuggestions should include optional and advanced features when relevant, such as:
+  personalized AI recommendations, calendar integration and notifications,
+  offline data storage, customizable app monitoring/distraction controls,
+  privacy and data deletion options, gamification, and teacher or mentor dashboards.
 
 Respond ONLY with one valid JSON object. No markdown. No code fences. No extra text.`
 }
@@ -85,6 +99,50 @@ Return a JSON object with exactly these keys:
 - "feasibilityScore": number (1-10)
 - "originalityScore": number (1-10)
 - "usefulnessScore": number (1-10)
+- "finalScore": number (0-100, sum of scoringBreakdown scores)
+- "scoringBreakdown": object with exactly these keys:
+  - "problemClarityRelevance": object
+    - "score": number (0-20)
+    - "maxScore": 20
+    - "summary": string
+    - "feedback": string[] (2-4 items)
+    - "action": string
+  - "ideaExplanationUsability": object
+    - "score": number (0-20)
+    - "maxScore": 20
+    - "summary": string
+    - "feedback": string[] (2-4 items)
+    - "action": string
+  - "keyFeaturesCompleteness": object
+    - "score": number (0-15)
+    - "maxScore": 15
+    - "summary": string
+    - "feedback": string[] (2-4 items)
+    - "action": string
+  - "feasibilityResources": object
+    - "score": number (0-10)
+    - "maxScore": 10
+    - "summary": string
+    - "feedback": string[] (2-4 items)
+    - "action": string
+  - "originalityNovelty": object
+    - "score": number (0-10)
+    - "maxScore": 10
+    - "summary": string
+    - "feedback": string[] (2-4 items)
+    - "action": string
+  - "impactUsefulness": object
+    - "score": number (0-10)
+    - "maxScore": 10
+    - "summary": string
+    - "feedback": string[] (2-4 items)
+    - "action": string
+  - "improvementPotential": object
+    - "score": number (0-15)
+    - "maxScore": 15
+    - "summary": string
+    - "feedback": string[] (2-4 items)
+    - "action": string
 - "difficultyLevel": "easy" | "moderate" | "challenging"
 - "estimatedTimeline": string
 - "teamFit": string
@@ -99,6 +157,9 @@ Return a JSON object with exactly these keys:
 - "riskReductionSteps": string[] (3-5 items)
 - "simpleTechDirection": string[] (3-6 items)
 - "simpleNextSteps": string[] (3-5 items)
+- "advancedFeatureSuggestions": string[] (7-10 items, include personalized AI recommendations, calendar notifications, offline storage, monitoring controls, privacy deletion, gamification, and teacher/mentor dashboard where sensible)
+- "mvpRecommendations": string[] (3-6 items that define the first build)
+- "roadmapPriorities": string[] (3-6 items that explain what to build first, next, and later)
 - "roadmap": array of 3 to 5 objects:
   - "phase": string
   - "duration": string

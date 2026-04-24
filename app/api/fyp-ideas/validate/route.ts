@@ -7,7 +7,10 @@ import { UserRole } from "@/lib/generated/prisma/enums"
 import { logger } from "@/lib/logger"
 import { createRateLimiter, getClientIdentifier } from "@/lib/rate-limit"
 import { ideaInputSchema } from "@/modules/fyp-ideas/schemas"
-import { validateIdea } from "@/modules/fyp-ideas/fyp-ideas.service"
+import {
+  toStudentFacingValidationResult,
+  validateIdea,
+} from "@/modules/fyp-ideas/fyp-ideas.service"
 
 const guestIdeaValidatorRateLimiter = createRateLimiter({
   windowMs: 24 * 60 * 60 * 1000,
@@ -93,7 +96,11 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json(
-      { success: true, message: "Idea validated successfully", data: result },
+      {
+        success: true,
+        message: "Idea validated successfully",
+        data: toStudentFacingValidationResult(result),
+      },
       { status: 200 }
     )
   } catch (error) {

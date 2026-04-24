@@ -1,4 +1,5 @@
 import crypto from "crypto"
+import { z } from "zod"
 import { Prisma } from "@/lib/generated/prisma/client"
 import prisma from "@/lib/db"
 import { logger } from "@/lib/logger"
@@ -8,11 +9,12 @@ import { buildValidatorSystemPrompt, buildValidatorUserPrompt } from "./prompts"
 import {
   type IdeaInput,
   type ValidationReport,
+  legacyValidationReportSchema,
   validationReportSchema,
 } from "./schemas"
 
 const MAX_VALIDATIONS_PER_DAY = 3
-const SINGLE_CALL_MAX_TOKENS = 3200
+const SINGLE_CALL_MAX_TOKENS = 5000
 
 export interface ValidationResult {
   id: string
@@ -30,6 +32,11 @@ export interface ValidationResult {
   latencyMs: number | null
   createdAt: Date
 }
+
+export type StudentFacingValidationResult = Omit<
+  ValidationResult,
+  "tokensUsed" | "modelUsed" | "latencyMs"
+>
 
 interface ValidateIdeaOptions {
   studentId?: string | null
@@ -150,6 +157,13 @@ export async function getRemainingValidations(studentId: string): Promise<number
   return Math.max(0, MAX_VALIDATIONS_PER_DAY - todayCount)
 }
 
+export function toStudentFacingValidationResult(
+  result: ValidationResult
+): StudentFacingValidationResult {
+  const { tokensUsed, modelUsed, latencyMs, ...studentFacingResult } = result
+  return studentFacingResult
+}
+
 async function generateValidationReport(input: IdeaInput) {
   const similarIdeas = await findSimilarPastIdeas(input, 3)
   const systemPrompt = buildValidatorSystemPrompt()
@@ -261,7 +275,7 @@ function parseValidationReport(raw: string): ValidationReport {
     throw new Error("AI validation response had an invalid structure")
   }
 
-  return result.data
+  return normalizeValidationReport(result.data)
 }
 
 function buildGuestPreviewResult(result: {
@@ -342,7 +356,127 @@ function formatStoredValidation(
 
 function parseStoredReport(value: unknown): ValidationReport | null {
   const parsed = validationReportSchema.safeParse(value)
-  return parsed.success ? parsed.data : null
+  if (parsed.success) {
+    return normalizeValidationReport(parsed.data)
+  }
+
+  const legacyParsed = legacyValidationReportSchema.safeParse(value)
+  if (legacyParsed.success) {
+    return upgradeLegacyReport(legacyParsed.data)
+  }
+
+  return null
+}
+
+function normalizeValidationReport(report: ValidationReport): ValidationReport {
+  return {
+    ...report,
+    finalScore: computeFinalScore(report.scoringBreakdown),
+  }
+}
+
+function computeFinalScore(report: ValidationReport["scoringBreakdown"]): number {
+  return Math.max(
+    0,
+    Math.min(
+      100,
+      Math.round(
+        report.problemClarityRelevance.score +
+          report.ideaExplanationUsability.score +
+          report.keyFeaturesCompleteness.score +
+          report.feasibilityResources.score +
+          report.originalityNovelty.score +
+          report.impactUsefulness.score +
+          report.improvementPotential.score
+      )
+    )
+  )
+}
+
+function upgradeLegacyReport(
+  report: z.infer<typeof legacyValidationReportSchema>
+): ValidationReport {
+  const feasibility = clampScore(report.feasibilityScore, 1, 10)
+  const originality = clampScore(report.originalityScore, 1, 10)
+  const usefulness = clampScore(report.usefulnessScore, 1, 10)
+  const concernPenalty = Math.min(5, report.concernPoints.length)
+
+  const upgraded: ValidationReport = {
+    ...report,
+    scoringBreakdown: {
+      problemClarityRelevance: {
+        score: clampScore(Math.round(usefulness * 1.7), 0, 20),
+        maxScore: 20,
+        summary: report.whyItMatters,
+        feedback: report.strongPoints.slice(0, 3),
+        action: report.simpleNextSteps[0] ?? "Clarify the exact problem and target users.",
+      },
+      ideaExplanationUsability: {
+        score: clampScore(Math.round(usefulness * 1.6), 0, 20),
+        maxScore: 20,
+        summary: report.whoWillUseIt,
+        feedback: report.plainLanguageAdvice.slice(0, 3),
+        action: report.simpleNextSteps[1] ?? "Explain the main user flow in simple steps.",
+      },
+      keyFeaturesCompleteness: {
+        score: clampScore(Math.round((feasibility + usefulness) * 0.75) - concernPenalty, 0, 15),
+        maxScore: 15,
+        summary: "The previous report listed the main feature direction but did not use the newer detailed rubric.",
+        feedback: report.concernPoints.slice(0, 3),
+        action: "Group features into must-have, should-have, and later enhancements.",
+      },
+      feasibilityResources: {
+        score: feasibility,
+        maxScore: 10,
+        summary: report.teamFit,
+        feedback: report.riskReductionSteps.slice(0, 3),
+        action: report.riskReductionSteps[0] ?? "Reduce the first version to a buildable MVP.",
+      },
+      originalityNovelty: {
+        score: originality,
+        maxScore: 10,
+        summary: report.originalityReason,
+        feedback: report.uniquenessImprovements.slice(0, 3),
+        action: report.uniquenessImprovements[0] ?? "Add a clear differentiator from past projects.",
+      },
+      impactUsefulness: {
+        score: usefulness,
+        maxScore: 10,
+        summary: report.whyItMatters,
+        feedback: report.strongPoints.slice(0, 3),
+        action: report.simpleNextSteps[2] ?? "Validate usefulness with likely users.",
+      },
+      improvementPotential: {
+        score: clampScore(Math.round((feasibility + originality + usefulness) / 2), 0, 15),
+        maxScore: 15,
+        summary: "This score was estimated from the earlier report format.",
+        feedback: report.uniquenessImprovements.slice(0, 3),
+        action: "Turn the improvement ideas into a short build roadmap.",
+      },
+    },
+    finalScore: 0,
+    advancedFeatureSuggestions: getDefaultAdvancedFeatureSuggestions(),
+    mvpRecommendations: report.simpleNextSteps.slice(0, 5),
+    roadmapPriorities: report.roadmap.map((phase) => `${phase.phase}: ${phase.tasks[0]}`).slice(0, 5),
+  }
+
+  return normalizeValidationReport(upgraded)
+}
+
+function clampScore(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, value))
+}
+
+function getDefaultAdvancedFeatureSuggestions(): string[] {
+  return [
+    "Personalized AI recommendations for study times, learning paths, or next actions.",
+    "Calendar integration with reminders, deadlines, and notification preferences.",
+    "Offline data storage for core workflows when internet access is weak.",
+    "Customizable app monitoring or distraction controls for focused sessions.",
+    "Privacy controls with export, consent, and account data deletion options.",
+    "Gamification through badges, goals, streaks, and milestone progress.",
+    "Teacher or mentor dashboards for review, feedback, and student progress tracking.",
+  ]
 }
 
 function mapRecommendation(
