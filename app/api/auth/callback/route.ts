@@ -4,6 +4,7 @@ import prisma from "@/lib/db"
 import { validateStudentID } from "@/modules/auth/auth.service"
 import { UserRole, UserStatus } from "@/lib/generated/prisma/enums"
 import logger from "@/lib/logger"
+import { getAuthenticatedRedirectPath } from "@/lib/auth"
 
 function getRedirectOrigin(req: Request) {
     const envUrl = process.env.NEXT_PUBLIC_APP_URL
@@ -47,6 +48,30 @@ async function deleteUserAndRedirect(
     return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(errorMessage)}`)
 }
 
+async function redirectExistingSessionIfValid(
+    supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+    origin: string
+) {
+    try {
+        const {
+            data: { user },
+        } = await supabase.auth.getUser()
+
+        if (!user) return null
+
+        const appUser = await prisma.user.findUnique({
+            where: { id: user.id },
+            select: { role: true, status: true },
+        })
+
+        const redirectPath = getAuthenticatedRedirectPath(appUser)
+        return redirectPath ? NextResponse.redirect(`${origin}${redirectPath}`) : null
+    } catch (err) {
+        logger.error("Unable to recover existing session after OAuth exchange failure:", err)
+        return null
+    }
+}
+
 export async function GET(req: Request) {
     const { searchParams } = new URL(req.url)
     const code = searchParams.get("code")
@@ -69,11 +94,21 @@ export async function GET(req: Request) {
     try {
         const supabase = await createSupabaseServerClient()
 
+        // If a valid session already exists in this browser, avoid reusing the same code.
+        const existingSessionRedirect = await redirectExistingSessionIfValid(supabase, origin)
+        if (existingSessionRedirect) {
+            return existingSessionRedirect
+        }
+
         // Exchange code for session
         const { data: sessionData, error: sessionError } = await supabase.auth.exchangeCodeForSession(code)
 
-        if (sessionError || !sessionData.user) {
+        if (sessionError || !sessionData?.user) {
             logger.error("OAuth session error:", sessionError)
+            const fallbackRedirect = await redirectExistingSessionIfValid(supabase, origin)
+            if (fallbackRedirect) {
+                return fallbackRedirect
+            }
             return NextResponse.redirect(`${origin}/login?error=Authentication%20failed`)
         }
 
@@ -116,7 +151,7 @@ export async function GET(req: Request) {
         // Check if user already exists in Prisma (by email - the unique field)
         const existingUser = await prisma.user.findUnique({
             where: { email },
-            select: { id: true, status: true }
+            select: { id: true, role: true, status: true }
         })
 
         if (existingUser) {
@@ -124,6 +159,11 @@ export async function GET(req: Request) {
             if (existingUser.status === UserStatus.SUSPENDED) {
                 await supabase.auth.signOut()
                 return NextResponse.redirect(`${origin}/login?error=Your%20account%20has%20been%20suspended.%20Contact%20administration.`)
+            }
+
+            if (existingUser.role !== UserRole.STUDENT) {
+                const redirectPath = getAuthenticatedRedirectPath(existingUser)
+                return NextResponse.redirect(`${origin}${redirectPath || "/login"}`)
             }
 
             // If Prisma user.id doesn't match Supabase user.id, update it

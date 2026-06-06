@@ -1,8 +1,23 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { MicrosoftAuthButton } from "@/components/auth/LoginForm";
+import { getAuthenticatedRedirectPath, getCurrentUser } from "@/lib/auth";
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  let redirectPath: string | null = null;
+
+  try {
+    const user = await getCurrentUser();
+    redirectPath = getAuthenticatedRedirectPath(user);
+  } catch {
+    // Show login when the existing session cannot be verified.
+  }
+
+  if (redirectPath) {
+    redirect(redirectPath);
+  }
+
   return (
     <main className="min-h-screen bg-[#0a0a0a] text-zinc-100">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">

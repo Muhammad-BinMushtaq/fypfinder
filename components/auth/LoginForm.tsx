@@ -30,6 +30,8 @@ export function MicrosoftAuthButton() {
       }
       
       const supabase = getSupabaseClient();
+      await supabase.auth.signOut({ scope: "local" });
+
       const callbackUrl = `${window.location.origin}/api/auth/callback`;
 
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
@@ -37,6 +39,9 @@ export function MicrosoftAuthButton() {
         options: {
           redirectTo: callbackUrl,
           scopes: "email openid profile",
+          queryParams: {
+            prompt: "select_account",
+          },
         },
       });
 
