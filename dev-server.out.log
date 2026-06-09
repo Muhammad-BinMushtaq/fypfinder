@@ -43,3 +43,6 @@ Creating turbopack project {
  GET /dashboard/fyp-ideas/validate 200 in 1528ms
  ○ Compiling /api/fyp-ideas/my-validations ...
  ✓ Compiled /api/fyp-ideas/my-validations in 1942ms
+ GET /api/fyp-ideas/my-validations?limit=10&offset=0 200 in 6749ms
+ GET /api/messaging/unread-count 200 in 4623ms
+ GET /api/messaging/unread-count 200 in 3830ms
