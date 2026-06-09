@@ -28,8 +28,10 @@ export function MicrosoftAuthButton() {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('fypfinder-cache');
       }
-      
+
       const supabase = getSupabaseClient();
+      await supabase.auth.signOut({ scope: "local" });
+
       const callbackUrl = `${window.location.origin}/api/auth/callback`;
 
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
@@ -37,11 +39,15 @@ export function MicrosoftAuthButton() {
         options: {
           redirectTo: callbackUrl,
           scopes: "email openid profile",
+          queryParams: {
+            prompt: "select_account",
+          },
         },
       });
 
       if (oauthError) {
         setError(oauthError.message);
+        console.log("THis is auth error:", oauthError);
         setIsLoading(false);
       }
       // Browser will redirect automatically — no need to handle success
@@ -62,11 +68,10 @@ export function MicrosoftAuthButton() {
       <button
         onClick={handleAuth}
         disabled={isLoading}
-        className={`w-full flex items-center justify-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition ${
-          isLoading
+        className={`w-full flex items-center justify-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition ${isLoading
             ? "cursor-not-allowed bg-zinc-700 text-zinc-400"
             : "bg-zinc-100 text-zinc-900 hover:bg-zinc-200"
-        }`}
+          }`}
       >
         {isLoading ? (
           <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24">

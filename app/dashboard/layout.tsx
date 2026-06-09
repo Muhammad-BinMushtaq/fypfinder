@@ -2,6 +2,7 @@
 import { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
+import { UserRole } from "@/lib/generated/prisma/enums";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
@@ -30,6 +31,10 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   if (user.status === "SUSPENDED") {
     redirect("/suspended");
+  }
+
+  if (user.role !== UserRole.STUDENT) {
+    redirect(user.role === UserRole.ADMIN ? "/admin/dashboard" : "/login");
   }
 
   return <DashboardShell userEmail={user.email || "user@example.com"}>{children}</DashboardShell>;

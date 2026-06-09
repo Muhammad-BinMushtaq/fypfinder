@@ -90,6 +90,46 @@ export interface ValidationResult {
   createdAt: string
 }
 
+export interface ExtractedPdfIdeaFields {
+  title: string
+  problemStatement: string
+  proposedSolution: string
+  description: string
+  projectSummary: string
+  department: string
+  domain: string
+  category: string
+  technologies: string[]
+  techStack: string[]
+  aiUsage: string
+  apis: string[]
+  platforms: string[]
+  novelty: string
+  innovation: string
+  existingAlternatives: string[]
+  marketGap: string
+  objectives: string[]
+  scope: string
+  futureExpansion: string
+  targetUsers: string[]
+}
+
+export type ExtractedPdfIdeaConfidence = Record<keyof ExtractedPdfIdeaFields, number>
+
+export interface PdfIdeaExtractionResponse {
+  draft: IdeaInput | null
+  extracted: ExtractedPdfIdeaFields
+  confidence: ExtractedPdfIdeaConfidence
+  warnings: string[]
+  validation: ValidationResult | null
+  pdf: {
+    pageCount: number
+    textLength: number
+    maxPages: number
+    maxFileSizeBytes: number
+  }
+}
+
 export interface ValidationHistoryResponse {
   items: ValidationResult[]
   total: number
@@ -117,6 +157,25 @@ export async function validateIdea(input: IdeaInput): Promise<ValidationResult> 
 
   if (!response.ok) {
     throw new Error(json.message || "Failed to validate idea")
+  }
+
+  return json.data
+}
+
+export async function extractPdfIdea(file: File): Promise<PdfIdeaExtractionResponse> {
+  const formData = new FormData()
+  formData.append("file", file)
+
+  const response = await fetch("/api/fyp-ideas/extract-pdf", {
+    method: "POST",
+    credentials: "include",
+    body: formData,
+  })
+
+  const json: ApiResponse<PdfIdeaExtractionResponse> = await response.json()
+
+  if (!response.ok) {
+    throw new Error(json.message || "Failed to process PDF")
   }
 
   return json.data

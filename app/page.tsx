@@ -1,7 +1,7 @@
 // app/page.tsx
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth";
+import { getAuthenticatedRedirectPath, getCurrentUser } from "@/lib/auth";
 import { LandingThemeToggle } from "@/components/landing/LandingThemeToggle";
 import { SupademoButton } from "@/components/landing/SupademoButton";
 
@@ -13,20 +13,22 @@ export default async function HomePage({
   const params = await searchParams;
   // If OAuth code arrives at root (Supabase redirect fallback), forward it to callback
   if (params?.code) {
-    redirect(`/api/auth/callback?code=${params.code}`);
+    redirect(`/api/auth/callback?code=${encodeURIComponent(params.code)}`);
   }
 
-  // Check if user is already logged in - redirect to dashboard
+  // Check if user is already logged in - redirect to the correct app area
+  let redirectPath: string | null = null;
   try {
     const user = await getCurrentUser();
-    if (user && user.status === "ACTIVE") {
-      redirect("/dashboard/discovery");
-    }
+    redirectPath = getAuthenticatedRedirectPath(user);
   } catch {
     // If error checking session, just show landing page
     // This handles network errors gracefully
   }
 
+  if (redirectPath) {
+    redirect(redirectPath);
+  }
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-900 relative">

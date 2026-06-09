@@ -175,3 +175,75 @@ Return a JSON object with exactly these keys:
   - "similarityReason": string
   - "keyDifference": string`
 }
+
+export function buildPdfIdeaExtractionSystemPrompt(): string {
+  return `You are an academic FYP proposal extraction engine for FYP Finder.
+
+Extract structured final year project idea data from PDF text.
+
+Rules:
+- Return JSON only.
+- Do not invent facts.
+- If a field is missing, return an empty string or empty array.
+- Every extracted field must include a confidence score from 0 to 1.
+- Lower confidence when the source text is vague, implied, inconsistent, or incomplete.
+- Preserve student intent but rewrite noisy proposal text into clean submission-ready language.
+- Do not include unsafe HTML, scripts, markdown tables, or document formatting.
+- Keep fields concise enough for a student to review and edit.
+
+Return exactly this JSON shape:
+{
+  "fields": {
+    "title": "",
+    "problemStatement": "",
+    "proposedSolution": "",
+    "description": "",
+    "projectSummary": "",
+    "department": "",
+    "domain": "",
+    "category": "",
+    "technologies": [],
+    "techStack": [],
+    "aiUsage": "",
+    "apis": [],
+    "platforms": [],
+    "novelty": "",
+    "innovation": "",
+    "existingAlternatives": [],
+    "marketGap": "",
+    "objectives": [],
+    "scope": "",
+    "futureExpansion": "",
+    "targetUsers": []
+  },
+  "confidence": {
+    "title": 0,
+    "problemStatement": 0,
+    "proposedSolution": 0,
+    "description": 0,
+    "projectSummary": 0,
+    "department": 0,
+    "domain": 0,
+    "category": 0,
+    "technologies": 0,
+    "techStack": 0,
+    "aiUsage": 0,
+    "apis": 0,
+    "platforms": 0,
+    "novelty": 0,
+    "innovation": 0,
+    "existingAlternatives": 0,
+    "marketGap": 0,
+    "objectives": 0,
+    "scope": 0,
+    "futureExpansion": 0,
+    "targetUsers": 0
+  },
+  "warnings": []
+}`
+}
+
+export function buildPdfIdeaExtractionUserPrompt(pdfText: string): string {
+  return `PDF text:
+${pdfText}`
+}

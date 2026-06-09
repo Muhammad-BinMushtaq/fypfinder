@@ -33,6 +33,49 @@ export const ideaInputSchema = z.object({
 
 export type IdeaInput = z.infer<typeof ideaInputSchema>
 
+export const extractedIdeaFieldsSchema = z.object({
+  title: z.string().trim().default(""),
+  problemStatement: z.string().trim().default(""),
+  proposedSolution: z.string().trim().default(""),
+  description: z.string().trim().default(""),
+  projectSummary: z.string().trim().default(""),
+  department: z.string().trim().default(""),
+  domain: z.string().trim().default(""),
+  category: z.string().trim().default(""),
+  technologies: z.array(z.string().trim()).default([]),
+  techStack: z.array(z.string().trim()).default([]),
+  aiUsage: z.string().trim().default(""),
+  apis: z.array(z.string().trim()).default([]),
+  platforms: z.array(z.string().trim()).default([]),
+  novelty: z.string().trim().default(""),
+  innovation: z.string().trim().default(""),
+  existingAlternatives: z.array(z.string().trim()).default([]),
+  marketGap: z.string().trim().default(""),
+  objectives: z.array(z.string().trim()).default([]),
+  scope: z.string().trim().default(""),
+  futureExpansion: z.string().trim().default(""),
+  targetUsers: z.array(z.string().trim()).default([]),
+})
+
+export const extractedIdeaConfidenceSchema = z.object(
+  Object.fromEntries(
+    Object.keys(extractedIdeaFieldsSchema.shape).map((key) => [
+      key,
+      z.number().min(0).max(1).default(0),
+    ])
+  ) as Record<keyof z.infer<typeof extractedIdeaFieldsSchema>, z.ZodDefault<z.ZodNumber>>
+)
+
+export const extractedIdeaSchema = z.object({
+  fields: extractedIdeaFieldsSchema,
+  confidence: extractedIdeaConfidenceSchema,
+  warnings: z.array(z.string().trim()).default([]),
+})
+
+export type ExtractedIdeaFields = z.infer<typeof extractedIdeaFieldsSchema>
+export type ExtractedIdeaConfidence = z.infer<typeof extractedIdeaConfidenceSchema>
+export type ExtractedIdea = z.infer<typeof extractedIdeaSchema>
+
 export const roadmapPhaseSchema = z.object({
   phase: z.string(),
   duration: z.string(),

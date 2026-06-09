@@ -1,0 +1,45 @@
+
+> fypfinder@0.1.0 dev
+> next dev --turbopack --port 3000
+
+   ▲ Next.js 15.5.9 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.208.183:3000
+   - Environments: .env
+
+ ✓ Starting...
+Creating turbopack project {
+  dir: 'C:\\Users\\Muhammad\\Desktop\\fyp-fidner Project\\fypfinder',
+  testMode: true
+}
+ ✓ Ready in 3s
+ ○ Compiling /dashboard/fyp-ideas ...
+ ✓ Compiled /dashboard/fyp-ideas in 8s
+ GET /dashboard/fyp-ideas 307 in 11091ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 1214ms
+ GET /login 200 in 1872ms
+ ○ Compiling / ...
+ ✓ Compiled / in 2.1s
+ GET / 200 in 5361ms
+ ○ Compiling /idea-validator ...
+ ✓ Compiled /idea-validator in 1107ms
+ GET /idea-validator 200 in 1547ms
+ GET /login 200 in 690ms
+ ○ Compiling /api/auth/callback ...
+ ✓ Compiled /api/auth/callback in 1650ms
+ GET /api/auth/callback?code=ba814b8a-01bb-4883-95a9-e4893e3e91f3 307 in 5736ms
+ ○ Compiling /dashboard/profile ...
+ ✓ Compiled /dashboard/profile in 1402ms
+ GET /dashboard/profile 200 in 3015ms
+ ○ Compiling /api/messaging/unread-count ...
+ ✓ Compiled /api/messaging/unread-count in 1202ms
+ GET /api/student/get-my-profile 200 in 4007ms
+ GET /api/messaging/unread-count 200 in 4665ms
+ ✓ Compiled /api/push/vapid-key in 476ms
+ GET /api/push/vapid-key 503 in 1114ms
+ ○ Compiling /dashboard/fyp-ideas/validate ...
+ ✓ Compiled /dashboard/fyp-ideas/validate in 1092ms
+ GET /dashboard/fyp-ideas/validate 200 in 1528ms
+ ○ Compiling /api/fyp-ideas/my-validations ...
+ ✓ Compiled /api/fyp-ideas/my-validations in 1942ms

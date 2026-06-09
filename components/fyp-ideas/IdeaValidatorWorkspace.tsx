@@ -1,11 +1,17 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { CheckCircle2, ChevronDown, ChevronUp, Clock3, History, Sparkles, XCircle } from "lucide-react"
-import { useMyValidations, useValidateIdea } from "@/hooks/fyp-ideas"
+import { CheckCircle2, ChevronDown, ChevronUp, Clock3, FileText, History, PencilLine, Sparkles, XCircle } from "lucide-react"
+import { useExtractPdfIdea, useMyValidations, useValidateIdea } from "@/hooks/fyp-ideas"
 import { IdeaForm } from "./IdeaForm"
+import { PdfIdeaReview } from "./PdfIdeaReview"
+import { PdfIdeaUpload } from "./PdfIdeaUpload"
 import { ValidationResult } from "./ValidationResult"
-import type { IdeaInput, ValidationResult as ValidationResultType } from "@/services/fypIdeas.service"
+import type {
+  IdeaInput,
+  PdfIdeaExtractionResponse,
+  ValidationResult as ValidationResultType,
+} from "@/services/fypIdeas.service"
 
 const STAGE_LABELS = [
   "Reading your idea",
@@ -18,10 +24,14 @@ interface IdeaValidatorWorkspaceProps {
 }
 
 export function IdeaValidatorWorkspace({ mode }: IdeaValidatorWorkspaceProps) {
+  const [submissionMethod, setSubmissionMethod] = useState<"manual" | "pdf">("manual")
   const [activeResult, setActiveResult] = useState<ValidationResultType | null>(null)
+  const [pdfResult, setPdfResult] = useState<PdfIdeaExtractionResponse | null>(null)
+  const [pdfValidation, setPdfValidation] = useState<ValidationResultType | null>(null)
   const [historyOpen, setHistoryOpen] = useState(false)
 
   const { validate, isPending } = useValidateIdea()
+  const { extractPdf, isPending: isExtractingPdf } = useExtractPdfIdea()
   const {
     validations,
     remainingToday,
@@ -36,12 +46,36 @@ export function IdeaValidatorWorkspace({ mode }: IdeaValidatorWorkspaceProps) {
     })
   }
 
+  const handlePdfUpload = (file: File) => {
+    extractPdf(file, {
+      onSuccess: (result) => {
+        setPdfResult(result)
+        setPdfValidation(result.validation)
+      },
+    })
+  }
+
+  const handlePdfEditedSubmit = (input: IdeaInput) => {
+    validate(input, {
+      onSuccess: (result) => {
+        setPdfValidation(result)
+      },
+    })
+  }
+
+  const resetPdfFlow = () => {
+    setPdfResult(null)
+    setPdfValidation(null)
+  }
+
+  const isBusy = isPending || isExtractingPdf
+
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.15),transparent_35%),radial-gradient(circle_at_top_right,rgba(59,130,246,0.12),transparent_28%)] bg-white dark:bg-slate-950">
       <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-10">
         <Hero mode={mode} />
 
-        {isPending ? (
+        {isBusy ? (
           <LoadingState />
         ) : activeResult ? (
           <ValidationResult
@@ -49,16 +83,42 @@ export function IdeaValidatorWorkspace({ mode }: IdeaValidatorWorkspaceProps) {
             onReset={() => setActiveResult(null)}
             remainingToday={mode === "student" ? remainingToday : undefined}
           />
+        ) : pdfResult ? (
+          <PdfIdeaReview
+            result={pdfResult}
+            validation={pdfValidation}
+            isPending={isPending}
+            remainingToday={mode === "student" ? remainingToday : undefined}
+            onValidateEdited={handlePdfEditedSubmit}
+            onUploadAnother={resetPdfFlow}
+          />
         ) : (
+          <>
+            {mode === "student" && (
+              <SubmissionMethodSelector
+                value={submissionMethod}
+                onChange={setSubmissionMethod}
+              />
+            )}
+
+            {submissionMethod === "pdf" && mode === "student" ? (
+              <PdfIdeaUpload
+                onUpload={handlePdfUpload}
+                isPending={isExtractingPdf}
+                remainingToday={remainingToday}
+              />
+            ) : (
           <IdeaForm
             onSubmit={handleSubmit}
             isPending={isPending}
             mode={mode}
             remainingToday={mode === "student" ? remainingToday : undefined}
           />
+            )}
+          </>
         )}
 
-        {mode === "student" && !isPending && !activeResult && validations.length > 0 && (
+        {mode === "student" && !isBusy && !activeResult && !pdfResult && validations.length > 0 && (
           <div className="mt-8 rounded-[28px] border border-gray-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <button
               onClick={() => setHistoryOpen((value) => !value)}
@@ -91,6 +151,45 @@ export function IdeaValidatorWorkspace({ mode }: IdeaValidatorWorkspaceProps) {
             )}
           </div>
         )}
+      </div>
+    </div>
+  )
+}
+
+function SubmissionMethodSelector({
+  value,
+  onChange,
+}: {
+  value: "manual" | "pdf"
+  onChange: (value: "manual" | "pdf") => void
+}) {
+  return (
+    <div className="mb-6 rounded-3xl border border-gray-200 bg-white p-2 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="grid gap-2 sm:grid-cols-2">
+        <button
+          type="button"
+          onClick={() => onChange("manual")}
+          className={`flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition ${
+            value === "manual"
+              ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900"
+              : "text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-slate-800"
+          }`}
+        >
+          <PencilLine className="h-4 w-4" />
+          Manual Form
+        </button>
+        <button
+          type="button"
+          onClick={() => onChange("pdf")}
+          className={`flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition ${
+            value === "pdf"
+              ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900"
+              : "text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-slate-800"
+          }`}
+        >
+          <FileText className="h-4 w-4" />
+          Upload PDF
+        </button>
       </div>
     </div>
   )

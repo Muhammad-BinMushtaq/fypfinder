@@ -4,6 +4,27 @@ import { UserRole, UserStatus } from "./generated/prisma/enums"
 import { createSupabaseServerClient } from "./supabase"
 import logger from "./logger"
 
+type RedirectableUser = {
+  role: UserRole | string
+  status: UserStatus | string
+}
+
+export function getAuthenticatedRedirectPath(user: RedirectableUser | null | undefined) {
+  if (!user || user.status !== UserStatus.ACTIVE) {
+    return null
+  }
+
+  if (user.role === UserRole.ADMIN) {
+    return "/admin/dashboard"
+  }
+
+  if (user.role === UserRole.STUDENT) {
+    return "/dashboard/discovery"
+  }
+
+  return null
+}
+
 // Get current logged-in user (SECURE)
 export async function getCurrentUser() {
   try {
