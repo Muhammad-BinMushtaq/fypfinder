@@ -52,6 +52,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { CommandPalette } from "@/components/ui/CommandPalette";
+
 export default function RootLayout({
   children,
 }: {
@@ -71,6 +73,7 @@ export default function RootLayout({
               position="top-right"
               autoClose={3000}
             />
+            <CommandPalette />
             {children}
           </AppProviders>
         </ThemeProvider>

@@ -18,6 +18,9 @@ export interface Project {
   description?: string;
   liveLink?: string;
   githubLink?: string;
+  embedType?: string | null;
+  embedUrl?: string | null;
+  mediaMetadata?: any;
 }
 
 export interface Internship {
@@ -45,6 +48,9 @@ export interface StudentProfile {
   hobbies?: string;
   preferredTechStack?: string;
   fypIndustry?: string;
+  primaryRoles?: string[] | null;
+  seekingStatus?: string;
+  onboardingCompleted?: boolean;
   skills: Skill[];
   projects: Project[];
   internships: Internship[];
@@ -85,6 +91,9 @@ export async function updateMyProfile(data: Partial<{
   hobbies: string;
   preferredTechStack: string;
   fypIndustry: string;
+  primaryRoles: string[];
+  seekingStatus: string;
+  onboardingCompleted: boolean;
 }>): Promise<StudentProfile> {
   const response = await apiClient.patch<ApiResponse<StudentProfile>>(
     "/api/student/update-my-profile",
@@ -133,6 +142,9 @@ export async function addProject(data: {
   description?: string;
   liveLink?: string;
   githubLink?: string;
+  embedType?: string | null;
+  embedUrl?: string | null;
+  mediaMetadata?: any;
 }): Promise<Project> {
   const response = await apiClient.post<ApiResponse<Project>>(
     "/api/student/project/add",
@@ -146,6 +158,9 @@ export async function updateProject(projectId: string, data: {
   description?: string;
   liveLink?: string;
   githubLink?: string;
+  embedType?: string | null;
+  embedUrl?: string | null;
+  mediaMetadata?: any;
 }): Promise<Project> {
   const response = await apiClient.patch<ApiResponse<Project>>(
     "/api/student/project/update",

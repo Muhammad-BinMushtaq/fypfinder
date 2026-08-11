@@ -30,6 +30,8 @@ export interface MatchedStudent {
   industryPreference: string | null;
   hobbies: string | null;
   projectNames: string[];
+  seekingStatus: string;
+  primaryRoles: string[];
 }
 
 export interface DiscoveryPagination {

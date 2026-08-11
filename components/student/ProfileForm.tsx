@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useMyProfile } from "@/hooks/student/useMyProfile";
 import { ChevronDown, ChevronUp, User, Target, Gamepad2, Code, Briefcase } from "lucide-react";
 import type { StudentProfile, AvailabilityStatus } from "@/services/student.service";
+import { AVAILABLE_ROLES, PrimaryRoleBadges } from "./PrimaryRoleBadges";
 import { FYP_INDUSTRIES, getIndustryLabel, getIndustriesByCategory } from "@/lib/industries";
 
 interface ProfileFormProps {
@@ -29,6 +30,8 @@ export function ProfileForm({ profile }: ProfileFormProps) {
     hobbies: "",
     preferredTechStack: "",
     fypIndustry: "",
+    primaryRoles: [] as string[],
+    seekingStatus: "LOOKING_FOR_TEAM",
   });
 
   useEffect(() => {
@@ -45,6 +48,8 @@ export function ProfileForm({ profile }: ProfileFormProps) {
         hobbies: profile.hobbies || "",
         preferredTechStack: profile.preferredTechStack || "",
         fypIndustry: profile.fypIndustry || "",
+        primaryRoles: Array.isArray(profile.primaryRoles) ? profile.primaryRoles : [],
+        seekingStatus: profile.seekingStatus || "LOOKING_FOR_TEAM",
       });
     }
   }, [profile]);
@@ -78,6 +83,8 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       hobbies: profile.hobbies || "",
       preferredTechStack: profile.preferredTechStack || "",
       fypIndustry: profile.fypIndustry || "",
+      primaryRoles: Array.isArray(profile.primaryRoles) ? profile.primaryRoles : [],
+      seekingStatus: profile.seekingStatus || "LOOKING_FOR_TEAM",
     });
     setIsEditing(false);
     setError("");
@@ -394,6 +401,72 @@ export function ProfileForm({ profile }: ProfileFormProps) {
             ) : (
               <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-700 dark:text-gray-300 font-medium text-sm sm:text-base border border-gray-200 dark:border-slate-600">
                 {profile.preferredTechStack || "Not provided"}
+              </div>
+            )}
+          </div>
+
+          {/* Primary Roles */}
+          <div className="md:col-span-2">
+            <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
+              Primary Roles (Max 2)
+            </label>
+            {isEditing ? (
+              <div className="flex flex-wrap gap-2">
+                {AVAILABLE_ROLES.map((role) => {
+                  const isSelected = formData.primaryRoles.includes(role);
+                  return (
+                    <button
+                      key={role}
+                      type="button"
+                      onClick={() => {
+                        if (isSelected) {
+                          setFormData({ ...formData, primaryRoles: formData.primaryRoles.filter((r) => r !== role) });
+                        } else if (formData.primaryRoles.length < 2) {
+                          setFormData({ ...formData, primaryRoles: [...formData.primaryRoles, role] });
+                        }
+                      }}
+                      className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                        isSelected
+                          ? "bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 border-blue-300 dark:border-blue-700"
+                          : "bg-white dark:bg-slate-800 text-gray-600 dark:text-gray-400 border-gray-300 dark:border-slate-600 hover:border-gray-400 dark:hover:border-slate-500"
+                      } ${!isSelected && formData.primaryRoles.length >= 2 ? "opacity-50 cursor-not-allowed" : ""}`}
+                    >
+                      {role}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="min-h-[42px] px-3 sm:px-4 py-2 bg-gray-50 dark:bg-slate-700 rounded-lg border border-gray-200 dark:border-slate-600 flex items-center">
+                {formData.primaryRoles.length > 0 ? (
+                  <PrimaryRoleBadges roles={formData.primaryRoles} />
+                ) : (
+                  <span className="text-gray-500 dark:text-gray-400 text-sm">Not provided</span>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Seeking Status */}
+          <div className="md:col-span-2">
+            <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
+              Seeking Status
+            </label>
+            {isEditing ? (
+              <select
+                value={formData.seekingStatus}
+                onChange={(e) => setFormData({ ...formData, seekingStatus: e.target.value })}
+                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent outline-none transition-all text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
+              >
+                <option value="LOOKING_FOR_TEAM">Looking for Team Members</option>
+                <option value="HAS_TEAM_LOOKING_FOR_MEMBERS">Have a Team, Looking for Members</option>
+                <option value="NOT_LOOKING">Not Looking Right Now</option>
+              </select>
+            ) : (
+              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-700 dark:text-gray-300 font-medium text-sm sm:text-base border border-gray-200 dark:border-slate-600">
+                {formData.seekingStatus === "LOOKING_FOR_TEAM" ? "Looking for Team Members"
+                 : formData.seekingStatus === "HAS_TEAM_LOOKING_FOR_MEMBERS" ? "Have a Team, Looking for Members"
+                 : "Not Looking Right Now"}
               </div>
             )}
           </div>

@@ -5,8 +5,12 @@ import { getCurrentUser } from "@/lib/auth";
 import { UserRole } from "@/lib/generated/prisma/enums";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 
+import prisma from "@/lib/db";
+import { WelcomeModal } from "@/components/onboarding/WelcomeModal";
+
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   let user = null;
+  let student = null;
 
   try {
     user = await getCurrentUser();
@@ -37,5 +41,22 @@ export default async function DashboardLayout({ children }: { children: ReactNod
     redirect(user.role === UserRole.ADMIN ? "/admin/dashboard" : "/login");
   }
 
-  return <DashboardShell userEmail={user.email || "user@example.com"}>{children}</DashboardShell>;
+  // Fetch student to check onboarding status
+  student = await prisma.student.findUnique({
+    where: { userId: user.id },
+    select: { name: true, department: true, currentSemester: true, onboardingCompleted: true }
+  });
+
+  return (
+    <DashboardShell userEmail={user.email || "user@example.com"}>
+      {student && !student.onboardingCompleted && (
+        <WelcomeModal 
+          userName={student.name} 
+          department={student.department} 
+          semester={student.currentSemester} 
+        />
+      )}
+      {children}
+    </DashboardShell>
+  );
 }

@@ -107,11 +107,16 @@ model Student {
 
   skills         Skill[]
   projects       Project[]
+  
+  onboardingCompleted Boolean     @default(false)
+  primaryRoles        Json?       // max 2 e.g. ["Frontend Lead", "AI/ML Specialist"]
+  seekingStatus       String      @default("LOOKING_FOR_TEAM") // "LOOKING_FOR_TEAM" | "HAS_TEAM_LOOKING_FOR_MEMBERS" | "NOT_LOOKING"
 
   sentRequests   Request[]        @relation("SENTREQUESTS")
   receivedRequests Request[]      @relation("RECEIVEDREQUESTS")
 
   groupMember    FYPGroupMember?
+  assignedTasks  FYPTask[]        @relation("AssignedTasks")
 
   // Messaging relations
   conversationsAsA Conversation[] @relation("ConversationsAsA")
@@ -169,6 +174,10 @@ model Project {
   description String?
   liveLink   String?
   githubLink String?
+  
+  embedType     String?  // "GITHUB" | "PDF" | "DEMO"
+  embedUrl      String?  // Supabase storage path or raw URL
+  mediaMetadata Json?    // { stars, language, forks } for GitHub cards
 
   student    Student  @relation(fields: [studentId], references: [id])
 
@@ -185,6 +194,7 @@ model Request {
   toStudentId   String
   type          RequestType
   reason        String
+  inviteNote    String?      @db.VarChar(200)
   status        RequestStatus @default(PENDING)
   createdAt     DateTime      @default(now())
 
@@ -212,6 +222,29 @@ model FYPGroup {
   createdAt   DateTime          @default(now())
 
   members     FYPGroupMember[]
+  tasks       FYPTask[]
+}
+
+// =====================
+// 9.5️⃣ FYP Task
+// =====================
+
+model FYPTask {
+  id           String    @id @default(uuid())
+  groupId      String
+  title        String
+  description  String?   @db.Text
+  status       String    @default("TODO") // "TODO" | "IN_PROGRESS" | "REVIEW" | "DONE"
+  assignedToId String?
+  dueDate      DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  group        FYPGroup  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  assignedTo   Student?  @relation("AssignedTasks", fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  @@index([groupId])
+  @@index([status])
 }
 
 // =====================

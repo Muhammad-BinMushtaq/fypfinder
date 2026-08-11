@@ -2,6 +2,8 @@
 
 import type { ReactNode } from "react"
 import Link from "next/link"
+import { RadarChart } from "./RadarChart"
+import { ProposalDownloadButton } from "./ProposalDownloadButton"
 import {
   AlertTriangle,
   ArrowLeft,
@@ -79,13 +81,19 @@ export function ValidationResult({
 
   return (
     <div className="space-y-5">
-      <button
-        onClick={onReset}
-        className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 transition hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Check another idea
-      </button>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <button
+          onClick={onReset}
+          className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 transition hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Check another idea
+        </button>
+
+        {result.status === "completed" && (
+          <ProposalDownloadButton validation={result} />
+        )}
+      </div>
 
       <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
         <div className="grid gap-6 lg:grid-cols-[220px_1fr] lg:items-center">
@@ -139,6 +147,18 @@ export function ValidationResult({
         <div className="flex items-center gap-2 text-sm font-semibold text-gray-950 dark:text-white">
           <BarChart3 className="h-4 w-4 text-emerald-600 dark:text-emerald-300" />
           Score dashboard
+        </div>
+
+        <div className="mt-6 mb-8">
+          <RadarChart
+            scores={{
+              feasibility: report.scoringBreakdown.feasibilityResources.score * (100 / report.scoringBreakdown.feasibilityResources.maxScore),
+              originality: report.scoringBreakdown.originalityNovelty.score * (100 / report.scoringBreakdown.originalityNovelty.maxScore),
+              complexity: report.scoringBreakdown.problemClarityRelevance.score * (100 / report.scoringBreakdown.problemClarityRelevance.maxScore),
+              marketRelevance: report.scoringBreakdown.impactUsefulness.score * (100 / report.scoringBreakdown.impactUsefulness.maxScore),
+              timelineRealism: report.scoringBreakdown.improvementPotential.score * (100 / report.scoringBreakdown.improvementPotential.maxScore),
+            }}
+          />
         </div>
 
         <div className="mt-4 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">

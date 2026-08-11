@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useMyProfile } from "@/hooks/student/useMyProfile";
 import { ChevronDown, ChevronUp, Pencil, Trash2, ExternalLink, Github, FolderGit2 } from "lucide-react";
 import type { Project } from "@/services/student.service";
+import { ProjectEmbedCard } from "./ProjectEmbedCard";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -22,12 +23,15 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
     description: "",
     liveLink: "",
     githubLink: "",
+    embedType: "NONE",
+    embedUrl: "",
+    mediaMetadata: null as any,
   });
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
 
   const resetForm = () => {
-    setFormData({ name: "", description: "", liveLink: "", githubLink: "" });
+    setFormData({ name: "", description: "", liveLink: "", githubLink: "", embedType: "NONE", embedUrl: "", mediaMetadata: null });
     setEditingProject(null);
     setShowModal(false);
     setError("");
@@ -41,6 +45,9 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
       description: project.description || "",
       liveLink: project.liveLink || "",
       githubLink: project.githubLink || "",
+      embedType: project.embedType || "NONE",
+      embedUrl: project.embedUrl || "",
+      mediaMetadata: project.mediaMetadata || null,
     });
     setShowModal(true);
   };
@@ -249,6 +256,11 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                       </a>
                     )}
                   </div>
+                  <ProjectEmbedCard 
+                    embedType={project.embedType} 
+                    embedUrl={project.embedUrl} 
+                    mediaMetadata={project.mediaMetadata} 
+                  />
                 </div>
               </div>
             ))}
@@ -339,6 +351,55 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                   placeholder="https://github.com/username/repo"
                   className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-400 dark:focus:ring-slate-500 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                 />
+              </div>
+
+              {/* Embed Section */}
+              <div className="border-t border-gray-200 dark:border-slate-600 pt-4 mt-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                  Project Media Embed
+                </label>
+                <select
+                  value={formData.embedType}
+                  onChange={(e) => setFormData({ ...formData, embedType: e.target.value, embedUrl: "", mediaMetadata: null })}
+                  className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-400 dark:focus:ring-slate-500 outline-none mb-3 text-gray-900 dark:text-white"
+                >
+                  <option value="NONE">None</option>
+                  <option value="GITHUB">GitHub Repo Card</option>
+                  <option value="PDF">PDF Upload / Link</option>
+                  <option value="DEMO">Live Demo Iframe</option>
+                </select>
+
+                {formData.embedType !== "NONE" && (
+                  <div>
+                    <input
+                      type="url"
+                      value={formData.embedUrl}
+                      onChange={(e) => setFormData({ ...formData, embedUrl: e.target.value })}
+                      onBlur={async () => {
+                        if (formData.embedType === "GITHUB" && formData.embedUrl) {
+                          try {
+                            const res = await fetch(`/api/student/github-meta?url=${encodeURIComponent(formData.embedUrl)}`);
+                            const result = await res.json();
+                            if (result.success) {
+                              setFormData(prev => ({ ...prev, mediaMetadata: result.data }));
+                            }
+                          } catch (err) {
+                            console.error("Failed to fetch github meta", err);
+                          }
+                        }
+                      }}
+                      placeholder={
+                        formData.embedType === "PDF" ? "Enter PDF URL (mock for upload)" :
+                        formData.embedType === "GITHUB" ? "https://github.com/owner/repo" :
+                        "https://example.com/demo"
+                      }
+                      className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-400 dark:focus:ring-slate-500 outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+                    />
+                    {formData.embedType === "GITHUB" && (
+                      <p className="text-xs text-gray-500 mt-1">Leave input to fetch repository details automatically.</p>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Actions */}

@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import { WorkspaceTab } from "@/components/workspace/WorkspaceTab";
 import { useMyGroup, useUpdateGroupProject, useUpdateGroupVisibility } from "@/hooks/group/useMyGroup";
 import { useMyProfile } from "@/hooks/student/useMyProfile";
 import { Users, Lock, Unlock, Eye, EyeOff, Edit2, Save, X, ArrowLeft, FileText } from "lucide-react";
@@ -16,6 +17,7 @@ export default function FYPManagementPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [projectName, setProjectName] = useState("");
   const [description, setDescription] = useState("");
+  const [activeTab, setActiveTab] = useState("group");
 
   // Loading state
   if (isLoading) {
@@ -111,8 +113,45 @@ export default function FYPManagementPage() {
           </div>
         </div>
 
+        <div className="mb-6 flex space-x-1 rounded-xl bg-gray-100 p-1 dark:bg-slate-800">
+          <button
+            onClick={() => setActiveTab("group")}
+            className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all ${
+              activeTab === "group"
+                ? "bg-white text-gray-900 shadow dark:bg-slate-900 dark:text-white"
+                : "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+            }`}
+          >
+            Group Details
+          </button>
+          <button
+            onClick={() => setActiveTab("workspace")}
+            className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all ${
+              activeTab === "workspace"
+                ? "bg-white text-gray-900 shadow dark:bg-slate-900 dark:text-white"
+                : "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+            }`}
+          >
+            Workspace {!isGroupLocked && "🔒"}
+          </button>
+        </div>
+
         <div className="space-y-6">
-          {/* Project Details */}
+          {activeTab === "workspace" ? (
+            isGroupLocked ? (
+              <WorkspaceTab groupId={group.id} members={group.members.map(m => ({ id: m.id, name: m.name, profilePicture: m.profilePicture }))} />
+            ) : (
+              <div className="rounded-xl border border-gray-200 bg-white p-8 text-center dark:border-slate-800 dark:bg-slate-900">
+                <Lock className="mx-auto h-12 w-12 text-gray-400" />
+                <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">Workspace Locked</h3>
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                  Complete your group (2-3 members) and lock it to unlock the FYP Workspace.
+                </p>
+              </div>
+            )
+          ) : (
+            <>
+              {/* Project Details */}
           <section className="border border-gray-200 dark:border-slate-700 rounded-xl overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-200 dark:border-slate-700 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -281,6 +320,8 @@ export default function FYPManagementPage() {
               ))}
             </div>
           </section>
+          </>
+          )}
         </div>
       </div>
     </div>

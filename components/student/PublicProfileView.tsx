@@ -13,6 +13,7 @@ import type { PublicStudentProfile } from "@/services/studentPublic.service";
 import { SendRequestButtons } from "@/components/request/SendRequestButtons";
 import { getDepartmentLabel } from "@/lib/departments";
 import { getIndustryLabel } from "@/lib/industries";
+import { PrimaryRoleBadges } from "./PrimaryRoleBadges";
 
 interface PublicProfileViewProps {
   profile: PublicStudentProfile;
@@ -139,6 +140,12 @@ export function PublicProfileView({
                 {groupStatusConfig.label}
               </span>
             </div>
+
+            {profile.primaryRoles && Array.isArray(profile.primaryRoles) && profile.primaryRoles.length > 0 && (
+              <div className="mt-3">
+                <PrimaryRoleBadges roles={profile.primaryRoles} />
+              </div>
+            )}
 
             <div className="mt-3 flex flex-wrap gap-2 text-sm text-slate-600 dark:text-slate-400">
               <span className="rounded-md bg-slate-100 dark:bg-slate-700 px-2.5 py-1 text-xs font-medium text-slate-700 dark:text-slate-300">

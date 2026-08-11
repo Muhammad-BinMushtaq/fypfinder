@@ -23,6 +23,9 @@ const MY_PROFILE_SELECT = {
   hobbies: true,
   preferredTechStack: true,
   industryPreference: true,
+  primaryRoles: true,
+  seekingStatus: true,
+  onboardingCompleted: true,
   user: {
     select: {
       status: true,
@@ -45,6 +48,9 @@ const MY_PROFILE_SELECT = {
       description: true,
       liveLink: true,
       githubLink: true,
+      embedType: true,
+      embedUrl: true,
+      mediaMetadata: true,
     },
   },
   internships: {
@@ -86,6 +92,9 @@ export async function getMyProfile(userId: string) {
     hobbies: student.hobbies,
     preferredTechStack: student.preferredTechStack,
     fypIndustry: student.industryPreference,
+    primaryRoles: student.primaryRoles,
+    seekingStatus: student.seekingStatus,
+    onboardingCompleted: student.onboardingCompleted,
     skills: student.skills,
     projects: student.projects,
     internships: student.internships,
@@ -112,6 +121,9 @@ export async function updateMyProfile(
     hobbies?: string
     preferredTechStack?: string
     fypIndustry?: string
+    primaryRoles?: any
+    seekingStatus?: string
+    onboardingCompleted?: boolean
   }
 ) {
   const {
@@ -126,6 +138,9 @@ export async function updateMyProfile(
     hobbies,
     preferredTechStack,
     fypIndustry,
+    primaryRoles,
+    seekingStatus,
+    onboardingCompleted,
   } = data
 
   return prisma.student.update({
@@ -142,6 +157,9 @@ export async function updateMyProfile(
       ...(hobbies !== undefined && { hobbies }),
       ...(preferredTechStack !== undefined && { preferredTechStack }),
       ...(fypIndustry !== undefined && { industryPreference: fypIndustry }),
+      ...(primaryRoles !== undefined && { primaryRoles }),
+      ...(seekingStatus !== undefined && { seekingStatus }),
+      ...(onboardingCompleted !== undefined && { onboardingCompleted }),
     },
   })
 }
@@ -239,6 +257,8 @@ export async function getPublicProfile(studentId: string) {
     hobbies: student.hobbies,
     preferredTechStack: student.preferredTechStack,
     fypIndustry: student.industryPreference,
+    primaryRoles: student.primaryRoles,
+    seekingStatus: student.seekingStatus,
     linkedinUrl: student.linkedinUrl,
     githubUrl: student.githubUrl,
     isGrouped,
@@ -385,6 +405,9 @@ export async function addProject(
     description?: string
     liveLink?: string
     githubLink: string
+    embedType?: string | null
+    embedUrl?: string | null
+    mediaMetadata?: any
   }
 ) {
   const student = await getStudentOrThrow(userId)
@@ -396,6 +419,9 @@ export async function addProject(
       description: data.description,
       liveLink: data.liveLink,
       githubLink: data.githubLink,
+      embedType: data.embedType,
+      embedUrl: data.embedUrl,
+      mediaMetadata: data.mediaMetadata,
     },
   })
 }
@@ -411,6 +437,9 @@ export async function updateProject(
     description?: string
     liveLink?: string
     githubLink?: string
+    embedType?: string | null
+    embedUrl?: string | null
+    mediaMetadata?: any
   }
 ) {
   const student = await getStudentOrThrow(userId)
@@ -428,6 +457,9 @@ export async function updateProject(
       ...(data.description !== undefined && { description: data.description }),
       ...(data.liveLink !== undefined && { liveLink: data.liveLink }),
       ...(data.githubLink !== undefined && { githubLink: data.githubLink }),
+      ...(data.embedType !== undefined && { embedType: data.embedType }),
+      ...(data.embedUrl !== undefined && { embedUrl: data.embedUrl }),
+      ...(data.mediaMetadata !== undefined && { mediaMetadata: data.mediaMetadata }),
     },
   })
 }

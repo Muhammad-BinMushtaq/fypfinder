@@ -62,8 +62,15 @@ export function ProfileCompletionProgress({ profile }: ProfileCompletionProgress
     },
   ];
 
+  // Calculate percentage
+  let percentage = 15; // Base 15% for Department+Semester (already set)
+  if (profile.profilePicture) percentage += 15;
+  if (profile.interests && profile.interests.trim().length > 0) percentage += 15;
+  if ((profile.skills?.length || 0) >= 3) percentage += 20;
+  if ((profile.projects?.length || 0) >= 1) percentage += 20;
+  if (profile.linkedinUrl || profile.githubUrl) percentage += 15;
+  
   const completedCount = items.filter((i) => i.completed).length;
-  const percentage = Math.round((completedCount / items.length) * 100);
   
   // Get the highest priority incomplete item
   const incompleteItems = items
@@ -182,6 +189,24 @@ export function ProfileCompletionProgress({ profile }: ProfileCompletionProgress
               </div>
             ))}
           </div>
+
+          {/* Bonus Indicators */}
+          {(profile.primaryRoles?.length || profile.seekingStatus !== "LOOKING_FOR_TEAM") && (
+            <div className="mt-3 flex flex-wrap gap-2 pt-3 border-t border-gray-200 dark:border-slate-700">
+              {profile.primaryRoles && profile.primaryRoles.length > 0 && (
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                  <Check className="w-3 h-3" />
+                  Role Badges Added
+                </div>
+              )}
+              {profile.seekingStatus && profile.seekingStatus !== "LOOKING_FOR_TEAM" && (
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                  <Check className="w-3 h-3" />
+                  Seeking Status Set
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

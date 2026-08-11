@@ -22,6 +22,9 @@ export async function PATCH(req: Request) {
             hobbies,
             preferredTechStack,
             fypIndustry,
+            primaryRoles,
+            seekingStatus,
+            onboardingCompleted,
         } = body
 
         const student = await updateMyProfile(user.id, {
@@ -36,6 +39,9 @@ export async function PATCH(req: Request) {
             hobbies,
             preferredTechStack,
             fypIndustry,
+            primaryRoles,
+            seekingStatus,
+            onboardingCompleted,
         })
 
         return NextResponse.json(

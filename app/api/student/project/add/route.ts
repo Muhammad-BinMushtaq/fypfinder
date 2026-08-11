@@ -9,7 +9,7 @@ export async function POST(req: Request) {
         const user = await requireRole(UserRole.STUDENT)
 
         const body = await req.json()
-        const { name, description, liveLink, githubLink } = body
+        const { name, description, liveLink, githubLink, embedType, embedUrl, mediaMetadata } = body
 
         if (!name) {
             return NextResponse.json(
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
             )
         }
 
-        const project = await addProject(user.id, { name, description, liveLink, githubLink })
+        const project = await addProject(user.id, { name, description, liveLink, githubLink, embedType, embedUrl, mediaMetadata })
 
         return NextResponse.json(
             { success: true, message: "Project added successfully", data: project },

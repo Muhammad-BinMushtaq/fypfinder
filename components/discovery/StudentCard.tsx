@@ -13,6 +13,9 @@ import { Github, Linkedin, Lock, ChevronRight, FolderGit2, Heart } from "lucide-
 import { useQueryClient } from "@tanstack/react-query";
 import { prefetchPublicProfile } from "@/hooks/student/usePublicProfile";
 import type { MatchedStudent } from "@/services/discovery.service";
+import { useState } from "react";
+import { sendPartnerRequest } from "@/services/requestPartner.service";
+import { toast } from "react-toastify";
 
 interface StudentCardProps {
   student: MatchedStudent;
@@ -21,6 +24,9 @@ interface StudentCardProps {
 export function StudentCard({ student }: StudentCardProps) {
   const queryClient = useQueryClient();
   const router = useRouter();
+  const [showInvite, setShowInvite] = useState(false);
+  const [inviteNote, setInviteNote] = useState("");
+  const [isSending, setIsSending] = useState(false);
 
   const handleCardClick = () => {
     router.push(`/dashboard/discovery/profile/${student.id}`);
@@ -116,6 +122,22 @@ export function StudentCard({ student }: StudentCardProps) {
                   </div>
                 )}
               </div>
+              
+              {/* Seeking Status & Role Gaps */}
+              {student.seekingStatus === "HAS_TEAM_LOOKING_FOR_MEMBERS" && (
+                <div className="mt-2 inline-flex items-center gap-1 text-xs font-medium bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-md border border-indigo-200 dark:border-indigo-800/50">
+                  <span className="truncate">Team looking for: {student.primaryRoles?.length > 0 ? student.primaryRoles.join(', ') : "Members"}</span>
+                </div>
+              )}
+              {student.seekingStatus === "LOOKING_FOR_TEAM" && student.primaryRoles?.length > 0 && (
+                <div className="mt-2 inline-flex flex-wrap gap-1">
+                  {student.primaryRoles.map(role => (
+                    <span key={role} className="text-[10px] font-medium bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded border border-blue-200 dark:border-blue-800/50">
+                      {role}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -249,14 +271,77 @@ export function StudentCard({ student }: StudentCardProps) {
             )}
           </div>
 
-          {/* View */}
-          <div className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
-            <span>View Profile</span>
-            <ChevronRight className="w-3.5 h-3.5" />
+          {/* View / Invite */}
+          <div className="flex items-center gap-2">
+            {!student.isGroupLocked && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowInvite(true);
+                }}
+                className="text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+              >
+                Quick Invite
+              </button>
+            )}
+            <div className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
+              <span>View</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </div>
           </div>
           </div>
         </div>
       </div>
+
+      {showInvite && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95" onClick={(e) => e.stopPropagation()}>
+            <div className="p-4 border-b border-gray-200 dark:border-slate-800">
+              <h3 className="font-semibold text-gray-900 dark:text-white">Invite {student.name}</h3>
+            </div>
+            <div className="p-4 space-y-3">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Custom Note (Optional)</label>
+              <textarea
+                autoFocus
+                value={inviteNote}
+                onChange={(e) => setInviteNote(e.target.value)}
+                placeholder="Hi! I saw your profile and..."
+                className="w-full text-sm p-3 border border-gray-200 dark:border-slate-700 rounded-lg bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white outline-none focus:border-blue-500 resize-none h-24"
+              />
+            </div>
+            <div className="p-4 border-t border-gray-200 dark:border-slate-800 flex gap-2 justify-end">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowInvite(false);
+                }}
+                className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg"
+              >
+                Cancel
+              </button>
+              <button
+                disabled={isSending}
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  setIsSending(true);
+                  try {
+                    await sendPartnerRequest({ toStudentId: student.id, reason: inviteNote });
+                    toast.success("Invite sent!");
+                    setShowInvite(false);
+                  } catch (err: any) {
+                    toast.error(err.message || "Failed to send invite");
+                  } finally {
+                    setIsSending(false);
+                  }
+                }}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg disabled:opacity-50"
+              >
+                {isSending ? "Sending..." : "Send Invite"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

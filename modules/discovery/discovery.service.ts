@@ -153,6 +153,8 @@ export async function getMatchedStudents(
                 careerGoal: true,
                 industryPreference: true,
                 hobbies: true,
+                seekingStatus: true,
+                primaryRoles: true,
                 createdAt: true,
                 skills: {
                     select: {
@@ -208,6 +210,8 @@ export async function getMatchedStudents(
             projectCount: s.projects.length,
             industryPreference: s.industryPreference,
             hobbies: s.hobbies,
+            seekingStatus: s.seekingStatus,
+            primaryRoles: s.primaryRoles,
             projectNames: s.projects.map((p) => p.name),
         }
     })

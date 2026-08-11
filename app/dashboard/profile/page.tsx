@@ -8,7 +8,7 @@ import { ProfileForm } from "@/components/student/ProfileForm";
 import { ProfilePictureUpload } from "@/components/student/ProfilePictureUpload";
 import { ProfileCompletionProgress } from "@/components/student/ProfileCompletionProgress";
 import { InternshipsSection } from "@/components/student/InternshipsSection";
-import { WelcomeModal } from "@/components/onboarding/WelcomeModal";
+
 import { getDepartmentLabel } from "@/lib/departments";
 import { 
   AlertTriangle, 
@@ -115,7 +115,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-4 sm:p-6 lg:p-8">
       {/* Welcome Modal for first-time users */}
-      <WelcomeModal userName={profile.name} profileComplete={isProfileComplete} />
+
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Progress Indicator - Top */}
         <ProfileCompletionProgress profile={profile} />

@@ -148,7 +148,7 @@ export function useMyProfile() {
 
     /* ---------- PROJECTS ---------- */
     const addProject = useMutation({
-        mutationFn: (data: { name: string; description?: string; liveLink?: string; githubLink?: string }) =>
+        mutationFn: (data: { name: string; description?: string; liveLink?: string; githubLink?: string; embedType?: string | null; embedUrl?: string | null; mediaMetadata?: any; }) =>
             studentService.addProject(data),
         onMutate: async (newProject) => {
             await queryClient.cancelQueries({ queryKey: PROFILE_QUERY_KEY });
@@ -160,6 +160,9 @@ export function useMyProfile() {
                     description: newProject.description || "",
                     liveLink: newProject.liveLink || "",
                     githubLink: newProject.githubLink || "",
+                    embedType: newProject.embedType || "NONE",
+                    embedUrl: newProject.embedUrl || "",
+                    mediaMetadata: newProject.mediaMetadata || null,
                 };
                 queryClient.setQueryData<StudentProfile>(PROFILE_QUERY_KEY, {
                     ...previous,

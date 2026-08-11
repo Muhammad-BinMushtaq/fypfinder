@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { CheckCircle2, ChevronDown, ChevronUp, Clock3, FileText, History, PencilLine, Sparkles, XCircle } from "lucide-react"
 import { useExtractPdfIdea, useMyValidations, useValidateIdea } from "@/hooks/fyp-ideas"
-import { IdeaForm } from "./IdeaForm"
+import { ValidatorWizard } from "./ValidatorWizard"
 import { PdfIdeaReview } from "./PdfIdeaReview"
 import { PdfIdeaUpload } from "./PdfIdeaUpload"
 import { ValidationResult } from "./ValidationResult"
@@ -108,7 +108,7 @@ export function IdeaValidatorWorkspace({ mode }: IdeaValidatorWorkspaceProps) {
                 remainingToday={remainingToday}
               />
             ) : (
-          <IdeaForm
+          <ValidatorWizard
             onSubmit={handleSubmit}
             isPending={isPending}
             mode={mode}

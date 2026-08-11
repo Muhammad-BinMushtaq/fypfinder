@@ -27,6 +27,9 @@ export interface PublicProject {
   description?: string;
   liveLink?: string;
   githubLink?: string;
+  embedType?: string | null;
+  embedUrl?: string | null;
+  mediaMetadata?: any;
 }
 
 export interface GroupMemberPublic {
@@ -68,6 +71,8 @@ export interface PublicStudentProfile {
   hobbies?: string | null;
   preferredTechStack?: string | null;
   fypIndustry?: string | null;
+  primaryRoles?: string[] | null;
+  seekingStatus?: string;
   // Social Links
   linkedinUrl?: string | null;
   githubUrl?: string | null;

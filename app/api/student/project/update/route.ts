@@ -9,7 +9,7 @@ export async function PATCH(req: Request) {
     const user = await requireRole(UserRole.STUDENT)
 
     const body = await req.json()
-    const { projectId, name, description, liveLink, githubLink } = body
+    const { projectId, name, description, liveLink, githubLink, embedType, embedUrl, mediaMetadata } = body
 
     if (!projectId) {
       return NextResponse.json(
@@ -23,6 +23,9 @@ export async function PATCH(req: Request) {
       description,
       liveLink,
       githubLink,
+      embedType,
+      embedUrl,
+      mediaMetadata,
     })
 
     return NextResponse.json(
