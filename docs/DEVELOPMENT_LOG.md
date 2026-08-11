@@ -32,11 +32,11 @@ Running **2 Subagents concurrently** (one for Stream A, one for Stream B) is the
 
 | Phase | Stream | Feature Name | Primary Files Affected | Status | Subagent Role |
 |---|---|---|---|---|---|
-| **0** | **Core** | **Schema & DB Migrations** | `prisma/schema.prisma`, `npx prisma generate` | ⏹️ NOT_STARTED | `orchestrator` |
-| **1** | **Stream A** | **3. Seamless Onboarding & Command Palette** | `components/onboarding/`, `app/dashboard/layout.tsx`, `components/ui/` | ⏹️ NOT_STARTED | `ui-onboarding-engineer` |
-| **1** | **Stream A** | **1. Interactive Profile & PDF/GitHub Embeds** | `components/student/`, `modules/student/`, `app/dashboard/profile/` | ⏹️ NOT_STARTED | `ui-profile-engineer` |
-| **1** | **Stream B** | **2. FYP Validator Wizard & Radar Dashboard** | `modules/fyp-ideas/`, `components/fyp-ideas/` | ⏹️ NOT_STARTED | `ai-validator-engineer` |
-| **1** | **Stream B** | **4. Post-Lock FYP Workspace & Kanban Board** | `components/workspace/`, `app/api/group/`, `app/dashboard/fyp/` | ⏹️ NOT_STARTED | `workspace-kanban-engineer` |
+| **0** | **Core** | **Schema & DB Migrations** | `prisma/schema.prisma`, `npx prisma generate` | 🧪 VERIFIED | `orchestrator` |
+| **1** | **Stream A** | **3. Seamless Onboarding & Command Palette** | `components/onboarding/`, `app/dashboard/layout.tsx`, `components/ui/` | 🧪 VERIFIED | `ui-onboarding-engineer` |
+| **1** | **Stream A** | **1. Interactive Profile & PDF/GitHub Embeds** | `components/student/`, `modules/student/`, `app/dashboard/profile/` | 🧪 VERIFIED | `ui-profile-engineer` |
+| **1** | **Stream B** | **2. FYP Validator Wizard & Radar Dashboard** | `modules/fyp-ideas/`, `components/fyp-ideas/` | 🧪 VERIFIED | `ai-validator-engineer` |
+| **1** | **Stream B** | **4. Post-Lock FYP Workspace & Kanban Board** | `components/workspace/`, `app/api/group/`, `app/dashboard/fyp/` | 🧪 VERIFIED | `workspace-kanban-engineer` |
 
 *Status Legend: ⏹️ NOT_STARTED | 🔄 IN_PROGRESS | ✅ COMPLETED | 🧪 VERIFIED*
 
