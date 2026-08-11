@@ -254,6 +254,17 @@ export async function sendMessage(
     throw new Error("You are not a participant in this conversation")
   }
 
+  // Verify messaging permission is still active.
+  // canStudentsMessage checks for an accepted MESSAGE request OR a shared group.
+  // This prevents a student whose permissions were revoked from continuing to send.
+  const otherStudentId = conversation.studentAId === senderId
+    ? conversation.studentBId
+    : conversation.studentAId
+  const hasPermission = await canStudentsMessage(senderId, otherStudentId)
+  if (!hasPermission) {
+    throw new Error("You are not allowed to send messages to this student")
+  }
+
   // Create the message
   const message = await prisma.message.create({
     data: {

@@ -43,7 +43,7 @@ export async function getMyGroup(studentId: string) {
         description: group.description,
         isLocked: group.isLocked,
         createdAt: group.createdAt,
-        members: group.members.map((m) => ({
+        members: group.members.map((m: { student: { id: string; name: string; department: string; currentSemester: number; profilePicture: string | null; showGroupOnProfile: boolean } }) => ({
             id: m.student.id,
             name: m.student.name,
             department: m.student.department,
@@ -138,7 +138,7 @@ export async function removeGroupMember(
 
     // 3️⃣ Verify target is in same group
     const targetMembership = group.members.find(
-        (m) => m.studentId === targetStudentId
+        (m: { id: string; studentId: string }) => m.studentId === targetStudentId
     )
 
     if (!targetMembership) {

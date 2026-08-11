@@ -9,6 +9,8 @@ import { buildValidatorSystemPrompt, buildValidatorUserPrompt } from "./prompts"
 import {
   type IdeaInput,
   type ValidationReport,
+  type RoadmapPhase,
+  type SimilarPastIdea,
   legacyValidationReportSchema,
   validationReportSchema,
 } from "./schemas"
@@ -289,12 +291,12 @@ function buildGuestPreviewResult(result: {
     riskReductionSteps: [],
     simpleTechDirection: [],
     plainLanguageAdvice: result.report.plainLanguageAdvice.slice(0, 2),
-    roadmap: result.report.roadmap.slice(0, 2).map((phase) => ({
+    roadmap: result.report.roadmap.slice(0, 2).map((phase: RoadmapPhase) => ({
       ...phase,
       tasks: phase.tasks.slice(0, 1),
     })),
     elevatorPitch: "Sign up to unlock the polished project pitch for this idea.",
-    similarPastIdeas: result.report.similarPastIdeas.map((idea) => ({
+    similarPastIdeas: result.report.similarPastIdeas.map((idea: SimilarPastIdea) => ({
       ...idea,
       supervisor: null,
     })),
@@ -457,7 +459,7 @@ function upgradeLegacyReport(
     finalScore: 0,
     advancedFeatureSuggestions: getDefaultAdvancedFeatureSuggestions(),
     mvpRecommendations: report.simpleNextSteps.slice(0, 5),
-    roadmapPriorities: report.roadmap.map((phase) => `${phase.phase}: ${phase.tasks[0]}`).slice(0, 5),
+    roadmapPriorities: report.roadmap.map((phase: RoadmapPhase) => `${phase.phase}: ${phase.tasks[0]}`).slice(0, 5),
   }
 
   return normalizeValidationReport(upgraded)

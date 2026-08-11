@@ -46,36 +46,64 @@ export function validateStudentID(studentId: string): StudentIDValidationResult 
   const department = match[3].toUpperCase() // dynamic length (2–4 letters)
 
   // =============================
-  // Semester calculation (UNCHANGED LOGIC)
+  // Semester calculation (Fixed BUG-004)
   // =============================
+  //
+  // Academic calendar used at PAF-IAST:
+  //   Fall term:   Sep – Jan  (months 9–12 of year Y, plus Jan of Y+1)
+  //   Spring term: Feb – May  (months 2–5)
+  //   Summer:      Jun – Aug  (months 6–8)  → treated as end of Spring term
+  //
+  // The "current session" determines which odd/even semester the student is in.
+  // Summer months belong to the same Spring term (same academic year) so we
+  // do NOT decrement academicYear for them.
 
   const now = new Date()
   const currentYear = now.getFullYear()
-  const currentMonth = now.getMonth() + 1
+  const currentMonth = now.getMonth() + 1 // 1-indexed
 
   let academicYear = currentYear
   let currentSession: "F" | "S"
 
   if (currentMonth >= 9) {
+    // Sep–Dec: Fall term of currentYear
     currentSession = "F"
-  } else if (currentMonth <= 5) {
+    academicYear = currentYear
+  } else if (currentMonth >= 6) {
+    // Jun–Aug: Summer break → belongs to Spring term of currentYear
+    // (Spring ended, Fall hasn't started yet — treat as late Spring)
     currentSession = "S"
-    academicYear--
+    academicYear = currentYear
+  } else if (currentMonth >= 2) {
+    // Feb–May: Spring term of currentYear (academicYear shifts back 1)
+    currentSession = "S"
+    academicYear = currentYear - 1
   } else {
+    // January: still in Fall term that started in Sep of previous year
     currentSession = "F"
-    academicYear--
+    academicYear = currentYear - 1
   }
 
   const admissionFullYear = 2000 + admissionYear
   const yearsElapsed = academicYear - admissionFullYear
 
-  let currentSemester = yearsElapsed * 2 + 1
-
-  if (admissionSession === "s" && currentSession === "F") {
-    currentSemester += 1
+  if (yearsElapsed < 0) {
+    return {
+      valid: false,
+      error: "Student ID refers to a future admission year. Registration not yet open.",
+    }
   }
 
+  // Base semester index: each year = 2 semesters; start at semester 1
+  let currentSemester = yearsElapsed * 2 + 1
+
+  // Adjust for admission session vs current session offset
+  // Fall-admitted student in a Spring term → one extra semester completed
   if (admissionSession === "f" && currentSession === "S") {
+    currentSemester += 1
+  }
+  // Spring-admitted student in a Fall term → one extra semester completed
+  if (admissionSession === "s" && currentSession === "F") {
     currentSemester += 1
   }
 

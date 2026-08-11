@@ -41,6 +41,15 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     logger.error("Send message error:", error)
     const errorMessage = error instanceof Error ? error.message : "Failed to send message"
+
+    // Permission denial should return 403, not 500
+    if (errorMessage === "You are not allowed to send messages to this student") {
+      return NextResponse.json(
+        { success: false, message: errorMessage },
+        { status: 403 }
+      )
+    }
+
     return NextResponse.json(
       { success: false, message: errorMessage },
       { status: 500 }

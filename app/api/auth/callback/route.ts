@@ -166,16 +166,21 @@ export async function GET(req: Request) {
                 return NextResponse.redirect(`${origin}${redirectPath || "/login"}`)
             }
 
-            // If Prisma user.id doesn't match Supabase user.id, update it
+            // If Prisma user.id doesn't match Supabase user.id, sync both records
+            // atomically to avoid a PostgreSQL FK constraint violation
+            // (Student.userId references User.id — updating User.id first breaks the FK).
             if (existingUser.id !== user.id) {
-                await prisma.user.update({
-                    where: { email },
-                    data: { id: user.id }
-                })
-                // Also update student record's userId if it exists
-                await prisma.student.updateMany({
-                    where: { userId: existingUser.id },
-                    data: { userId: user.id }
+                await prisma.$transaction(async (tx) => {
+                    // 1️⃣ Update User primary key
+                    await tx.user.update({
+                        where: { email },
+                        data: { id: user.id }
+                    })
+                    // 2️⃣ Update Student foreign key to match new User.id
+                    await tx.student.updateMany({
+                        where: { userId: existingUser.id },
+                        data: { userId: user.id }
+                    })
                 })
             }
 

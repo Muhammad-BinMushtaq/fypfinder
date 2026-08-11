@@ -43,7 +43,7 @@ This document captures the authoritative business rules and decision logic imple
 ### Eligibility
 - Only active students are included
 - Current student is excluded
-- Only students with semester 5–7 are considered for discovery
+- Only students with semester 5–8 are considered for discovery (semester 8 has read-only partner request access)
 - Availability filter defaults to `AVAILABLE`
 
 ### Filters and matching

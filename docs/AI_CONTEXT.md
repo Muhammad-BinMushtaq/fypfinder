@@ -69,7 +69,7 @@ Database INSERT or UPDATE
 ## 7. Hard Constraints That Must Not Be Broken
 - Student registration is restricted to the university email domains `paf-iast.edu.pk` and `fecid.paf-iast.edu.pk`
 - The OAuth local-part is treated as the registration number and must pass validation
-- Only semesters 5 to 7 are valid for student onboarding and discovery eligibility
+- Only semesters 5 to 8 are valid for student onboarding and discovery eligibility
 - Suspended accounts must not gain access to student features
 - Message permission requires an accepted message request or a shared FYP group
 - Partner requests must respect semester compatibility and group constraints
@@ -195,16 +195,11 @@ Database INSERT or UPDATE
 ## 15. Documentation Status
 The repository already has canonical docs in `docs/` that should be treated as the main reference set:
 - `docs/SYSTEM_OVERVIEW.md`
-- `docs/SYSTEM_ARCHITECTURE.md`
 - `docs/BUSINESS_LOGIC.md`
 - `docs/SOFTWARE_REQUIREMENT_SPECIFICATION.md`
 - `docs/DATABASE_DESIGN.md`
 - `docs/COMPLETE_PROJECT_REPORT.md`
-- `docs/AUDIT_SUMMARY.md`
-- `docs/CODEBASE_AUDIT_REPORT.md`
-- `docs/DATABASE_AUDIT.md`
-- `docs/PERFORMANCE_AUDIT.md`
-- `docs/SECURITY_AUDIT.md`
+- `docs/PROJECT_REPORT.md`
 
 Legacy reference docs still exist and may overlap:
 - `docs/DOCUMENTATION.md`
