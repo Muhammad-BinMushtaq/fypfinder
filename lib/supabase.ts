@@ -37,9 +37,10 @@ export async function createSupabaseServerClient() {
  * Required env variable: SECRET_SUPABASE_SERVICE_ROLE_KEY
  */
 export function createSupabaseAdminClient() {
+  const serviceKey = process.env.SECRET_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SECRET_SUPABASE_SERVICE_ROLE_KEY!,
+    serviceKey!,
     {
       auth: {
         autoRefreshToken: false,
