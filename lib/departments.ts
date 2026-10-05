@@ -41,6 +41,7 @@ export const DEPARTMENTS: Department[] = [
   // Design
   { value: "SDT", label: "Spatial Design Technologies", faculty: "Design Art and Architecture Technologies" },
   { value: "ITD", label: "Interior Design", faculty: "Design Art and Architecture Technologies" },
+  { value: "SDAAT", label: "Design, Art & Architecture Technologies", faculty: "Design Art and Architecture Technologies" },
 
   // Languages
   { value: "ENG", label: "English & Modern Languages", faculty: "English & Modern Languages" },
