@@ -79,14 +79,15 @@ export function ProposalDownloadButton({ validation }: ProposalDownloadButtonPro
         {isGenerating ? "Generating..." : "Download Proposal PDF"}
       </button>
 
-      {/* Off-screen rendered container for HTML2Canvas snapshotting */}
+      {/* Off-screen rendered container for HTML2Canvas snapshotting.
+          DO NOT use display:none or opacity:0, as html2canvas will render a 0x0 or blank transparent image.
+          Instead, we push it far off the screen to the left so it remains fully painted by the browser. */}
       <div 
         style={{ 
           position: "fixed", 
           top: 0, 
-          left: 0, 
+          left: "200vw", 
           zIndex: -9999, 
-          opacity: 0, 
           pointerEvents: "none" 
         }}
       >

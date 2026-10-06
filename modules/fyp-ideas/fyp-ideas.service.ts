@@ -15,7 +15,7 @@ import {
   validationReportSchema,
 } from "./schemas"
 
-const MAX_VALIDATIONS_PER_DAY = 3
+const MAX_VALIDATIONS_PER_DAY = 5
 const SINGLE_CALL_MAX_TOKENS = 5000
 
 export interface ValidationResult {
@@ -77,17 +77,17 @@ export async function validateIdea(
     const record = existing
       ? await resetExistingValidation(existing.id, input, inputHash)
       : await prisma.fYPIdeaValidation.create({
-          data: {
-            studentId,
-            title: input.title,
-            problemStatement: input.problemStatement,
-            ideaDescription: input.ideaDescription,
-            coreFeatures: input.coreFeatures,
-            teamSize: input.teamSize,
-            inputHash,
-            status: "PENDING",
-          },
-        })
+        data: {
+          studentId,
+          title: input.title,
+          problemStatement: input.problemStatement,
+          ideaDescription: input.ideaDescription,
+          coreFeatures: input.coreFeatures,
+          teamSize: input.teamSize,
+          inputHash,
+          status: "PENDING",
+        },
+      })
 
     try {
       const reportResult = await generateValidationReport(input)
@@ -392,12 +392,12 @@ function computeFinalScore(report: ValidationReport["scoringBreakdown"]): number
       100,
       Math.round(
         report.problemClarityRelevance.score +
-          report.ideaExplanationUsability.score +
-          report.keyFeaturesCompleteness.score +
-          report.feasibilityResources.score +
-          report.originalityNovelty.score +
-          report.impactUsefulness.score +
-          report.improvementPotential.score
+        report.ideaExplanationUsability.score +
+        report.keyFeaturesCompleteness.score +
+        report.feasibilityResources.score +
+        report.originalityNovelty.score +
+        report.impactUsefulness.score +
+        report.improvementPotential.score
       )
     )
   )
