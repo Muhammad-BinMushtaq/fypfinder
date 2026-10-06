@@ -4,21 +4,26 @@ import { forwardRef } from "react"
 import type { ValidationResult, DetailedScore, ScoringBreakdown } from "@/services/fypIdeas.service"
 
 interface ProposalPrintTemplateProps {
-  validation: ValidationResult
+  validation: ValidationResult & {
+    problemStatement?: string
+    ideaDescription?: string
+    coreFeatures?: string
+    teamSize?: number | null
+  }
 }
 
-const SCORE_SECTIONS: {
+const RUBRICS: {
   key: keyof ScoringBreakdown
   title: string
-  maxLabel: string
+  maxScore: number
 }[] = [
-  { key: "problemClarityRelevance", title: "Problem Clarity & Relevance", maxLabel: "20 pts" },
-  { key: "ideaExplanationUsability", title: "Architecture & Usability", maxLabel: "20 pts" },
-  { key: "keyFeaturesCompleteness", title: "Feature Completeness", maxLabel: "15 pts" },
-  { key: "feasibilityResources", title: "Resource & Execution Viability", maxLabel: "10 pts" },
-  { key: "originalityNovelty", title: "Novelty & Originality", maxLabel: "10 pts" },
-  { key: "impactUsefulness", title: "Practical Industry Impact", maxLabel: "10 pts" },
-  { key: "improvementPotential", title: "Expansion & Growth Potential", maxLabel: "15 pts" },
+  { key: "problemClarityRelevance", title: "Problem Clarity & Practical Relevance", maxScore: 20 },
+  { key: "ideaExplanationUsability", title: "Architecture, Usability & User Flow", maxScore: 20 },
+  { key: "keyFeaturesCompleteness", title: "Core Feature Completeness & Scope", maxScore: 15 },
+  { key: "feasibilityResources", title: "Technical Feasibility & Team Resources", maxScore: 10 },
+  { key: "originalityNovelty", title: "Novelty & Differentiating Value", maxScore: 10 },
+  { key: "impactUsefulness", title: "Industry Relevance & Practical Impact", maxScore: 10 },
+  { key: "improvementPotential", title: "Expansion, Scaling & Growth Potential", maxScore: 15 },
 ]
 
 export const ProposalPrintTemplate = forwardRef<HTMLDivElement, ProposalPrintTemplateProps>(
@@ -33,393 +38,570 @@ export const ProposalPrintTemplate = forwardRef<HTMLDivElement, ProposalPrintTem
     return (
       <div 
         ref={ref}
-        className="w-[800px] bg-white p-10 text-slate-900 space-y-8"
-        style={{ fontFamily: "'Inter', system-ui, -apple-system, sans-serif" }}
+        className="w-[820px] bg-white p-12 text-slate-900 leading-relaxed"
+        style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
       >
-        {/* Header Branding */}
-        <div className="border-b-2 border-slate-900 pb-6 text-center">
-          <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-widest text-slate-500 mb-3">
-            <span>PAF-IAST AI Evaluation Engine</span>
-            <span>Report ID: {validation.id ? validation.id.slice(0, 8).toUpperCase() : "FYP-VAL"}</span>
-            <span>{new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</span>
+        {/* ================= HEADER & INSTITUTIONAL BRANDING ================= */}
+        <header className="border-b-2 border-slate-900 pb-5 mb-8">
+          <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">
+            <span>Pak-Austria Fachhochschule (PAF-IAST)</span>
+            <span>AI Evaluation Engine v2.4</span>
+            <span>Ref: {validation.id ? validation.id.slice(0, 8).toUpperCase() : "VAL-PAF"}</span>
           </div>
-          <h1 className="text-2xl font-black uppercase tracking-wider text-slate-900">
-            Pak-Austria Fachhochschule
-          </h1>
-          <h2 className="text-base font-semibold text-slate-700 mt-0.5">
-            Institute of Applied Sciences and Technology
-          </h2>
-          <div className="mt-3 inline-block bg-slate-900 text-white text-xs font-bold uppercase tracking-widest px-4 py-1 rounded-full">
-            FYP Idea Validation & Feasibility Report
-          </div>
-        </div>
 
-        {/* Project Title & Score Overview */}
-        <div className="space-y-4">
-          <div>
-            <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-              Evaluated Concept
+          <div className="text-center my-3">
+            <h1 className="text-2xl font-black uppercase tracking-wider text-slate-900">
+              Pak-Austria Fachhochschule
+            </h1>
+            <h2 className="text-sm font-semibold text-slate-700 tracking-wide mt-0.5">
+              Institute of Applied Sciences and Technology
+            </h2>
+            <div className="mt-3 inline-block bg-slate-900 text-white text-[11px] font-bold uppercase tracking-widest px-5 py-1 rounded-full">
+              FYP Idea Validation & Feasibility Assessment Report
             </div>
-            <h3 className="text-2xl font-bold text-slate-900 leading-tight">
-              {title || report.plainSummary || "FYP Project Concept"}
-            </h3>
           </div>
 
-          <div className="grid grid-cols-[160px_1fr] gap-4 bg-slate-50 p-5 rounded-xl border border-slate-200">
-            {/* Score Box */}
-            <div className="flex flex-col items-center justify-center p-3 bg-white rounded-lg border border-slate-200 text-center">
-              <div className="text-4xl font-extrabold text-slate-900">
-                {report.finalScore}
-              </div>
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mt-0.5">
-                Score / 100
-              </div>
-              <div className="mt-2 text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-800">
-                {report.finalScore >= 75 ? "Strong Candidate" : report.finalScore >= 50 ? "Moderate Viability" : "Needs Revision"}
-              </div>
+          <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-200 mt-3 font-medium">
+            <span>Assessment Date: {new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</span>
+            <span>Category: Final Year Project (BS Computing / Engineering)</span>
+          </div>
+        </header>
+
+        <div className="space-y-8">
+          {/* ================= 01. PROPOSAL TITLE & SUBMITTED DETAILS ================= */}
+          <section className="space-y-4">
+            <div className="border-b border-slate-200 pb-2">
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 block">
+                Section 01
+              </span>
+              <h3 className="text-lg font-bold text-slate-900 uppercase tracking-tight">
+                Project Overview & Submitted Concept
+              </h3>
             </div>
 
-            {/* Core Findings */}
-            <div className="flex flex-col justify-between">
+            <div className="space-y-3">
               <div>
-                <div className="flex flex-wrap items-center gap-2 mb-2">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-bold bg-slate-900 text-white">
-                    {recommendationLabel}
-                  </span>
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-bold bg-slate-200 text-slate-800">
-                    {originalityLabel}
-                  </span>
-                </div>
-                <p className="text-xs text-slate-700 leading-relaxed font-medium">
-                  {report.plainSummary}
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-0.5">Project Title:</span>
+                <p className="text-xl font-black text-slate-900 leading-snug">
+                  {title || report.plainSummary || "FYP Capstone Project Proposal"}
                 </p>
-                {report.shouldBuild && (
-                  <p className="text-xs text-slate-600 leading-relaxed mt-1.5">
-                    {report.shouldBuild}
-                  </p>
-                )}
               </div>
 
-              {/* Quick Metadata */}
-              <div className="grid grid-cols-3 gap-2 mt-3 pt-2 border-t border-slate-200/80 text-[11px]">
+              {validation.problemStatement ? (
                 <div>
-                  <span className="text-slate-500 font-medium">Difficulty: </span>
-                  <span className="font-bold text-slate-800 capitalize">{report.difficultyLevel}</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-0.5">Problem Statement:</span>
+                  <p className="text-xs text-slate-800 leading-relaxed text-justify">
+                    {validation.problemStatement}
+                  </p>
                 </div>
+              ) : (
                 <div>
-                  <span className="text-slate-500 font-medium">Timeline: </span>
-                  <span className="font-bold text-slate-800">{report.estimatedTimeline}</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-0.5">Identified Problem Context:</span>
+                  <p className="text-xs text-slate-800 leading-relaxed text-justify">
+                    {report.whyItMatters || report.plainSummary}
+                  </p>
                 </div>
+              )}
+
+              {validation.ideaDescription ? (
                 <div>
-                  <span className="text-slate-500 font-medium">Team Fit: </span>
-                  <span className="font-bold text-slate-800">{report.teamFit}</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-0.5">Proposed Solution:</span>
+                  <p className="text-xs text-slate-800 leading-relaxed text-justify">
+                    {validation.ideaDescription}
+                  </p>
                 </div>
+              ) : report.elevatorPitch ? (
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-0.5">Proposed Solution Overview:</span>
+                  <p className="text-xs text-slate-800 leading-relaxed text-justify">
+                    {report.elevatorPitch}
+                  </p>
+                </div>
+              ) : null}
+
+              {validation.coreFeatures && (
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-0.5">Submitted Core Features:</span>
+                  <p className="text-xs text-slate-800 leading-relaxed text-justify">
+                    {validation.coreFeatures}
+                  </p>
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* ================= 02. EVALUATION SCORECARD & MATRIX ================= */}
+          <section className="space-y-4">
+            <div className="border-b border-slate-200 pb-2 flex items-center justify-between">
+              <div>
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 block">
+                  Section 02
+                </span>
+                <h3 className="text-lg font-bold text-slate-900 uppercase tracking-tight">
+                  Executive Evaluation Matrix
+                </h3>
+              </div>
+              <div className="text-right">
+                <span className="text-xs font-bold text-slate-500 uppercase">Composite Score: </span>
+                <span className="text-2xl font-black text-slate-900">{report.finalScore} / 100</span>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* 7-Factor Rubrics Breakdown */}
-        <div className="space-y-3">
-          <div className="border-b border-slate-300 pb-1.5 flex items-center justify-between">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">
-              1. Multi-Factor Rubric Assessment
-            </h4>
-            <span className="text-[10px] font-medium text-slate-500">7 Evaluated Dimensions</span>
-          </div>
+            {/* Verdict summary line */}
+            <div className="flex flex-wrap items-center gap-2 text-xs font-medium">
+              <span className="bg-slate-900 text-white font-bold px-3 py-1 rounded text-xs">
+                Recommendation: {recommendationLabel}
+              </span>
+              <span className="bg-slate-100 text-slate-800 font-bold px-3 py-1 rounded border border-slate-300 text-xs">
+                Novelty: {originalityLabel} ({report.originalityScore}/10)
+              </span>
+              <span className="bg-slate-50 text-slate-700 px-2.5 py-1 rounded border border-slate-200 text-xs">
+                Difficulty: <strong className="capitalize text-slate-900">{report.difficultyLevel}</strong>
+              </span>
+              <span className="bg-slate-50 text-slate-700 px-2.5 py-1 rounded border border-slate-200 text-xs">
+                Timeline: <strong className="text-slate-900">{report.estimatedTimeline}</strong>
+              </span>
+              <span className="bg-slate-50 text-slate-700 px-2.5 py-1 rounded border border-slate-200 text-xs">
+                Team Fit: <strong className="text-slate-900">{report.teamFit}</strong>
+              </span>
+            </div>
 
-          <div className="space-y-2.5">
-            {SCORE_SECTIONS.map((sec) => {
-              const item = report.scoringBreakdown[sec.key] as DetailedScore
-              if (!item) return null
-              return (
-                <div key={sec.key} className="bg-slate-50/70 p-3 rounded-lg border border-slate-200 text-xs">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-bold text-slate-900">{sec.title}</span>
-                    <span className="font-bold text-slate-800 bg-white px-2 py-0.5 rounded border border-slate-200 text-[11px]">
-                      {item.score} / {item.maxScore}
-                    </span>
-                  </div>
-                  <p className="text-slate-600 text-[11px] mb-1.5">{item.summary}</p>
-                  {item.feedback && item.feedback.length > 0 && (
-                    <ul className="space-y-0.5 text-[11px] text-slate-700 pl-3">
-                      {item.feedback.map((point, idx) => (
-                        <li key={idx} className="list-disc leading-tight">
-                          {point.replace(/\*\*/g, '')}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                  {item.action && (
-                    <div className="mt-1.5 text-[10px] font-medium text-slate-800 bg-slate-100 p-1.5 rounded">
-                      <span className="font-bold text-slate-900">Action: </span>{item.action}
-                    </div>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        </div>
+            {/* Evaluation Matrix Table */}
+            <div className="pt-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-600 block mb-2">
+                Multi-Criteria Rubric Scorecard:
+              </span>
+              <table className="w-full border-collapse text-xs">
+                <thead>
+                  <tr className="border-b-2 border-slate-300 text-left text-[11px] font-bold text-slate-600 uppercase">
+                    <th className="py-2 pr-4">Evaluation Dimension</th>
+                    <th className="py-2 px-3 text-center w-24">Max Pts</th>
+                    <th className="py-2 px-3 text-center w-24">Awarded</th>
+                    <th className="py-2 pl-4 w-48">Score Gauge</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200">
+                  {RUBRICS.map((rubric) => {
+                    const item = report.scoringBreakdown[rubric.key] as DetailedScore
+                    const score = item ? item.score : 0
+                    const percent = Math.round((score / rubric.maxScore) * 100)
+                    return (
+                      <tr key={rubric.key} className="hover:bg-slate-50">
+                        <td className="py-2.5 pr-4 font-semibold text-slate-800">
+                          {rubric.title}
+                        </td>
+                        <td className="py-2.5 px-3 text-center text-slate-500 font-medium">
+                          {rubric.maxScore}
+                        </td>
+                        <td className="py-2.5 px-3 text-center font-bold text-slate-900">
+                          {score}
+                        </td>
+                        <td className="py-2.5 pl-4">
+                          <div className="flex items-center gap-2">
+                            <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+                              <div 
+                                className="h-full bg-slate-800 rounded-full" 
+                                style={{ width: `${percent}%` }}
+                              />
+                            </div>
+                            <span className="text-[10px] font-bold text-slate-600 w-8 text-right">
+                              {percent}%
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                  <tr className="border-t-2 border-slate-900 font-bold bg-slate-50">
+                    <td className="py-2.5 pr-4 uppercase text-slate-900">
+                      Total Calculated Score
+                    </td>
+                    <td className="py-2.5 px-3 text-center text-slate-700">100</td>
+                    <td className="py-2.5 px-3 text-center text-slate-900 text-sm">
+                      {report.finalScore}
+                    </td>
+                    <td className="py-2.5 pl-4">
+                      <div className="flex items-center gap-2">
+                        <div className="h-2.5 w-full bg-slate-200 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-slate-900 rounded-full" 
+                            style={{ width: `${report.finalScore}%` }}
+                          />
+                        </div>
+                        <span className="text-[11px] font-black text-slate-900 w-8 text-right">
+                          {report.finalScore}%
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
-        {/* Historical FYP Comparison & Similarity Analysis */}
-        <div className="space-y-3">
-          <div className="border-b border-slate-300 pb-1.5 flex items-center justify-between">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">
-              2. Historical FYP Overlap & Novelty Check
-            </h4>
-            <span className="text-[11px] font-bold text-slate-800">
-              Novelty: {report.originalityScore}/10
-            </span>
-          </div>
-
-          <div className="bg-slate-50 p-3.5 rounded-lg border border-slate-200 text-xs">
-            <p className="text-slate-800 font-medium mb-1">
-              {report.originalityReason}
-            </p>
-            {report.pastIdeaComparisonSummary && (
-              <p className="text-slate-600 text-[11px]">
-                {report.pastIdeaComparisonSummary}
+            {/* Strategic Summary note */}
+            <div className="pt-2 text-xs text-slate-700 space-y-1.5">
+              <p className="leading-relaxed">
+                <strong className="text-slate-900">Executive Summary: </strong>
+                {report.plainSummary}
               </p>
-            )}
-          </div>
+              {report.shouldBuild && (
+                <p className="leading-relaxed">
+                  <strong className="text-slate-900">Viability Assessment: </strong>
+                  {report.shouldBuild}
+                </p>
+              )}
+            </div>
+          </section>
 
-          {report.similarPastIdeas && report.similarPastIdeas.length > 0 ? (
-            <div className="space-y-2">
-              {report.similarPastIdeas.map((idea, idx) => (
-                <div key={idx} className="bg-white p-3 rounded-lg border border-slate-200 text-xs">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-bold text-slate-900">{idea.title}</span>
-                    <span className="text-[10px] font-semibold bg-slate-100 px-2 py-0.5 rounded text-slate-700">
-                      Similarity: {idea.similarityScore}/10
-                    </span>
+          {/* ================= 03. DETAILED RUBRIC FEEDBACK & ACTION ITEMS ================= */}
+          <section className="space-y-4">
+            <div className="border-b border-slate-200 pb-2">
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 block">
+                Section 03
+              </span>
+              <h3 className="text-lg font-bold text-slate-900 uppercase tracking-tight">
+                Granular Rubric Feedback & Actions
+              </h3>
+            </div>
+
+            <div className="space-y-4">
+              {RUBRICS.map((rubric, idx) => {
+                const item = report.scoringBreakdown[rubric.key] as DetailedScore
+                if (!item) return null
+                return (
+                  <div key={rubric.key} className="space-y-1.5 text-xs">
+                    <div className="flex items-center justify-between font-bold text-slate-900">
+                      <span>3.{idx + 1} {rubric.title}</span>
+                      <span className="text-[11px] font-extrabold bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                        Score: {item.score} / {item.maxScore}
+                      </span>
+                    </div>
+                    <p className="text-slate-600 text-[11px] italic pl-2 border-l-2 border-slate-300">
+                      {item.summary}
+                    </p>
+                    {item.feedback && item.feedback.length > 0 && (
+                      <ul className="space-y-1 pl-4 text-slate-700 text-xs">
+                        {item.feedback.map((point, fIdx) => (
+                          <li key={fIdx} className="list-disc leading-relaxed">
+                            {point.replace(/\*\*/g, '')}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {item.action && (
+                      <p className="text-[11px] font-medium text-slate-900 pl-4">
+                        <strong>Recommended Action:</strong> {item.action}
+                      </p>
+                    )}
                   </div>
-                  <div className="text-[10px] text-slate-500 mb-1">
-                    Batch: {idea.batch} • Group {idea.groupNumber} {idea.supervisor ? `• Supervisor: ${idea.supervisor}` : ""}
-                  </div>
-                  <p className="text-slate-700 text-[11px] mb-1">{idea.similarityReason}</p>
-                  <p className="text-slate-800 text-[11px] font-medium">
-                    <span className="text-slate-500">Key Difference: </span>{idea.keyDifference}
-                  </p>
+                )
+              })}
+            </div>
+          </section>
+
+          {/* ================= 04. HISTORICAL OVERLAP & PAST PAF-IAST PROJECTS ================= */}
+          <section className="space-y-4">
+            <div className="border-b border-slate-200 pb-2 flex items-center justify-between">
+              <div>
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 block">
+                  Section 04
+                </span>
+                <h3 className="text-lg font-bold text-slate-900 uppercase tracking-tight">
+                  Historical FYP Overlap & Novelty Analysis
+                </h3>
+              </div>
+              <span className="text-xs font-bold text-slate-800">
+                Originality: {report.originalityScore} / 10
+              </span>
+            </div>
+
+            <div className="space-y-2 text-xs">
+              <p className="text-slate-800 leading-relaxed font-medium">
+                <strong>Novelty Verdict: </strong>{report.originalityReason}
+              </p>
+              {report.pastIdeaComparisonSummary && (
+                <p className="text-slate-600 leading-relaxed">
+                  <strong>Benchmarking Summary: </strong>{report.pastIdeaComparisonSummary}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-3 pt-1">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-600 block">
+                Benchmarked Past FYP Submissions:
+              </span>
+              {report.similarPastIdeas && report.similarPastIdeas.length > 0 ? (
+                <div className="space-y-3">
+                  {report.similarPastIdeas.map((past, idx) => (
+                    <div key={idx} className="border-l-2 border-slate-400 pl-3 space-y-1 text-xs">
+                      <div className="flex items-center justify-between">
+                        <strong className="text-slate-900 text-sm">{past.title}</strong>
+                        <span className="text-[10px] font-bold bg-slate-100 px-2 py-0.5 rounded text-slate-700">
+                          Similarity: {past.similarityScore} / 10
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-slate-500 font-medium">
+                        Batch: {past.batch} • Group {past.groupNumber} {past.supervisor ? `• Supervisor: ${past.supervisor}` : ""}
+                      </div>
+                      <p className="text-slate-700 text-xs">
+                        • <strong>Overlap Rationale:</strong> {past.similarityReason}
+                      </p>
+                      <p className="text-slate-800 text-xs">
+                        • <strong>Key Technical Difference:</strong> {past.keyDifference}
+                      </p>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              ) : (
+                <p className="text-xs text-slate-500 italic pl-2">
+                  No direct overlapping projects identified in PAF-IAST historical repository.
+                </p>
+              )}
             </div>
-          ) : (
-            <div className="text-xs text-slate-500 italic p-2 bg-slate-50 rounded text-center">
-              No direct past FYP overlaps detected in PAF-IAST historical submissions.
-            </div>
-          )}
-        </div>
+          </section>
 
-        {/* Strengths & Potential Concerns */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 mb-2">
-              Strengths & Advantages
-            </h4>
-            <ul className="space-y-1.5 text-xs text-slate-700">
-              {report.strongPoints.map((pt, idx) => (
-                <li key={idx} className="flex gap-2">
-                  <span className="font-bold text-slate-900">•</span>
-                  <span>{pt.replace(/\*\*/g, '')}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* ================= 05. STRENGTHS & CONCERNS ================= */}
+          <section className="space-y-4">
+            <div className="border-b border-slate-200 pb-2">
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 block">
+                Section 05
+              </span>
+              <h3 className="text-lg font-bold text-slate-900 uppercase tracking-tight">
+                Strengths & Critical Risk Points
+              </h3>
+            </div>
 
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 mb-2">
-              Potential Concerns & Pitfalls
-            </h4>
-            <ul className="space-y-1.5 text-xs text-slate-700">
-              {report.concernPoints.map((pt, idx) => (
-                <li key={idx} className="flex gap-2">
-                  <span className="font-bold text-slate-900">•</span>
-                  <span>{pt.replace(/\*\*/g, '')}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
+            <div className="space-y-4">
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 mb-2">
+                  Key Strengths & Project Advantages:
+                </h4>
+                <ul className="space-y-1.5 pl-4 text-xs text-slate-700">
+                  {report.strongPoints.map((pt, idx) => (
+                    <li key={idx} className="list-disc leading-relaxed">
+                      {pt.replace(/\*\*/g, '')}
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
-        {/* Stakeholders & Value Proposition */}
-        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">
-            3. Stakeholder Impact & Value Proposition
-          </h4>
-          <div className="grid grid-cols-2 gap-4 text-xs">
-            <div>
-              <span className="font-bold text-slate-800 block mb-0.5">Target Users:</span>
-              <p className="text-slate-600">{report.whoWillUseIt}</p>
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 mb-2">
+                  Potential Concerns & Technical Pitfalls:
+                </h4>
+                <ul className="space-y-1.5 pl-4 text-xs text-slate-700">
+                  {report.concernPoints.map((pt, idx) => (
+                    <li key={idx} className="list-disc leading-relaxed">
+                      {pt.replace(/\*\*/g, '')}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
-            <div>
-              <span className="font-bold text-slate-800 block mb-0.5">Why It Matters:</span>
-              <p className="text-slate-600">{report.whyItMatters}</p>
-            </div>
-          </div>
-          {report.uniquenessImprovements && report.uniquenessImprovements.length > 0 && (
-            <div className="pt-2 border-t border-slate-200">
-              <span className="font-bold text-slate-800 block mb-1 text-xs">Differentiation Recommendations:</span>
-              <ul className="space-y-1 text-xs text-slate-700 pl-3">
-                {report.uniquenessImprovements.map((item, idx) => (
-                  <li key={idx} className="list-disc leading-tight">
-                    {item.replace(/\*\*/g, '')}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
+          </section>
 
-        {/* MVP Scope & Action Priorities */}
-        <div className="space-y-3">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1.5">
-            4. MVP Boundary & Next Steps
-          </h4>
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs">
-              <span className="font-bold text-slate-900 block mb-1.5">Core MVP Scope</span>
-              <ul className="space-y-1 text-[11px] text-slate-700 pl-3">
-                {report.mvpRecommendations.map((rec, idx) => (
-                  <li key={idx} className="list-disc">{rec.replace(/\*\*/g, '')}</li>
-                ))}
-              </ul>
+          {/* ================= 06. TARGET STAKEHOLDERS & DIFFERENTIATION ================= */}
+          <section className="space-y-4">
+            <div className="border-b border-slate-200 pb-2">
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 block">
+                Section 06
+              </span>
+              <h3 className="text-lg font-bold text-slate-900 uppercase tracking-tight">
+                Stakeholders & Differentiation Strategy
+              </h3>
             </div>
-            <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs">
-              <span className="font-bold text-slate-900 block mb-1.5">Immediate Actions</span>
-              <ul className="space-y-1 text-[11px] text-slate-700 pl-3">
-                {report.simpleNextSteps.map((step, idx) => (
-                  <li key={idx} className="list-disc">{step.replace(/\*\*/g, '')}</li>
-                ))}
-              </ul>
-            </div>
-            <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs">
-              <span className="font-bold text-slate-900 block mb-1.5">Roadmap Priorities</span>
-              <ul className="space-y-1 text-[11px] text-slate-700 pl-3">
-                {report.roadmapPriorities.map((prio, idx) => (
-                  <li key={idx} className="list-disc">{prio.replace(/\*\*/g, '')}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
 
-        {/* Technical Architecture & Risk Management */}
-        <div className="grid grid-cols-2 gap-4">
-          {report.simpleTechDirection && report.simpleTechDirection.length > 0 && (
-            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 mb-2">
-                Suggested Technical Direction
-              </h4>
-              <ul className="space-y-1.5 text-xs text-slate-700">
-                {report.simpleTechDirection.map((tech, idx) => (
-                  <li key={idx} className="flex gap-2">
-                    <span className="font-bold text-slate-900">•</span>
-                    <span>{tech.replace(/\*\*/g, '')}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+            <div className="space-y-3 text-xs">
+              <div>
+                <span className="font-bold text-slate-900 block mb-0.5">Primary Target Audience:</span>
+                <p className="text-slate-700">{report.whoWillUseIt}</p>
+              </div>
 
-          {report.riskReductionSteps && report.riskReductionSteps.length > 0 && (
-            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 mb-2">
-                Risk Assessment & Mitigation
-              </h4>
-              <ul className="space-y-1.5 text-xs text-slate-700">
-                {report.riskReductionSteps.map((risk, idx) => (
-                  <li key={idx} className="flex gap-2">
-                    <span className="font-bold text-slate-900">•</span>
-                    <span>{risk.replace(/\*\*/g, '')}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
+              <div>
+                <span className="font-bold text-slate-900 block mb-0.5">Industry Relevance & Practical Value:</span>
+                <p className="text-slate-700">{report.whyItMatters}</p>
+              </div>
 
-        {/* Implementation Phasing & Roadmap */}
-        {report.roadmap && report.roadmap.length > 0 && (
-          <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1.5">
-              5. Implementation Timeline & Phasing
-            </h4>
-            <div className="space-y-2.5">
-              {report.roadmap.map((phase, idx) => (
-                <div key={idx} className="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs">
-                  <div className="flex items-center justify-between mb-1.5 font-bold text-slate-900">
-                    <span>Phase {idx + 1}: {phase.phase}</span>
-                    <span className="text-[10px] font-medium bg-white px-2 py-0.5 rounded border border-slate-200 text-slate-600">
-                      {phase.duration}
-                    </span>
-                  </div>
-                  <ul className="space-y-1 text-[11px] text-slate-700 pl-3">
-                    {phase.tasks.map((task, taskIdx) => (
-                      <li key={taskIdx} className="list-disc">{task.replace(/\*\*/g, '')}</li>
+              {report.uniquenessImprovements && report.uniquenessImprovements.length > 0 && (
+                <div>
+                  <span className="font-bold text-slate-900 block mb-1">Recommended Differentiation Strategies:</span>
+                  <ul className="space-y-1 pl-4 text-slate-700">
+                    {report.uniquenessImprovements.map((item, idx) => (
+                      <li key={idx} className="list-disc leading-relaxed">
+                        {item.replace(/\*\*/g, '')}
+                      </li>
                     ))}
                   </ul>
                 </div>
-              ))}
+              )}
             </div>
-          </div>
-        )}
+          </section>
 
-        {/* Strategic Elevator Pitch & Supervisor Guidance */}
-        <div className="space-y-3">
-          {report.elevatorPitch && (
-            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 mb-2">
-                Executive Elevator Pitch
-              </h4>
-              <p className="text-xs text-slate-700 leading-relaxed text-justify">
-                {report.elevatorPitch}
-              </p>
+          {/* ================= 07. MVP SCOPE & ACTION PRIORITIES ================= */}
+          <section className="space-y-4">
+            <div className="border-b border-slate-200 pb-2">
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 block">
+                Section 07
+              </span>
+              <h3 className="text-lg font-bold text-slate-900 uppercase tracking-tight">
+                MVP Boundary & Action Priorities
+              </h3>
             </div>
-          )}
 
-          {report.plainLanguageAdvice && report.plainLanguageAdvice.length > 0 && (
-            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 mb-2">
-                Supervisor & Defense Review Advice
-              </h4>
-              <ul className="space-y-1.5 text-xs text-slate-700">
-                {report.plainLanguageAdvice.map((adv, idx) => (
-                  <li key={idx} className="flex gap-2">
-                    <span className="font-bold text-slate-900">•</span>
-                    <span>{adv.replace(/\*\*/g, '')}</span>
-                  </li>
-                ))}
-              </ul>
+            <div className="space-y-3 text-xs">
+              <div>
+                <h4 className="font-bold text-slate-900 mb-1">1. Minimum Viable Product (MVP) Core Scope:</h4>
+                <ul className="space-y-1 pl-4 text-slate-700">
+                  {report.mvpRecommendations.map((rec, idx) => (
+                    <li key={idx} className="list-disc leading-relaxed">{rec.replace(/\*\*/g, '')}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-slate-900 mb-1">2. Immediate Preparation Actions:</h4>
+                <ul className="space-y-1 pl-4 text-slate-700">
+                  {report.simpleNextSteps.map((step, idx) => (
+                    <li key={idx} className="list-disc leading-relaxed">{step.replace(/\*\*/g, '')}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-slate-900 mb-1">3. Implementation Priorities:</h4>
+                <ul className="space-y-1 pl-4 text-slate-700">
+                  {report.roadmapPriorities.map((prio, idx) => (
+                    <li key={idx} className="list-disc leading-relaxed">{prio.replace(/\*\*/g, '')}</li>
+                  ))}
+                </ul>
+              </div>
             </div>
-          )}
-        </div>
+          </section>
 
-        {/* Suggested Advanced Extensions */}
-        {report.advancedFeatureSuggestions && report.advancedFeatureSuggestions.length > 0 && (
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 mb-2">
-              Suggested Future Extensions
-            </h4>
-            <div className="grid grid-cols-2 gap-2 text-xs text-slate-700">
-              {report.advancedFeatureSuggestions.map((feat, idx) => (
-                <div key={idx} className="bg-white p-2 rounded border border-slate-200 flex gap-2">
-                  <span className="text-slate-400">•</span>
-                  <span>{feat.replace(/\*\*/g, '')}</span>
+          {/* ================= 08. TECHNICAL STACK & RISK MITIGATION ================= */}
+          <section className="space-y-4">
+            <div className="border-b border-slate-200 pb-2">
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 block">
+                Section 08
+              </span>
+              <h3 className="text-lg font-bold text-slate-900 uppercase tracking-tight">
+                Technical Stack & Risk Management
+              </h3>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              {report.simpleTechDirection && report.simpleTechDirection.length > 0 && (
+                <div>
+                  <h4 className="font-bold text-slate-900 mb-1">Recommended Technology Stack:</h4>
+                  <ul className="space-y-1 pl-4 text-slate-700">
+                    {report.simpleTechDirection.map((tech, idx) => (
+                      <li key={idx} className="list-disc leading-relaxed">{tech.replace(/\*\*/g, '')}</li>
+                    ))}
+                  </ul>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
+              )}
 
-        {/* Official Footer */}
-        <div className="pt-6 border-t-2 border-slate-200 text-center space-y-1">
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-800">
-            Pak-Austria Fachhochschule: Institute of Applied Sciences and Technology
-          </p>
-          <p className="text-[11px] text-slate-500">
-            Automated Evaluation by FYP Finder AI Validation Engine • For Academic Use Only
-          </p>
+              {report.riskReductionSteps && report.riskReductionSteps.length > 0 && (
+                <div>
+                  <h4 className="font-bold text-slate-900 mb-1">Risk Mitigation Protocol:</h4>
+                  <ul className="space-y-1 pl-4 text-slate-700">
+                    {report.riskReductionSteps.map((risk, idx) => (
+                      <li key={idx} className="list-disc leading-relaxed">{risk.replace(/\*\*/g, '')}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* ================= 09. PHASED IMPLEMENTATION TIMELINE ================= */}
+          {report.roadmap && report.roadmap.length > 0 && (
+            <section className="space-y-4">
+              <div className="border-b border-slate-200 pb-2">
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 block">
+                  Section 09
+                </span>
+                <h3 className="text-lg font-bold text-slate-900 uppercase tracking-tight">
+                  Phased Implementation Roadmap
+                </h3>
+              </div>
+
+              <div className="space-y-3 text-xs">
+                {report.roadmap.map((phase, idx) => (
+                  <div key={idx} className="space-y-1">
+                    <div className="flex items-center justify-between font-bold text-slate-900">
+                      <span>Phase {idx + 1}: {phase.phase}</span>
+                      <span className="text-[11px] font-semibold text-slate-500">Duration: {phase.duration}</span>
+                    </div>
+                    <ul className="space-y-1 pl-4 text-slate-700">
+                      {phase.tasks.map((task, taskIdx) => (
+                        <li key={taskIdx} className="list-disc leading-relaxed">{task.replace(/\*\*/g, '')}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* ================= 10. ELEVATOR PITCH & SUPERVISOR DEFENSE ================= */}
+          <section className="space-y-4">
+            <div className="border-b border-slate-200 pb-2">
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 block">
+                Section 10
+              </span>
+              <h3 className="text-lg font-bold text-slate-900 uppercase tracking-tight">
+                Pitch, Defense Guidance & Future Enhancements
+              </h3>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              {report.elevatorPitch && (
+                <div>
+                  <h4 className="font-bold text-slate-900 mb-1">Executive Elevator Pitch:</h4>
+                  <p className="text-slate-700 leading-relaxed text-justify pl-2 border-l-2 border-slate-300 italic">
+                    "{report.elevatorPitch}"
+                  </p>
+                </div>
+              )}
+
+              {report.plainLanguageAdvice && report.plainLanguageAdvice.length > 0 && (
+                <div>
+                  <h4 className="font-bold text-slate-900 mb-1">Supervisor & Panel Defense Advice:</h4>
+                  <ul className="space-y-1 pl-4 text-slate-700">
+                    {report.plainLanguageAdvice.map((adv, idx) => (
+                      <li key={idx} className="list-disc leading-relaxed">{adv.replace(/\*\*/g, '')}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {report.advancedFeatureSuggestions && report.advancedFeatureSuggestions.length > 0 && (
+                <div>
+                  <h4 className="font-bold text-slate-900 mb-1">Suggested Long-Term Extensions:</h4>
+                  <ul className="space-y-1 pl-4 text-slate-700">
+                    {report.advancedFeatureSuggestions.map((feat, idx) => (
+                      <li key={idx} className="list-disc leading-relaxed">{feat.replace(/\*\*/g, '')}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </section>
         </div>
+
+        {/* ================= OFFICIAL ACADEMIC FOOTER ================= */}
+        <footer className="pt-8 border-t-2 border-slate-900 mt-12 text-center text-xs space-y-1">
+          <p className="font-bold uppercase tracking-wider text-slate-900">
+            Pak-Austria Fachhochschule: Institute of Applied Sciences and Technology (PAF-IAST)
+          </p>
+          <p className="text-slate-500 text-[11px]">
+            This validation assessment report is generated via the PAF-IAST FYP Evaluation Platform.
+          </p>
+          <p className="text-slate-400 text-[10px]">
+            Confidential • Prepared for Academic & Capstone Project Review
+          </p>
+        </footer>
       </div>
     )
   }
