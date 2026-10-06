@@ -45,9 +45,12 @@ export async function extractPdfText(
 
   // Fallback: Node.js pdfjs-dist
   const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs")
+  const path = await import("path")
+  const url = await import("url")
 
   // Ensure standard fonts are loaded to prevent crashing on standard fonts
-  const standardFontDataUrl = "node_modules/pdfjs-dist/standard_fonts/"
+  const fontDir = path.resolve(process.cwd(), "node_modules/pdfjs-dist/standard_fonts")
+  const standardFontDataUrl = url.pathToFileURL(fontDir).href + "/"
 
   const loadingTask = pdfjs.getDocument({
     data: new Uint8Array(buffer),

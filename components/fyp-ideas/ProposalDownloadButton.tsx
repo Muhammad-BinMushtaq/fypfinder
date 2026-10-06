@@ -38,21 +38,22 @@ export function ProposalDownloadButton({ validation }: ProposalDownloadButtonPro
       })
 
       const pdfWidth = pdf.internal.pageSize.getWidth()
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width
+      const pageHeight = pdf.internal.pageSize.getHeight()
+      const imgHeight = (canvas.height * pdfWidth) / canvas.width
       
-      let heightLeft = pdfHeight
+      let heightLeft = imgHeight
       let position = 0
 
       // Add first page
-      pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight)
-      heightLeft -= pdf.internal.pageSize.getHeight()
+      pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight)
+      heightLeft -= pageHeight
 
       // Add subsequent pages if content exceeds one page
-      while (heightLeft >= 0) {
-        position = heightLeft - pdfHeight
+      while (heightLeft > 0) {
+        position -= pageHeight
         pdf.addPage()
-        pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight)
-        heightLeft -= pdf.internal.pageSize.getHeight()
+        pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight)
+        heightLeft -= pageHeight
       }
 
       const safeFilename = (validation.title || "FYP_Proposal")
@@ -78,8 +79,17 @@ export function ProposalDownloadButton({ validation }: ProposalDownloadButtonPro
         {isGenerating ? "Generating..." : "Download Proposal PDF"}
       </button>
 
-      {/* Hidden container for the print template */}
-      <div className="absolute left-[-9999px] top-[-9999px] overflow-hidden">
+      {/* Off-screen rendered container for HTML2Canvas snapshotting */}
+      <div 
+        style={{ 
+          position: "fixed", 
+          top: 0, 
+          left: 0, 
+          zIndex: -9999, 
+          opacity: 0, 
+          pointerEvents: "none" 
+        }}
+      >
         <ProposalPrintTemplate ref={templateRef} validation={validation} />
       </div>
     </>
