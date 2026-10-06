@@ -52,5 +52,11 @@
     "prisma": "^7.3.0",
     "sharp": "^0.34.5",
     "typescript": "^5"
+  },
+  "allowScripts": {
+    "@prisma/engines": true,
+    "core-js": true,
+    "prisma": true,
+    "sharp": true
   }
 }
