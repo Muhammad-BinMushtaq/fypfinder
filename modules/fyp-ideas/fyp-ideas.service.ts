@@ -20,6 +20,7 @@ const SINGLE_CALL_MAX_TOKENS = 5000
 
 export interface ValidationResult {
   id: string
+  title: string
   status: "pending" | "completed" | "failed"
   recommendation: string | null
   feasibilityScore: number | null
@@ -130,7 +131,7 @@ export async function validateIdea(
   }
 
   const guestResult = await generateValidationReport(input)
-  return buildGuestPreviewResult(guestResult)
+  return buildGuestPreviewResult(guestResult, input.title)
 }
 
 export async function getStudentValidations(studentId: string, limit = 10, offset = 0) {
@@ -213,6 +214,7 @@ async function getStudentValidationCountToday(studentId: string): Promise<number
   return prisma.fYPIdeaValidation.count({
     where: {
       studentId,
+      status: "COMPLETED",
       createdAt: { gte: startOfDay },
     },
   })
@@ -280,12 +282,15 @@ function parseValidationReport(raw: string): ValidationReport {
   return normalizeValidationReport(result.data)
 }
 
-function buildGuestPreviewResult(result: {
-  report: ValidationReport
-  tokensUsed: number
-  modelUsed: string
-  latencyMs: number
-}): ValidationResult {
+function buildGuestPreviewResult(
+  result: {
+    report: ValidationReport
+    tokensUsed: number
+    modelUsed: string
+    latencyMs: number
+  },
+  title: string
+): ValidationResult {
   const previewReport: ValidationReport = {
     ...result.report,
     riskReductionSteps: [],
@@ -304,6 +309,7 @@ function buildGuestPreviewResult(result: {
 
   return {
     id: crypto.randomUUID(),
+    title,
     status: "completed",
     recommendation: mapRecommendation(result.report.recommendation),
     feasibilityScore: result.report.feasibilityScore,
@@ -323,6 +329,7 @@ function buildGuestPreviewResult(result: {
 function formatStoredValidation(
   record: {
     id: string
+    title: string
     status: string
     recommendation: string | null
     feasibilityScore: number | null
@@ -340,6 +347,7 @@ function formatStoredValidation(
 
   return {
     id: record.id,
+    title: record.title,
     status: normalizeStatus(record.status),
     recommendation: record.recommendation,
     feasibilityScore: record.feasibilityScore,

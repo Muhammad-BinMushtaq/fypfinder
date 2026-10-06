@@ -29,6 +29,24 @@ export function IdeaValidatorWorkspace({ mode }: IdeaValidatorWorkspaceProps) {
   const [pdfResult, setPdfResult] = useState<PdfIdeaExtractionResponse | null>(null)
   const [pdfValidation, setPdfValidation] = useState<ValidationResultType | null>(null)
   const [historyOpen, setHistoryOpen] = useState(false)
+  const [restoredDraft, setRestoredDraft] = useState<IdeaInput | null>(null)
+
+  useEffect(() => {
+    if (mode === "student") {
+      try {
+        const saved = sessionStorage.getItem("pending_fyp_idea")
+        if (saved) {
+          const parsed = JSON.parse(saved) as IdeaInput
+          if (parsed && parsed.title && parsed.problemStatement) {
+            sessionStorage.removeItem("pending_fyp_idea")
+            setRestoredDraft(parsed)
+          }
+        }
+      } catch {
+        // ignore storage errors
+      }
+    }
+  }, [mode])
 
   const { validate, isPending } = useValidateIdea()
   const { extractPdf, isPending: isExtractingPdf } = useExtractPdfIdea()
@@ -39,6 +57,14 @@ export function IdeaValidatorWorkspace({ mode }: IdeaValidatorWorkspaceProps) {
   } = useMyValidations(10, 0, mode === "student")
 
   const handleSubmit = (input: IdeaInput) => {
+    if (mode === "public") {
+      try {
+        sessionStorage.setItem("pending_fyp_idea", JSON.stringify(input))
+      } catch {
+        // ignore storage errors
+      }
+    }
+
     validate(input, {
       onSuccess: (result) => {
         setActiveResult(result)
@@ -113,6 +139,7 @@ export function IdeaValidatorWorkspace({ mode }: IdeaValidatorWorkspaceProps) {
             isPending={isPending}
             mode={mode}
             remainingToday={mode === "student" ? remainingToday : undefined}
+            initialValues={restoredDraft ?? undefined}
           />
             )}
           </>

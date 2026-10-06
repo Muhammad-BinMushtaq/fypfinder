@@ -15,7 +15,7 @@ export function useValidateIdea() {
     mutationFn: validateIdea,
     onSuccess: () => {
       // Invalidate history so it shows the new validation
-      queryClient.invalidateQueries({ queryKey: ["fyp-validations"] })
+      queryClient.invalidateQueries({ queryKey: ["fyp-validations"], exact: false })
     },
     onError: (error) => {
       toast.error(error.message || "Failed to validate idea")

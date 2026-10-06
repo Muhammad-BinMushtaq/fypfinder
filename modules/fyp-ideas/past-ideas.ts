@@ -223,15 +223,27 @@ function normalizeForComparison(value: string): string {
     .trim()
 }
 
+function stem(word: string): string {
+  if (word.length <= 4) return word
+  if (word.endsWith("ing") && word.length > 5) return word.slice(0, -3)
+  if (word.endsWith("ment") && word.length > 6) return word.slice(0, -4)
+  if (word.endsWith("tion") && word.length > 6) return word.slice(0, -4)
+  if (word.endsWith("ies") && word.length > 5) return word.slice(0, -3) + "y"
+  if (word.endsWith("es") && word.length > 4) return word.slice(0, -2)
+  if (word.endsWith("ed") && word.length > 4) return word.slice(0, -2)
+  if (word.endsWith("er") && word.length > 4) return word.slice(0, -2)
+  if (word.endsWith("s") && !word.endsWith("ss") && word.length > 3) return word.slice(0, -1)
+  return word
+}
+
 function tokenize(value: string): string[] {
-  return Array.from(
-    new Set(
-      value
-        .split(" ")
-        .map((token) => token.trim())
-        .filter((token) => token.length > 2 && !STOP_WORDS.has(token))
-    )
-  )
+  const tokens = value
+    .split(" ")
+    .map((token) => token.trim())
+    .filter((token) => token.length > 2 && !STOP_WORDS.has(token))
+
+  const stemmed = tokens.map(stem)
+  return Array.from(new Set([...tokens, ...stemmed]))
 }
 
 function intersect(a: string[], b: string[]): string[] {

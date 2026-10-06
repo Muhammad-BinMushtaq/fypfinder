@@ -78,6 +78,7 @@ export interface ValidationReport {
 
 export interface ValidationResult {
   id: string
+  title?: string
   status: "pending" | "completed" | "failed"
   recommendation: string | null
   feasibilityScore: number | null

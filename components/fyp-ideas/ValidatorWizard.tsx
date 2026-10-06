@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { AlertCircle, CheckCircle2, ChevronRight, Loader2, Sparkles, X } from "lucide-react"
 import type { IdeaInput } from "@/services/fypIdeas.service"
 
@@ -9,6 +9,7 @@ interface ValidatorWizardProps {
   isPending: boolean
   mode: "student" | "public"
   remainingToday?: number
+  initialValues?: Partial<IdeaInput>
 }
 
 const DOMAINS = ["AI/ML", "IoT", "Web", "Mobile", "Cybersecurity", "Other"]
@@ -76,17 +77,28 @@ const QUICK_TEMPLATES = [
   },
 ]
 
-export function ValidatorWizard({ onSubmit, isPending, mode, remainingToday }: ValidatorWizardProps) {
-  const [step, setStep] = useState(1)
+export function ValidatorWizard({ onSubmit, isPending, mode, remainingToday, initialValues }: ValidatorWizardProps) {
+  const [step, setStep] = useState(initialValues?.title ? 4 : 1)
   const [domain, setDomain] = useState("")
-  const [title, setTitle] = useState("")
-  const [problemStatement, setProblemStatement] = useState("")
-  const [ideaDescription, setIdeaDescription] = useState("")
-  const [coreFeatures, setCoreFeatures] = useState("")
+  const [title, setTitle] = useState(initialValues?.title ?? "")
+  const [problemStatement, setProblemStatement] = useState(initialValues?.problemStatement ?? "")
+  const [ideaDescription, setIdeaDescription] = useState(initialValues?.ideaDescription ?? "")
+  const [coreFeatures, setCoreFeatures] = useState(initialValues?.coreFeatures ?? "")
   const [techStack, setTechStack] = useState<string[]>([])
   const [techInput, setTechInput] = useState("")
-  const [teamSize, setTeamSize] = useState("")
+  const [teamSize, setTeamSize] = useState(initialValues?.teamSize ? String(initialValues.teamSize) : "")
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    if (initialValues?.title) {
+      setTitle(initialValues.title)
+      if (initialValues.problemStatement) setProblemStatement(initialValues.problemStatement)
+      if (initialValues.ideaDescription) setIdeaDescription(initialValues.ideaDescription)
+      if (initialValues.coreFeatures) setCoreFeatures(initialValues.coreFeatures)
+      if (initialValues.teamSize) setTeamSize(String(initialValues.teamSize))
+      setStep(4)
+    }
+  }, [initialValues])
 
   const validateStep = (currentStep: number) => {
     const nextErrors: Record<string, string> = {}
@@ -143,14 +155,17 @@ export function ValidatorWizard({ onSubmit, isPending, mode, remainingToday }: V
       ? `${coreFeatures}\n\nTech Stack: ${techStack.join(", ")}`
       : coreFeatures
 
-    // Prepend domain to title if not already there
-    const finalTitle = title.includes(domain) ? title : `[${domain}] ${title}`
+    // Prepend domain to title if not already there, safely clamped to 200 chars
+    const rawTitle = domain && !title.toLowerCase().includes(domain.toLowerCase()) 
+      ? `[${domain}] ${title.trim()}` 
+      : title.trim()
+    const finalTitle = rawTitle.slice(0, 200).trim()
 
     onSubmit({
       title: finalTitle,
-      problemStatement,
-      ideaDescription,
-      coreFeatures: combinedFeatures,
+      problemStatement: problemStatement.trim(),
+      ideaDescription: ideaDescription.trim(),
+      coreFeatures: combinedFeatures.trim(),
       teamSize: teamSize ? Number(teamSize) : null,
     })
   }
@@ -320,7 +335,10 @@ export function ValidatorWizard({ onSubmit, isPending, mode, remainingToday }: V
                 <option value="">Not sure yet</option>
                 <option value="1">1 student</option>
                 <option value="2">2 students</option>
-                <option value="3">3 students (Max)</option>
+                <option value="3">3 students</option>
+                <option value="4">4 students</option>
+                <option value="5">5 students</option>
+                <option value="6">6 students</option>
               </select>
             </div>
 

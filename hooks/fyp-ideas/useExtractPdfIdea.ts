@@ -12,7 +12,7 @@ export function useExtractPdfIdea() {
     mutationFn: extractPdfIdea,
     onSuccess: (result) => {
       if (result.validation) {
-        queryClient.invalidateQueries({ queryKey: ["fyp-validations"] })
+        queryClient.invalidateQueries({ queryKey: ["fyp-validations"], exact: false })
       }
     },
     onError: (error) => {

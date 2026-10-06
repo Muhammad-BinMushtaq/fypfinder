@@ -93,42 +93,30 @@ export const similarPastIdeaSchema = z.object({
 })
 
 export const detailedScoreSchema = z.object({
-  score: z.number().min(0),
-  maxScore: z.number().positive(),
-  summary: z.string(),
-  feedback: z.array(z.string()).min(1),
-  action: z.string(),
+  score: z.coerce.number().default(0),
+  maxScore: z.coerce.number().default(10),
+  summary: z.string().default(""),
+  feedback: z.array(z.string()).default([]),
+  action: z.string().default(""),
 })
 
+const createBoundedScoreSchema = (max: number) =>
+  detailedScoreSchema.extend({
+    score: z.coerce
+      .number()
+      .transform((val) => Math.max(0, Math.min(max, Math.round(val)))),
+    maxScore: z.coerce.number().default(max),
+    feedback: z.array(z.string()).min(1).default(["No specific feedback provided."]),
+  })
+
 export const scoringBreakdownSchema = z.object({
-  problemClarityRelevance: detailedScoreSchema.extend({
-    score: z.number().min(0).max(20),
-    maxScore: z.literal(20),
-  }),
-  ideaExplanationUsability: detailedScoreSchema.extend({
-    score: z.number().min(0).max(20),
-    maxScore: z.literal(20),
-  }),
-  keyFeaturesCompleteness: detailedScoreSchema.extend({
-    score: z.number().min(0).max(15),
-    maxScore: z.literal(15),
-  }),
-  feasibilityResources: detailedScoreSchema.extend({
-    score: z.number().min(0).max(10),
-    maxScore: z.literal(10),
-  }),
-  originalityNovelty: detailedScoreSchema.extend({
-    score: z.number().min(0).max(10),
-    maxScore: z.literal(10),
-  }),
-  impactUsefulness: detailedScoreSchema.extend({
-    score: z.number().min(0).max(10),
-    maxScore: z.literal(10),
-  }),
-  improvementPotential: detailedScoreSchema.extend({
-    score: z.number().min(0).max(15),
-    maxScore: z.literal(15),
-  }),
+  problemClarityRelevance: createBoundedScoreSchema(20),
+  ideaExplanationUsability: createBoundedScoreSchema(20),
+  keyFeaturesCompleteness: createBoundedScoreSchema(15),
+  feasibilityResources: createBoundedScoreSchema(10),
+  originalityNovelty: createBoundedScoreSchema(10),
+  impactUsefulness: createBoundedScoreSchema(10),
+  improvementPotential: createBoundedScoreSchema(15),
 })
 
 const validationReportBaseSchema = z.object({
@@ -140,42 +128,47 @@ const validationReportBaseSchema = z.object({
     "Needs Major Revision",
     "Not Recommended",
   ]),
-  feasibilityScore: z.number().min(1).max(10),
-  originalityScore: z.number().min(1).max(10),
-  usefulnessScore: z.number().min(1).max(10),
-  difficultyLevel: z.enum(["easy", "moderate", "challenging"]),
-  estimatedTimeline: z.string(),
-  teamFit: z.string(),
-  whoWillUseIt: z.string(),
-  whyItMatters: z.string(),
-  originalityVerdict: z.enum([
-    "appears_unique",
-    "some_overlap",
-    "very_similar",
-    "already_done",
-  ]),
-  originalityReason: z.string(),
-  pastIdeaComparisonSummary: z.string(),
-  uniquenessImprovements: z.array(z.string()).min(1),
-  strongPoints: z.array(z.string()).min(1),
-  concernPoints: z.array(z.string()).min(1),
-  riskReductionSteps: z.array(z.string()).min(1),
-  simpleTechDirection: z.array(z.string()).min(1),
-  simpleNextSteps: z.array(z.string()).min(1),
-  roadmap: z.array(roadmapPhaseSchema).min(3).max(5),
-  elevatorPitch: z.string(),
-  plainLanguageAdvice: z.array(z.string()).min(1),
-  similarPastIdeas: z.array(similarPastIdeaSchema).max(3),
+  feasibilityScore: z.coerce
+    .number()
+    .transform((val) => Math.max(1, Math.min(10, Math.round(val)))),
+  originalityScore: z.coerce
+    .number()
+    .transform((val) => Math.max(1, Math.min(10, Math.round(val)))),
+  usefulnessScore: z.coerce
+    .number()
+    .transform((val) => Math.max(1, Math.min(10, Math.round(val)))),
+  difficultyLevel: z.enum(["easy", "moderate", "challenging"]).catch("moderate"),
+  estimatedTimeline: z.string().default("4-6 months"),
+  teamFit: z.string().default("2-3 students"),
+  whoWillUseIt: z.string().default("Students and faculty"),
+  whyItMatters: z.string().default("Addresses an important workflow problem"),
+  originalityVerdict: z
+    .enum(["appears_unique", "some_overlap", "very_similar", "already_done"])
+    .catch("some_overlap"),
+  originalityReason: z.string().default(""),
+  pastIdeaComparisonSummary: z.string().default(""),
+  uniquenessImprovements: z.array(z.string()).min(1).default(["Add specialized features"]),
+  strongPoints: z.array(z.string()).min(1).default(["Clear problem domain"]),
+  concernPoints: z.array(z.string()).min(1).default(["Scope could be refined"]),
+  riskReductionSteps: z.array(z.string()).min(1).default(["Start with MVP"]),
+  simpleTechDirection: z.array(z.string()).min(1).default(["Standard web or mobile stack"]),
+  simpleNextSteps: z.array(z.string()).min(1).default(["Finalize team and requirements"]),
+  roadmap: z.array(roadmapPhaseSchema).min(1),
+  elevatorPitch: z.string().default(""),
+  plainLanguageAdvice: z.array(z.string()).min(1).default(["Focus on building the core workflow first."]),
+  similarPastIdeas: z.array(similarPastIdeaSchema).default([]),
 })
 
 export const legacyValidationReportSchema = validationReportBaseSchema
 
 export const validationReportSchema = validationReportBaseSchema.extend({
-  finalScore: z.number().min(0).max(100),
+  finalScore: z.coerce
+    .number()
+    .transform((val) => Math.max(0, Math.min(100, Math.round(val)))),
   scoringBreakdown: scoringBreakdownSchema,
-  advancedFeatureSuggestions: z.array(z.string()).min(6).max(10),
-  mvpRecommendations: z.array(z.string()).min(3).max(6),
-  roadmapPriorities: z.array(z.string()).min(3).max(6),
+  advancedFeatureSuggestions: z.array(z.string()).min(1).default([]),
+  mvpRecommendations: z.array(z.string()).min(1).default([]),
+  roadmapPriorities: z.array(z.string()).min(1).default([]),
 })
 
 export type RoadmapPhase = z.infer<typeof roadmapPhaseSchema>
