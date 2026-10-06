@@ -2,7 +2,26 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { Search, ChevronDown, Loader2 } from "lucide-react";
+import { 
+  Search, 
+  ChevronDown, 
+  Loader2, 
+  LayoutGrid, 
+  List, 
+  X, 
+  Sparkles, 
+  Copy, 
+  Check, 
+  Lock, 
+  Eye, 
+  EyeOff, 
+  ArrowUpRight,
+  BookOpen,
+  Filter,
+  Layers,
+  GraduationCap
+} from "lucide-react";
+import Link from "next/link";
 
 // Import real FYP data
 import fypProjectsF22Raw from "@/data/fyp-projects-f22.json";
@@ -52,7 +71,7 @@ function transformFYPData(raw: FYPProjectRaw[], defaultBatch: string): FYPProjec
       .filter((t) => t && t !== "\u00a0" && t.length > 1);
 
     const abstract = item["Abstract"]?.trim() === "\u00a0" || !item["Abstract"]
-      ? "Abstract not available."
+      ? "Abstract not available for this project archive."
       : item["Abstract"].replace(/\n/g, " ").trim();
 
     const title = item["FYP Title"]?.replace(/\n/g, " ").trim() || "Untitled Project";
@@ -76,60 +95,91 @@ const F22_PROJECTS = transformFYPData(fypProjectsF22Raw as FYPProjectRaw[], "F22
 const F21_PROJECTS = transformFYPData(fypProjectsF21Raw as FYPProjectRaw[], "F21");
 const ALL_PROJECTS = [...F22_PROJECTS, ...F21_PROJECTS];
 
-// Compute category stats based on keywords and title/abstract
-function computeStats(projects: FYPProject[]) {
-  const categories = {
-    ai: { label: "AI / ML", keywords: ["ai", "artificial intelligence", "machine learning", "deep learning", "neural", "nlp", "computer vision", "recognition", "detection", "lstm", "gru", "cnn", "resnet"], count: 0, color: "bg-purple-500" },
-    web: { label: "Web Dev", keywords: ["web", "react", "next", "django", "node", "frontend", "backend", "firebase", "api"], count: 0, color: "bg-blue-500" },
-    mobile: { label: "Mobile", keywords: ["mobile", "flutter", "android", "ios", "react native", "app"], count: 0, color: "bg-green-500" },
-    iot: { label: "IoT / Edge", keywords: ["iot", "embedded", "arduino", "sensor", "edge", "tinyml", "smart"], count: 0, color: "bg-orange-500" },
-    data: { label: "Data Science", keywords: ["data", "analytics", "visualization", "prediction", "analysis"], count: 0, color: "bg-cyan-500" },
-    health: { label: "Healthcare", keywords: ["health", "medical", "clinical", "patient", "hospital", "pathology", "diagnosis"], count: 0, color: "bg-red-500" },
+const CATEGORIES = {
+  all: { label: "All Projects", keywords: [] },
+  ai: { label: "AI & Machine Learning", keywords: ["ai", "artificial intelligence", "machine learning", "deep learning", "neural", "nlp", "computer vision", "recognition", "detection", "lstm", "gru", "cnn", "resnet"] },
+  web: { label: "Web Applications", keywords: ["web", "react", "next", "django", "node", "frontend", "backend", "firebase", "api", "cloud", "portal"] },
+  mobile: { label: "Mobile Development", keywords: ["mobile", "flutter", "android", "ios", "react native", "app", "application"] },
+  iot: { label: "IoT & Embedded", keywords: ["iot", "embedded", "arduino", "sensor", "edge", "tinyml", "smart", "robotics", "hardware"] },
+  data: { label: "Data Science & Analytics", keywords: ["data", "analytics", "visualization", "prediction", "analysis", "mining", "statistics"] },
+  health: { label: "Healthcare & Biotech", keywords: ["health", "medical", "clinical", "patient", "hospital", "pathology", "diagnosis", "disease", "biomedical"] },
+} as const;
+
+type CategoryKey = keyof typeof CATEGORIES;
+
+// Compute category counts
+function computeCategoryCounts(projects: FYPProject[]) {
+  const counts: Record<CategoryKey, number> = {
+    all: projects.length,
+    ai: 0,
+    web: 0,
+    mobile: 0,
+    iot: 0,
+    data: 0,
+    health: 0,
   };
 
   projects.forEach((project) => {
     const searchText = `${project.title} ${project.abstract} ${project.keywords.join(" ")}`.toLowerCase();
     
-    Object.keys(categories).forEach((key) => {
-      const cat = categories[key as keyof typeof categories];
-      if (cat.keywords.some(kw => searchText.includes(kw))) {
-        cat.count++;
+    (Object.keys(CATEGORIES) as CategoryKey[]).forEach((key) => {
+      if (key === "all") return;
+      const cat = CATEGORIES[key];
+      if (cat.keywords.some((kw) => searchText.includes(kw))) {
+        counts[key]++;
       }
     });
   });
 
-  return categories;
+  return counts;
 }
 
-const STATS = computeStats(ALL_PROJECTS);
+const CATEGORY_COUNTS = computeCategoryCounts(ALL_PROJECTS);
 
-// Get unique supervisors and batches
+// Unique supervisors and batches
 const SUPERVISORS = ["All", ...Array.from(new Set(ALL_PROJECTS.map((p) => p.supervisor).filter((s) => s && s !== "Not Assigned"))).sort()];
 const BATCHES = ["All", "F22", "F21"];
 
-// Items per page for lazy loading
-const ITEMS_PER_PAGE = 20;
+const ITEMS_PER_PAGE = 18;
 
 export default function FYPIdeasPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSupervisor, setSelectedSupervisor] = useState("All");
   const [selectedBatch, setSelectedBatch] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState<CategoryKey>("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [displayCount, setDisplayCount] = useState(ITEMS_PER_PAGE);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  
-  const observerRef = useRef<HTMLDivElement>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [unblurredIds, setUnblurredIds] = useState<Record<string, boolean>>({});
 
-  // Filter the data based on search and filters
+  const observerRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Keyboard shortcut to focus search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "/" && document.activeElement !== searchInputRef.current && (e.target as HTMLElement).tagName !== "INPUT" && (e.target as HTMLElement).tagName !== "TEXTAREA") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Filter projects
   const filteredProjects = useMemo(() => {
     return ALL_PROJECTS.filter((project) => {
+      const q = searchQuery.toLowerCase().trim();
       const matchesSearch =
-        searchQuery === "" ||
-        project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        project.abstract.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        project.supervisor.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        project.students.some((s) => s.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        project.keywords.some((k) => k.toLowerCase().includes(searchQuery.toLowerCase()));
+        q === "" ||
+        project.title.toLowerCase().includes(q) ||
+        project.abstract.toLowerCase().includes(q) ||
+        project.supervisor.toLowerCase().includes(q) ||
+        project.students.some((s) => s.toLowerCase().includes(q)) ||
+        project.keywords.some((k) => k.toLowerCase().includes(q));
 
       const matchesSupervisor =
         selectedSupervisor === "All" || project.supervisor === selectedSupervisor;
@@ -137,35 +187,38 @@ export default function FYPIdeasPage() {
       const matchesBatch =
         selectedBatch === "All" || project.batch === selectedBatch;
 
-      return matchesSearch && matchesSupervisor && matchesBatch;
-    });
-  }, [searchQuery, selectedSupervisor, selectedBatch]);
+      let matchesCategory = true;
+      if (selectedCategory !== "all") {
+        const cat = CATEGORIES[selectedCategory];
+        const searchCorpus = `${project.title} ${project.abstract} ${project.keywords.join(" ")}`.toLowerCase();
+        matchesCategory = cat.keywords.some((kw) => searchCorpus.includes(kw));
+      }
 
-  // Reset display count when filters change
+      return matchesSearch && matchesSupervisor && matchesBatch && matchesCategory;
+    });
+  }, [searchQuery, selectedSupervisor, selectedBatch, selectedCategory]);
+
+  // Reset pagination on filter change
   useEffect(() => {
     setDisplayCount(ITEMS_PER_PAGE);
-  }, [searchQuery, selectedSupervisor, selectedBatch]);
+  }, [searchQuery, selectedSupervisor, selectedBatch, selectedCategory]);
 
-  // Get currently visible items
   const visibleProjects = useMemo(() => {
     return filteredProjects.slice(0, displayCount);
   }, [filteredProjects, displayCount]);
 
-  // Check if there are more items to load
   const hasMore = displayCount < filteredProjects.length;
 
-  // Load more items
   const loadMore = useCallback(() => {
     if (hasMore && !isLoadingMore) {
       setIsLoadingMore(true);
       setTimeout(() => {
         setDisplayCount((prev) => Math.min(prev + ITEMS_PER_PAGE, filteredProjects.length));
         setIsLoadingMore(false);
-      }, 300);
+      }, 250);
     }
   }, [hasMore, isLoadingMore, filteredProjects.length]);
 
-  // Intersection Observer for infinite scroll
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -183,195 +236,518 @@ export default function FYPIdeasPage() {
     return () => observer.disconnect();
   }, [loadMore, hasMore, isLoadingMore]);
 
+  const handleCopyCitation = (project: FYPProject, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const citation = `PAF-IAST FYP Project (${project.batch}, Group ${project.groupNumber}): "${project.title}" - Supervisor: ${project.supervisor}.`;
+    navigator.clipboard.writeText(citation);
+    setCopiedId(project.id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const handleToggleReveal = (projectId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setUnblurredIds((prev) => ({
+      ...prev,
+      [projectId]: !prev[projectId],
+    }));
+  };
+
+  const handleValidateAgainst = (project: FYPProject, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      sessionStorage.setItem(
+        "pending_fyp_idea",
+        JSON.stringify({
+          title: `Enhancement: ${project.title}`,
+          problemStatement: `Based on previous PAF-IAST project (Group #${project.groupNumber}, Batch ${project.batch}): ${project.abstract.slice(0, 300)}...`,
+          ideaDescription: `Proposed novelty and differentiation extending ${project.title}.`,
+          coreFeatures: project.keywords.join(", ") || "Advanced AI Integration, Scalable Architecture",
+        })
+      );
+    } catch {
+      // ignore
+    }
+  };
+
+  const hasActiveFilters = searchQuery !== "" || selectedSupervisor !== "All" || selectedBatch !== "All" || selectedCategory !== "all";
+
+  const clearAllFilters = () => {
+    setSearchQuery("");
+    setSelectedSupervisor("All");
+    setSelectedBatch("All");
+    setSelectedCategory("all");
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
-      {/* Header */}
-      <div className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans pb-16">
+      {/* Top Banner / Hero */}
+      <div className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">FYP Ideas</h1>
-              <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-                Browse {ALL_PROJECTS.length} past projects for inspiration
+              <div className="flex items-center gap-2 mb-2">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-300">
+                  <GraduationCap className="h-3.5 w-3.5" />
+                  PAF-IAST Repository
+                </span>
+                <span className="text-xs text-slate-400">•</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                  {ALL_PROJECTS.length} Historical Projects
+                </span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                FYP Ideas Archive
+              </h1>
+              <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-1 max-w-xl">
+                Explore past senior capstone projects from batches F21 & F22. Benchmark your novel concepts, discover faculty research domains, and avoid duplicate submissions.
               </p>
             </div>
+
             <div className="flex items-center gap-2">
-              <span className="px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-medium rounded-full">
-                {F22_PROJECTS.length} F22
-              </span>
-              <span className="px-3 py-1.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium rounded-full">
-                {F21_PROJECTS.length} F21
-              </span>
+              <Link
+                href="/dashboard/fyp-ideas/validate"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold shadow-sm hover:bg-slate-800 dark:hover:bg-slate-100 transition"
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                Validate My Own Idea
+              </Link>
             </div>
           </div>
 
-          {/* Category Stats */}
-          <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-3 mt-6">
-            {Object.entries(STATS).map(([key, stat]) => (
-              <div key={key} className="bg-gray-50 dark:bg-slate-700/50 rounded-xl p-3 text-center">
-                <div className={`w-2 h-2 ${stat.color} rounded-full mx-auto mb-1.5`}></div>
-                <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">{stat.count}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{stat.label}</p>
-              </div>
-            ))}
+          {/* Interactive Category Filter Pills */}
+          <div className="mt-6 pt-5 border-t border-slate-200 dark:border-slate-800/80">
+            <div className="flex items-center gap-1.5 mb-2.5 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+              <Layers className="h-3.5 w-3.5" />
+              <span>Browse by Thematic Area</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {(Object.keys(CATEGORIES) as CategoryKey[]).map((key) => {
+                const cat = CATEGORIES[key];
+                const count = CATEGORY_COUNTS[key];
+                const isSelected = selectedCategory === key;
+                return (
+                  <button
+                    key={key}
+                    onClick={() => setSelectedCategory(isSelected && key !== "all" ? "all" : key)}
+                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      isSelected
+                        ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm"
+                        : "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-400 dark:hover:border-slate-600"
+                    }`}
+                  >
+                    <span>{cat.label}</span>
+                    <span
+                      className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                        isSelected
+                          ? "bg-slate-800 text-slate-200 dark:bg-slate-100 dark:text-slate-800"
+                          : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
+                      }`}
+                    >
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
-        <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4">
-          <div className="flex flex-col sm:flex-row gap-3">
-          {/* Search */}
+      {/* Control Bar: Search, Filters & View Toggle */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          {/* Search Input */}
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
+              ref={searchInputRef}
               type="text"
-              placeholder="Search by title, supervisor, students, keywords..."
+              placeholder="Search title, keywords, abstract, supervisor... (Press / to focus)"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-gray-900 dark:text-white text-sm placeholder-gray-400 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white focus:border-transparent outline-none"
+              className="w-full pl-9 pr-9 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white text-xs sm:text-sm placeholder-slate-400 focus:ring-2 focus:ring-slate-900 dark:focus:ring-white focus:border-transparent outline-none transition"
             />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
 
-          {/* Batch Filter */}
-          <select
-            value={selectedBatch}
-            onChange={(e) => setSelectedBatch(e.target.value)}
-            className="px-3 py-2.5 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-gray-900 dark:focus:ring-white outline-none cursor-pointer"
-          >
-            {BATCHES.map((batch) => (
-              <option key={batch} value={batch}>{batch === "All" ? "All Batches" : batch}</option>
-            ))}
-          </select>
+          {/* Filter Dropdowns & View Toggle */}
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Batch Filter */}
+            <div className="relative">
+              <select
+                value={selectedBatch}
+                onChange={(e) => setSelectedBatch(e.target.value)}
+                className="appearance-none pl-3 pr-8 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white text-xs font-medium focus:ring-2 focus:ring-slate-900 dark:focus:ring-white outline-none cursor-pointer"
+              >
+                {BATCHES.map((batch) => (
+                  <option key={batch} value={batch}>
+                    {batch === "All" ? "All Batches" : `Batch ${batch}`}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+            </div>
 
-          {/* Supervisor Filter */}
-          <select
-            value={selectedSupervisor}
-            onChange={(e) => setSelectedSupervisor(e.target.value)}
-            className="px-3 py-2.5 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-gray-900 dark:focus:ring-white outline-none cursor-pointer sm:max-w-[220px]"
-          >
-            {SUPERVISORS.map((sup) => (
-              <option key={sup} value={sup}>{sup === "All" ? "All Supervisors" : sup}</option>
-            ))}
-          </select>
+            {/* Supervisor Filter */}
+            <div className="relative">
+              <select
+                value={selectedSupervisor}
+                onChange={(e) => setSelectedSupervisor(e.target.value)}
+                className="appearance-none pl-3 pr-8 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white text-xs font-medium focus:ring-2 focus:ring-slate-900 dark:focus:ring-white outline-none cursor-pointer max-w-[190px] truncate"
+              >
+                {SUPERVISORS.map((sup) => (
+                  <option key={sup} value={sup}>
+                    {sup === "All" ? "All Supervisors" : sup}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+            </div>
+
+            {/* View Mode Switcher */}
+            <div className="flex items-center border border-slate-200 dark:border-slate-700 rounded-lg p-0.5 bg-slate-50 dark:bg-slate-800/60">
+              <button
+                onClick={() => setViewMode("grid")}
+                title="Grid View"
+                className={`p-1.5 rounded text-xs transition ${
+                  viewMode === "grid"
+                    ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs font-bold"
+                    : "text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                }`}
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode("list")}
+                title="List View"
+                className={`p-1.5 rounded text-xs transition ${
+                  viewMode === "list"
+                    ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs font-bold"
+                    : "text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                }`}
+              >
+                <List className="w-4 h-4" />
+              </button>
+            </div>
           </div>
+        </div>
 
-          {/* Results count */}
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
-            Showing {visibleProjects.length} of {filteredProjects.length} projects
-          </p>
+        {/* Active Filter Chips Row */}
+        {hasActiveFilters && (
+          <div className="flex flex-wrap items-center gap-2 mt-3 text-xs">
+            <span className="text-slate-500 font-medium">Active Filters:</span>
+            {searchQuery && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs">
+                Query: "{searchQuery}"
+                <button onClick={() => setSearchQuery("")} className="hover:text-red-500 ml-1">
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+            {selectedCategory !== "all" && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs">
+                Category: {CATEGORIES[selectedCategory].label}
+                <button onClick={() => setSelectedCategory("all")} className="hover:text-red-500 ml-1">
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+            {selectedBatch !== "All" && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs">
+                Batch: {selectedBatch}
+                <button onClick={() => setSelectedBatch("All")} className="hover:text-red-500 ml-1">
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+            {selectedSupervisor !== "All" && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs">
+                Supervisor: {selectedSupervisor}
+                <button onClick={() => setSelectedSupervisor("All")} className="hover:text-red-500 ml-1">
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+            <button
+              onClick={clearAllFilters}
+              className="text-xs font-semibold text-slate-500 hover:text-slate-900 dark:hover:text-white underline ml-1"
+            >
+              Reset all
+            </button>
+          </div>
+        )}
+
+        {/* Results Counter */}
+        <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mt-4 mb-2">
+          <span>
+            Showing <strong className="text-slate-900 dark:text-white">{visibleProjects.length}</strong> of {filteredProjects.length} projects
+          </span>
+          <span className="text-[11px] text-slate-400 italic">
+            🔒 Student names are confidential and blurred
+          </span>
         </div>
       </div>
 
-      {/* Projects List */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 pb-8">
-        <div className="space-y-3">
-          {visibleProjects.length === 0 ? (
-            <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-12 text-center">
-              <Search className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-              <p className="text-gray-900 dark:text-white font-medium mb-1">No projects found</p>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">Try adjusting your search or filters</p>
-            </div>
-          ) : (
-            visibleProjects.map((project) => (
-              <div
-                key={project.id}
-                className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden hover:shadow-md transition-shadow"
-              >
+      {/* Projects Feed */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        {visibleProjects.length === 0 ? (
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-12 text-center shadow-sm">
+            <Search className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">No matching FYP ideas found</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto mt-1">
+              Try refining your search keyword, selecting a different thematic area, or resetting the supervisor filter.
+            </p>
+            <button
+              onClick={clearAllFilters}
+              className="mt-4 px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold rounded-lg hover:bg-slate-800 dark:hover:bg-slate-100 transition"
+            >
+              Clear All Filters
+            </button>
+          </div>
+        ) : viewMode === "grid" ? (
+          /* ================= GRID VIEW ================= */
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {visibleProjects.map((project) => {
+              const isExpanded = expandedId === project.id;
+              const isUnblurred = unblurredIds[project.id];
+              return (
                 <div
-                  className="p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors"
-                  onClick={() => setExpandedId(expandedId === project.id ? null : project.id)}
+                  key={project.id}
+                  className={`bg-white dark:bg-slate-900 rounded-xl border transition-all duration-200 ${
+                    isExpanded
+                      ? "border-slate-900 dark:border-slate-400 shadow-md ring-1 ring-slate-900/5 dark:ring-white/10"
+                      : "border-slate-200 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-700 shadow-xs"
+                  } flex flex-col justify-between overflow-hidden`}
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <span className={`px-2 py-0.5 text-xs font-medium rounded ${
-                          project.batch === "F22" 
-                            ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
-                            : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-                        }`}>
+                  <div className="p-5">
+                    {/* Header Badges */}
+                    <div className="flex items-center justify-between gap-2 mb-2.5">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700">
+                          {project.batch} • Group #{project.groupNumber}
+                        </span>
+                      </div>
+                      <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 truncate max-w-[180px]">
+                        {project.supervisor}
+                      </span>
+                    </div>
+
+                    {/* Title */}
+                    <h3 
+                      onClick={() => setExpandedId(isExpanded ? null : project.id)}
+                      className="font-bold text-slate-900 dark:text-white text-sm sm:text-base leading-snug cursor-pointer hover:text-slate-700 dark:hover:text-slate-200 transition"
+                    >
+                      {project.title}
+                    </h3>
+
+                    {/* Abstract / Snippet */}
+                    <p 
+                      onClick={() => setExpandedId(isExpanded ? null : project.id)}
+                      className={`text-xs text-slate-600 dark:text-slate-300 leading-relaxed mt-2 cursor-pointer ${
+                        isExpanded ? "" : "line-clamp-2"
+                      }`}
+                    >
+                      {project.abstract}
+                    </p>
+
+                    {/* Expanded Metadata */}
+                    {isExpanded && (
+                      <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
+                        {/* Confidential Team Members */}
+                        {project.students.length > 0 && (
+                          <div>
+                            <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                              <span className="flex items-center gap-1">
+                                <Lock className="w-3 h-3 text-slate-400" />
+                                Team Members (Confidential)
+                              </span>
+                              <button
+                                onClick={(e) => handleToggleReveal(project.id, e)}
+                                className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition"
+                              >
+                                {isUnblurred ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                                {isUnblurred ? "Hide Names" : "Reveal Names"}
+                              </button>
+                            </div>
+                            <div className="flex flex-wrap gap-1.5">
+                              {project.students.map((student, idx) => (
+                                <span
+                                  key={idx}
+                                  className={`px-2.5 py-1 rounded text-xs font-medium border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 select-none transition-all duration-300 ${
+                                    isUnblurred ? "" : "blur-[4px] opacity-70 hover:opacity-100"
+                                  }`}
+                                >
+                                  {student}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Keyword Chips */}
+                        {project.keywords.length > 0 && (
+                          <div>
+                            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
+                              Thematic Domain Tags
+                            </span>
+                            <div className="flex flex-wrap gap-1.5">
+                              {project.keywords.map((kw, idx) => (
+                                <span
+                                  key={idx}
+                                  className="px-2 py-0.5 rounded text-[11px] bg-slate-100 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+                                >
+                                  {kw}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Bottom Action Footer */}
+                  <div className="px-5 py-3 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/50 flex items-center justify-between text-xs">
+                    <button
+                      onClick={() => setExpandedId(isExpanded ? null : project.id)}
+                      className="inline-flex items-center gap-1 font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition text-[11px]"
+                    >
+                      <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                      {isExpanded ? "Show Less" : "Read Full Abstract"}
+                    </button>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={(e) => handleCopyCitation(project, e)}
+                        title="Copy Reference Citation"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-[11px] transition"
+                      >
+                        {copiedId === project.id ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+                        {copiedId === project.id ? "Copied" : "Cite"}
+                      </button>
+
+                      <Link
+                        href="/dashboard/fyp-ideas/validate"
+                        onClick={(e) => handleValidateAgainst(project, e)}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[11px] font-semibold hover:bg-slate-800 dark:hover:bg-slate-100 transition"
+                      >
+                        <Sparkles className="w-3 h-3" />
+                        Test Novelty
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          /* ================= COMPACT LIST VIEW ================= */
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 overflow-hidden shadow-xs">
+            {visibleProjects.map((project) => {
+              const isExpanded = expandedId === project.id;
+              const isUnblurred = unblurredIds[project.id];
+              return (
+                <div key={project.id} className="p-4 transition hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
+                  <div 
+                    onClick={() => setExpandedId(isExpanded ? null : project.id)}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer"
+                  >
+                    <div className="flex-1 min-w-0 pr-4">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                           {project.batch} #{project.groupNumber}
                         </span>
-                        <span className="text-xs text-gray-400 dark:text-gray-500">•</span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400 truncate">{project.supervisor}</span>
+                        <span className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                          Supervisor: <strong>{project.supervisor}</strong>
+                        </span>
                       </div>
-                      <h3 className="font-semibold text-gray-900 dark:text-white text-sm leading-snug">
+                      <h3 className="font-bold text-slate-900 dark:text-white text-sm">
                         {project.title}
                       </h3>
-                      {expandedId !== project.id && (
-                        <p className="text-gray-500 dark:text-gray-400 text-xs mt-1 line-clamp-1">
+                      {!isExpanded && (
+                        <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5">
                           {project.abstract}
                         </p>
                       )}
                     </div>
-                    <ChevronDown
-                      className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ${
-                        expandedId === project.id ? "rotate-180" : ""
-                      }`}
-                    />
+
+                    <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                      <button
+                        onClick={(e) => handleCopyCitation(project, e)}
+                        className="px-2 py-1 rounded border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[11px] hover:text-slate-900 dark:hover:text-white"
+                      >
+                        {copiedId === project.id ? "Copied" : "Cite"}
+                      </button>
+                      <Link
+                        href="/dashboard/fyp-ideas/validate"
+                        onClick={(e) => handleValidateAgainst(project, e)}
+                        className="px-2.5 py-1 rounded bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[11px] font-semibold hover:bg-slate-800 dark:hover:bg-slate-100 transition"
+                      >
+                        Test Novelty
+                      </Link>
+                      <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                    </div>
                   </div>
+
+                  {/* Expanded Abstract & Details in List View */}
+                  {isExpanded && (
+                    <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-3">
+                      <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+                        {project.abstract}
+                      </p>
+
+                      {project.students.length > 0 && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] font-bold text-slate-400 flex items-center gap-1">
+                            <Lock className="w-3 h-3" /> Team:
+                          </span>
+                          <div className="flex flex-wrap gap-1">
+                            {project.students.map((student, idx) => (
+                              <span
+                                key={idx}
+                                className={`px-2 py-0.5 rounded text-[11px] border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 select-none ${
+                                  isUnblurred ? "" : "blur-[4px]"
+                                }`}
+                              >
+                                {student}
+                              </span>
+                            ))}
+                          </div>
+                          <button
+                            onClick={(e) => handleToggleReveal(project.id, e)}
+                            className="text-[10px] text-slate-500 underline ml-2"
+                          >
+                            {isUnblurred ? "Hide" : "Reveal"}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
+              );
+            })}
+          </div>
+        )}
 
-                {/* Expanded */}
-                {expandedId === project.id && (
-                  <div className="px-4 pb-4 pt-0 border-t border-gray-100 dark:border-slate-700">
-                    <p className="text-gray-600 dark:text-gray-300 text-sm mt-3 leading-relaxed">
-                      {project.abstract}
-                    </p>
-                    
-                    {/* Students */}
-                    {project.students.length > 0 && (
-                      <div className="mt-3">
-                        <p className="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1.5">Team</p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {project.students.map((student, idx) => (
-                            <span
-                              key={idx}
-                              className="px-2 py-1 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 text-xs rounded"
-                            >
-                              {student}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Keywords */}
-                    {project.keywords.length > 0 && (
-                      <div className="mt-3">
-                        <p className="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1.5">Keywords</p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {project.keywords.map((keyword, idx) => (
-                            <span
-                              key={idx}
-                              className="px-2 py-1 bg-gray-50 dark:bg-slate-700/50 text-gray-600 dark:text-gray-400 text-xs rounded border border-gray-200 dark:border-slate-600"
-                            >
-                              {keyword}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))
-          )}
-        </div>
-
-        {/* Load More */}
+        {/* Load More Trigger */}
         {hasMore && (
-          <div ref={observerRef} className="py-6 flex justify-center">
+          <div ref={observerRef} className="py-8 flex justify-center">
             {isLoadingMore ? (
-              <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-sm">
+              <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs font-medium">
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Loading...</span>
+                <span>Loading more past projects...</span>
               </div>
             ) : (
               <button
                 onClick={loadMore}
-                className="px-4 py-2 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 text-sm rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
+                className="px-5 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition"
               >
                 Load More ({filteredProjects.length - displayCount} remaining)
               </button>
@@ -380,8 +756,8 @@ export default function FYPIdeasPage() {
         )}
 
         {!hasMore && visibleProjects.length > 0 && (
-          <p className="py-6 text-center text-gray-400 dark:text-gray-500 text-xs">
-            End of list • {filteredProjects.length} projects
+          <p className="py-8 text-center text-slate-400 dark:text-slate-600 text-xs">
+            End of archive • {filteredProjects.length} projects cataloged
           </p>
         )}
       </div>
