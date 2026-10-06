@@ -4,7 +4,7 @@
 /**
  * RequestCard Component
  * ---------------------
- * Displays a request (message or partner) in a card format.
+ * Displays an incoming or outgoing request in a modern minimalist card.
  * 
  * Props:
  * - request: The request data (MessageRequest | PartnerRequest)
@@ -12,23 +12,17 @@
  * - type: "message" | "partner" - visual styling hint
  * - onAccept: Callback for accept action (only for received)
  * - onReject: Callback for reject action (only for received)
- * 
- * ⚠️ NO API calls, NO business logic here.
- * All data comes via props. Actions trigger parent callbacks.
  */
 
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
-
 import { 
   MessageSquare, 
   Users, 
-  Clock, 
-  CheckCircle2, 
-  XCircle,
   ArrowUpRight,
   ArrowDownLeft,
-  ExternalLink
+  ExternalLink,
+  Clock
 } from "lucide-react";
 import { RequestActions } from "./RequestActions";
 
@@ -66,160 +60,140 @@ export function RequestCard({
   onReject,
   isLoading = false,
 }: RequestCardProps) {
-  // Get the relevant student (sender for received, receiver for sent)
   const student = variant === "received" ? request.fromStudent : request.toStudent;
 
   if (!student) {
     return null;
   }
 
-  // Generate initials for avatar fallback
   const getInitials = (name: string) => {
     return name
       .split(" ")
       .map((n) => n[0])
+      .filter(Boolean)
       .join("")
       .toUpperCase()
       .slice(0, 2);
   };
 
-  // Get status badge style
-  const getStatusBadge = () => {
+  const getStatusIndicator = () => {
     switch (request.status) {
       case "PENDING":
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
-            <Clock className="w-3 h-3" />
-            Pending
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/60">
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
+            Pending Decision
           </span>
         );
       case "ACCEPTED":
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800">
-            <CheckCircle2 className="w-3 h-3" />
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/60">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
             Accepted
           </span>
         );
       case "REJECTED":
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800">
-            <XCircle className="w-3 h-3" />
-            Rejected
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+            <span className="h-1.5 w-1.5 rounded-full bg-slate-400" />
+            Declined
           </span>
         );
     }
   };
 
-  // Get type icon
-  const getTypeIcon = () => {
-    if (type === "message") {
-      return <MessageSquare className="w-4 h-4 text-gray-600 dark:text-gray-400" />;
-    }
-    return <Users className="w-4 h-4 text-gray-600 dark:text-gray-400" />;
-  };
-
-  // Get type label
-  const getTypeLabel = () => {
-    if (type === "message") {
-      return "Message Request";
-    }
-    return "Partner Request";
-  };
-
-  // Get variant icon
-  const getVariantIcon = () => {
-    if (variant === "sent") {
-      return <ArrowUpRight className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />;
-    }
-    return <ArrowDownLeft className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />;
-  };
-
-  // Get card border color based on type
-  const getBorderClass = () => {
-    return "border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:hover:border-slate-600";
-  };
+  const isPartner = type === "partner";
+  const isIncoming = variant === "received";
 
   return (
-    <div
-      className={`relative bg-white dark:bg-slate-800 rounded-2xl border ${getBorderClass()} p-4 sm:p-5 hover:shadow-xl dark:hover:shadow-slate-900/50 transition-all duration-300 overflow-hidden`}
-    >
-      <div className="relative z-10">
-        {/* Header: Type + Status + Time */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            {getTypeIcon()}
-            <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
-              {getTypeLabel()}
+    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-slate-350 dark:hover:border-slate-700 transition-all duration-200 p-4 sm:p-5 flex flex-col justify-between shadow-2xs overflow-hidden">
+      <div>
+        {/* Card Header: Type Badge, Direction & Status */}
+        <div className="flex items-center justify-between gap-2 mb-3.5">
+          <div className="flex items-center gap-1.5">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700">
+              {isPartner ? <Users className="w-3 h-3" /> : <MessageSquare className="w-3 h-3" />}
+              <span>{isPartner ? "Partner Invite" : "Message Request"}</span>
             </span>
-            {getVariantIcon()}
+            <span className="text-[10px] text-slate-400 flex items-center gap-0.5">
+              {isIncoming ? <ArrowDownLeft className="w-3 h-3 text-slate-400" /> : <ArrowUpRight className="w-3 h-3 text-slate-400" />}
+              <span>{isIncoming ? "Incoming" : "Outgoing"}</span>
+            </span>
           </div>
-          {getStatusBadge()}
+
+          <div>{getStatusIndicator()}</div>
         </div>
 
-        {/* Student Info */}
-        <div className="flex items-start gap-3 sm:gap-4">
-          {/* Avatar - Clickable to profile */}
+        {/* Student Profile Info */}
+        <div className="flex items-start gap-3">
           <Link
             href={`/dashboard/discovery/profile/${student.id}`}
-            className="flex-shrink-0 group"
+            className="shrink-0 group"
           >
             {student.profilePicture ? (
               <img
                 src={student.profilePicture}
                 alt={student.name}
-                className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-cover border-2 border-gray-100 dark:border-slate-600 shadow-lg group-hover:border-gray-300 dark:group-hover:border-slate-500 transition-colors"
+                className="w-11 h-11 rounded-xl object-cover border border-slate-200 dark:border-slate-700 group-hover:border-slate-400 transition"
               />
             ) : (
-              <div
-                className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gray-900 dark:bg-slate-600 flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-lg group-hover:scale-105 transition-transform"
-              >
+              <div className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-800 dark:text-slate-200 font-bold text-xs group-hover:scale-102 transition">
                 {getInitials(student.name)}
               </div>
             )}
           </Link>
 
-          {/* Info */}
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0 flex-1">
             <Link
               href={`/dashboard/discovery/profile/${student.id}`}
-              className="inline-flex items-center gap-1 group"
+              className="inline-flex items-center gap-1 group truncate max-w-full"
             >
-              <h3 className="font-semibold text-gray-900 dark:text-white truncate group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
+              <h3 className="font-bold text-slate-900 dark:text-white text-sm group-hover:underline truncate">
                 {student.name}
               </h3>
-              <ExternalLink className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-400 transition-colors" />
+              <ExternalLink className="w-3 h-3 text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200 shrink-0" />
             </Link>
-            <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
+
+            <p className="text-xs text-slate-600 dark:text-slate-400 truncate mt-0.5">
               {student.department}
             </p>
-            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+
+            <span className="inline-block mt-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400 px-1.5 py-0.2 rounded bg-slate-50 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60">
               Semester {student.currentSemester}
-            </p>
+            </span>
           </div>
         </div>
 
-        {/* Reason (if any) */}
+        {/* Reason / Accompanying Message */}
         {request.reason && (
-          <div className="mt-4 p-3 bg-gray-50 dark:bg-slate-700 rounded-xl border border-gray-100 dark:border-slate-600">
-            <p className="text-sm text-gray-600 dark:text-gray-300 italic">"{request.reason}"</p>
+          <div className="mt-3.5 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+            <p className="text-xs text-slate-600 dark:text-slate-300 italic leading-relaxed border-l-2 border-slate-300 dark:border-slate-700 pl-2.5">
+              "{request.reason}"
+            </p>
           </div>
         )}
+      </div>
 
-        {/* Timestamp */}
-        <p className="text-xs text-gray-400 dark:text-gray-500 mt-3">
-          {formatDistanceToNow(new Date(request.createdAt), { addSuffix: true })}
-        </p>
+      {/* Card Footer: Timestamp & Actions */}
+      <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+        <div className="flex items-center justify-between text-[11px] text-slate-400 mb-2">
+          <span className="flex items-center gap-1">
+            <Clock className="w-3 h-3" />
+            {formatDistanceToNow(new Date(request.createdAt), { addSuffix: true })}
+          </span>
+          <span className="text-[10px] font-medium text-slate-400">
+            {isIncoming ? "Sent to you" : "Sent by you"}
+          </span>
+        </div>
 
-        {/* Actions (only for received + pending) */}
-        {variant === "received" && request.status === "PENDING" && (
-          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-slate-700">
-            <RequestActions
-              onAccept={() => onAccept?.(request.id)}
-              onReject={() => onReject?.(request.id)}
-              isLoading={isLoading}
-              type={type}
-            />
-          </div>
+        {/* Action Buttons for Incoming Pending Requests */}
+        {isIncoming && request.status === "PENDING" && (
+          <RequestActions
+            onAccept={() => onAccept?.(request.id)}
+            onReject={() => onReject?.(request.id)}
+            isLoading={isLoading}
+            type={type}
+          />
         )}
       </div>
     </div>

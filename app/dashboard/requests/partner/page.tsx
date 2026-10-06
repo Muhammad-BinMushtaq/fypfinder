@@ -72,58 +72,65 @@ export default function PartnerRequestsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {/* Back Link */}
-        <Link
-          href="/dashboard"
-          className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-6 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span className="text-sm font-medium">Back to Dashboard</span>
-        </Link>
+    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans pb-16 overflow-x-hidden">
+      {/* Top Header Banner */}
+      <div className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+          {/* Back Link */}
+          <Link
+            href="/dashboard/requests"
+            className="inline-flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white mb-4 text-xs font-semibold transition-colors"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>All Requests & Invitations</span>
+          </Link>
 
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2.5 bg-gray-900 dark:bg-white rounded-xl shadow-lg">
-              <Users className="w-6 h-6 text-white dark:text-gray-900" />
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-300">
+                  <Users className="h-3 w-3" />
+                  Capstone Groups
+                </span>
+                <span className="text-xs text-slate-400">•</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                  PAF-IAST Connections
+                </span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                Partner Requests
+              </h1>
+              <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-1 max-w-xl leading-relaxed">
+                Manage partnership invitations and form your 3-member FYP team.
+              </p>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
-              Partner Requests
-            </h1>
           </div>
-          <p className="text-gray-600 dark:text-gray-400 ml-14">
-            Manage partnership requests for your FYP team
-          </p>
         </div>
+      </div>
 
+      {/* Main Content Area */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
         {/* Important Notice */}
-        <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800 flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-amber-500 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-          <div className="text-sm">
-            <span className="font-medium text-amber-700 dark:text-amber-400">Important:</span>
-            <span className="text-amber-600 dark:text-amber-300">
-              {" "}
-              Accepting a partner request will add them to your FYP group. Your
-              group can have a maximum of 3 members.
-            </span>
-          </div>
+        <div className="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/40 text-xs">
+          <AlertTriangle className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
+          <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-[11px] sm:text-xs">
+            <strong>PAF-IAST Policy Note:</strong> Accepting a partner request will add the student to your FYP group. Groups are strictly capped at 3 members.
+          </p>
         </div>
 
         {/* Pending Badge */}
         {pendingReceivedCount > 0 && activeTab === "received" && (
-          <div className="mb-6 p-4 bg-gray-100 dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 flex items-center gap-3">
-            <Sparkles className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <div className="p-3.5 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center gap-2.5 text-xs text-slate-700 dark:text-slate-300">
+            <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
+            <span className="font-medium">
               You have {pendingReceivedCount} pending partner request
-              {pendingReceivedCount > 1 ? "s" : ""}!
+              {pendingReceivedCount > 1 ? "s" : ""} awaiting your response.
             </span>
           </div>
         )}
 
         {/* Tabs */}
-        <div className="mb-6">
+        <div>
           <RequestTabs
             activeTab={activeTab}
             onTabChange={setActiveTab}
@@ -143,19 +150,6 @@ export default function PartnerRequestsPage() {
           isLoading={currentQuery.isLoading}
           loadingRequestId={loadingRequestId}
         />
-
-        {/* CTA for empty sent */}
-        {activeTab === "sent" && requests.length === 0 && !sentQuery.isLoading && (
-          <div className="mt-6 text-center">
-            <Link
-              href="/dashboard/discovery"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-semibold rounded-xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-all shadow-lg"
-            >
-              <Sparkles className="w-4 h-4" />
-              Discover Partners
-            </Link>
-          </div>
-        )}
       </div>
     </div>
   );
