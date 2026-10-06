@@ -22,12 +22,12 @@ export function RadarChart({ scores }: RadarChartProps) {
   const data = [
     { label: "Feasibility", value: scores.feasibility },
     { label: "Originality", value: scores.originality },
-    { label: "Complexity", value: scores.complexity },
-    { label: "Market", value: scores.marketRelevance },
-    { label: "Timeline", value: scores.timelineRealism },
+    { label: "Clarity", value: scores.complexity },
+    { label: "Impact", value: scores.marketRelevance },
+    { label: "Potential", value: scores.timelineRealism },
   ]
 
-  const size = 300
+  const size = 280
   const center = size / 2
   const radius = (size / 2) * 0.65
 
@@ -48,9 +48,9 @@ export function RadarChart({ scores }: RadarChartProps) {
     .join(" ")
 
   return (
-    <div className="relative mx-auto flex max-w-sm items-center justify-center p-4">
+    <div className="relative mx-auto flex max-w-sm items-center justify-center py-2">
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="overflow-visible">
-        {/* Background grids */}
+        {/* Background web grids */}
         {[20, 40, 60, 80, 100].map((circleValue) => {
           const r = (circleValue / 100) * radius
           return (
@@ -64,13 +64,13 @@ export function RadarChart({ scores }: RadarChartProps) {
                 .join(" ")}
               fill="none"
               stroke="currentColor"
-              strokeOpacity={0.1}
+              strokeOpacity={0.08}
               className="text-gray-900 dark:text-white"
             />
           )
         })}
 
-        {/* Axes */}
+        {/* Radial axes */}
         {data.map((_, i) => {
           const pt = getPoint(100, i, data.length)
           return (
@@ -81,24 +81,24 @@ export function RadarChart({ scores }: RadarChartProps) {
               x2={pt.x}
               y2={pt.y}
               stroke="currentColor"
-              strokeOpacity={0.1}
+              strokeOpacity={0.08}
               className="text-gray-900 dark:text-white"
             />
           )
         })}
 
-        {/* Data Polygon */}
+        {/* Monochrome / High-contrast Data Polygon */}
         <polygon
           points={polygonPoints}
           fill="currentColor"
-          fillOpacity={0.2}
+          fillOpacity={0.12}
           stroke="currentColor"
-          strokeWidth="2"
+          strokeWidth="1.5"
           strokeLinejoin="round"
-          className="text-amber-500 transition-all duration-1000 ease-out"
+          className="text-gray-900 dark:text-white transition-all duration-700 ease-out"
         />
 
-        {/* Data points */}
+        {/* Data vertex dots */}
         {data.map((d, i) => {
           const pt = getPoint(mounted ? d.value : 0, i, data.length)
           return (
@@ -106,14 +106,14 @@ export function RadarChart({ scores }: RadarChartProps) {
               key={i}
               cx={pt.x}
               cy={pt.y}
-              r={4}
+              r={3}
               fill="currentColor"
-              className="text-amber-500 transition-all duration-1000 ease-out"
+              className="text-gray-900 dark:text-white transition-all duration-700 ease-out"
             />
           )
         })}
 
-        {/* Labels */}
+        {/* Dimension Labels */}
         {data.map((d, i) => {
           const pt = getPoint(125, i, data.length, 100)
           return (
@@ -123,7 +123,7 @@ export function RadarChart({ scores }: RadarChartProps) {
               y={pt.y}
               textAnchor="middle"
               alignmentBaseline="middle"
-              className="fill-current text-xs font-medium text-gray-600 dark:text-gray-300"
+              className="fill-current text-[11px] font-medium text-gray-500 dark:text-gray-400"
             >
               {d.label}
             </text>

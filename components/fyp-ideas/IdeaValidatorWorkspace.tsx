@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { CheckCircle2, ChevronDown, ChevronUp, Clock3, FileText, History, PencilLine, Sparkles, XCircle } from "lucide-react"
+import { CheckCircle2, ChevronDown, ChevronUp, Clock3, FileText, History, Loader2, PencilLine, Sparkles, XCircle } from "lucide-react"
 import { useExtractPdfIdea, useMyValidations, useValidateIdea } from "@/hooks/fyp-ideas"
 import { ValidatorWizard } from "./ValidatorWizard"
 import { PdfIdeaReview } from "./PdfIdeaReview"
@@ -14,9 +14,9 @@ import type {
 } from "@/services/fypIdeas.service"
 
 const STAGE_LABELS = [
-  "Reading your idea",
-  "Comparing it with past FYP projects",
-  "Writing your easy-to-read report",
+  "Analyzing your project idea",
+  "Benchmarking against past PAF-IAST projects",
+  "Synthesizing recommendations & feasibility report",
 ] as const
 
 interface IdeaValidatorWorkspaceProps {
@@ -97,14 +97,22 @@ export function IdeaValidatorWorkspace({ mode }: IdeaValidatorWorkspaceProps) {
   const isBusy = isPending || isExtractingPdf
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.15),transparent_35%),radial-gradient(circle_at_top_right,rgba(59,130,246,0.12),transparent_28%)] bg-white dark:bg-slate-950">
-      <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-10">
+    <div className="min-h-screen bg-white dark:bg-slate-900 relative text-gray-900 dark:text-white">
+      {/* Subtle Grid Background - identical to homepage */}
+      <div 
+        className="fixed inset-0 bg-[linear-gradient(to_right,#e5e5e5_1px,transparent_1px),linear-gradient(to_bottom,#e5e5e5_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:64px_64px] opacity-40 dark:opacity-100 pointer-events-none" 
+        style={{ zIndex: 0 }} 
+      />
+
+      <div className="relative z-10 mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
         <Hero mode={mode} />
 
+        {/* Loading state */}
         <div className={isBusy ? "block" : "hidden"}>
           <LoadingState />
         </div>
 
+        {/* Completed manual result */}
         <div className={!isBusy && activeResult ? "block" : "hidden"}>
           {activeResult && (
             <ValidationResult
@@ -115,6 +123,7 @@ export function IdeaValidatorWorkspace({ mode }: IdeaValidatorWorkspaceProps) {
           )}
         </div>
 
+        {/* Completed or extracted PDF result */}
         <div className={!isBusy && !activeResult && pdfResult ? "block" : "hidden"}>
           {pdfResult && (
             <PdfIdeaReview
@@ -128,6 +137,7 @@ export function IdeaValidatorWorkspace({ mode }: IdeaValidatorWorkspaceProps) {
           )}
         </div>
 
+        {/* Main interactive form container - preserved via hidden to prevent reset */}
         <div className={isBusy || activeResult || pdfResult ? "hidden" : "block"}>
           {mode === "student" && (
             <SubmissionMethodSelector
@@ -153,15 +163,19 @@ export function IdeaValidatorWorkspace({ mode }: IdeaValidatorWorkspaceProps) {
           )}
         </div>
 
+        {/* History drawer */}
         {mode === "student" && !isBusy && !activeResult && !pdfResult && validations.length > 0 && (
-          <div className="mt-8 rounded-[28px] border border-gray-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="mt-10 rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-800/60 p-5 shadow-sm">
             <button
               onClick={() => setHistoryOpen((value) => !value)}
               className="flex w-full items-center justify-between gap-3 text-left"
             >
-              <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
-                <History className="h-4 w-4 text-amber-500" />
-                Previous idea checks
+              <div className="flex items-center gap-2.5 text-sm font-semibold text-gray-900 dark:text-white">
+                <History className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                Previous Validations
+                <span className="ml-1 text-xs font-normal text-gray-500 dark:text-gray-400">
+                  ({validations.length})
+                </span>
               </div>
               {historyOpen ? (
                 <ChevronUp className="h-4 w-4 text-gray-400" />
@@ -171,11 +185,11 @@ export function IdeaValidatorWorkspace({ mode }: IdeaValidatorWorkspaceProps) {
             </button>
 
             {historyOpen && (
-              <div className="mt-4 space-y-3">
+              <div className="mt-4 space-y-2.5 pt-3 border-t border-gray-100 dark:border-slate-700/60">
                 {historyLoading ? (
-                  <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                    <Clock3 className="h-4 w-4 animate-spin" />
-                    Loading your previous checks...
+                  <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 py-3">
+                    <Clock3 className="h-4 w-4 animate-spin text-gray-400" />
+                    Loading previous checks...
                   </div>
                 ) : (
                   validations.map((item) => (
@@ -199,31 +213,31 @@ function SubmissionMethodSelector({
   onChange: (value: "manual" | "pdf") => void
 }) {
   return (
-    <div className="mb-6 rounded-3xl border border-gray-200 bg-white p-2 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div className="grid gap-2 sm:grid-cols-2">
+    <div className="mb-6 flex justify-center">
+      <div className="inline-flex p-1 bg-gray-100 dark:bg-slate-800 rounded-xl border border-gray-200/60 dark:border-slate-700/60">
         <button
           type="button"
           onClick={() => onChange("manual")}
-          className={`flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition ${
+          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
             value === "manual"
-              ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900"
-              : "text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-slate-800"
+              ? "bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm"
+              : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
           }`}
         >
           <PencilLine className="h-4 w-4" />
-          Manual Form
+          Interactive Form
         </button>
         <button
           type="button"
           onClick={() => onChange("pdf")}
-          className={`flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition ${
+          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
             value === "pdf"
-              ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900"
-              : "text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-slate-800"
+              ? "bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm"
+              : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
           }`}
         >
           <FileText className="h-4 w-4" />
-          Upload PDF
+          Upload Proposal PDF
         </button>
       </div>
     </div>
@@ -232,24 +246,26 @@ function SubmissionMethodSelector({
 
 function Hero({ mode }: { mode: "student" | "public" }) {
   return (
-    <div className="mb-8 rounded-[32px] border border-gray-200 bg-white/85 p-6 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/85 sm:p-8">
-      <div className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-amber-700 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-300">
-        <Sparkles className="h-3.5 w-3.5" />
-        AI Idea Validator
+    <div className="mb-8 text-center">
+      {/* Minimalist Badge matching Homepage */}
+      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-full mb-4">
+        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+        <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+          {mode === "student" ? "AI Idea Validation Engine" : "Free Public Preview"}
+        </span>
       </div>
 
-      <div className="mt-4 max-w-3xl">
-        <h1 className="text-3xl font-bold tracking-tight text-gray-950 dark:text-white sm:text-4xl">
-          {mode === "student"
-            ? "Check if your FYP idea is clear, useful, and still fresh"
-            : "Try one free FYP idea check before you sign up"}
-        </h1>
-        <p className="mt-3 text-sm leading-6 text-gray-600 dark:text-gray-300 sm:text-base">
-          {mode === "student"
-            ? "We compare your idea with past FYP projects, explain what feels strong, point out what feels repeated, and suggest simple ways to make the idea stand out."
-            : "Write your idea in simple words and get a quick preview. If you sign up, you unlock the full roadmap, deeper suggestions, and saved history."}
-        </p>
-      </div>
+      <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">
+        {mode === "student"
+          ? "Validate & Refine Your FYP Idea"
+          : "Test Your FYP Idea Instantly"}
+      </h1>
+
+      <p className="mt-3 text-sm sm:text-base text-gray-500 dark:text-gray-400 max-w-xl mx-auto leading-relaxed">
+        {mode === "student"
+          ? "Benchmark against past PAF-IAST repositories, detect overlap, and obtain an actionable implementation roadmap."
+          : "Describe your concept in plain terms for an instantaneous analysis and feasibility preview."}
+      </p>
     </div>
   )
 }
@@ -267,25 +283,28 @@ function LoadingState() {
   }, [])
 
   return (
-    <div className="rounded-[32px] border border-gray-200 bg-white p-8 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full border-4 border-amber-100 bg-amber-50 dark:border-amber-900/40 dark:bg-amber-950/30">
-        <Sparkles className="h-8 w-8 animate-pulse text-amber-500" />
+    <div className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-10 text-center shadow-sm">
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white">
+        <Loader2 className="h-6 w-6 animate-spin text-gray-900 dark:text-white" />
       </div>
-      <h2 className="mt-5 text-xl font-semibold text-gray-950 dark:text-white">
+      <h2 className="mt-5 text-lg font-semibold text-gray-900 dark:text-white tracking-tight">
         {STAGE_LABELS[stageIndex]}
       </h2>
-      <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-        This usually takes around 10 to 20 seconds.
+      <p className="mt-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+        Comparing historical abstracts, architecture novelty, and feasibility metrics...
       </p>
 
+      {/* Clean stage indicators */}
       <div className="mt-6 flex items-center justify-center gap-2">
         {STAGE_LABELS.map((_, index) => (
           <span
             key={index}
-            className={`h-2.5 w-2.5 rounded-full ${
-              index <= stageIndex
-                ? "bg-amber-500"
-                : "bg-gray-200 dark:bg-slate-700"
+            className={`h-1.5 rounded-full transition-all duration-300 ${
+              index === stageIndex
+                ? "w-8 bg-gray-900 dark:bg-white"
+                : index < stageIndex
+                ? "w-2 bg-emerald-500"
+                : "w-2 bg-gray-200 dark:bg-slate-700"
             }`}
           />
         ))}
@@ -308,32 +327,32 @@ function HistoryItem({
     <button
       onClick={() => isCompleted && onSelect(item)}
       disabled={!isCompleted}
-      className={`w-full rounded-2xl border p-4 text-left transition ${
+      className={`w-full rounded-xl border p-3.5 text-left transition-all ${
         isCompleted
-          ? "border-gray-200 bg-gray-50 hover:bg-gray-100 dark:border-slate-800 dark:bg-slate-950/40 dark:hover:bg-slate-950"
-          : "border-red-200 bg-red-50 text-red-800 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-200"
+          ? "border-gray-200 dark:border-slate-700/80 bg-gray-50/50 dark:bg-slate-900/40 hover:bg-gray-100/70 dark:hover:bg-slate-800/80"
+          : "border-red-200 dark:border-red-900/40 bg-red-50/30 dark:bg-red-950/20 text-red-800 dark:text-red-300"
       }`}
     >
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3">
           {isCompleted ? (
-            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
+            <span className="mt-1 h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
           ) : (
             <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
           )}
           <div>
-            <p className="text-sm font-semibold text-gray-900 dark:text-white">
+            <p className="text-sm font-medium text-gray-900 dark:text-white line-clamp-1">
               {item.report?.plainSummary || "Idea validation result"}
             </p>
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              {date.toLocaleDateString()}
+            <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+              {date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
             </p>
           </div>
         </div>
 
         {isCompleted && item.originalityScore != null && (
-          <div className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-gray-700 shadow-sm dark:bg-slate-900 dark:text-gray-200">
-            Freshness {item.originalityScore}/10
+          <div className="self-start sm:self-center rounded-md bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 px-2.5 py-1 text-xs font-medium text-gray-700 dark:text-gray-300">
+            Freshness: {item.originalityScore}/10
           </div>
         )}
       </div>

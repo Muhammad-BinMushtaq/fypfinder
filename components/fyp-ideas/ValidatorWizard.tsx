@@ -77,6 +77,13 @@ const QUICK_TEMPLATES = [
   },
 ]
 
+const STEPS = [
+  { id: 1, label: "Scope & Domain" },
+  { id: 2, label: "Problem & Solution" },
+  { id: 3, label: "Features & Tech" },
+  { id: 4, label: "Review & Submit" },
+]
+
 export function ValidatorWizard({ onSubmit, isPending, mode, remainingToday, initialValues }: ValidatorWizardProps) {
   const [step, setStep] = useState(initialValues?.title ? 4 : 1)
   const [domain, setDomain] = useState("")
@@ -150,12 +157,10 @@ export function ValidatorWizard({ onSubmit, isPending, mode, remainingToday, ini
   const handleSubmit = () => {
     if (!validateStep(4)) return
     
-    // Combine core features and tech stack
     const combinedFeatures = techStack.length > 0 
       ? `${coreFeatures}\n\nTech Stack: ${techStack.join(", ")}`
       : coreFeatures
 
-    // Prepend domain to title if not already there, safely clamped to 200 chars
     const rawTitle = domain && !title.toLowerCase().includes(domain.toLowerCase()) 
       ? `[${domain}] ${title.trim()}` 
       : title.trim()
@@ -174,16 +179,23 @@ export function ValidatorWizard({ onSubmit, isPending, mode, remainingToday, ini
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      {/* Quick Templates */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div className="mb-3 text-sm font-semibold text-gray-900 dark:text-white">Quick Templates</div>
-        <div className="flex flex-wrap gap-2">
+      {/* Quick Templates Drawer */}
+      <div className="rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/40 p-4">
+        <div className="flex items-center justify-between mb-2.5">
+          <span className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+            Starter Templates
+          </span>
+          <span className="text-xs text-gray-400 dark:text-gray-500">
+            Pre-fill fields to test
+          </span>
+        </div>
+        <div className="flex flex-wrap gap-1.5">
           {QUICK_TEMPLATES.map((t) => (
             <button
               key={t.name}
               type="button"
               onClick={() => applyTemplate(t)}
-              className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-medium text-gray-700 transition hover:bg-gray-100 dark:border-slate-700 dark:bg-slate-800 dark:text-gray-300 dark:hover:bg-slate-700"
+              className="rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 transition hover:border-gray-900 dark:hover:border-white hover:text-gray-900 dark:hover:text-white"
             >
               {t.name}
             </button>
@@ -191,126 +203,199 @@ export function ValidatorWizard({ onSubmit, isPending, mode, remainingToday, ini
         </div>
       </div>
 
-      <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        {/* Stepper */}
-        <div className="mb-8 flex items-center justify-center gap-2">
-          {[1, 2, 3, 4].map((num) => (
-            <div key={num} className="flex items-center gap-2">
-              <div
-                className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold transition-colors ${
-                  num === step
-                    ? "bg-amber-500 text-white"
-                    : num < step
-                    ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900"
-                    : "bg-gray-100 text-gray-400 dark:bg-slate-800 dark:text-gray-500"
-                }`}
-              >
-                {num < step ? <CheckCircle2 className="h-4 w-4" /> : num}
-              </div>
-              {num < 4 && (
+      {/* Main Form Card */}
+      <div className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-sm">
+        {/* Minimalist Stepper Header */}
+        <div className="mb-8 border-b border-gray-100 dark:border-slate-800 pb-5">
+          <div className="flex items-center justify-between">
+            {STEPS.map((s) => (
+              <div key={s.id} className="flex items-center gap-2">
                 <div
-                  className={`h-0.5 w-10 sm:w-16 ${
-                    num < step ? "bg-gray-900 dark:bg-white" : "bg-gray-100 dark:bg-slate-800"
+                  className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold transition-colors ${
+                    s.id === step
+                      ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900"
+                      : s.id < step
+                      ? "bg-emerald-500 text-white"
+                      : "bg-gray-100 text-gray-400 dark:bg-slate-800 dark:text-gray-500"
                   }`}
-                />
-              )}
-            </div>
-          ))}
+                >
+                  {s.id < step ? "✓" : s.id}
+                </div>
+                <span
+                  className={`hidden sm:inline text-xs font-medium ${
+                    s.id === step
+                      ? "text-gray-900 dark:text-white"
+                      : "text-gray-400 dark:text-gray-500"
+                  }`}
+                >
+                  {s.label}
+                </span>
+              </div>
+            ))}
+          </div>
+          {/* Active progress bar line */}
+          <div className="mt-4 h-1 w-full bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-gray-900 dark:bg-white transition-all duration-300 ease-out" 
+              style={{ width: `${(step / 4) * 100}%` }}
+            />
+          </div>
         </div>
 
         {/* Step 1 */}
         {step === 1 && (
-          <div className="space-y-5 animate-in fade-in slide-in-from-right-4">
+          <div className="space-y-6">
             <div>
-              <label className="text-sm font-semibold text-gray-900 dark:text-white">Domain</label>
-              <div className="mt-2 flex flex-wrap gap-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-gray-900 dark:text-white">
+                  Primary Domain
+                </label>
+                {errors.domain && <span className="text-xs text-red-500">{errors.domain}</span>}
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 mb-2.5">
+                Select the principal technology or research track
+              </p>
+              <div className="flex flex-wrap gap-2">
                 {DOMAINS.map((d) => (
                   <button
                     key={d}
                     type="button"
                     onClick={() => setDomain(d)}
-                    className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
+                    className={`rounded-lg border px-3.5 py-1.5 text-xs font-medium transition-all ${
                       domain === d
-                        ? "border-amber-500 bg-amber-50 text-amber-700 dark:border-amber-500/50 dark:bg-amber-500/20 dark:text-amber-300"
-                        : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-slate-700 dark:bg-slate-800 dark:text-gray-300 dark:hover:bg-slate-700"
+                        ? "border-gray-900 bg-gray-900 text-white dark:border-white dark:bg-white dark:text-gray-900 shadow-sm"
+                        : "border-gray-200 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-800/40 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800"
                     }`}
                   >
                     {d}
                   </button>
                 ))}
               </div>
-              {errors.domain && <p className="mt-2 text-xs text-red-500">{errors.domain}</p>}
             </div>
 
             <div>
-              <label className="text-sm font-semibold text-gray-900 dark:text-white">Project Title</label>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-gray-900 dark:text-white">
+                  Project Title
+                </label>
+                <span className="text-xs text-gray-400 dark:text-gray-500">
+                  {title.length}/200
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 mb-2">
+                Clear, descriptive title for your proposal
+              </p>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 maxLength={200}
-                placeholder="E.g. Smart campus bus tracking"
-                className="mt-2 w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 dark:border-slate-700 dark:bg-slate-800"
+                placeholder="e.g. Autonomous Campus Navigation & Shuttle Telemetry"
+                className="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50/40 dark:bg-slate-800/40 px-3.5 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none transition focus:border-gray-900 dark:focus:border-white focus:bg-white dark:focus:bg-slate-900"
               />
-              {errors.title && <p className="mt-2 text-xs text-red-500">{errors.title}</p>}
+              {errors.title && <p className="mt-1.5 text-xs text-red-500">{errors.title}</p>}
             </div>
           </div>
         )}
 
         {/* Step 2 */}
         {step === 2 && (
-          <div className="space-y-5 animate-in fade-in slide-in-from-right-4">
+          <div className="space-y-6">
             <div>
-              <label className="text-sm font-semibold text-gray-900 dark:text-white">Problem Statement</label>
-              <p className="text-xs text-gray-500">What is frustrating or missing today?</p>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-gray-900 dark:text-white">
+                  Problem Statement
+                </label>
+                <span className="text-xs text-gray-400 dark:text-gray-500">
+                  {problemStatement.length}/500
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 mb-2">
+                What precise pain point or deficiency does this project address?
+              </p>
               <textarea
                 value={problemStatement}
                 onChange={(e) => setProblemStatement(e.target.value)}
                 maxLength={500}
-                rows={4}
-                className="mt-2 w-full resize-none rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 dark:border-slate-700 dark:bg-slate-800"
+                rows={3}
+                placeholder="e.g. Students frequently miss transport due to lack of real-time positioning and unpredictable arrival intervals..."
+                className="w-full resize-none rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50/40 dark:bg-slate-800/40 px-3.5 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none transition focus:border-gray-900 dark:focus:border-white focus:bg-white dark:focus:bg-slate-900"
               />
-              {errors.problemStatement && <p className="mt-2 text-xs text-red-500">{errors.problemStatement}</p>}
+              {errors.problemStatement && <p className="mt-1.5 text-xs text-red-500">{errors.problemStatement}</p>}
             </div>
 
             <div>
-              <label className="text-sm font-semibold text-gray-900 dark:text-white">Idea Description</label>
-              <p className="text-xs text-gray-500">Explain what the system does</p>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-gray-900 dark:text-white">
+                  Proposed Solution & System Architecture
+                </label>
+                <span className="text-xs text-gray-400 dark:text-gray-500">
+                  {ideaDescription.length}/2000
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 mb-2">
+                Explain how your solution operates, the user flow, and the novelty
+              </p>
               <textarea
                 value={ideaDescription}
                 onChange={(e) => setIdeaDescription(e.target.value)}
                 maxLength={2000}
                 rows={5}
-                className="mt-2 w-full resize-none rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 dark:border-slate-700 dark:bg-slate-800"
+                placeholder="e.g. A cross-platform telemetry client paired with GPS transceivers transmitting to an edge-processed telemetry broker..."
+                className="w-full resize-none rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50/40 dark:bg-slate-800/40 px-3.5 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none transition focus:border-gray-900 dark:focus:border-white focus:bg-white dark:focus:bg-slate-900"
               />
-              {errors.ideaDescription && <p className="mt-2 text-xs text-red-500">{errors.ideaDescription}</p>}
+              {errors.ideaDescription && <p className="mt-1.5 text-xs text-red-500">{errors.ideaDescription}</p>}
             </div>
           </div>
         )}
 
         {/* Step 3 */}
         {step === 3 && (
-          <div className="space-y-5 animate-in fade-in slide-in-from-right-4">
+          <div className="space-y-6">
             <div>
-              <label className="text-sm font-semibold text-gray-900 dark:text-white">Core Features</label>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-gray-900 dark:text-white">
+                  Core Deliverables & Key Features
+                </label>
+                <span className="text-xs text-gray-400 dark:text-gray-500">
+                  {coreFeatures.length}/1000
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 mb-2">
+                List the measurable milestones, user modules, and key functionalities
+              </p>
               <textarea
                 value={coreFeatures}
                 onChange={(e) => setCoreFeatures(e.target.value)}
                 maxLength={1000}
                 rows={4}
-                className="mt-2 w-full resize-none rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 dark:border-slate-700 dark:bg-slate-800"
+                placeholder="e.g. Real-time GPS map, WebSocket latency alerts, transport dispatch dashboard, ETA push notification engine..."
+                className="w-full resize-none rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50/40 dark:bg-slate-800/40 px-3.5 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none transition focus:border-gray-900 dark:focus:border-white focus:bg-white dark:focus:bg-slate-900"
               />
-              {errors.coreFeatures && <p className="mt-2 text-xs text-red-500">{errors.coreFeatures}</p>}
+              {errors.coreFeatures && <p className="mt-1.5 text-xs text-red-500">{errors.coreFeatures}</p>}
             </div>
 
             <div>
-              <label className="text-sm font-semibold text-gray-900 dark:text-white">Tech Stack (Optional)</label>
-              <p className="text-xs text-gray-500">Press Enter or comma to add</p>
-              <div className="mt-2 flex min-h-[46px] flex-wrap items-center gap-2 rounded-2xl border border-gray-200 bg-gray-50 p-2 dark:border-slate-700 dark:bg-slate-800">
+              <label className="text-sm font-medium text-gray-900 dark:text-white">
+                Technologies & Tools (Optional)
+              </label>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 mb-2">
+                Press Enter or comma to append libraries or frameworks
+              </p>
+              <div className="flex min-h-[44px] flex-wrap items-center gap-1.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50/40 dark:bg-slate-800/40 p-2">
                 {techStack.map((t) => (
-                  <span key={t} className="flex items-center gap-1 rounded-full bg-gray-200 px-3 py-1 text-xs font-medium text-gray-800 dark:bg-slate-700 dark:text-gray-200">
+                  <span
+                    key={t}
+                    className="inline-flex items-center gap-1 rounded-md bg-gray-200/80 dark:bg-slate-700 px-2.5 py-1 text-xs font-medium text-gray-800 dark:text-gray-200"
+                  >
                     {t}
-                    <button type="button" onClick={() => removeTech(t)} className="hover:text-red-500"><X className="h-3 w-3" /></button>
+                    <button
+                      type="button"
+                      onClick={() => removeTech(t)}
+                      className="text-gray-400 hover:text-red-500"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
                   </span>
                 ))}
                 <input
@@ -318,8 +403,8 @@ export function ValidatorWizard({ onSubmit, isPending, mode, remainingToday, ini
                   value={techInput}
                   onChange={(e) => setTechInput(e.target.value)}
                   onKeyDown={handleTechKeyDown}
-                  className="flex-1 bg-transparent px-2 py-1 text-sm outline-none placeholder:text-gray-400"
-                  placeholder="e.g. React, Node.js..."
+                  className="flex-1 min-w-[140px] bg-transparent px-2 py-1 text-xs text-gray-900 dark:text-white outline-none placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                  placeholder="e.g. Next.js, PyTorch, ESP32..."
                 />
               </div>
             </div>
@@ -328,16 +413,21 @@ export function ValidatorWizard({ onSubmit, isPending, mode, remainingToday, ini
 
         {/* Step 4 */}
         {step === 4 && (
-          <div className="space-y-5 animate-in fade-in slide-in-from-right-4">
+          <div className="space-y-6">
             <div>
-              <label className="text-sm font-semibold text-gray-900 dark:text-white">Team Size</label>
+              <label className="text-sm font-medium text-gray-900 dark:text-white">
+                Target Team Capacity
+              </label>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 mb-2">
+                Optional estimate of students required to execute within deadlines
+              </p>
               <select
                 value={teamSize}
                 onChange={(e) => setTeamSize(e.target.value)}
-                className="mt-2 w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 dark:border-slate-700 dark:bg-slate-800"
+                className="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50/40 dark:bg-slate-800/40 px-3.5 py-2.5 text-sm text-gray-900 dark:text-white outline-none transition focus:border-gray-900 dark:focus:border-white focus:bg-white dark:focus:bg-slate-900"
               >
-                <option value="">Not sure yet</option>
-                <option value="1">1 student</option>
+                <option value="">Unspecified</option>
+                <option value="1">1 student (Individual)</option>
                 <option value="2">2 students</option>
                 <option value="3">3 students</option>
                 <option value="4">4 students</option>
@@ -346,23 +436,44 @@ export function ValidatorWizard({ onSubmit, isPending, mode, remainingToday, ini
               </select>
             </div>
 
-            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900/40 dark:bg-amber-950/20">
-              <h4 className="font-semibold text-amber-900 dark:text-amber-200">Summary</h4>
-              <ul className="mt-2 space-y-1 text-sm text-amber-800 dark:text-amber-300">
-                <li><span className="font-medium">Title:</span> {title}</li>
-                <li><span className="font-medium">Domain:</span> {domain}</li>
-                <li><span className="font-medium">Tech Stack:</span> {techStack.length ? techStack.join(", ") : "None"}</li>
-              </ul>
+            {/* Clean summary preview */}
+            <div className="rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30 p-4">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">
+                Submission Summary
+              </h4>
+              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-xs">
+                <div>
+                  <dt className="text-gray-400 dark:text-gray-500 font-medium">Domain:</dt>
+                  <dd className="text-gray-900 dark:text-white font-medium mt-0.5">{domain || "None"}</dd>
+                </div>
+                <div>
+                  <dt className="text-gray-400 dark:text-gray-500 font-medium">Team Estimate:</dt>
+                  <dd className="text-gray-900 dark:text-white font-medium mt-0.5">
+                    {teamSize ? `${teamSize} students` : "Flexible"}
+                  </dd>
+                </div>
+                <div className="sm:col-span-2 mt-1">
+                  <dt className="text-gray-400 dark:text-gray-500 font-medium">Title:</dt>
+                  <dd className="text-gray-900 dark:text-white font-medium mt-0.5 line-clamp-1">{title || "Untitled"}</dd>
+                </div>
+                {techStack.length > 0 && (
+                  <div className="sm:col-span-2 mt-1">
+                    <dt className="text-gray-400 dark:text-gray-500 font-medium">Tech Stack:</dt>
+                    <dd className="text-gray-900 dark:text-white font-medium mt-0.5">{techStack.join(", ")}</dd>
+                  </div>
+                )}
+              </dl>
             </div>
           </div>
         )}
 
-        <div className="mt-8 flex items-center justify-between">
+        {/* Action Controls */}
+        <div className="mt-8 pt-5 border-t border-gray-100 dark:border-slate-800 flex items-center justify-between">
           <button
             type="button"
             onClick={prevStep}
             disabled={step === 1 || isPending}
-            className="rounded-xl px-4 py-2 text-sm font-semibold text-gray-600 transition hover:bg-gray-100 disabled:opacity-0 dark:text-gray-300 dark:hover:bg-slate-800"
+            className="rounded-lg px-4 py-2 text-xs font-semibold text-gray-600 dark:text-gray-400 transition hover:bg-gray-100 dark:hover:bg-slate-800 disabled:opacity-0"
           >
             Back
           </button>
@@ -371,21 +482,28 @@ export function ValidatorWizard({ onSubmit, isPending, mode, remainingToday, ini
             <button
               type="button"
               onClick={nextStep}
-              className="flex items-center gap-2 rounded-xl bg-gray-900 px-6 py-2 text-sm font-semibold text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
+              className="flex items-center gap-1.5 rounded-lg bg-gray-900 dark:bg-white px-5 py-2 text-xs font-semibold text-white dark:text-gray-900 transition hover:bg-gray-800 dark:hover:bg-gray-100 shadow-sm"
             >
-              Next <ChevronRight className="h-4 w-4" />
+              Continue
+              <ChevronRight className="h-3.5 w-3.5" />
             </button>
           ) : (
             <button
               type="button"
               onClick={handleSubmit}
               disabled={isPending || studentLimitReached}
-              className="flex items-center gap-2 rounded-xl bg-amber-500 px-6 py-2 text-sm font-semibold text-white transition hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg bg-gray-900 dark:bg-white px-6 py-2.5 text-xs font-semibold text-white dark:text-gray-900 transition hover:bg-gray-800 dark:hover:bg-gray-100 shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isPending ? (
-                <><Loader2 className="h-4 w-4 animate-spin" /> Checking...</>
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  Validating Idea...
+                </>
               ) : (
-                <><Sparkles className="h-4 w-4" /> Validate My Idea</>
+                <>
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Run AI Validation
+                </>
               )}
             </button>
           )}
@@ -393,9 +511,9 @@ export function ValidatorWizard({ onSubmit, isPending, mode, remainingToday, ini
       </div>
       
       {studentLimitReached && (
-        <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-200">
-          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-          <p>You've used all validations for today. Come back tomorrow.</p>
+        <div className="flex items-start gap-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/60 p-3.5 text-xs text-gray-600 dark:text-gray-300">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+          <p>Daily student validation quota reached. Resets at midnight UTC.</p>
         </div>
       )}
     </div>

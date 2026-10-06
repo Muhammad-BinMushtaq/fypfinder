@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState } from "react"
-import { AlertCircle, FileText, Loader2, Upload } from "lucide-react"
+import { AlertCircle, FileText, Loader2, Upload, X } from "lucide-react"
 
 interface PdfIdeaUploadProps {
   onUpload: (file: File) => void
@@ -54,35 +54,34 @@ export function PdfIdeaUpload({
   const limitReached = remainingToday === 0
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-3xl border border-amber-200 bg-gradient-to-br from-amber-50 via-white to-orange-50 p-5 shadow-sm dark:border-amber-900/40 dark:from-slate-900 dark:via-slate-900 dark:to-amber-950/30">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mx-auto max-w-2xl space-y-5">
+      {/* Informative quota and description pill */}
+      <div className="rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/60 dark:bg-slate-800/40 p-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-amber-700 dark:border-amber-900/40 dark:bg-slate-900 dark:text-amber-300">
-              <FileText className="h-3.5 w-3.5" />
-              Upload PDF
-            </div>
-            <p className="mt-3 text-sm text-gray-700 dark:text-gray-300">
-              Upload a proposal, abstract, or concept note. The PDF is processed temporarily and is not stored.
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+              Document Extraction & Synthesis
+            </h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+              Upload existing proposals or draft abstracts. Processed in-memory; files are never persisted.
             </p>
           </div>
-
           {typeof remainingToday === "number" && (
-            <div className="rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 dark:border-blue-900/40 dark:bg-blue-950/30 dark:text-blue-200">
-              <div className="font-semibold">Remaining today</div>
-              <div className="mt-0.5">{remainingToday} of 3 validations left</div>
+            <div className="self-start sm:self-center shrink-0 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-1.5 text-xs text-gray-600 dark:text-gray-300">
+              <span className="font-semibold text-gray-900 dark:text-white">{remainingToday}</span> of 3 checks left
             </div>
           )}
         </div>
       </div>
 
       {limitReached && (
-        <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-200">
-          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-          <p>You have used all student validations for today. PDF extraction also runs validation, so come back tomorrow.</p>
+        <div className="flex items-start gap-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/60 p-3.5 text-xs text-gray-600 dark:text-gray-300">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+          <p>Daily student validations exhausted. Resets tomorrow at 00:00 UTC.</p>
         </div>
       )}
 
+      {/* Modern Minimalist Dropzone */}
       <div
         onDragOver={(event) => {
           event.preventDefault()
@@ -91,16 +90,16 @@ export function PdfIdeaUpload({
           event.preventDefault()
           handleFile(event.dataTransfer.files.item(0))
         }}
-        className="rounded-3xl border border-dashed border-gray-300 bg-white p-6 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900"
+        className="rounded-2xl border-2 border-dashed border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 text-center transition hover:border-gray-900 dark:hover:border-slate-600"
       >
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-200">
-          <Upload className="h-6 w-6" />
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-300">
+          <Upload className="h-5 w-5" />
         </div>
-        <h2 className="mt-4 text-lg font-semibold text-gray-950 dark:text-white">
-          Drop your PDF here
-        </h2>
-        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-          PDF only, up to 10 MB and 15 pages. Scanned image-only PDFs need OCR and are not supported yet.
+        <h3 className="mt-4 text-sm font-semibold text-gray-900 dark:text-white">
+          Drop proposal document here
+        </h3>
+        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          Standard text-based PDF documents up to 10 MB (max 15 pages)
         </p>
 
         <input
@@ -115,49 +114,57 @@ export function PdfIdeaUpload({
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={isPending}
-          className="mt-5 inline-flex items-center justify-center rounded-2xl border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-gray-200 dark:hover:bg-slate-800"
+          className="mt-4 inline-flex items-center justify-center rounded-lg border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 px-4 py-2 text-xs font-semibold text-gray-700 dark:text-gray-200 transition hover:bg-gray-100 dark:hover:bg-slate-700 disabled:opacity-50"
         >
-          Browse PDF
+          Select File
         </button>
 
         {file && (
-          <div className="mx-auto mt-5 max-w-xl rounded-2xl border border-gray-200 bg-gray-50 p-4 text-left dark:border-slate-800 dark:bg-slate-950/40">
-            <div className="flex items-start gap-3">
-              <FileText className="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-300" />
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-gray-900 dark:text-white">
-                  {file.name}
-                </p>
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  {(file.size / 1024 / 1024).toFixed(2)} MB
-                </p>
+          <div className="mx-auto mt-5 max-w-md rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/70 dark:bg-slate-800/50 p-3 text-left">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <FileText className="h-4 w-4 shrink-0 text-gray-700 dark:text-gray-300" />
+                <div className="min-w-0">
+                  <p className="truncate text-xs font-medium text-gray-900 dark:text-white">
+                    {file.name}
+                  </p>
+                  <p className="text-[10px] text-gray-500 dark:text-gray-400">
+                    {(file.size / 1024 / 1024).toFixed(2)} MB
+                  </p>
+                </div>
               </div>
+              <button
+                type="button"
+                onClick={() => setFile(null)}
+                className="text-gray-400 hover:text-red-500 p-1"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </div>
           </div>
         )}
 
-        {error && <p className="mt-3 text-sm text-red-500">{error}</p>}
+        {error && <p className="mt-3 text-xs text-red-500">{error}</p>}
       </div>
 
       <button
         type="button"
         onClick={handleSubmit}
         disabled={!file || isPending || limitReached}
-        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gray-900 px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
+        className="flex w-full items-center justify-center gap-2 rounded-xl bg-gray-900 dark:bg-white px-5 py-3 text-xs font-semibold text-white dark:text-gray-900 transition hover:bg-gray-800 dark:hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 shadow-sm"
       >
         {isPending ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
-            Processing PDF...
+            Extracting & Validating...
           </>
         ) : (
           <>
             <FileText className="h-4 w-4" />
-            Extract and Validate Idea
+            Process & Validate Proposal
           </>
         )}
       </button>
     </div>
   )
 }
-

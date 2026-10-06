@@ -86,44 +86,49 @@ export function PdfIdeaReview({
   const lowConfidenceItems = getLowConfidenceItems(result.confidence)
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mx-auto max-w-3xl space-y-6">
+      {/* Top action bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <button
           type="button"
           onClick={onUploadAnother}
-          className="inline-flex w-fit items-center gap-2 text-sm font-medium text-gray-500 transition hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition"
         >
-          <RotateCcw className="h-4 w-4" />
-          Upload another PDF
+          <RotateCcw className="h-3.5 w-3.5" />
+          Upload a different document
         </button>
 
-        <div className="inline-flex w-fit items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-800 dark:border-blue-900/40 dark:bg-blue-950/30 dark:text-blue-200">
+        <div className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 dark:border-slate-800 bg-gray-50/70 dark:bg-slate-800/50 px-2.5 py-1 text-xs text-gray-600 dark:text-gray-300">
           <FileText className="h-3.5 w-3.5" />
-          {result.pdf.pageCount} pages processed
+          {result.pdf.pageCount} pages parsed
         </div>
       </div>
 
       {lowConfidenceItems.length > 0 && (
-        <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-200">
-          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+        <div className="flex items-start gap-2.5 rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/60 dark:bg-slate-800/40 p-3.5 text-xs text-gray-600 dark:text-gray-300">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
           <p>
-            Please verify low-confidence fields: {lowConfidenceItems.join(", ")}.
+            Please inspect low-confidence parsed fields: <span className="font-semibold text-gray-900 dark:text-white">{lowConfidenceItems.join(", ")}</span>.
           </p>
         </div>
       )}
 
-      <section className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div className="flex items-center gap-2 text-sm font-semibold text-gray-950 dark:text-white">
-          <FileText className="h-4 w-4 text-blue-600 dark:text-blue-300" />
-          Editable extracted idea
+      {/* Review Box */}
+      <section className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-sm">
+        <div className="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-4 mb-6">
+          <div>
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white tracking-tight">
+              Review Synthesized Proposal
+            </h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+              Verify or adapt the AI-extracted details before running formal validation
+            </p>
+          </div>
         </div>
-        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-          AI filled these fields from the PDF. You can change everything before running the final review again.
-        </p>
 
-        <div className="mt-5 space-y-4">
+        <div className="space-y-5">
           <ReviewField
-            label="Project title"
+            label="Project Title"
             confidence={result.confidence.title}
             error={errors.title}
             counter={`${title.length}/${FIELD_LIMITS.title.max}`}
@@ -137,7 +142,7 @@ export function PdfIdeaReview({
           </ReviewField>
 
           <ReviewField
-            label="Problem statement"
+            label="Problem Statement"
             confidence={result.confidence.problemStatement}
             error={errors.problemStatement}
             counter={`${problemStatement.length}/${FIELD_LIMITS.problemStatement.max}`}
@@ -152,7 +157,7 @@ export function PdfIdeaReview({
           </ReviewField>
 
           <ReviewField
-            label="Description"
+            label="Proposed Architecture & Description"
             confidence={result.confidence.description}
             error={errors.ideaDescription}
             counter={`${ideaDescription.length}/${FIELD_LIMITS.ideaDescription.max}`}
@@ -167,7 +172,7 @@ export function PdfIdeaReview({
           </ReviewField>
 
           <ReviewField
-            label="Tech stack and main features"
+            label="Key Deliverables & Technology Stack"
             confidence={Math.max(
               result.confidence.techStack,
               result.confidence.technologies,
@@ -185,13 +190,13 @@ export function PdfIdeaReview({
             />
           </ReviewField>
 
-          <ReviewField label="Team size" confidence={1} error={errors.teamSize}>
+          <ReviewField label="Estimated Team Capacity" confidence={1} error={errors.teamSize}>
             <select
               value={teamSize}
               onChange={(event) => setTeamSize(event.target.value)}
               className={inputClasses}
             >
-              <option value="">Not sure yet</option>
+              <option value="">Unspecified</option>
               <option value="1">1 student</option>
               <option value="2">2 students</option>
               <option value="3">3 students</option>
@@ -204,24 +209,26 @@ export function PdfIdeaReview({
 
         <ExtractedDetails extracted={result.extracted} confidence={result.confidence} />
 
-        <button
-          type="button"
-          onClick={handleValidateEdited}
-          disabled={isPending}
-          className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-gray-900 px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
-        >
-          {isPending ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Checking edited idea...
-            </>
-          ) : (
-            <>
-              <RefreshCw className="h-4 w-4" />
-              Re-check Edited Idea
-            </>
-          )}
-        </button>
+        <div className="mt-8 pt-5 border-t border-gray-100 dark:border-slate-800">
+          <button
+            type="button"
+            onClick={handleValidateEdited}
+            disabled={isPending}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-gray-900 dark:bg-white px-5 py-2.5 text-xs font-semibold text-white dark:text-gray-900 transition hover:bg-gray-800 dark:hover:bg-gray-100 shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isPending ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Validating Edited Proposal...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="h-4 w-4" />
+                Validate Synthesized Proposal
+              </>
+            )}
+          </button>
+        </div>
       </section>
 
       {validation ? (
@@ -231,8 +238,8 @@ export function PdfIdeaReview({
           remainingToday={remainingToday}
         />
       ) : (
-        <div className="rounded-2xl border border-dashed border-amber-300 bg-amber-50 p-5 text-sm text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/10 dark:text-amber-200">
-          The PDF was extracted, but it did not contain enough structured detail to run validation. Complete the fields above and re-check the idea.
+        <div className="rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/40 p-4 text-xs text-gray-500 dark:text-gray-400 text-center">
+          Document parsed. Complete missing fields above to trigger full scoring and novelty checks.
         </div>
       )}
     </div>
@@ -255,25 +262,24 @@ function ReviewField({
   const isLow = confidence < 0.7
 
   return (
-    <div className={`rounded-2xl border p-4 ${isLow ? "border-amber-200 bg-amber-50/60 dark:border-amber-900/40 dark:bg-amber-950/10" : "border-gray-200 bg-gray-50 dark:border-slate-800 dark:bg-slate-950/40"}`}>
-      <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <label className="text-sm font-semibold text-gray-900 dark:text-white">{label}</label>
-          <div className="mt-1 flex flex-wrap items-center gap-2">
-            <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${isLow ? "bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-200" : "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200"}`}>
-              Confidence {Math.round(confidence * 100)}%
-            </span>
-            {isLow && (
-              <span className="text-xs font-medium text-amber-700 dark:text-amber-200">
-                Verify
-              </span>
-            )}
-          </div>
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-medium text-gray-900 dark:text-white">{label}</label>
+          <span
+            className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${
+              isLow
+                ? "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300"
+                : "bg-gray-100 text-gray-600 dark:bg-slate-800 dark:text-gray-400"
+            }`}
+          >
+            {Math.round(confidence * 100)}% Match
+          </span>
         </div>
-        {counter && <span className="text-xs text-gray-400 dark:text-gray-500">{counter}</span>}
+        {counter && <span className="text-[11px] text-gray-400 dark:text-gray-500">{counter}</span>}
       </div>
       {children}
-      {error && <p className="mt-2 text-xs text-red-500">{error}</p>}
+      {error && <p className="text-xs text-red-500">{error}</p>}
     </div>
   )
 }
@@ -305,20 +311,18 @@ function ExtractedDetails({
   }
 
   return (
-    <details className="mt-5 rounded-2xl border border-gray-200 bg-gray-50 p-4 dark:border-slate-800 dark:bg-slate-950/40">
-      <summary className="cursor-pointer text-sm font-semibold text-gray-900 dark:text-white">
-        Additional extracted fields
+    <details className="mt-5 rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30 p-3.5">
+      <summary className="cursor-pointer text-xs font-medium text-gray-700 dark:text-gray-300">
+        Additional Extracted Metadata ({items.length} fields)
       </summary>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      <div className="mt-3 grid gap-2.5 sm:grid-cols-2 text-xs">
         {items.map(([label, value, itemConfidence]) => (
-          <div key={label} className="rounded-xl bg-white p-3 text-sm dark:bg-slate-900">
-            <div className="flex items-start justify-between gap-3">
-              <div className="font-semibold text-gray-900 dark:text-white">{label}</div>
-              <div className="shrink-0 text-xs text-gray-500 dark:text-gray-400">
-                {Math.round(Number(itemConfidence) * 100)}%
-              </div>
+          <div key={label} className="rounded-lg border border-gray-200/60 dark:border-slate-800 bg-white dark:bg-slate-900 p-2.5">
+            <div className="flex items-center justify-between text-gray-400 dark:text-gray-500 mb-1">
+              <span className="font-medium text-gray-700 dark:text-gray-300">{label}</span>
+              <span className="text-[10px]">{Math.round(Number(itemConfidence) * 100)}%</span>
             </div>
-            <p className="mt-2 leading-6 text-gray-700 dark:text-gray-300">{value}</p>
+            <p className="text-gray-900 dark:text-white leading-relaxed">{value}</p>
           </div>
         ))}
       </div>
@@ -355,7 +359,6 @@ function buildDraftFromExtracted(extracted: ExtractedPdfIdeaFields): IdeaInput {
 }
 
 const inputClasses =
-  "w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-transparent focus:ring-2 focus:ring-amber-400 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+  "w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50/40 dark:bg-slate-800/40 px-3.5 py-2.5 text-sm text-gray-900 dark:text-white outline-none transition focus:border-gray-900 dark:focus:border-white focus:bg-white dark:focus:bg-slate-900 placeholder:text-gray-400 dark:placeholder:text-gray-500"
 
 const textareaClasses = `${inputClasses} resize-none`
-

@@ -42,13 +42,13 @@ const SCORE_SECTIONS: {
   title: string
   maxLabel: string
 }[] = [
-  { key: "problemClarityRelevance", title: "Problem clarity & relevance", maxLabel: "20 pts" },
-  { key: "ideaExplanationUsability", title: "Idea explanation & usability", maxLabel: "20 pts" },
-  { key: "keyFeaturesCompleteness", title: "Key features completeness", maxLabel: "15 pts" },
-  { key: "feasibilityResources", title: "Feasibility & resources", maxLabel: "10 pts" },
-  { key: "originalityNovelty", title: "Originality/novelty", maxLabel: "10 pts" },
-  { key: "impactUsefulness", title: "Impact & usefulness", maxLabel: "10 pts" },
-  { key: "improvementPotential", title: "Improvement potential", maxLabel: "15 pts" },
+  { key: "problemClarityRelevance", title: "Problem Clarity & Relevance", maxLabel: "20 pts" },
+  { key: "ideaExplanationUsability", title: "Architecture & Feasibility", maxLabel: "20 pts" },
+  { key: "keyFeaturesCompleteness", title: "Feature Completeness", maxLabel: "15 pts" },
+  { key: "feasibilityResources", title: "Resource & Execution Viability", maxLabel: "10 pts" },
+  { key: "originalityNovelty", title: "Novelty & Originality", maxLabel: "10 pts" },
+  { key: "impactUsefulness", title: "Practical Industry Impact", maxLabel: "10 pts" },
+  { key: "improvementPotential", title: "Expansion & Growth Potential", maxLabel: "15 pts" },
 ]
 
 export function ValidationResult({
@@ -60,16 +60,16 @@ export function ValidationResult({
 
   if (!report) {
     return (
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 text-center shadow-sm">
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          This validation could not be displayed properly. Please try again.
+          Unable to parse validation results. Please re-run the assessment.
         </p>
         <button
           onClick={onReset}
-          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gray-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-gray-900"
+          className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-gray-900 dark:bg-white px-4 py-2 text-xs font-semibold text-white dark:text-gray-900"
         >
-          <ArrowLeft className="h-4 w-4" />
-          Try another idea
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Test Another Idea
         </button>
       </div>
     )
@@ -80,14 +80,15 @@ export function ValidationResult({
   const originalityTone = getOriginalityTone(report.originalityVerdict)
 
   return (
-    <div className="space-y-5">
+    <div className="mx-auto max-w-4xl space-y-6">
+      {/* Top action bar */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <button
           onClick={onReset}
-          className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 transition hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition"
         >
-          <ArrowLeft className="h-4 w-4" />
-          Check another idea
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Validate another concept
         </button>
 
         {result.status === "completed" && (
@@ -95,11 +96,18 @@ export function ValidationResult({
         )}
       </div>
 
-      <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
-        <div className="grid gap-6 lg:grid-cols-[220px_1fr] lg:items-center">
-          <div className="flex flex-col items-center justify-center">
-            <ScoreRing value={report.finalScore} max={100} label="Final Score" />
-            <div className={`mt-3 rounded-full px-3 py-1 text-xs font-semibold ${finalTone.pill}`}>
+      {/* Primary Score Hero Card */}
+      <section className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-sm">
+        <div className="grid gap-6 lg:grid-cols-[200px_1fr] lg:items-center">
+          <div className="flex flex-col items-center justify-center p-4 border border-gray-100 dark:border-slate-800/80 rounded-2xl bg-gray-50/40 dark:bg-slate-800/20">
+            <div className="text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+              {report.finalScore}
+            </div>
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mt-1">
+              Out of 100
+            </div>
+            <div className={`mt-3 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${finalTone.pill}`}>
+              <span className={`h-1.5 w-1.5 rounded-full ${finalTone.dot}`} />
               {finalTone.label}
             </div>
           </div>
@@ -109,27 +117,27 @@ export function ValidationResult({
               <StatusPill tone={recommendationTone} />
               <StatusPill tone={originalityTone} />
             </div>
-            <h2 className="mt-4 text-2xl font-bold tracking-tight text-gray-950 dark:text-white sm:text-3xl">
+            <h2 className="mt-3 text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white leading-snug">
               {report.plainSummary}
             </h2>
-            <p className="mt-3 text-sm leading-6 text-gray-700 dark:text-gray-300">
+            <p className="mt-2 text-xs sm:text-sm leading-relaxed text-gray-600 dark:text-gray-300">
               {report.shouldBuild}
             </p>
 
-            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            <div className="mt-5 grid grid-cols-3 gap-2.5">
               <QuickStat
-                icon={<Gauge className="h-4 w-4" />}
+                icon={<Gauge className="h-3.5 w-3.5" />}
                 label="Difficulty"
                 value={capitalize(report.difficultyLevel)}
               />
               <QuickStat
-                icon={<Clock3 className="h-4 w-4" />}
+                icon={<Clock3 className="h-3.5 w-3.5" />}
                 label="Timeline"
                 value={report.estimatedTimeline}
               />
               <QuickStat
-                icon={<Users className="h-4 w-4" />}
-                label="Team fit"
+                icon={<Users className="h-3.5 w-3.5" />}
+                label="Team Capacity"
                 value={report.teamFit}
               />
             </div>
@@ -137,19 +145,24 @@ export function ValidationResult({
         </div>
       </section>
 
+      {/* Quota Progress */}
       <ProgressTracker
         accessMode={result.accessMode}
         previewLocked={result.previewLocked}
         remainingToday={remainingToday}
       />
 
-      <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div className="flex items-center gap-2 text-sm font-semibold text-gray-950 dark:text-white">
-          <BarChart3 className="h-4 w-4 text-emerald-600 dark:text-emerald-300" />
-          Score dashboard
+      {/* Radar Chart & Multi-factor Assessment */}
+      <section className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-sm">
+        <div className="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-4 mb-6">
+          <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
+            <BarChart3 className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+            Evaluation Matrix & Factor Breakdown
+          </div>
+          <span className="text-xs text-gray-400 dark:text-gray-500">7 Core Rubrics</span>
         </div>
 
-        <div className="mt-6 mb-8">
+        <div className="mb-8">
           <RadarChart
             scores={{
               feasibility: report.scoringBreakdown.feasibilityResources.score * (100 / report.scoringBreakdown.feasibilityResources.maxScore),
@@ -161,8 +174,8 @@ export function ValidationResult({
           />
         </div>
 
-        <div className="mt-4 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="space-y-3">
+        <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="space-y-2.5">
             {SCORE_SECTIONS.map((section) => {
               const item = report.scoringBreakdown[section.key]
               return (
@@ -176,24 +189,24 @@ export function ValidationResult({
             })}
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             <VisualMetric
-              label="Originality"
+              label="Originality & Novelty"
               score={report.scoringBreakdown.originalityNovelty.score}
               max={report.scoringBreakdown.originalityNovelty.maxScore}
             />
             <VisualMetric
-              label="Impact"
+              label="Impact & Relevance"
               score={report.scoringBreakdown.impactUsefulness.score}
               max={report.scoringBreakdown.impactUsefulness.maxScore}
             />
             <VisualMetric
-              label="Feasibility"
+              label="Feasibility & Resource Scope"
               score={report.scoringBreakdown.feasibilityResources.score}
               max={report.scoringBreakdown.feasibilityResources.maxScore}
             />
             <VisualMetric
-              label="Improvement potential"
+              label="Growth Potential"
               score={report.scoringBreakdown.improvementPotential.score}
               max={report.scoringBreakdown.improvementPotential.maxScore}
             />
@@ -201,139 +214,153 @@ export function ValidationResult({
         </div>
       </section>
 
-      <section className={`rounded-2xl border p-5 shadow-sm ${originalityTone.shell}`}>
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+      {/* Past FYP Similarity Comparison */}
+      <section className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 border-b border-gray-100 dark:border-slate-800 pb-5 mb-5">
           <div>
-            <StatusPill tone={originalityTone} />
-            <h3 className="mt-3 text-lg font-semibold text-gray-950 dark:text-white">
-              Similarity check against past FYP ideas
-            </h3>
-            <p className="mt-2 text-sm leading-6 text-gray-700 dark:text-gray-300">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                Historical FYP Comparison Check
+              </span>
+              <StatusPill tone={originalityTone} />
+            </div>
+            <p className="mt-1.5 text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
               {report.originalityReason}
             </p>
-            <p className="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-400">
-              {report.pastIdeaComparisonSummary}
-            </p>
+            {report.pastIdeaComparisonSummary && (
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                {report.pastIdeaComparisonSummary}
+              </p>
+            )}
           </div>
-          <MiniScore label="Freshness" value={report.originalityScore} max={10} />
+          <div className="shrink-0 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 p-3 text-center sm:w-32">
+            <div className="text-xl font-bold text-gray-900 dark:text-white">
+              {report.originalityScore}/10
+            </div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">Novelty Rating</div>
+          </div>
         </div>
 
-        <div className="mt-4 grid gap-3">
+        <div className="space-y-3">
           {report.similarPastIdeas.length > 0 ? (
             report.similarPastIdeas.map((idea, index) => (
               <div
                 key={`${idea.title}-${index}`}
-                className="rounded-2xl border border-white/70 bg-white/85 p-4 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-950/50"
+                className="rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30 p-4"
               >
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                   <div>
-                    <h4 className="font-semibold text-gray-900 dark:text-white">
+                    <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
                       {idea.title}
                     </h4>
-                    <p className="mt-1 text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">
-                      {idea.batch} - Group {idea.groupNumber}
-                      {idea.supervisor ? ` - ${idea.supervisor}` : ""}
+                    <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                      {idea.batch} • Group {idea.groupNumber}
+                      {idea.supervisor ? ` • Supervisor: ${idea.supervisor}` : ""}
                     </p>
                   </div>
-                  <span className="w-fit rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800 dark:bg-amber-950/50 dark:text-amber-200">
-                    Similarity {idea.similarityScore}/10
+                  <span className="w-fit rounded-md bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 px-2.5 py-1 text-[11px] font-medium text-gray-700 dark:text-gray-300">
+                    Similarity: {idea.similarityScore}/10
                   </span>
                 </div>
-                <p className="mt-3 text-sm text-gray-700 dark:text-gray-300">
+                <p className="mt-2.5 text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
                   {idea.similarityReason}
                 </p>
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                  Key difference: {idea.keyDifference}
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  <span className="font-medium text-gray-700 dark:text-gray-300">Key difference:</span> {idea.keyDifference}
                 </p>
               </div>
             ))
           ) : (
-            <div className="rounded-2xl border border-dashed border-emerald-200 bg-white/80 p-4 text-sm text-emerald-800 dark:border-emerald-900/40 dark:bg-slate-950/40 dark:text-emerald-200">
-              No strong match was found in the past FYP idea list.
+            <div className="rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/20 p-4 text-xs text-gray-500 dark:text-gray-400 text-center">
+              No direct past FYP overlaps detected in PAF-IAST historical submissions.
             </div>
           )}
         </div>
       </section>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <ReportPanel title="Strengths" icon={<CheckCircle2 className="h-4 w-4" />}>
+      {/* Strengths, Weaknesses, Uniqueness, Beneficiaries Grid */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <ReportPanel title="Strengths & Advantages" icon={<CheckCircle2 className="h-4 w-4 text-emerald-500" />}>
           <BulletList items={report.strongPoints} />
         </ReportPanel>
-        <ReportPanel title="Repeated or weak areas" icon={<AlertTriangle className="h-4 w-4" />}>
+        <ReportPanel title="Potential Concerns & Pitfalls" icon={<AlertTriangle className="h-4 w-4 text-amber-500" />}>
           <BulletList items={report.concernPoints} />
         </ReportPanel>
-        <ReportPanel title="Who benefits" icon={<Users className="h-4 w-4" />}>
-          <p>{report.whoWillUseIt}</p>
-          <p className="mt-3">{report.whyItMatters}</p>
+        <ReportPanel title="Target Stakeholders" icon={<Users className="h-4 w-4 text-gray-500" />}>
+          <p className="text-xs text-gray-700 dark:text-gray-300">{report.whoWillUseIt}</p>
+          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">{report.whyItMatters}</p>
         </ReportPanel>
-        <ReportPanel title="Make it stand out" icon={<Sparkles className="h-4 w-4" />}>
+        <ReportPanel title="Differentiation Strategy" icon={<Sparkles className="h-4 w-4 text-gray-500" />}>
           <BulletList items={report.uniquenessImprovements} />
         </ReportPanel>
       </div>
 
-      <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div className="flex items-center gap-2 text-sm font-semibold text-gray-950 dark:text-white">
-          <Layers3 className="h-4 w-4 text-blue-600 dark:text-blue-300" />
-          MVP and next actions
+      {/* MVP Scope & Action Priorities */}
+      <section className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-sm">
+        <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white mb-5">
+          <Layers3 className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+          MVP Boundary & Action Priorities
         </div>
-        <div className="mt-4 grid gap-4 lg:grid-cols-3">
-          <ActionColumn title="MVP scope" items={report.mvpRecommendations} />
-          <ActionColumn title="Next steps" items={report.simpleNextSteps} />
-          <ActionColumn title="Roadmap priorities" items={report.roadmapPriorities} />
+        <div className="grid gap-4 sm:grid-cols-3">
+          <ActionColumn title="Core MVP Scope" items={report.mvpRecommendations} />
+          <ActionColumn title="Immediate Next Steps" items={report.simpleNextSteps} />
+          <ActionColumn title="Implementation Priorities" items={report.roadmapPriorities} />
         </div>
       </section>
 
-      <ReportPanel title="Advanced feature suggestions" icon={<MonitorCog className="h-4 w-4" />}>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {report.advancedFeatureSuggestions.map((item, index) => (
-            <FeatureSuggestion key={`${item}-${index}`} text={item} index={index} />
-          ))}
-        </div>
-      </ReportPanel>
+      {/* Advanced Features */}
+      {report.advancedFeatureSuggestions.length > 0 && (
+        <ReportPanel title="Suggested Advanced Features" icon={<MonitorCog className="h-4 w-4 text-gray-500" />}>
+          <div className="grid gap-2.5 sm:grid-cols-2">
+            {report.advancedFeatureSuggestions.map((item, index) => (
+              <FeatureSuggestion key={`${item}-${index}`} text={item} index={index} />
+            ))}
+          </div>
+        </ReportPanel>
+      )}
 
+      {/* Roadmap & Guidance */}
       {!result.previewLocked ? (
         <>
-          <div className="grid gap-4 lg:grid-cols-2">
-            <ReportPanel title="Build direction" icon={<Wrench className="h-4 w-4" />}>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <ReportPanel title="Technical Stack Direction" icon={<Wrench className="h-4 w-4 text-gray-500" />}>
               <BulletList items={report.simpleTechDirection} />
             </ReportPanel>
-            <ReportPanel title="Risk reduction" icon={<ShieldCheck className="h-4 w-4" />}>
+            <ReportPanel title="Risk Mitigation Tactics" icon={<ShieldCheck className="h-4 w-4 text-gray-500" />}>
               <BulletList items={report.riskReductionSteps} />
             </ReportPanel>
           </div>
 
-          <ReportPanel title="Project roadmap" icon={<Map className="h-4 w-4" />}>
-            <div className="space-y-3">
+          <ReportPanel title="Implementation Timeline & Phasing" icon={<Map className="h-4 w-4 text-gray-500" />}>
+            <div className="space-y-4 pt-1">
               {report.roadmap.map((phase, index) => (
                 <div
                   key={`${phase.phase}-${index}`}
-                  className="grid gap-3 rounded-2xl border border-gray-200 bg-gray-50 p-4 dark:border-slate-800 dark:bg-slate-950/40 sm:grid-cols-[36px_1fr]"
+                  className="rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30 p-4"
                 >
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-800 dark:bg-blue-950/60 dark:text-blue-200">
-                    {index + 1}
-                  </div>
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h4 className="font-semibold text-gray-900 dark:text-white">
-                        {phase.phase}
-                      </h4>
-                      <span className="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                        <Clock3 className="h-3.5 w-3.5" />
-                        {phase.duration}
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <h4 className="text-xs font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-900 dark:bg-white text-[10px] font-bold text-white dark:text-gray-900">
+                        {index + 1}
                       </span>
-                    </div>
-                    <BulletList items={phase.tasks} compact />
+                      {phase.phase}
+                    </h4>
+                    <span className="inline-flex items-center gap-1 text-[11px] text-gray-400 dark:text-gray-500">
+                      <Clock3 className="h-3 w-3" />
+                      {phase.duration}
+                    </span>
                   </div>
+                  <BulletList items={phase.tasks} compact />
                 </div>
               ))}
             </div>
           </ReportPanel>
 
-          <div className="grid gap-4 lg:grid-cols-2">
-            <ReportPanel title="Simple pitch" icon={<Lightbulb className="h-4 w-4" />}>
-              <p>{report.elevatorPitch}</p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <ReportPanel title="Elevator Pitch" icon={<Lightbulb className="h-4 w-4 text-gray-500" />}>
+              <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">{report.elevatorPitch}</p>
             </ReportPanel>
-            <ReportPanel title="Student-friendly advice" icon={<Target className="h-4 w-4" />}>
+            <ReportPanel title="Supervisor Review Advice" icon={<Target className="h-4 w-4 text-gray-500" />}>
               <BulletList items={report.plainLanguageAdvice} />
             </ReportPanel>
           </div>
@@ -341,29 +368,6 @@ export function ValidationResult({
       ) : (
         <LockedPreview hiddenSections={result.hiddenSections} />
       )}
-    </div>
-  )
-}
-
-function ScoreRing({ value, max, label }: { value: number; max: number; label: string }) {
-  const percent = Math.round((value / max) * 100)
-  const tone = getScoreTone(value, max)
-
-  return (
-    <div
-      className="flex h-40 w-40 items-center justify-center rounded-full p-3"
-      style={{
-        background: `conic-gradient(${tone.chartColor} ${percent * 3.6}deg, #e5e7eb 0deg)`,
-      }}
-      aria-label={`${label}: ${value} out of ${max}`}
-    >
-      <div className="flex h-full w-full flex-col items-center justify-center rounded-full bg-white text-center dark:bg-slate-900">
-        <div className={`text-4xl font-bold ${tone.text}`}>{value}</div>
-        <div className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-500 dark:text-gray-400">
-          / {max}
-        </div>
-        <div className="mt-1 text-xs font-medium text-gray-600 dark:text-gray-300">{label}</div>
-      </div>
     </div>
   )
 }
@@ -381,38 +385,26 @@ function ScorePanel({
   const percent = Math.round((item.score / item.maxScore) * 100)
 
   return (
-    <details className="group rounded-2xl border border-gray-200 bg-gray-50 p-4 dark:border-slate-800 dark:bg-slate-950/40">
-      <summary className="flex cursor-pointer list-none items-start justify-between gap-3">
+    <details className="group rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/40 dark:bg-slate-800/30 p-3.5 transition">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <h4 className="text-sm font-semibold text-gray-950 dark:text-white">{title}</h4>
-            <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${tone.pill}`}>
-              {tone.label}
+          <div className="flex items-center gap-2">
+            <h4 className="text-xs font-semibold text-gray-900 dark:text-white">{title}</h4>
+            <span className={`inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-medium ${tone.pill}`}>
+              {item.score}/{item.maxScore}
             </span>
           </div>
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{item.summary}</p>
-          <div className="mt-3 h-2 rounded-full bg-gray-200 dark:bg-slate-800">
-            <div
-              className={`h-full rounded-full ${tone.bar}`}
-              style={{ width: `${percent}%` }}
-            />
-          </div>
+          <p className="mt-1 text-[11px] text-gray-500 dark:text-gray-400 line-clamp-1">{item.summary}</p>
         </div>
-        <div className="flex shrink-0 items-center gap-3">
-          <div className="text-right">
-            <div className={`text-lg font-bold ${tone.text}`}>
-              {item.score}/{item.maxScore}
-            </div>
-            <div className="text-[11px] text-gray-500 dark:text-gray-400">{maxLabel}</div>
-          </div>
-          <ChevronDown className="mt-1 h-4 w-4 text-gray-400 transition group-open:rotate-180" />
-        </div>
+        <ChevronDown className="h-4 w-4 text-gray-400 transition group-open:rotate-180" />
       </summary>
-      <div className="mt-4 border-t border-gray-200 pt-4 text-sm leading-6 text-gray-700 dark:border-slate-800 dark:text-gray-300">
+      <div className="mt-3 pt-3 border-t border-gray-200/70 dark:border-slate-700/60 text-xs text-gray-600 dark:text-gray-300">
         <BulletList items={item.feedback} compact />
-        <div className="mt-3 rounded-xl bg-white px-3 py-2 text-sm font-medium text-gray-800 dark:bg-slate-900 dark:text-gray-200">
-          Action: {item.action}
-        </div>
+        {item.action && (
+          <div className="mt-2.5 rounded-lg bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-2 text-[11px] font-medium text-gray-800 dark:text-gray-200">
+            Suggested Action: {item.action}
+          </div>
+        )}
       </div>
     </details>
   )
@@ -436,29 +428,24 @@ function ProgressTracker({
   const used = Math.max(0, Math.min(total, total - remaining))
 
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-2 text-sm font-semibold text-gray-950 dark:text-white">
-          <Target className="h-4 w-4 text-blue-600 dark:text-blue-300" />
-          Validation usage
-        </div>
-        <div className="text-sm text-gray-600 dark:text-gray-300">
-          {remaining} of {total} validations remaining today
-        </div>
+    <div className="rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30 p-3.5">
+      <div className="flex items-center justify-between text-xs mb-2">
+        <span className="font-medium text-gray-700 dark:text-gray-300">Daily Validation Usage</span>
+        <span className="text-gray-500 dark:text-gray-400">{remaining} of {total} remaining</span>
       </div>
-      <div className="mt-3 grid gap-2" style={{ gridTemplateColumns: `repeat(${total}, minmax(0, 1fr))` }}>
+      <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${total}, minmax(0, 1fr))` }}>
         {Array.from({ length: total }).map((_, index) => (
           <div
             key={index}
-            className={`h-2 rounded-full ${
+            className={`h-1.5 rounded-full ${
               index < used
-                ? "bg-blue-600 dark:bg-blue-400"
+                ? "bg-gray-900 dark:bg-white"
                 : "bg-gray-200 dark:bg-slate-800"
             }`}
           />
         ))}
       </div>
-    </section>
+    </div>
   )
 }
 
@@ -467,38 +454,26 @@ function VisualMetric({ label, score, max }: { label: string; score: number; max
   const tone = getScoreTone(score, max)
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4 dark:border-slate-800 dark:bg-slate-950/40">
-      <div className="flex items-center justify-between gap-3">
-        <div className="text-sm font-semibold text-gray-900 dark:text-white">{label}</div>
-        <div className={`text-sm font-bold ${tone.text}`}>{score}/{max}</div>
+    <div className="rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/40 dark:bg-slate-800/30 p-3.5">
+      <div className="flex items-center justify-between text-xs">
+        <span className="font-medium text-gray-900 dark:text-white">{label}</span>
+        <span className="font-semibold text-gray-900 dark:text-white">{score}/{max}</span>
       </div>
-      <div className="mt-3 h-3 rounded-full bg-gray-200 dark:bg-slate-800">
-        <div className={`h-full rounded-full ${tone.bar}`} style={{ width: `${percent}%` }} />
+      <div className="mt-2 h-1.5 w-full rounded-full bg-gray-200 dark:bg-slate-800 overflow-hidden">
+        <div className={`h-full ${tone.bar}`} style={{ width: `${percent}%` }} />
       </div>
-      <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">{percent}% of target</div>
     </div>
   )
 }
 
 function QuickStat({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-gray-50 p-3 dark:border-slate-800 dark:bg-slate-950/40">
-      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500 dark:text-gray-400">
-        <span className="text-blue-600 dark:text-blue-300">{icon}</span>
+    <div className="rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/40 p-2.5 text-center sm:text-left">
+      <div className="flex items-center justify-center sm:justify-start gap-1.5 text-[10px] font-medium uppercase tracking-wider text-gray-400 dark:text-gray-500">
+        {icon}
         {label}
       </div>
-      <div className="mt-2 text-sm font-semibold text-gray-900 dark:text-white">{value}</div>
-    </div>
-  )
-}
-
-function MiniScore({ label, value, max }: { label: string; value: number; max: number }) {
-  const tone = getScoreTone(value, max)
-
-  return (
-    <div className="w-full rounded-2xl bg-white/85 p-4 text-center shadow-sm dark:bg-slate-950/50 sm:w-36">
-      <div className={`text-2xl font-bold ${tone.text}`}>{value}/{max}</div>
-      <div className="mt-1 text-xs font-medium text-gray-500 dark:text-gray-400">{label}</div>
+      <div className="mt-1 text-xs font-semibold text-gray-900 dark:text-white truncate">{value}</div>
     </div>
   )
 }
@@ -513,39 +488,29 @@ function ReportPanel({
   children: ReactNode
 }) {
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
-        <span className="text-blue-600 dark:text-blue-300">{icon}</span>
+    <section className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 sm:p-6 shadow-sm">
+      <div className="flex items-center gap-2 text-xs font-semibold text-gray-900 dark:text-white mb-3">
+        {icon}
         <h3>{title}</h3>
       </div>
-      <div className="mt-4 text-sm leading-6 text-gray-700 dark:text-gray-300">{children}</div>
+      <div className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">{children}</div>
     </section>
   )
 }
 
 function ActionColumn({ title, items }: { title: string; items: string[] }) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4 dark:border-slate-800 dark:bg-slate-950/40">
-      <h4 className="text-sm font-semibold text-gray-950 dark:text-white">{title}</h4>
+    <div className="rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30 p-3.5">
+      <h4 className="text-xs font-semibold text-gray-900 dark:text-white mb-2">{title}</h4>
       <BulletList items={items} compact />
     </div>
   )
 }
 
 function FeatureSuggestion({ text, index }: { text: string; index: number }) {
-  const icons = [
-    <Sparkles key="sparkles" className="h-4 w-4" />,
-    <CalendarDays key="calendar" className="h-4 w-4" />,
-    <Layers3 key="layers" className="h-4 w-4" />,
-    <MonitorCog key="monitor" className="h-4 w-4" />,
-    <ShieldCheck key="shield" className="h-4 w-4" />,
-    <Trophy key="trophy" className="h-4 w-4" />,
-    <Users key="users" className="h-4 w-4" />,
-  ]
-
   return (
-    <div className="flex gap-3 rounded-2xl border border-gray-200 bg-gray-50 p-3 dark:border-slate-800 dark:bg-slate-950/40">
-      <span className="mt-0.5 text-blue-600 dark:text-blue-300">{icons[index % icons.length]}</span>
+    <div className="flex items-start gap-2 rounded-xl border border-gray-200/80 dark:border-slate-800 bg-gray-50/40 dark:bg-slate-800/30 p-2.5 text-xs text-gray-700 dark:text-gray-300">
+      <span className="mt-0.5 text-gray-400 dark:text-gray-500">•</span>
       <span>{text}</span>
     </div>
   )
@@ -553,36 +518,29 @@ function FeatureSuggestion({ text, index }: { text: string; index: number }) {
 
 function LockedPreview({ hiddenSections }: { hiddenSections: string[] }) {
   return (
-    <section className="rounded-2xl border border-dashed border-amber-300 bg-amber-50 p-6 shadow-sm dark:border-amber-900/40 dark:bg-amber-950/10">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-amber-700 dark:border-amber-900/40 dark:bg-slate-900 dark:text-amber-300">
-            <Lock className="h-3.5 w-3.5" />
-            Guest preview
-          </div>
-          <h3 className="mt-3 text-xl font-semibold text-gray-950 dark:text-white">
-            Sign up to unlock the full dashboard report
-          </h3>
-          <p className="mt-2 text-sm leading-6 text-gray-700 dark:text-gray-300">
-            The preview keeps the high-level scoring and similarity check visible. Student accounts unlock deeper build guidance.
-          </p>
-          <BulletList items={hiddenSections} compact />
-        </div>
-
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Link
-            href="/signup"
-            className="inline-flex items-center justify-center rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
-          >
-            Sign Up Free
-          </Link>
-          <Link
-            href="/login"
-            className="inline-flex items-center justify-center rounded-xl border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-slate-700 dark:text-gray-200 dark:hover:bg-slate-900"
-          >
-            Log In
-          </Link>
-        </div>
+    <section className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/40 p-6 text-center">
+      <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-300 mb-3">
+        <Lock className="h-4 w-4" />
+      </div>
+      <h3 className="text-base font-semibold text-gray-900 dark:text-white tracking-tight">
+        Sign In to Unlock Complete Implementation Roadmap
+      </h3>
+      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 max-w-md mx-auto">
+        Student authentication provides complete phased schedules, tech architecture, risk mitigations, and saved history.
+      </p>
+      <div className="mt-5 flex justify-center gap-2">
+        <Link
+          href="/signup"
+          className="rounded-lg bg-gray-900 dark:bg-white px-4 py-2 text-xs font-semibold text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 transition"
+        >
+          Sign Up Free
+        </Link>
+        <Link
+          href="/login"
+          className="rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700 transition"
+        >
+          Log In
+        </Link>
       </div>
     </section>
   )
@@ -598,7 +556,7 @@ function StatusPill({
   }
 }) {
   return (
-    <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${tone.pill}`}>
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${tone.pill}`}>
       {tone.icon}
       {tone.label}
     </span>
@@ -607,10 +565,10 @@ function StatusPill({
 
 function BulletList({ items, compact = false }: { items: string[]; compact?: boolean }) {
   return (
-    <ul className={compact ? "mt-3 space-y-2" : "space-y-2"}>
+    <ul className={compact ? "space-y-1.5" : "space-y-2"}>
       {items.map((item, index) => (
         <li key={`${item}-${index}`} className="flex items-start gap-2">
-          <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500" />
+          <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-gray-400 dark:bg-gray-500" />
           <span>{item}</span>
         </li>
       ))}
@@ -623,9 +581,10 @@ function getScoreTone(value: number, max: number) {
 
   if (percent >= 75) {
     return {
-      label: "Green",
-      text: "text-emerald-700 dark:text-emerald-300",
-      pill: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200",
+      label: "Strong Score",
+      text: "text-emerald-600 dark:text-emerald-400",
+      pill: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/40",
+      dot: "bg-emerald-500",
       bar: "bg-emerald-500",
       chartColor: "#10b981",
     }
@@ -633,18 +592,20 @@ function getScoreTone(value: number, max: number) {
 
   if (percent >= 50) {
     return {
-      label: "Yellow",
-      text: "text-amber-700 dark:text-amber-300",
-      pill: "bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-200",
+      label: "Moderate Viability",
+      text: "text-amber-600 dark:text-amber-400",
+      pill: "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-900/40",
+      dot: "bg-amber-500",
       bar: "bg-amber-500",
       chartColor: "#f59e0b",
     }
   }
 
   return {
-    label: "Red",
-    text: "text-red-700 dark:text-red-300",
-    pill: "bg-red-100 text-red-800 dark:bg-red-950/50 dark:text-red-200",
+    label: "Revision Recommended",
+    text: "text-red-600 dark:text-red-400",
+    pill: "bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300 border border-red-200 dark:border-red-900/40",
+    dot: "bg-red-500",
     bar: "bg-red-500",
     chartColor: "#ef4444",
   }
@@ -654,31 +615,31 @@ function getRecommendationTone(recommendation: string | null) {
   switch (recommendation) {
     case "STRONGLY_RECOMMENDED":
       return {
-        label: "Strong match for an FYP",
-        shell: "border-emerald-200 bg-emerald-50 dark:border-emerald-900/40 dark:bg-emerald-950/20",
-        pill: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200",
-        icon: <CheckCircle2 className="h-4 w-4" />,
+        label: "Strong FYP Fit",
+        shell: "border-gray-200 dark:border-slate-800",
+        pill: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-900/40",
+        icon: <CheckCircle2 className="h-3 w-3 text-emerald-500" />,
       }
     case "RECOMMENDED_WITH_CHANGES":
       return {
-        label: "Good idea with changes",
-        shell: "border-blue-200 bg-blue-50 dark:border-blue-900/40 dark:bg-blue-950/20",
-        pill: "bg-blue-100 text-blue-800 dark:bg-blue-950/50 dark:text-blue-200",
-        icon: <Lightbulb className="h-4 w-4" />,
+        label: "Approved with Refinements",
+        shell: "border-gray-200 dark:border-slate-800",
+        pill: "bg-gray-100 text-gray-800 dark:bg-slate-800 dark:text-gray-200 border border-gray-200 dark:border-slate-700",
+        icon: <Lightbulb className="h-3 w-3 text-gray-600 dark:text-gray-400" />,
       }
     case "NEEDS_MAJOR_REVISION":
       return {
-        label: "Needs major revision",
-        shell: "border-amber-200 bg-amber-50 dark:border-amber-900/40 dark:bg-amber-950/20",
-        pill: "bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-200",
-        icon: <AlertTriangle className="h-4 w-4" />,
+        label: "Major Revision Required",
+        shell: "border-gray-200 dark:border-slate-800",
+        pill: "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200/80 dark:border-amber-900/40",
+        icon: <AlertTriangle className="h-3 w-3 text-amber-500" />,
       }
     default:
       return {
-        label: "Not ready yet",
-        shell: "border-red-200 bg-red-50 dark:border-red-900/40 dark:bg-red-950/20",
-        pill: "bg-red-100 text-red-800 dark:bg-red-950/50 dark:text-red-200",
-        icon: <AlertTriangle className="h-4 w-4" />,
+        label: "Incomplete Formulation",
+        shell: "border-gray-200 dark:border-slate-800",
+        pill: "bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300 border border-red-200/80 dark:border-red-900/40",
+        icon: <AlertTriangle className="h-3 w-3 text-red-500" />,
       }
   }
 }
@@ -689,31 +650,31 @@ function getOriginalityTone(
   switch (verdict) {
     case "appears_unique":
       return {
-        label: "Looks fresh",
-        shell: "border-emerald-200 bg-emerald-50 dark:border-emerald-900/40 dark:bg-emerald-950/20",
-        pill: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200",
-        icon: <Sparkles className="h-4 w-4" />,
+        label: "Novel & Differentiated",
+        shell: "border-gray-200 dark:border-slate-800",
+        pill: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-900/40",
+        icon: <Sparkles className="h-3 w-3 text-emerald-500" />,
       }
     case "some_overlap":
       return {
-        label: "Some overlap found",
-        shell: "border-blue-200 bg-blue-50 dark:border-blue-900/40 dark:bg-blue-950/20",
-        pill: "bg-blue-100 text-blue-800 dark:bg-blue-950/50 dark:text-blue-200",
-        icon: <Lightbulb className="h-4 w-4" />,
+        label: "Partial Past Overlap",
+        shell: "border-gray-200 dark:border-slate-800",
+        pill: "bg-gray-100 text-gray-800 dark:bg-slate-800 dark:text-gray-200 border border-gray-200 dark:border-slate-700",
+        icon: <Lightbulb className="h-3 w-3 text-gray-600 dark:text-gray-400" />,
       }
     case "very_similar":
       return {
-        label: "Very close to past work",
-        shell: "border-amber-200 bg-amber-50 dark:border-amber-900/40 dark:bg-amber-950/20",
-        pill: "bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-200",
-        icon: <AlertTriangle className="h-4 w-4" />,
+        label: "High Historic Overlap",
+        shell: "border-gray-200 dark:border-slate-800",
+        pill: "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200/80 dark:border-amber-900/40",
+        icon: <AlertTriangle className="h-3 w-3 text-amber-500" />,
       }
     default:
       return {
-        label: "Already done before",
-        shell: "border-red-200 bg-red-50 dark:border-red-900/40 dark:bg-red-950/20",
-        pill: "bg-red-100 text-red-800 dark:bg-red-950/50 dark:text-red-200",
-        icon: <AlertTriangle className="h-4 w-4" />,
+        label: "Duplicate Work",
+        shell: "border-gray-200 dark:border-slate-800",
+        pill: "bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300 border border-red-200/80 dark:border-red-900/40",
+        icon: <AlertTriangle className="h-3 w-3 text-red-500" />,
       }
   }
 }
