@@ -3,7 +3,7 @@
 import { useState, useRef } from "react"
 import { Download, Loader2 } from "lucide-react"
 import { jsPDF } from "jspdf"
-import html2canvas from "html2canvas"
+import { toPng } from "html-to-image"
 import type { ValidationResult } from "@/services/fypIdeas.service"
 import { ProposalPrintTemplate } from "./ProposalPrintTemplate"
 
@@ -22,14 +22,11 @@ export function ProposalDownloadButton({ validation }: ProposalDownloadButtonPro
     try {
       const element = templateRef.current
       
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        windowWidth: 800,
+      const dataUrl = await toPng(element, {
+        cacheBust: true,
+        pixelRatio: 2,
+        backgroundColor: '#ffffff'
       })
-
-      const imgData = canvas.toDataURL("image/png")
       
       const pdf = new jsPDF({
         orientation: "portrait",
@@ -39,20 +36,27 @@ export function ProposalDownloadButton({ validation }: ProposalDownloadButtonPro
 
       const pdfWidth = pdf.internal.pageSize.getWidth()
       const pageHeight = pdf.internal.pageSize.getHeight()
-      const imgHeight = (canvas.height * pdfWidth) / canvas.width
+      
+      // Calculate aspect ratio height using bounding rect
+      const rect = element.getBoundingClientRect()
+      // Fallback width to 800 just in case rect width is 0 (though it shouldn't be)
+      const elementWidth = rect.width > 0 ? rect.width : 800
+      const elementHeight = rect.height > 0 ? rect.height : 1000 // reasonable fallback
+      
+      const imgHeight = (elementHeight * pdfWidth) / elementWidth
       
       let heightLeft = imgHeight
       let position = 0
 
       // Add first page
-      pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight)
+      pdf.addImage(dataUrl, "PNG", 0, position, pdfWidth, imgHeight)
       heightLeft -= pageHeight
 
       // Add subsequent pages if content exceeds one page
       while (heightLeft > 0) {
         position -= pageHeight
         pdf.addPage()
-        pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight)
+        pdf.addImage(dataUrl, "PNG", 0, position, pdfWidth, imgHeight)
         heightLeft -= pageHeight
       }
 
@@ -79,9 +83,8 @@ export function ProposalDownloadButton({ validation }: ProposalDownloadButtonPro
         {isGenerating ? "Generating..." : "Download Proposal PDF"}
       </button>
 
-      {/* Off-screen rendered container for HTML2Canvas snapshotting.
-          DO NOT use display:none or opacity:0, as html2canvas will render a 0x0 or blank transparent image.
-          Instead, we push it far off the screen to the left so it remains fully painted by the browser. */}
+      {/* Off-screen rendered container for snapshotting.
+          html-to-image perfectly supports Tailwind v4 modern CSS colors (oklch/lab). */}
       <div 
         style={{ 
           position: "fixed", 
