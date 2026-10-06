@@ -101,49 +101,57 @@ export function IdeaValidatorWorkspace({ mode }: IdeaValidatorWorkspaceProps) {
       <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-10">
         <Hero mode={mode} />
 
-        {isBusy ? (
+        <div className={isBusy ? "block" : "hidden"}>
           <LoadingState />
-        ) : activeResult ? (
-          <ValidationResult
-            result={activeResult}
-            onReset={() => setActiveResult(null)}
-            remainingToday={mode === "student" ? remainingToday : undefined}
-          />
-        ) : pdfResult ? (
-          <PdfIdeaReview
-            result={pdfResult}
-            validation={pdfValidation}
-            isPending={isPending}
-            remainingToday={mode === "student" ? remainingToday : undefined}
-            onValidateEdited={handlePdfEditedSubmit}
-            onUploadAnother={resetPdfFlow}
-          />
-        ) : (
-          <>
-            {mode === "student" && (
-              <SubmissionMethodSelector
-                value={submissionMethod}
-                onChange={setSubmissionMethod}
-              />
-            )}
+        </div>
 
-            {submissionMethod === "pdf" && mode === "student" ? (
-              <PdfIdeaUpload
-                onUpload={handlePdfUpload}
-                isPending={isExtractingPdf}
-                remainingToday={remainingToday}
-              />
-            ) : (
-          <ValidatorWizard
-            onSubmit={handleSubmit}
-            isPending={isPending}
-            mode={mode}
-            remainingToday={mode === "student" ? remainingToday : undefined}
-            initialValues={restoredDraft ?? undefined}
-          />
-            )}
-          </>
-        )}
+        <div className={!isBusy && activeResult ? "block" : "hidden"}>
+          {activeResult && (
+            <ValidationResult
+              result={activeResult}
+              onReset={() => setActiveResult(null)}
+              remainingToday={mode === "student" ? remainingToday : undefined}
+            />
+          )}
+        </div>
+
+        <div className={!isBusy && !activeResult && pdfResult ? "block" : "hidden"}>
+          {pdfResult && (
+            <PdfIdeaReview
+              result={pdfResult}
+              validation={pdfValidation}
+              isPending={isPending}
+              remainingToday={mode === "student" ? remainingToday : undefined}
+              onValidateEdited={handlePdfEditedSubmit}
+              onUploadAnother={resetPdfFlow}
+            />
+          )}
+        </div>
+
+        <div className={isBusy || activeResult || pdfResult ? "hidden" : "block"}>
+          {mode === "student" && (
+            <SubmissionMethodSelector
+              value={submissionMethod}
+              onChange={setSubmissionMethod}
+            />
+          )}
+
+          {submissionMethod === "pdf" && mode === "student" ? (
+            <PdfIdeaUpload
+              onUpload={handlePdfUpload}
+              isPending={isExtractingPdf}
+              remainingToday={remainingToday}
+            />
+          ) : (
+            <ValidatorWizard
+              onSubmit={handleSubmit}
+              isPending={isPending}
+              mode={mode}
+              remainingToday={mode === "student" ? remainingToday : undefined}
+              initialValues={restoredDraft ?? undefined}
+            />
+          )}
+        </div>
 
         {mode === "student" && !isBusy && !activeResult && !pdfResult && validations.length > 0 && (
           <div className="mt-8 rounded-[28px] border border-gray-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">

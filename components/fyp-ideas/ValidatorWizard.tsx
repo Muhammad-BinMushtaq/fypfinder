@@ -248,6 +248,7 @@ export function ValidatorWizard({ onSubmit, isPending, mode, remainingToday, ini
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
+                maxLength={200}
                 placeholder="E.g. Smart campus bus tracking"
                 className="mt-2 w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 dark:border-slate-700 dark:bg-slate-800"
               />
@@ -265,6 +266,7 @@ export function ValidatorWizard({ onSubmit, isPending, mode, remainingToday, ini
               <textarea
                 value={problemStatement}
                 onChange={(e) => setProblemStatement(e.target.value)}
+                maxLength={500}
                 rows={4}
                 className="mt-2 w-full resize-none rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 dark:border-slate-700 dark:bg-slate-800"
               />
@@ -277,6 +279,7 @@ export function ValidatorWizard({ onSubmit, isPending, mode, remainingToday, ini
               <textarea
                 value={ideaDescription}
                 onChange={(e) => setIdeaDescription(e.target.value)}
+                maxLength={2000}
                 rows={5}
                 className="mt-2 w-full resize-none rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 dark:border-slate-700 dark:bg-slate-800"
               />
@@ -293,6 +296,7 @@ export function ValidatorWizard({ onSubmit, isPending, mode, remainingToday, ini
               <textarea
                 value={coreFeatures}
                 onChange={(e) => setCoreFeatures(e.target.value)}
+                maxLength={1000}
                 rows={4}
                 className="mt-2 w-full resize-none rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 dark:border-slate-700 dark:bg-slate-800"
               />

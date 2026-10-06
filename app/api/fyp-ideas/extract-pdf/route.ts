@@ -101,7 +101,8 @@ export async function POST(request: NextRequest) {
 
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
-    const pdfText = await extractPdfText(buffer, { maxPages: MAX_PAGES })
+    const baseUrl = request.nextUrl.origin
+    const pdfText = await extractPdfText(buffer, { maxPages: MAX_PAGES }, baseUrl)
     const extraction = await extractIdeaFromPdfText(pdfText.text)
 
     let validation = null
@@ -165,11 +166,18 @@ export async function POST(request: NextRequest) {
         { status: 503 }
       )
     }
+    
+    if (message.includes("AI extraction response had an invalid structure") || message.includes("Invalid PDF file")) {
+      return NextResponse.json(
+        { success: false, message },
+        { status: 400 }
+      )
+    }
 
     return NextResponse.json(
       {
         success: false,
-        message: "We could not read this PDF. Please check the file and try again.",
+        message: message || "We could not read this PDF. Please check the file and try again.",
       },
       { status: 500 }
     )
