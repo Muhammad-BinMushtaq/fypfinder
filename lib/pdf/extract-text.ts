@@ -21,7 +21,7 @@ export async function extractPdfText(
   try {
     const response = await fetch(`${baseUrl}/api/extract_pdf`, {
       method: "POST",
-      body: buffer,
+      body: new Uint8Array(buffer),
       headers: {
         "Content-Length": buffer.length.toString(),
       },
