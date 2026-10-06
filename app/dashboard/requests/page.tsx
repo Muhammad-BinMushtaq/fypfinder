@@ -235,7 +235,7 @@ export default function RequestsPage() {
           </div>
 
           {/* Status Filter Badges */}
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+          <div className="flex flex-wrap items-center gap-2 py-1">
             <button
               onClick={() => setStatusFilter("ALL")}
               className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition shrink-0 ${
