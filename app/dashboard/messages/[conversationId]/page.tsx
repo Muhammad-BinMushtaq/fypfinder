@@ -34,7 +34,7 @@ export default function ConversationPage() {
   // Profile loading
   if (profileLoading) {
     return (
-      <div className="h-[calc(100dvh-4rem)] bg-white dark:bg-slate-900 flex">
+      <div className="h-full w-full bg-white dark:bg-slate-900 flex">
         <div className="hidden lg:block w-80 xl:w-96 border-r border-gray-200 dark:border-slate-700">
           <ConversationList activeConversationId={conversationId} />
         </div>
@@ -52,7 +52,7 @@ export default function ConversationPage() {
   // Conversation loading (first load only)
   if (conversationsLoading && !currentConversation) {
     return (
-      <div className="h-[calc(100dvh-4rem)] bg-white dark:bg-slate-900 flex">
+      <div className="h-full w-full bg-white dark:bg-slate-900 flex">
         <div className="hidden lg:block w-80 xl:w-96 border-r border-gray-200 dark:border-slate-700">
           <ConversationList activeConversationId={conversationId} />
         </div>
@@ -70,7 +70,7 @@ export default function ConversationPage() {
   // Error or conversation not found
   if (isError || (!conversationsLoading && !currentConversation)) {
     return (
-      <div className="h-[calc(100dvh-4rem)] bg-white dark:bg-slate-900 flex">
+      <div className="h-full w-full bg-white dark:bg-slate-900 flex">
         <div className="hidden lg:block w-80 xl:w-96 border-r border-gray-200 dark:border-slate-700">
           <ConversationList activeConversationId={conversationId} />
         </div>
@@ -117,14 +117,14 @@ export default function ConversationPage() {
   const otherStudent = currentConversation.otherStudent
 
   return (
-    <div className="h-[calc(100dvh-4rem)] bg-white dark:bg-slate-900 flex overflow-hidden">
+    <div className="h-full w-full bg-white dark:bg-slate-900 flex overflow-hidden">
       {/* Sidebar */}
-      <div className="hidden lg:block w-80 xl:w-96 border-r border-gray-200 dark:border-slate-700">
+      <div className="hidden lg:block w-80 xl:w-96 border-r border-gray-200 dark:border-slate-700 flex-shrink-0 h-full overflow-y-auto">
         <ConversationList activeConversationId={conversationId} />
       </div>
 
       {/* Chat */}
-      <div className="flex-1 min-h-0 h-full">
+      <div className="flex-1 min-h-0 h-full flex flex-col overflow-hidden">
         <ChatWindow
           conversationId={conversationId}
           currentStudent={{

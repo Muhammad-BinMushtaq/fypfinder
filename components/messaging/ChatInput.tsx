@@ -56,7 +56,7 @@ export function ChatInput({ onSend, isPending, disabled = false }: ChatInputProp
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex-shrink-0 border-t border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]"
+      className="shrink-0 sticky bottom-0 z-20 border-t border-gray-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]"
     >
       <div className="flex items-end gap-3">
         <div className="flex-1 relative">

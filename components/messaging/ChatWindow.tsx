@@ -222,11 +222,12 @@ export function ChatWindow({
 
   return (
     <div className="h-full flex flex-col bg-white dark:bg-slate-900 overflow-hidden">
-      {/* Chat Header with Profile Link */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+      {/* Chat Header with Profile Link (Instagram Style - Locked at Top) */}
+      <div className="shrink-0 sticky top-0 z-30 flex items-center gap-3 px-4 py-3 border-b border-gray-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md">
         <button
           onClick={() => router.push("/dashboard/messages")}
-          className="lg:hidden p-1.5 -ml-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+          className="lg:hidden p-2 -ml-2 text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
+          aria-label="Back to messages"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
@@ -239,15 +240,15 @@ export function ChatWindow({
             <img
               src={otherStudent.profilePicture}
               alt={otherStudent.name}
-              className="w-10 h-10 rounded-full object-cover ring-2 ring-transparent group-hover:ring-gray-200 dark:group-hover:ring-slate-600 transition-all"
+              className="w-10 h-10 rounded-full object-cover ring-2 ring-transparent group-hover:ring-gray-300 dark:group-hover:ring-slate-600 transition-all shrink-0"
             />
           ) : (
-            <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-slate-700 flex items-center justify-center text-gray-600 dark:text-gray-300 font-medium text-sm ring-2 ring-transparent group-hover:ring-gray-200 dark:group-hover:ring-slate-600 transition-all">
+            <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300 font-semibold text-sm ring-2 ring-transparent group-hover:ring-gray-300 dark:group-hover:ring-slate-600 transition-all shrink-0">
               {otherStudent.name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
             </div>
           )}
           <div className="min-w-0 flex-1">
-            <p className="font-medium text-gray-900 dark:text-white truncate group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
+            <p className="font-semibold text-gray-900 dark:text-white truncate group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors text-sm sm:text-base">
               {otherStudent.name}
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
@@ -258,7 +259,7 @@ export function ChatWindow({
         
         <Link
           href={`/dashboard/discovery/profile/${otherStudent.id}`}
-          className="hidden sm:flex p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+          className="hidden sm:flex p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors shrink-0"
           title="View Profile"
         >
           <User className="w-5 h-5" />
