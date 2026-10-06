@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
@@ -12,6 +12,7 @@ import { InstallPromptBanner } from "@/components/pwa/InstallPromptBanner";
 import { InstallButton } from "@/components/pwa/InstallButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { GraduationCap, Lightbulb, Settings, ClipboardCheck } from "lucide-react";
+import { useVisualViewport } from "@/hooks/useVisualViewport";
 import clientLogger from "@/lib/client-logger";
 
 interface DashboardShellProps {
@@ -26,6 +27,29 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const isChatOpen = pathname.startsWith("/dashboard/messages/") && pathname !== "/dashboard/messages";
+  const viewportHeight = useVisualViewport(isChatOpen);
+
+  useEffect(() => {
+    if (!isChatOpen) return;
+
+    // Body scroll lock on mobile when active chat is open
+    const originalOverflow = document.body.style.overflow;
+    const originalPosition = document.body.style.position;
+    const originalWidth = document.body.style.width;
+
+    if (window.innerWidth < 1024) {
+      document.body.style.overflow = "hidden";
+      document.body.style.position = "fixed";
+      document.body.style.width = "100%";
+      window.scrollTo(0, 0);
+    }
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.position = originalPosition;
+      document.body.style.width = originalWidth;
+    };
+  }, [isChatOpen]);
 
   const handleLogout = async () => {
     try {
@@ -68,9 +92,14 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
 
       {/* Main content */}
       <main
+        style={
+          isChatOpen && viewportHeight
+            ? { height: `${viewportHeight}px` }
+            : undefined
+        }
         className={`flex-1 min-w-0 w-full lg:pl-[17.5rem] ${
           isChatOpen
-            ? "fixed inset-0 z-40 lg:static lg:pr-4 lg:py-4 h-[100dvh] overflow-hidden flex flex-col"
+            ? "fixed top-0 left-0 right-0 z-40 lg:static lg:pr-4 lg:py-4 h-[100dvh] overflow-hidden flex flex-col"
             : "lg:pr-4 lg:py-4 pb-28 lg:pb-4 overflow-x-hidden flex flex-col min-h-screen"
         }`}
       >

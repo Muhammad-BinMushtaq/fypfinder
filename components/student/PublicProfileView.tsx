@@ -94,7 +94,7 @@ export function PublicProfileView({
               
               <div className="mt-2 flex flex-col gap-1.5 text-sm font-medium">
                 <div className="flex items-center gap-2">
-                  <span className={w-2 h-2 rounded-full } />
+                  <span className={`w-2 h-2 rounded-full ${availabilityConfig.dot}`} />
                   <span className={availabilityConfig.text}>{availabilityConfig.label}</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -108,7 +108,7 @@ export function PublicProfileView({
                 <p>{getDepartmentLabel(profile.department)}</p>
                 <p>Semester {profile.semester}</p>
                 {profile.email && (
-                  <a href={mailto:} className="flex items-center gap-2 hover:text-slate-900 dark:hover:text-white transition-colors">
+                  <a href={`mailto:${profile.email}`} className="flex items-center gap-2 hover:text-slate-900 dark:hover:text-white transition-colors">
                     <Mail className="w-4 h-4" />
                     {profile.email}
                   </a>
@@ -219,7 +219,7 @@ export function PublicProfileView({
                   <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 max-w-2xl">{profile.groupInfo.description}</p>
                 )}
                 <div className="mt-4 inline-flex items-center gap-2 text-sm font-medium">
-                  <span className={w-2 h-2 rounded-full } />
+                  <span className={`w-2 h-2 rounded-full ${profile.groupInfo.isLocked ? "bg-slate-400" : "bg-emerald-500"}`} />
                   <span className="text-slate-600 dark:text-slate-300">
                     {profile.groupInfo.isLocked ? "Team finalized" : "Open for members"}
                   </span>

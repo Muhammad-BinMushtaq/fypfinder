@@ -10,6 +10,7 @@ import { ChatInput } from "./ChatInput"
 import { useMessages, type Message } from "@/hooks/messaging/useMessages"
 import { useSendMessage } from "@/hooks/messaging/useSendMessage"
 import { useEditMessage } from "@/hooks/messaging/useEditMessage"
+import { useVisualViewport } from "@/hooks/useVisualViewport"
 import { getSupabaseClient } from "@/lib/supabaseClient"
 import clientLogger from "@/lib/client-logger"
 
@@ -59,6 +60,7 @@ export function ChatWindow({
   const { messages, isLoading, isError, error, refetch } = useMessages(conversationId)
   const { sendMessage, isPending } = useSendMessage()
   const { editMessage } = useEditMessage()
+  const viewportHeight = useVisualViewport(true)
 
   // Always-on polling as the primary message update mechanism
   // This ensures messages update even if Supabase Realtime isn't working
@@ -221,7 +223,10 @@ export function ChatWindow({
   }
 
   return (
-    <div className="h-full flex flex-col bg-white dark:bg-slate-900 overflow-hidden">
+    <div
+      style={viewportHeight ? { height: `${viewportHeight}px` } : undefined}
+      className="h-full w-full flex flex-col bg-white dark:bg-slate-900 overflow-hidden"
+    >
       {/* Chat Header with Profile Link (Instagram Style - Locked at Top) */}
       <div className="shrink-0 sticky top-0 z-30 flex items-center gap-3 px-4 pt-[calc(0.75rem+env(safe-area-inset-top))] pb-3 border-b border-gray-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md">
         <button

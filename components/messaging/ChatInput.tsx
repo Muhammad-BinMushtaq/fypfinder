@@ -65,6 +65,12 @@ export function ChatInput({ onSend, isPending, disabled = false }: ChatInputProp
             value={content}
             onChange={handleInput}
             onKeyDown={handleKeyDown}
+            onFocus={() => {
+              // Immediately reset window scroll if mobile browser attempts to shift layout
+              if (typeof window !== "undefined") {
+                window.scrollTo(0, 0)
+              }
+            }}
             placeholder="Type a message..."
             disabled={isPending || disabled}
             rows={1}
