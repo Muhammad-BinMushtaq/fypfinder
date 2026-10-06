@@ -1,19 +1,17 @@
-// components/discovery/StudentCard.tsx
-"use client";
+﻿"use client";
 
 /**
  * StudentCard Component
  * ---------------------
- * Content-rich student preview card for discovery grid.
+ * Clean, minimalist student preview card for discovery grid.
  */
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Github, Linkedin, Lock, ChevronRight, FolderGit2, Heart } from "lucide-react";
+import { FolderGit2, ArrowRight } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { prefetchPublicProfile } from "@/hooks/student/usePublicProfile";
 import type { MatchedStudent } from "@/services/discovery.service";
-import { useState } from "react";
 
 interface StudentCardProps {
   student: MatchedStudent;
@@ -22,6 +20,7 @@ interface StudentCardProps {
 export function StudentCard({ student }: StudentCardProps) {
   const queryClient = useQueryClient();
   const router = useRouter();
+
   const handleCardClick = () => {
     router.push(`/dashboard/discovery/profile/${student.id}`);
   };
@@ -32,32 +31,22 @@ export function StudentCard({ student }: StudentCardProps) {
 
   const getAvailabilityConfig = () => {
     if (student.isGroupLocked) {
-      return {
-        label: "Locked",
-        icon: <Lock className="w-3 h-3" />,
-        dotColor: "bg-gray-400",
-      };
+      return { label: "Locked", dotColor: "bg-slate-400" };
     }
-    
     switch (student.availability) {
       case "AVAILABLE":
         return { label: "Available", dotColor: "bg-emerald-500" };
       case "BUSY":
         return { label: "Busy", dotColor: "bg-amber-500" };
       case "AWAY":
-        return { label: "Away", dotColor: "bg-gray-400" };
+        return { label: "Away", dotColor: "bg-slate-400" };
       default:
-        return { label: "Unknown", dotColor: "bg-gray-400" };
+        return { label: "Unknown", dotColor: "bg-slate-400" };
     }
   };
 
   const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
+    return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
   };
 
   const availabilityConfig = getAvailabilityConfig();
@@ -66,218 +55,87 @@ export function StudentCard({ student }: StudentCardProps) {
     <div
       onClick={handleCardClick}
       onMouseEnter={handleMouseEnter}
-      className="group cursor-pointer"
+      className="group cursor-pointer block h-full"
     >
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:hover:border-slate-600 transition-all duration-200 overflow-hidden h-full flex flex-col">
-        {/* Header */}
-        <div className="p-4 pb-3">
-          <div className="flex items-start gap-3">
-            {/* Avatar */}
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-white/5 transition-all duration-300 overflow-hidden h-full flex flex-col hover:-translate-y-1 hover:shadow-xl relative">
+        
+        {/* Header Section */}
+        <div className="p-6 flex flex-col items-center text-center space-y-4">
+          
+          {/* Avatar */}
+          <div className="relative w-20 h-20 rounded-full overflow-hidden flex-shrink-0 bg-slate-50 dark:bg-slate-800 ring-4 ring-white dark:ring-slate-900 shadow-sm">
             {student.profilePicture ? (
-              <div className="relative w-14 h-14 rounded-full overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-slate-700 ring-2 ring-gray-100 dark:ring-slate-700">
-                <Image
-                  src={student.profilePicture}
-                  alt={student.name}
-                  fill
-                  sizes="56px"
-                  className="object-cover"
-                  loading="lazy"
-                />
-              </div>
+              <Image
+                src={student.profilePicture}
+                alt={student.name}
+                fill
+                sizes="80px"
+                className="object-cover"
+                loading="lazy"
+              />
             ) : (
-              <div className="w-14 h-14 rounded-full bg-gray-900 dark:bg-white flex items-center justify-center text-white dark:text-gray-900 font-semibold text-base flex-shrink-0 ring-2 ring-gray-100 dark:ring-slate-700">
+              <div className="w-full h-full flex items-center justify-center text-slate-400 dark:text-slate-500 font-medium text-xl">
                 {getInitials(student.name)}
               </div>
             )}
+          </div>
 
-            {/* Info */}
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-gray-900 dark:text-white text-base truncate">
-                {student.name}
-              </h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                {student.department} · Sem {student.semester}
-              </p>
-              
-              {/* Availability & Projects */}
-              <div className="flex items-center gap-3 mt-1.5">
-                <div className="flex items-center gap-1.5">
-                  {availabilityConfig.icon || (
-                    <span className={`w-1.5 h-1.5 rounded-full ${availabilityConfig.dotColor}`} />
-                  )}
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {availabilityConfig.label}
-                  </span>
-                </div>
-                {student.projectCount > 0 && (
-                  <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                    <FolderGit2 className="w-3 h-3" />
-                    <span>{student.projectCount} project{student.projectCount !== 1 ? "s" : ""}</span>
-                  </div>
-                )}
-              </div>
-              
-              {/* Seeking Status & Role Gaps */}
-              {student.seekingStatus === "HAS_TEAM_LOOKING_FOR_MEMBERS" && (
-                <div className="mt-2 inline-flex items-center gap-1 text-xs font-medium bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-md border border-indigo-200 dark:border-indigo-800/50">
-                  <span className="truncate">Team looking for: {student.primaryRoles?.length > 0 ? student.primaryRoles.join(', ') : "Members"}</span>
-                </div>
-              )}
-              {student.seekingStatus === "LOOKING_FOR_TEAM" && student.primaryRoles?.length > 0 && (
-                <div className="mt-2 inline-flex flex-wrap gap-1">
-                  {student.primaryRoles.map(role => (
-                    <span key={role} className="text-[10px] font-medium bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded border border-blue-200 dark:border-blue-800/50">
-                      {role}
-                    </span>
-                  ))}
-                </div>
-              )}
+          {/* Core Info */}
+          <div>
+            <h3 className="font-semibold text-slate-900 dark:text-white text-lg tracking-tight truncate px-2">
+              {student.name}
+            </h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 truncate mt-0.5">
+              {student.department} · Sem {student.semester}
+            </p>
+          </div>
+
+          {/* Status & Project Count */}
+          <div className="flex items-center justify-center gap-4 text-xs font-medium w-full">
+            <div className="flex items-center gap-1.5">
+              <span className={`w-2 h-2 rounded-full ${availabilityConfig.dotColor} shadow-sm`} />
+              <span className="text-slate-600 dark:text-slate-300">{availabilityConfig.label}</span>
             </div>
+            {student.projectCount > 0 && (
+              <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                <FolderGit2 className="w-3.5 h-3.5 text-slate-400" />
+                <span>{student.projectCount} Project{student.projectCount !== 1 ? "s" : ""}</span>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Bio */}
-        {student.interests && (
-          <div className="px-4 pb-3">
-            <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 leading-relaxed">
-              {student.interests}
-            </p>
-          </div>
-        )}
-
-        {/* Hobbies */}
-        {student.hobbies && (
-          <div className="px-4 pb-3">
-            <p className="text-xs text-gray-400 dark:text-gray-500 mb-1.5 font-medium flex items-center gap-1">
-              <Heart className="w-3 h-3" /> Hobbies
-            </p>
-            <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-1">
-              {student.hobbies}
-            </p>
-          </div>
-        )}
-
-        {/* Projects */}
-        {student.projectNames.length > 0 && (
-          <div className="px-4 pb-3">
-            <p className="text-xs text-gray-400 dark:text-gray-500 mb-1.5 font-medium flex items-center gap-1">
-              <FolderGit2 className="w-3 h-3" /> Projects
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {student.projectNames.slice(0, 3).map((name, index) => (
+        {/* Skills - Minimal Pill Layout */}
+        <div className="px-6 pb-6 mt-auto">
+          {student.skills && student.skills.length > 0 ? (
+            <div className="flex flex-wrap justify-center gap-1.5">
+              {student.skills.slice(0, 3).map((skill, idx) => (
                 <span
-                  key={index}
-                  className="px-2 py-0.5 bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 text-xs rounded-md font-medium truncate max-w-[140px]"
-                >
-                  {name}
-                </span>
-              ))}
-              {student.projectNames.length > 3 && (
-                <span className="px-2 py-0.5 text-gray-400 dark:text-gray-500 text-xs font-medium">
-                  +{student.projectNames.length - 3} more
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Skills */}
-        {student.skills.length > 0 && (
-          <div className="px-4 pb-3">
-            <p className="text-xs text-gray-400 dark:text-gray-500 mb-1.5 font-medium">Skills</p>
-            <div className="flex flex-wrap gap-1.5">
-              {student.skills.slice(0, 5).map((skill, index) => (
-                <span
-                  key={index}
-                  className="px-2.5 py-1 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 text-xs rounded-md font-medium"
+                  key={idx}
+                  className="px-2.5 py-1 bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 text-[11px] rounded-full font-medium truncate max-w-[120px]"
                 >
                   {skill}
                 </span>
               ))}
-              {student.skills.length > 5 && (
-                <span className="px-2 py-1 text-gray-400 dark:text-gray-500 text-xs font-medium">
-                  +{student.skills.length - 5} more
+              {student.skills.length > 3 && (
+                <span className="px-2 py-1 text-slate-400 dark:text-slate-500 text-[11px] font-medium">
+                  +{student.skills.length - 3}
                 </span>
               )}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="h-[26px]"></div>
+          )}
+        </div>
 
-        {/* Empty state if nothing to show */}
-        {!student.interests && !student.hobbies && student.skills.length === 0 && student.projectNames.length === 0 && (
-          <div className="px-4 pb-3">
-            <p className="text-sm text-gray-400 dark:text-gray-500 italic">
-              No bio or skills added yet
-            </p>
-          </div>
-        )}
-
-        {/* Footer */}
-        <div className="mt-auto border-t border-gray-100 dark:border-slate-700 px-4 py-3 space-y-2">
-          {/* Profile Completion */}
-          <div className="flex items-center gap-2">
-            <div className="flex-1 h-1.5 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all ${
-                  student.profileCompletion === 100
-                    ? "bg-emerald-500"
-                    : student.profileCompletion >= 70
-                    ? "bg-blue-500"
-                    : "bg-amber-500"
-                }`}
-                style={{ width: `${student.profileCompletion}%` }}
-              />
-            </div>
-            <span className="text-xs text-gray-400 dark:text-gray-500 font-medium tabular-nums w-8 text-right">
-              {student.profileCompletion}%
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between">
-          {/* Social Links */}
-          <div className="flex items-center gap-1.5">
-            {student.githubUrl && (
-              <a
-                href={student.githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="w-7 h-7 rounded-md bg-gray-50 dark:bg-slate-700 hover:bg-gray-100 dark:hover:bg-slate-600 flex items-center justify-center transition-colors"
-                title="GitHub"
-              >
-                <Github className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
-              </a>
-            )}
-            {student.linkedinUrl && (
-              <a
-                href={student.linkedinUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="w-7 h-7 rounded-md bg-gray-50 dark:bg-slate-700 hover:bg-gray-100 dark:hover:bg-slate-600 flex items-center justify-center transition-colors"
-                title="LinkedIn"
-              >
-                <Linkedin className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
-              </a>
-            )}
-            {!student.githubUrl && !student.linkedinUrl && (
-              <span className="text-xs text-gray-400 dark:text-gray-500">No links</span>
-            )}
-          </div>
-
-          {/* View / Invite */}
-          <div className="flex items-center gap-2">
-            
-            <div className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
-              <span>View</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </div>
-          </div>
+        {/* Floating Arrow (Visible on Hover) */}
+        <div className="absolute bottom-6 right-6 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+          <div className="w-8 h-8 rounded-full bg-slate-900 dark:bg-white flex items-center justify-center shadow-md">
+            <ArrowRight className="w-4 h-4 text-white dark:text-slate-900" />
           </div>
         </div>
-      </div>
 
-      
+      </div>
     </div>
   );
 }
