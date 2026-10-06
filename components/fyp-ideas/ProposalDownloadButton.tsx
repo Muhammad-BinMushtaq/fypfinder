@@ -60,11 +60,11 @@ export function ProposalDownloadButton({ validation }: ProposalDownloadButtonPro
         heightLeft -= pageHeight
       }
 
-      const safeFilename = (validation.title || "FYP_Proposal")
+      const safeTitle = (validation.title || validation.report.plainSummary || "FYP_Idea")
         .replace(/[^a-zA-Z0-9_-]/g, "_")
-        .slice(0, 35)
+        .slice(0, 30)
 
-      pdf.save(`${safeFilename || "FYP_Proposal"}.pdf`)
+      pdf.save(`FYP_Validation_Report_${safeTitle}.pdf`)
     } catch (error) {
       console.error("Failed to generate PDF:", error)
     } finally {
@@ -80,7 +80,7 @@ export function ProposalDownloadButton({ validation }: ProposalDownloadButtonPro
         className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-gray-900 dark:bg-white px-3.5 py-1.5 text-xs font-semibold text-white dark:text-gray-900 shadow-sm transition hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isGenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
-        {isGenerating ? "Generating..." : "Download Proposal PDF"}
+        {isGenerating ? "Generating..." : "Download Validation Report"}
       </button>
 
       {/* Off-screen rendered container for snapshotting.
