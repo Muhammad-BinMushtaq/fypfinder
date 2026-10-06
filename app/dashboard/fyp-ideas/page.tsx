@@ -10,14 +10,7 @@ import {
   List, 
   X, 
   Sparkles, 
-  Copy, 
-  Check, 
   Lock, 
-  Eye, 
-  EyeOff, 
-  ArrowUpRight,
-  BookOpen,
-  Filter,
   Layers,
   GraduationCap
 } from "lucide-react";
@@ -151,8 +144,6 @@ export default function FYPIdeasPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [displayCount, setDisplayCount] = useState(ITEMS_PER_PAGE);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [unblurredIds, setUnblurredIds] = useState<Record<string, boolean>>({});
 
   const observerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -235,39 +226,6 @@ export default function FYPIdeasPage() {
 
     return () => observer.disconnect();
   }, [loadMore, hasMore, isLoadingMore]);
-
-  const handleCopyCitation = (project: FYPProject, e: React.MouseEvent) => {
-    e.stopPropagation();
-    const citation = `PAF-IAST FYP Project (${project.batch}, Group ${project.groupNumber}): "${project.title}" - Supervisor: ${project.supervisor}.`;
-    navigator.clipboard.writeText(citation);
-    setCopiedId(project.id);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
-
-  const handleToggleReveal = (projectId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setUnblurredIds((prev) => ({
-      ...prev,
-      [projectId]: !prev[projectId],
-    }));
-  };
-
-  const handleValidateAgainst = (project: FYPProject, e: React.MouseEvent) => {
-    e.stopPropagation();
-    try {
-      sessionStorage.setItem(
-        "pending_fyp_idea",
-        JSON.stringify({
-          title: `Enhancement: ${project.title}`,
-          problemStatement: `Based on previous PAF-IAST project (Group #${project.groupNumber}, Batch ${project.batch}): ${project.abstract.slice(0, 300)}...`,
-          ideaDescription: `Proposed novelty and differentiation extending ${project.title}.`,
-          coreFeatures: project.keywords.join(", ") || "Advanced AI Integration, Scalable Architecture",
-        })
-      );
-    } catch {
-      // ignore
-    }
-  };
 
   const hasActiveFilters = searchQuery !== "" || selectedSupervisor !== "All" || selectedBatch !== "All" || selectedCategory !== "all";
 
@@ -489,8 +447,8 @@ export default function FYPIdeasPage() {
           <span>
             Showing <strong className="text-slate-900 dark:text-white">{visibleProjects.length}</strong> of {filteredProjects.length} projects
           </span>
-          <span className="text-[11px] text-slate-400 italic">
-            🔒 Student names are confidential and blurred
+          <span className="text-[11px] text-slate-400 italic flex items-center gap-1">
+            <Lock className="w-3 h-3" /> Student names are confidential
           </span>
         </div>
       </div>
@@ -516,7 +474,6 @@ export default function FYPIdeasPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {visibleProjects.map((project) => {
               const isExpanded = expandedId === project.id;
-              const isUnblurred = unblurredIds[project.id];
               return (
                 <div
                   key={project.id}
@@ -535,7 +492,7 @@ export default function FYPIdeasPage() {
                         </span>
                       </div>
                       <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 truncate max-w-[180px]">
-                        {project.supervisor}
+                        Supervisor: <strong>{project.supervisor}</strong>
                       </span>
                     </div>
 
@@ -563,26 +520,15 @@ export default function FYPIdeasPage() {
                         {/* Confidential Team Members */}
                         {project.students.length > 0 && (
                           <div>
-                            <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                              <span className="flex items-center gap-1">
-                                <Lock className="w-3 h-3 text-slate-400" />
-                                Team Members (Confidential)
-                              </span>
-                              <button
-                                onClick={(e) => handleToggleReveal(project.id, e)}
-                                className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition"
-                              >
-                                {isUnblurred ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
-                                {isUnblurred ? "Hide Names" : "Reveal Names"}
-                              </button>
+                            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1">
+                              <Lock className="w-3 h-3 text-slate-400" />
+                              Team Members (Confidential)
                             </div>
                             <div className="flex flex-wrap gap-1.5">
                               {project.students.map((student, idx) => (
                                 <span
                                   key={idx}
-                                  className={`px-2.5 py-1 rounded text-xs font-medium border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 select-none transition-all duration-300 ${
-                                    isUnblurred ? "" : "blur-[4px] opacity-70 hover:opacity-100"
-                                  }`}
+                                  className="px-2.5 py-1 rounded text-xs font-medium border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 select-none blur-[5px] opacity-75 pointer-events-none"
                                 >
                                   {student}
                                 </span>
@@ -613,7 +559,7 @@ export default function FYPIdeasPage() {
                     )}
                   </div>
 
-                  {/* Bottom Action Footer */}
+                  {/* Bottom Expand Trigger Footer */}
                   <div className="px-5 py-3 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/50 flex items-center justify-between text-xs">
                     <button
                       onClick={() => setExpandedId(isExpanded ? null : project.id)}
@@ -622,26 +568,6 @@ export default function FYPIdeasPage() {
                       <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
                       {isExpanded ? "Show Less" : "Read Full Abstract"}
                     </button>
-
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={(e) => handleCopyCitation(project, e)}
-                        title="Copy Reference Citation"
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-[11px] transition"
-                      >
-                        {copiedId === project.id ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
-                        {copiedId === project.id ? "Copied" : "Cite"}
-                      </button>
-
-                      <Link
-                        href="/dashboard/fyp-ideas/validate"
-                        onClick={(e) => handleValidateAgainst(project, e)}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[11px] font-semibold hover:bg-slate-800 dark:hover:bg-slate-100 transition"
-                      >
-                        <Sparkles className="w-3 h-3" />
-                        Test Novelty
-                      </Link>
-                    </div>
                   </div>
                 </div>
               );
@@ -652,7 +578,6 @@ export default function FYPIdeasPage() {
           <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 overflow-hidden shadow-xs">
             {visibleProjects.map((project) => {
               const isExpanded = expandedId === project.id;
-              const isUnblurred = unblurredIds[project.id];
               return (
                 <div key={project.id} className="p-4 transition hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
                   <div 
@@ -679,19 +604,9 @@ export default function FYPIdeasPage() {
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
-                      <button
-                        onClick={(e) => handleCopyCitation(project, e)}
-                        className="px-2 py-1 rounded border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[11px] hover:text-slate-900 dark:hover:text-white"
-                      >
-                        {copiedId === project.id ? "Copied" : "Cite"}
-                      </button>
-                      <Link
-                        href="/dashboard/fyp-ideas/validate"
-                        onClick={(e) => handleValidateAgainst(project, e)}
-                        className="px-2.5 py-1 rounded bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[11px] font-semibold hover:bg-slate-800 dark:hover:bg-slate-100 transition"
-                      >
-                        Test Novelty
-                      </Link>
+                      <span className="text-[11px] font-medium text-slate-400">
+                        {isExpanded ? "Collapse" : "Expand"}
+                      </span>
                       <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
                     </div>
                   </div>
@@ -712,20 +627,12 @@ export default function FYPIdeasPage() {
                             {project.students.map((student, idx) => (
                               <span
                                 key={idx}
-                                className={`px-2 py-0.5 rounded text-[11px] border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 select-none ${
-                                  isUnblurred ? "" : "blur-[4px]"
-                                }`}
+                                className="px-2 py-0.5 rounded text-[11px] border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 select-none blur-[5px] pointer-events-none opacity-75"
                               >
                                 {student}
                               </span>
                             ))}
                           </div>
-                          <button
-                            onClick={(e) => handleToggleReveal(project.id, e)}
-                            className="text-[10px] text-slate-500 underline ml-2"
-                          >
-                            {isUnblurred ? "Hide" : "Reveal"}
-                          </button>
                         </div>
                       )}
                     </div>
