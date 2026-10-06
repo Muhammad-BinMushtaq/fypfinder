@@ -194,7 +194,6 @@ model Request {
   toStudentId   String
   type          RequestType
   reason        String
-  inviteNote    String?      @db.VarChar(200)
   status        RequestStatus @default(PENDING)
   createdAt     DateTime      @default(now())
 

@@ -1,7 +1,5 @@
-// hooks/fyp-ideas/useMyValidations.ts
-
-import { useQuery } from "@tanstack/react-query"
-import { getMyValidations, type ValidationHistoryResponse } from "@/services/fypIdeas.service"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { getMyValidations, deleteValidation, type ValidationHistoryResponse } from "@/services/fypIdeas.service"
 
 export function useMyValidations(limit = 10, offset = 0, enabled = true) {
   const query = useQuery<ValidationHistoryResponse, Error>({
@@ -22,4 +20,14 @@ export function useMyValidations(limit = 10, offset = 0, enabled = true) {
     error: query.error,
     refetch: query.refetch,
   }
+}
+
+export function useDeleteValidation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => deleteValidation(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["fyp-validations"] })
+    },
+  })
 }

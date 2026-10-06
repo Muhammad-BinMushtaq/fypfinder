@@ -74,60 +74,45 @@ export async function validateIdea(
 
     await enforceStudentRateLimit(studentId)
 
-    const record = existing
-      ? await resetExistingValidation(existing.id, input, inputHash)
-      : await prisma.fYPIdeaValidation.create({
-        data: {
-          studentId,
-          title: input.title,
-          problemStatement: input.problemStatement,
-          ideaDescription: input.ideaDescription,
-          coreFeatures: input.coreFeatures,
-          teamSize: input.teamSize,
-          inputHash,
-          status: "PENDING",
-        },
-      })
-
+    let reportResult;
     try {
-      const reportResult = await generateValidationReport(input)
-      const recommendation = mapRecommendation(reportResult.report.recommendation)
-
-      const updated = await prisma.fYPIdeaValidation.update({
-        where: { id: record.id },
-        data: {
-          panelEvaluation: Prisma.DbNull,
-          finalResult: JSON.parse(JSON.stringify(reportResult.report)),
-          detailedRoadmap: JSON.parse(JSON.stringify(reportResult.report.roadmap)),
-          feasibilityScore: reportResult.report.feasibilityScore,
-          innovationScore: reportResult.report.originalityScore,
-          industryRelevanceScore: reportResult.report.usefulnessScore,
-          originalityScore: reportResult.report.originalityScore,
-          usefulnessScore: reportResult.report.usefulnessScore,
-          recommendation,
-          status: "COMPLETED",
-          modelUsed: reportResult.modelUsed,
-          tokensUsed: reportResult.tokensUsed,
-          latencyMs: reportResult.latencyMs,
-          errorMessage: null,
-        },
-      })
-
-      return formatStoredValidation(updated, "student")
+      reportResult = await generateValidationReport(input)
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Unknown error"
       logger.error("Student idea validation failed:", error)
-
-      await prisma.fYPIdeaValidation.update({
-        where: { id: record.id },
-        data: {
-          status: "FAILED",
-          errorMessage,
-        },
-      })
-
       throw new Error(`Validation failed: ${errorMessage}`)
     }
+
+    const recommendation = mapRecommendation(reportResult.report.recommendation)
+    
+    const dataToSave = {
+        title: input.title,
+        problemStatement: input.problemStatement,
+        ideaDescription: input.ideaDescription,
+        coreFeatures: input.coreFeatures,
+        teamSize: input.teamSize,
+        inputHash,
+        panelEvaluation: Prisma.DbNull,
+        finalResult: JSON.parse(JSON.stringify(reportResult.report)),
+        detailedRoadmap: JSON.parse(JSON.stringify(reportResult.report.roadmap)),
+        feasibilityScore: reportResult.report.feasibilityScore,
+        innovationScore: reportResult.report.originalityScore,
+        industryRelevanceScore: reportResult.report.usefulnessScore,
+        originalityScore: reportResult.report.originalityScore,
+        usefulnessScore: reportResult.report.usefulnessScore,
+        recommendation,
+        status: "COMPLETED" as const,
+        modelUsed: reportResult.modelUsed,
+        tokensUsed: reportResult.tokensUsed,
+        latencyMs: reportResult.latencyMs,
+        errorMessage: null,
+    }
+
+    const updated = existing
+      ? await prisma.fYPIdeaValidation.update({ where: { id: existing.id }, data: dataToSave })
+      : await prisma.fYPIdeaValidation.create({ data: { studentId, ...dataToSave } })
+
+    return formatStoredValidation(updated, "student")
   }
 
   const guestResult = await generateValidationReport(input)
@@ -238,35 +223,6 @@ async function findExistingValidation(studentId: string, inputHash: string) {
       inputHash,
     },
     orderBy: { createdAt: "desc" },
-  })
-}
-
-async function resetExistingValidation(id: string, input: IdeaInput, inputHash: string) {
-  return prisma.fYPIdeaValidation.update({
-    where: { id },
-    data: {
-      title: input.title,
-      problemStatement: input.problemStatement,
-      ideaDescription: input.ideaDescription,
-      coreFeatures: input.coreFeatures,
-      teamSize: input.teamSize,
-      inputHash,
-      panelEvaluation: Prisma.DbNull,
-      finalResult: Prisma.DbNull,
-      detailedRoadmap: Prisma.DbNull,
-      feasibilityScore: null,
-      innovationScore: null,
-      industryRelevanceScore: null,
-      originalityScore: null,
-      usefulnessScore: null,
-      recommendation: null,
-      status: "PENDING",
-      modelUsed: null,
-      tokensUsed: 0,
-      latencyMs: null,
-      errorMessage: null,
-      createdAt: new Date(),
-    },
   })
 }
 

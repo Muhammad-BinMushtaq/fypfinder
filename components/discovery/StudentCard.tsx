@@ -14,8 +14,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { prefetchPublicProfile } from "@/hooks/student/usePublicProfile";
 import type { MatchedStudent } from "@/services/discovery.service";
 import { useState } from "react";
-import { sendPartnerRequest } from "@/services/requestPartner.service";
-import { toast } from "react-toastify";
 
 interface StudentCardProps {
   student: MatchedStudent;
@@ -24,10 +22,6 @@ interface StudentCardProps {
 export function StudentCard({ student }: StudentCardProps) {
   const queryClient = useQueryClient();
   const router = useRouter();
-  const [showInvite, setShowInvite] = useState(false);
-  const [inviteNote, setInviteNote] = useState("");
-  const [isSending, setIsSending] = useState(false);
-
   const handleCardClick = () => {
     router.push(`/dashboard/discovery/profile/${student.id}`);
   };
@@ -273,17 +267,7 @@ export function StudentCard({ student }: StudentCardProps) {
 
           {/* View / Invite */}
           <div className="flex items-center gap-2">
-            {!student.isGroupLocked && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowInvite(true);
-                }}
-                className="text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-              >
-                Quick Invite
-              </button>
-            )}
+            
             <div className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
               <span>View</span>
               <ChevronRight className="w-3.5 h-3.5" />
@@ -293,55 +277,7 @@ export function StudentCard({ student }: StudentCardProps) {
         </div>
       </div>
 
-      {showInvite && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={(e) => e.stopPropagation()}>
-          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95" onClick={(e) => e.stopPropagation()}>
-            <div className="p-4 border-b border-gray-200 dark:border-slate-800">
-              <h3 className="font-semibold text-gray-900 dark:text-white">Invite {student.name}</h3>
-            </div>
-            <div className="p-4 space-y-3">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Custom Note (Optional)</label>
-              <textarea
-                autoFocus
-                value={inviteNote}
-                onChange={(e) => setInviteNote(e.target.value)}
-                placeholder="Hi! I saw your profile and..."
-                className="w-full text-sm p-3 border border-gray-200 dark:border-slate-700 rounded-lg bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white outline-none focus:border-blue-500 resize-none h-24"
-              />
-            </div>
-            <div className="p-4 border-t border-gray-200 dark:border-slate-800 flex gap-2 justify-end">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowInvite(false);
-                }}
-                className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg"
-              >
-                Cancel
-              </button>
-              <button
-                disabled={isSending}
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  setIsSending(true);
-                  try {
-                    await sendPartnerRequest({ toStudentId: student.id, reason: inviteNote });
-                    toast.success("Invite sent!");
-                    setShowInvite(false);
-                  } catch (err: any) {
-                    toast.error(err.message || "Failed to send invite");
-                  } finally {
-                    setIsSending(false);
-                  }
-                }}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg disabled:opacity-50"
-              >
-                {isSending ? "Sending..." : "Send Invite"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      
     </div>
   );
 }

@@ -1,8 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { CheckCircle2, ChevronDown, ChevronUp, Clock3, FileText, History, Loader2, PencilLine, Sparkles, XCircle } from "lucide-react"
-import { useExtractPdfIdea, useMyValidations, useValidateIdea } from "@/hooks/fyp-ideas"
+import { CheckCircle2, ChevronDown, ChevronUp, Clock3, FileText, History, Loader2, PencilLine, Sparkles, XCircle, Trash2 } from "lucide-react"
+import { useExtractPdfIdea, useMyValidations, useValidateIdea, useDeleteValidation } from "@/hooks/fyp-ideas"
 import { ValidatorWizard } from "./ValidatorWizard"
 import { PdfIdeaReview } from "./PdfIdeaReview"
 import { PdfIdeaUpload } from "./PdfIdeaUpload"
@@ -322,27 +322,27 @@ function HistoryItem({
 }) {
   const isCompleted = item.status === "completed"
   const date = new Date(item.createdAt)
+  const deleteMutation = useDeleteValidation()
 
   return (
-    <button
+    <div
       onClick={() => isCompleted && onSelect(item)}
-      disabled={!isCompleted}
-      className={`w-full rounded-xl border p-3.5 text-left transition-all ${
+      className={`group w-full rounded-xl border p-3.5 text-left transition-all ${
         isCompleted
-          ? "border-gray-200 dark:border-slate-700/80 bg-gray-50/50 dark:bg-slate-900/40 hover:bg-gray-100/70 dark:hover:bg-slate-800/80"
-          : "border-red-200 dark:border-red-900/40 bg-red-50/30 dark:bg-red-950/20 text-red-800 dark:text-red-300"
+          ? "border-gray-200 dark:border-slate-700/80 bg-gray-50/50 dark:bg-slate-900/40 hover:bg-gray-100/70 dark:hover:bg-slate-800/80 cursor-pointer"
+          : "border-red-200 dark:border-red-900/40 bg-red-50/30 dark:bg-red-950/20 text-red-800 dark:text-red-300 opacity-70"
       }`}
     >
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-3 flex-1 min-w-0">
           {isCompleted ? (
             <span className="mt-1 h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
           ) : (
             <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
           )}
-          <div>
+          <div className="flex-1 min-w-0 pr-2">
             <p className="text-sm font-medium text-gray-900 dark:text-white line-clamp-1">
-              {item.report?.plainSummary || "Idea validation result"}
+              {item.report?.plainSummary || (isCompleted ? "Idea validation result" : "Validation failed")}
             </p>
             <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
               {date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
@@ -350,12 +350,27 @@ function HistoryItem({
           </div>
         </div>
 
-        {isCompleted && item.originalityScore != null && (
-          <div className="self-start sm:self-center rounded-md bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 px-2.5 py-1 text-xs font-medium text-gray-700 dark:text-gray-300">
-            Freshness: {item.originalityScore}/10
-          </div>
-        )}
+        <div className="flex items-center gap-2 self-start sm:self-center shrink-0">
+          {isCompleted && item.originalityScore != null && (
+            <div className="rounded-md bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 px-2.5 py-1 text-xs font-medium text-gray-700 dark:text-gray-300">
+              Freshness: {item.originalityScore}/10
+            </div>
+          )}
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              if (confirm("Are you sure you want to delete this validation?")) {
+                deleteMutation.mutate(item.id)
+              }
+            }}
+            disabled={deleteMutation.isPending}
+            className="p-1.5 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 disabled:opacity-50"
+            title="Delete Validation"
+          >
+            {deleteMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+          </button>
+        </div>
       </div>
-    </button>
+    </div>
   )
 }

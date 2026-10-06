@@ -204,3 +204,14 @@ export async function getMyValidations(
 
   return json.data
 }
+
+export async function deleteValidation(id: string): Promise<void> {
+  const response = await fetch(`/api/fyp-ideas/my-validations/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  })
+  const json = await response.json()
+  if (!response.ok) {
+    throw new Error(json.message || "Failed to delete validation")
+  }
+}
