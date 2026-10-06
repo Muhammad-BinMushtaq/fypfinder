@@ -55,21 +55,21 @@ export function RequestEmptyState({ variant, type }: RequestEmptyStateProps) {
         )}
       </div>
 
-      <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1.5 tracking-tight">
+      <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2 tracking-tight">
         {getTitle()}
       </h3>
 
-      <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md leading-relaxed mb-6">
+      <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md leading-relaxed mb-6">
         {getDescription()}
       </p>
 
       <Link
         href="/dashboard/discovery"
-        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold hover:bg-slate-800 dark:hover:bg-slate-100 transition shadow-2xs"
+        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-bold hover:bg-slate-800 dark:hover:bg-slate-100 transition shadow-2xs"
       >
-        <Search className="w-3.5 h-3.5" />
+        <Search className="w-4 h-4" />
         <span>Explore Student Discovery</span>
-        <ArrowRight className="w-3.5 h-3.5" />
+        <ArrowRight className="w-4 h-4" />
       </Link>
     </div>
   );
