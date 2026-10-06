@@ -60,40 +60,45 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
       />
 
       {/* Main content */}
-      <main className="flex-1 lg:ml-72 pb-20 lg:pb-0">
+      <main className="flex-1 min-w-0 w-full lg:ml-72 pb-20 lg:pb-0 overflow-x-hidden">
         {/* Mobile Header */}
-        <div className="lg:hidden sticky top-0 z-40 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 px-4 py-3">
-          <div className="flex items-center justify-between">
-            <Link href="/dashboard/profile" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gray-900 dark:bg-white rounded-lg flex items-center justify-center">
-                <GraduationCap className="w-5 h-5 text-white dark:text-gray-900" />
+        <div className="lg:hidden sticky top-0 z-40 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 px-3.5 py-2.5">
+          <div className="flex items-center justify-between gap-2">
+            <Link href="/dashboard/profile" className="flex items-center gap-2 shrink-0 min-w-0">
+              <div className="w-7 h-7 bg-gray-900 dark:bg-white rounded-lg flex items-center justify-center shrink-0">
+                <GraduationCap className="w-4 h-4 text-white dark:text-gray-900" />
               </div>
-              <span className="font-bold text-gray-900 dark:text-white">FYP Finder</span>
+              <span className="font-bold text-gray-900 dark:text-white text-sm sm:text-base truncate">FYP Finder</span>
             </Link>
-            <div className="flex items-center gap-1.5">
-              {/* FYP Ideas - Always visible */}
+
+            <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+              {/* FYP Ideas */}
               <Link
                 href="/dashboard/fyp-ideas"
+                title="FYP Ideas Archive"
                 className="flex items-center gap-1 px-2 py-1.5 text-xs font-medium text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 rounded-lg transition-colors border border-amber-200 dark:border-amber-800"
               >
                 <Lightbulb className="w-3.5 h-3.5" />
-                <span>Ideas</span>
+                <span className="hidden xs:inline sm:inline">Ideas</span>
               </Link>
+              {/* Validate Idea */}
               <Link
                 href="/dashboard/fyp-ideas/validate"
+                title="Validate Idea"
                 className="flex items-center gap-1 px-2 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 dark:hover:bg-blue-950/50 rounded-lg transition-colors border border-blue-200 dark:border-blue-900/40"
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Validate</span>
+                <span className="hidden xs:inline sm:inline">Validate</span>
               </Link>
+              {/* Settings */}
               <Link
                 href="/dashboard/settings"
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-gray-600 transition-colors hover:bg-gray-100 dark:border-slate-700 dark:bg-slate-900 dark:text-gray-300 dark:hover:bg-slate-700"
+                className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-gray-600 transition-colors hover:bg-gray-100 dark:border-slate-700 dark:bg-slate-900 dark:text-gray-300 dark:hover:bg-slate-700"
                 aria-label="Settings"
               >
-                <Settings className="h-4 w-4" />
+                <Settings className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </Link>
-              {/* Install Button - Always visible */}
+              {/* Install Button */}
               <InstallButton />
               <ThemeToggle />
             </div>

@@ -82,23 +82,23 @@ export function NotificationSettings() {
 
   // Normal state - show toggle
   return (
-    <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-start gap-3">
+    <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-3 sm:p-4">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-start gap-2.5 sm:gap-3 min-w-0">
           {isSubscribed ? (
-            <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
-              <Bell className="w-5 h-5 text-green-600 dark:text-green-400" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center shrink-0">
+              <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400" />
             </div>
           ) : (
-            <div className="w-10 h-10 bg-gray-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
-              <BellOff className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 dark:bg-slate-700 rounded-full flex items-center justify-center shrink-0">
+              <BellOff className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 dark:text-gray-400" />
             </div>
           )}
-          <div>
-            <h4 className="font-medium text-gray-900 dark:text-white">
+          <div className="min-w-0">
+            <h4 className="font-medium text-gray-900 dark:text-white text-xs sm:text-sm">
               Push Notifications
             </h4>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+            <p className="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">
               {isSubscribed 
                 ? 'You will receive notifications for new messages and requests'
                 : 'Enable to get notified even when the browser is closed'}

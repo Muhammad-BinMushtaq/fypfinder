@@ -84,7 +84,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Segmented Navigation Tabs (Mobile-responsive horizontal scroll) */}
-          <div className="flex items-center gap-1 mt-6 sm:mt-8 border-b border-slate-200 dark:border-slate-800 overflow-x-auto no-scrollbar -mx-3.5 px-3.5 sm:mx-0 sm:px-0">
+          <div className="flex items-center gap-1 mt-6 sm:mt-8 border-b border-slate-200 dark:border-slate-800 overflow-x-auto no-scrollbar w-full pb-0.5">
             <button
               onClick={() => setActiveTab("account")}
               className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 text-xs font-bold border-b-2 transition whitespace-nowrap shrink-0 ${
