@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 /**
  * StudentCard Component
@@ -8,7 +8,7 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { FolderGit2, ArrowRight } from "lucide-react";
+import { FolderGit2, ArrowUpRight } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { prefetchPublicProfile } from "@/hooks/student/usePublicProfile";
 import type { MatchedStudent } from "@/services/discovery.service";
@@ -58,7 +58,11 @@ export function StudentCard({ student }: StudentCardProps) {
       className="group cursor-pointer block h-full"
     >
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-white/5 transition-all duration-300 overflow-hidden h-full flex flex-col hover:-translate-y-1 hover:shadow-xl relative">
-        
+        {/* Click Affordance Indicator (Option 1: Minimal Top-Right Arrow) */}
+        <div className="absolute top-4 right-4 w-7 h-7 rounded-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white group-hover:border-slate-300 dark:group-hover:border-slate-600 transition-all duration-200">
+          <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+        </div>
+
         {/* Header Section */}
         <div className="p-6 flex flex-col items-center text-center space-y-4">
           
@@ -127,14 +131,6 @@ export function StudentCard({ student }: StudentCardProps) {
             <div className="h-[26px]"></div>
           )}
         </div>
-
-        {/* Floating Arrow (Visible on Hover) */}
-        <div className="absolute bottom-6 right-6 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-          <div className="w-8 h-8 rounded-full bg-slate-900 dark:bg-white flex items-center justify-center shadow-md">
-            <ArrowRight className="w-4 h-4 text-white dark:text-slate-900" />
-          </div>
-        </div>
-
       </div>
     </div>
   );

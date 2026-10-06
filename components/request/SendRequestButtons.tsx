@@ -22,7 +22,7 @@ import { useSendMessageRequest, useSentMessageRequests, useReceivedMessageReques
 import { useSendPartnerRequest, useSentPartnerRequests } from "@/hooks/request/usePartnerRequests";
 import { useStartConversation } from "@/hooks/messaging/useStartConversation";
 import { useCheckMessagePermission } from "@/hooks/messaging/useCheckMessagePermission";
-import { MessageSquare, Users, Loader2, Check, Ban, Clock, Send } from "lucide-react";
+import { MessageSquare, Users, Loader2, Check, Ban, Clock, Send, Info } from "lucide-react";
 import { toast } from "react-toastify";
 
 interface SendRequestButtonsProps {
@@ -151,151 +151,142 @@ export function SendRequestButtons({
 
   return (
     <>
-      <div className="flex flex-row gap-2 flex-wrap">
-        {/* Send Message Request / Start Chat Button */}
-        {targetAvailability === "AWAY" ? (
-          // Target is away - cannot send message requests
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-red-50 text-red-600 font-medium rounded-lg border border-red-200">
-            <Clock className="w-4 h-4" />
-            User is Away
-          </div>
-        ) : isCheckingPermission ? (
-          // Loading permission check
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-50 text-gray-500 font-medium rounded-lg border border-gray-200">
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            Checking...
-          </div>
-        ) : canMessage ? (
-          // Can message (either partners or accepted request) - show Start Chat button
-          <button
-            onClick={() => startConversation({ targetStudentId })}
-            disabled={isStartingChat}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all shadow-md shadow-green-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isStartingChat ? (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                Opening...
-              </>
-            ) : (
-              <>
-                <Send className="w-3.5 h-3.5" />
-                Open Chat
-              </>
-            )}
-          </button>
-        ) : hasPendingMessageRequest ? (
-          // Request pending
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 font-medium rounded-lg border border-amber-200 dark:border-amber-800">
-            <Loader2 className="w-3.5 h-3.5" />
-            Request Pending
-          </div>
-        ) : (
-          // Can send request
-          <button
-            onClick={() => setShowMessageModal(true)}
-            disabled={sendMessageMutation.isPending || messageSuccess}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {messageSuccess ? (
-              <>
-                <Check className="w-3.5 h-3.5" />
-                Sent!
-              </>
-            ) : sendMessageMutation.isPending ? (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                Sending...
-              </>
-            ) : (
-              <>
-                <MessageSquare className="w-3.5 h-3.5" />
-                Start Messaging
-              </>
-            )}
-          </button>
-        )}
+      <div className="w-full space-y-2.5">
+        {/* Parallel Action Buttons (Side-by-Side 50/50 Grid) */}
+        <div className="grid grid-cols-2 gap-2 w-full">
+          {/* Send Message Request / Start Chat Button */}
+          {targetAvailability === "AWAY" ? (
+            <div className="w-full h-10 inline-flex items-center justify-center gap-1.5 px-2 text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium rounded-xl border border-slate-200/60 dark:border-slate-700/60 truncate">
+              <Clock className="w-3.5 h-3.5 shrink-0" />
+              <span>Away</span>
+            </div>
+          ) : isCheckingPermission ? (
+            <div className="w-full h-10 inline-flex items-center justify-center gap-1.5 px-2 text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium rounded-xl border border-slate-200/60 dark:border-slate-700/60">
+              <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
+              <span>Checking...</span>
+            </div>
+          ) : canMessage ? (
+            <button
+              onClick={() => startConversation({ targetStudentId })}
+              disabled={isStartingChat}
+              className="w-full h-10 inline-flex items-center justify-center gap-1.5 px-2 text-xs sm:text-sm bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-medium rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isStartingChat ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
+                  <span>Opening...</span>
+                </>
+              ) : (
+                <>
+                  <Send className="w-3.5 h-3.5 shrink-0" />
+                  <span>Chat</span>
+                </>
+              )}
+            </button>
+          ) : hasPendingMessageRequest ? (
+            <div className="w-full h-10 inline-flex items-center justify-center gap-1.5 px-2 text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-medium rounded-xl border border-slate-200/60 dark:border-slate-700/60">
+              <Clock className="w-3.5 h-3.5 shrink-0" />
+              <span>Pending</span>
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowMessageModal(true)}
+              disabled={sendMessageMutation.isPending || messageSuccess}
+              className="w-full h-10 inline-flex items-center justify-center gap-1.5 px-2 text-xs sm:text-sm bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-medium rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {messageSuccess ? (
+                <>
+                  <Check className="w-3.5 h-3.5 shrink-0" />
+                  <span>Sent!</span>
+                </>
+              ) : sendMessageMutation.isPending ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
+                  <span>Sending...</span>
+                </>
+              ) : (
+                <>
+                  <MessageSquare className="w-3.5 h-3.5 shrink-0" />
+                  <span>Message</span>
+                </>
+              )}
+            </button>
+          )}
 
-        {/* Send Partner Request Button */}
-        {targetAvailability === "AWAY" ? (
-          // Target is away - cannot send partner requests
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-medium rounded-lg border border-red-200 dark:border-red-800">
-            <Clock className="w-3.5 h-3.5" />
-            Away
-          </div>
-        ) : currentSemester === 8 ? (
-          // Semester 8 students cannot send partner requests (read-only mode)
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 font-medium rounded-lg border border-slate-200 dark:border-slate-600">
-            <Ban className="w-3.5 h-3.5" />
-            View Only
-          </div>
-        ) : hasAcceptedPartnerRequest ? (
-          // Already partnered
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 font-medium rounded-lg border border-green-200 dark:border-green-800">
-            <Check className="w-3.5 h-3.5" />
-            Partners
-          </div>
-        ) : isUserGroupLocked ? (
-          // Current user's group is locked - cannot send partner requests
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 font-medium rounded-lg border border-gray-200 dark:border-slate-600">
-            <Ban className="w-3.5 h-3.5" />
-            Group Locked
-          </div>
-        ) : isTargetGroupLocked ? (
-          // Target's group is locked
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 font-medium rounded-lg border border-gray-200 dark:border-slate-600">
-            <Ban className="w-3.5 h-3.5" />
-            Locked
-          </div>
-        ) : hasPendingPartnerRequest ? (
-          // Request pending
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 font-medium rounded-lg border border-amber-200 dark:border-amber-800">
-            <Loader2 className="w-3.5 h-3.5" />
-            Request Pending
-          </div>
-        ) : !canPartner ? (
-          // Semester mismatch - cannot send partner requests
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 font-medium rounded-lg border border-gray-200 dark:border-slate-600">
-            <Ban className="w-3.5 h-3.5" />
-            Different Semester
-          </div>
-        ) : (
-          // Can send request
-          <button
-            onClick={() => setShowPartnerModal(true)}
-            disabled={sendPartnerMutation.isPending || partnerSuccess}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {partnerSuccess ? (
-              <>
-                <Check className="w-3.5 h-3.5" />
-                Sent!
-              </>
-            ) : sendPartnerMutation.isPending ? (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                Sending...
-              </>
-            ) : (
-              <>
-                <Users className="w-3.5 h-3.5" />
-                Add FYP Partner
-              </>
-            )}
-          </button>
-        )}
+          {/* Send Partner Request Button */}
+          {targetAvailability === "AWAY" ? (
+            <div className="w-full h-10 inline-flex items-center justify-center gap-1.5 px-2 text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium rounded-xl border border-slate-200/60 dark:border-slate-700/60 truncate">
+              <Clock className="w-3.5 h-3.5 shrink-0" />
+              <span>Away</span>
+            </div>
+          ) : currentSemester === 8 ? (
+            <div className="w-full h-10 inline-flex items-center justify-center gap-1.5 px-2 text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium rounded-xl border border-slate-200/60 dark:border-slate-700/60 truncate">
+              <Ban className="w-3.5 h-3.5 shrink-0" />
+              <span>View Only</span>
+            </div>
+          ) : hasAcceptedPartnerRequest ? (
+            <div className="w-full h-10 inline-flex items-center justify-center gap-1.5 px-2 text-xs bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 font-medium rounded-xl border border-emerald-200/60 dark:border-emerald-800/60">
+              <Check className="w-3.5 h-3.5 shrink-0" />
+              <span>Partners</span>
+            </div>
+          ) : isUserGroupLocked || isTargetGroupLocked ? (
+            <div className="w-full h-10 inline-flex items-center justify-center gap-1.5 px-2 text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium rounded-xl border border-slate-200/60 dark:border-slate-700/60">
+              <Ban className="w-3.5 h-3.5 shrink-0" />
+              <span>Locked</span>
+            </div>
+          ) : hasPendingPartnerRequest ? (
+            <div className="w-full h-10 inline-flex items-center justify-center gap-1.5 px-2 text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-medium rounded-xl border border-slate-200/60 dark:border-slate-700/60">
+              <Clock className="w-3.5 h-3.5 shrink-0" />
+              <span>Pending</span>
+            </div>
+          ) : !canPartner ? (
+            <div className="w-full h-10 inline-flex items-center justify-center gap-1.5 px-2 text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium rounded-xl border border-slate-200/60 dark:border-slate-700/60 truncate">
+              <Ban className="w-3.5 h-3.5 shrink-0" />
+              <span>Different Sem</span>
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowPartnerModal(true)}
+              disabled={sendPartnerMutation.isPending || partnerSuccess}
+              className="w-full h-10 inline-flex items-center justify-center gap-1.5 px-2 text-xs sm:text-sm bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-medium rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {partnerSuccess ? (
+                <>
+                  <Check className="w-3.5 h-3.5 shrink-0" />
+                  <span>Sent!</span>
+                </>
+              ) : sendPartnerMutation.isPending ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
+                  <span>Sending...</span>
+                </>
+              ) : (
+                <>
+                  <Users className="w-3.5 h-3.5 shrink-0" />
+                  <span>Partner</span>
+                </>
+              )}
+            </button>
+          )}
+        </div>
 
-        {/* Semester mismatch hint */}
+        {/* Minimalist Neutral Semester Mismatch Disclaimer */}
         {!canPartner && targetSemester !== undefined && currentSemester !== undefined && currentSemester !== 8 && (
-          <div className="w-full mt-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 rounded-lg border border-amber-200 dark:border-amber-800">
-            ⚠️ Partner requests require the same semester. You're in Semester {currentSemester}, they're in Semester {targetSemester}.
+          <div className="w-full text-xs text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl border border-slate-200/80 dark:border-slate-700/60 flex items-start gap-2.5 leading-relaxed">
+            <Info className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0 mt-0.5" />
+            <span>
+              Partner requests require the same semester (You: Sem {currentSemester}, Them: Sem {targetSemester}).
+            </span>
           </div>
         )}
 
-        {/* Semester 8 info message */}
+        {/* Minimalist Neutral Semester 8 Disclaimer */}
         {currentSemester === 8 && (
-          <div className="w-full mt-2 text-xs text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-700/50 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600">
-            ℹ️ Semester 8 students can view profiles and send messages, but cannot send partner requests.
+          <div className="w-full text-xs text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl border border-slate-200/80 dark:border-slate-700/60 flex items-start gap-2.5 leading-relaxed">
+            <Info className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0 mt-0.5" />
+            <span>
+              Semester 8 students can message but cannot form partner groups.
+            </span>
           </div>
         )}
       </div>

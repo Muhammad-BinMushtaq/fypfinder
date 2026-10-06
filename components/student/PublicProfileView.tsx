@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -70,14 +70,11 @@ export function PublicProfileView({
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Column: Sticky Profile Card */}
-        <div className="lg:col-span-4 lg:sticky lg:top-32 space-y-6">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-white/5 overflow-hidden shadow-sm">
-            {/* Cover Strip */}
-            <div className="h-24 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 w-full" />
-            
-            <div className="px-8 pb-8">
-              {/* Avatar overlaying cover */}
-              <div className="relative -mt-12 mb-4 w-24 h-24 rounded-full overflow-hidden border-4 border-white dark:border-slate-900 bg-slate-50 dark:bg-slate-800 flex-shrink-0">
+        <div className="lg:col-span-4 lg:sticky lg:top-8 space-y-6">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-7 shadow-sm">
+            {/* Avatar & Header */}
+            <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
+              <div className="relative mb-4 w-24 h-24 rounded-full overflow-hidden border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex-shrink-0 shadow-sm">
                 {profile.profilePicture ? (
                   <img src={profile.profilePicture} alt={profile.name} className="w-full h-full object-cover" />
                 ) : (
@@ -87,71 +84,76 @@ export function PublicProfileView({
                 )}
               </div>
 
-              {/* Name & Availability */}
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+              {/* Name & Availability Badges */}
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
                 {profile.name}
               </h1>
               
-              <div className="mt-2 flex flex-col gap-1.5 text-sm font-medium">
-                <div className="flex items-center gap-2">
+              <div className="mt-2.5 flex flex-wrap items-center justify-center sm:justify-start gap-2 text-xs font-medium">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60">
                   <span className={`w-2 h-2 rounded-full ${availabilityConfig.dot}`} />
                   <span className={availabilityConfig.text}>{availabilityConfig.label}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-slate-400">·</span>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60">
                   <span className={groupStatusConfig.text}>{groupStatusConfig.label}</span>
                 </div>
               </div>
+            </div>
 
-              {/* Academic Info */}
-              <div className="mt-6 pt-6 border-t border-slate-100 dark:border-white/5 space-y-3 text-sm text-slate-600 dark:text-slate-400">
-                <p>{getDepartmentLabel(profile.department)}</p>
-                <p>Semester {profile.semester}</p>
-                {profile.email && (
-                  <a href={`mailto:${profile.email}`} className="flex items-center gap-2 hover:text-slate-900 dark:hover:text-white transition-colors">
-                    <Mail className="w-4 h-4" />
-                    {profile.email}
+            {/* Academic Info */}
+            <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 space-y-2.5 text-sm text-slate-600 dark:text-slate-400">
+              <div className="flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-slate-400 shrink-0" />
+                <span className="truncate">{getDepartmentLabel(profile.department)}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
+                <span>Semester {profile.semester}</span>
+              </div>
+              {profile.email && (
+                <a href={`mailto:${profile.email}`} className="flex items-center gap-2 hover:text-slate-900 dark:hover:text-white transition-colors truncate">
+                  <Mail className="w-4 h-4 text-slate-400 shrink-0" />
+                  <span className="truncate">{profile.email}</span>
+                </a>
+              )}
+            </div>
+
+            {/* Roles */}
+            {profile.primaryRoles && profile.primaryRoles.length > 0 && (
+              <div className="mt-5 pt-5 border-t border-slate-100 dark:border-slate-800">
+                <PrimaryRoleBadges roles={profile.primaryRoles} />
+              </div>
+            )}
+
+            {/* Socials */}
+            {(profile.githubUrl || profile.linkedinUrl) && (
+              <div className="mt-5 pt-5 border-t border-slate-100 dark:border-slate-800 flex gap-2.5">
+                {profile.githubUrl && (
+                  <a href={profile.githubUrl} target="_blank" rel="noreferrer" className="w-9 h-9 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 transition-colors">
+                    <Github className="w-4 h-4" />
+                  </a>
+                )}
+                {profile.linkedinUrl && (
+                  <a href={profile.linkedinUrl} target="_blank" rel="noreferrer" className="w-9 h-9 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 transition-colors">
+                    <Linkedin className="w-4 h-4" />
                   </a>
                 )}
               </div>
+            )}
 
-              {/* Roles */}
-              {profile.primaryRoles && profile.primaryRoles.length > 0 && (
-                <div className="mt-6">
-                  <PrimaryRoleBadges roles={profile.primaryRoles} />
-                </div>
-              )}
-
-              {/* Socials */}
-              {(profile.githubUrl || profile.linkedinUrl) && (
-                <div className="mt-6 flex gap-3">
-                  {profile.githubUrl && (
-                    <a href={profile.githubUrl} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
-                      <Github className="w-5 h-5" />
-                    </a>
-                  )}
-                  {profile.linkedinUrl && (
-                    <a href={profile.linkedinUrl} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
-                      <Linkedin className="w-5 h-5" />
-                    </a>
-                  )}
-                </div>
-              )}
-
-              {/* Actions */}
-              <div className="mt-8">
-                <SendRequestButtons
-                  targetStudentId={profile.id}
-                  targetName={profile.name}
-                  isSameStudent={isSameStudent}
-                  targetSemester={profile.semester}
-                  currentSemester={currentSemester}
-                  isUserInGroup={isUserInGroup}
-                  isTargetGroupLocked={!profile.availableForGroup}
-                  isUserGroupLocked={isUserGroupLocked}
-                  targetAvailability={profile.availability}
-                />
-              </div>
+            {/* Parallel Actions */}
+            <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
+              <SendRequestButtons
+                targetStudentId={profile.id}
+                targetName={profile.name}
+                isSameStudent={isSameStudent}
+                targetSemester={profile.semester}
+                currentSemester={currentSemester}
+                isUserInGroup={isUserInGroup}
+                isTargetGroupLocked={!profile.availableForGroup}
+                isUserGroupLocked={isUserGroupLocked}
+                targetAvailability={profile.availability}
+              />
             </div>
           </div>
         </div>
