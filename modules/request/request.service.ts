@@ -570,30 +570,30 @@ export async function acceptPartnerRequest(
                 where: { id: groupId },
                 data: { isLocked: true },
             })
+
+            // 7️⃣ Auto-reject all other PENDING partner requests involving either student
+            // This prevents stale requests from causing race conditions or invalid group merges
+            // after the group is completely full.
+            await tx.request.updateMany({
+                where: {
+                    id: { not: requestId },
+                    type: RequestType.PARTNER,
+                    status: RequestStatus.PENDING,
+                    OR: [
+                        { fromStudentId: sender.id },
+                        { toStudentId: sender.id },
+                        { fromStudentId: receiver.id },
+                        { toStudentId: receiver.id },
+                    ],
+                },
+                data: { status: RequestStatus.REJECTED },
+            })
         }
 
         // 6️⃣ Mark request accepted
         const updatedRequest = await tx.request.update({
             where: { id: requestId },
             data: { status: RequestStatus.ACCEPTED },
-        })
-
-        // 7️⃣ Auto-reject all other PENDING partner requests involving either student
-        // This prevents stale requests from causing race conditions or invalid group merges
-        // after both students are now committed to a group.
-        await tx.request.updateMany({
-            where: {
-                id: { not: requestId },
-                type: RequestType.PARTNER,
-                status: RequestStatus.PENDING,
-                OR: [
-                    { fromStudentId: sender.id },
-                    { toStudentId: sender.id },
-                    { fromStudentId: receiver.id },
-                    { toStudentId: receiver.id },
-                ],
-            },
-            data: { status: RequestStatus.REJECTED },
         })
 
         return { updatedRequest, senderStudentId: sender.id, receiverName: receiver.name }

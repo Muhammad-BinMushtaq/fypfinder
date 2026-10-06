@@ -11,11 +11,11 @@ export function createQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 5 * 60 * 1000,  // 5 minutes - data considered fresh
+        staleTime: 1 * 60 * 1000,  // 1 minute - data considered fresh
         gcTime: 24 * 60 * 60 * 1000, // 24 hours - keep in storage for offline
         retry: 1,                
         refetchOnWindowFocus: false,
-        refetchOnMount: false,
+        refetchOnMount: true,
         // ✅ Refetch on reconnect
         refetchOnReconnect: true,
         // ✅ Keep showing stale data while fetching new

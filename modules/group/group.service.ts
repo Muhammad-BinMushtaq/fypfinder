@@ -145,17 +145,19 @@ export async function removeGroupMember(
         throw new Error("Target student is not part of your group")
     }
 
-    // 4️⃣ Prevent invalid group state
-    if (group.members.length <= 2) {
-        throw new Error("Group must have at least 2 members")
-    }
-
     // 5️⃣ Remove member
     await prisma.fYPGroupMember.delete({
         where: {
             id: targetMembership.id,
         },
     })
+
+    // 6️⃣ Cleanup: if group is now empty, delete it
+    if (group.members.length <= 1) {
+        await prisma.fYPGroup.delete({
+            where: { id: group.id }
+        })
+    }
 
     return {
         removedStudentId: targetStudentId,

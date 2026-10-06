@@ -62,8 +62,8 @@ export function AppProviders({ children }: ProvidersProps) {
               return false
             }
             
-            // Persist discovery, profile, and messages data
-            const persistableKeys = ['discovery', 'profile', 'student', 'messages', 'conversations']
+            // Persist lightweight data only to avoid 5MB localStorage quota limit
+            const persistableKeys = ['profile', 'student']
             return persistableKeys.some(key => queryKey[0]?.includes(key))
           },
         },

@@ -139,6 +139,9 @@ export async function getMatchedStudents(
     // 📦 5. Query DB (parallel)
     const [students, total] = await Promise.all([
         prisma.student.findMany({
+            take: limit,
+            skip: offset,
+            orderBy: { createdAt: "desc" },
             where,
             select: {
                 id: true,
@@ -233,10 +236,8 @@ export async function getMatchedStudents(
         return a.name.localeCompare(b.name)
     })
 
-    const paginatedItems = items.slice(offset, offset + limit)
-
     return ({
-        items: paginatedItems,
+        items,
         limit,
         offset,
         total
