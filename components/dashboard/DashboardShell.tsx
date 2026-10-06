@@ -54,7 +54,11 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-[#020617] flex">
+    <div
+      className={`bg-slate-100 dark:bg-[#020617] flex ${
+        isChatOpen ? "h-[100dvh] overflow-hidden" : "min-h-screen"
+      }`}
+    >
       {/* Desktop Sidebar */}
       <DashboardSidebar
         userEmail={userEmail || "user@example.com"}
@@ -66,14 +70,14 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
       <main
         className={`flex-1 min-w-0 w-full lg:pl-[17.5rem] ${
           isChatOpen
-            ? "lg:pr-4 lg:py-4 h-[100dvh] overflow-hidden flex flex-col"
+            ? "fixed inset-0 z-40 lg:static lg:pr-4 lg:py-4 h-[100dvh] overflow-hidden flex flex-col"
             : "lg:pr-4 lg:py-4 pb-28 lg:pb-4 overflow-x-hidden flex flex-col min-h-screen"
         }`}
       >
         {/* Floating Desktop Main Container */}
         <div
           className={`flex-1 flex flex-col lg:bg-white/75 lg:dark:bg-slate-900/60 lg:backdrop-blur-xl lg:border lg:border-white/40 lg:dark:border-white/10 lg:shadow-[0_8px_30px_rgb(0,0,0,0.04)] lg:dark:shadow-2xl lg:rounded-3xl relative overflow-hidden ${
-            isChatOpen ? "h-full bg-white dark:bg-slate-900" : ""
+            isChatOpen ? "h-full rounded-none border-none shadow-none bg-white dark:bg-slate-900" : ""
           }`}
         >
           {/* Mobile Header (Glass) - Hidden when in active chat */}

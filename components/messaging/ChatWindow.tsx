@@ -223,7 +223,7 @@ export function ChatWindow({
   return (
     <div className="h-full flex flex-col bg-white dark:bg-slate-900 overflow-hidden">
       {/* Chat Header with Profile Link (Instagram Style - Locked at Top) */}
-      <div className="shrink-0 sticky top-0 z-30 flex items-center gap-3 px-4 py-3 border-b border-gray-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md">
+      <div className="shrink-0 sticky top-0 z-30 flex items-center gap-3 px-4 pt-[calc(0.75rem+env(safe-area-inset-top))] pb-3 border-b border-gray-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md">
         <button
           onClick={() => router.push("/dashboard/messages")}
           className="lg:hidden p-2 -ml-2 text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"

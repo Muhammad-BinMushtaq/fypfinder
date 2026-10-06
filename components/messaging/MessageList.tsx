@@ -48,20 +48,25 @@ export function MessageList({
       (messages.length > 0 && messages[messages.length - 1]?.senderId === currentStudentId)
     )
 
-    if (shouldScroll && bottomRef.current) {
-      // Use requestAnimationFrame for smoother scrolling
+    if (shouldScroll && containerRef.current) {
+      // Container-only smooth scrolling (avoids scrolling window on mobile)
       requestAnimationFrame(() => {
-        bottomRef.current?.scrollIntoView({ behavior: "smooth" })
+        if (containerRef.current) {
+          containerRef.current.scrollTo({
+            top: containerRef.current.scrollHeight,
+            behavior: "smooth",
+          })
+        }
       })
     }
 
     prevMessagesLengthRef.current = messages.length
   }, [messages, currentStudentId])
 
-  // Scroll to bottom on initial load
+  // Scroll to bottom on initial load (container-only instant scroll)
   useEffect(() => {
-    if (!isLoading && messages.length > 0 && bottomRef.current) {
-      bottomRef.current.scrollIntoView({ behavior: "instant" })
+    if (!isLoading && messages.length > 0 && containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight
     }
   }, [isLoading]) // eslint-disable-line react-hooks/exhaustive-deps
 
