@@ -111,7 +111,7 @@ export function RequestCard({
         {/* Card Header: Type Badge, Direction & Status */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700">
               {isPartner ? <Users className="w-3.5 h-3.5" /> : <MessageSquare className="w-3.5 h-3.5" />}
               <span>{isPartner ? "Partner Invite" : "Message Request"}</span>
             </span>
@@ -137,7 +137,7 @@ export function RequestCard({
                 className="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-slate-700 group-hover:border-slate-400 transition"
               />
             ) : (
-              <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-800 dark:text-slate-200 font-bold text-sm group-hover:scale-102 transition">
+              <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-800 dark:text-slate-200 font-medium text-sm group-hover:scale-102 transition">
                 {getInitials(student.name)}
               </div>
             )}
@@ -148,7 +148,7 @@ export function RequestCard({
               href={`/dashboard/discovery/profile/${student.id}`}
               className="inline-flex items-center gap-1.5 group truncate max-w-full"
             >
-              <h3 className="font-bold text-slate-900 dark:text-white text-base group-hover:underline truncate">
+              <h3 className="font-medium text-slate-900 dark:text-white text-base group-hover:underline truncate">
                 {student.name}
               </h3>
               <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200 shrink-0" />

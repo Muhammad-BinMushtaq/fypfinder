@@ -28,7 +28,7 @@ export function RequestTabs({
       {/* Received Tab */}
       <button
         onClick={() => onTabChange("received")}
-        className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+        className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
           activeTab === "received"
             ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs border border-slate-200/60 dark:border-slate-800"
             : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
@@ -38,7 +38,7 @@ export function RequestTabs({
         <span>Incoming</span>
         {typeof receivedCount === "number" && (
           <span
-            className={`px-2 py-0.5 rounded-full text-xs font-extrabold ${
+            className={`px-2 py-0.5 rounded-full text-xs font-bold ${
               activeTab === "received"
                 ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
                 : "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300"
@@ -52,7 +52,7 @@ export function RequestTabs({
       {/* Sent Tab */}
       <button
         onClick={() => onTabChange("sent")}
-        className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+        className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
           activeTab === "sent"
             ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs border border-slate-200/60 dark:border-slate-800"
             : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
@@ -62,7 +62,7 @@ export function RequestTabs({
         <span>Outgoing</span>
         {typeof sentCount === "number" && (
           <span
-            className={`px-2 py-0.5 rounded-full text-xs font-extrabold ${
+            className={`px-2 py-0.5 rounded-full text-xs font-bold ${
               activeTab === "sent"
                 ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
                 : "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300"

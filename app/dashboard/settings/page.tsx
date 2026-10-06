@@ -55,7 +55,7 @@ export default function SettingsPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="min-w-0">
               <div className="flex items-center gap-2 mb-2 flex-wrap">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm font-bold uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-300">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm font-medium uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-300">
                   <Settings className="h-4 w-4" />
                   Preferences
                 </span>
@@ -64,7 +64,7 @@ export default function SettingsPage() {
                   PAF-IAST Student Account
                 </span>
               </div>
-              <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+              <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
                 Settings & Preferences
               </h1>
               <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-base mt-2 max-w-xl leading-relaxed">
@@ -88,7 +88,7 @@ export default function SettingsPage() {
             <div className="inline-flex flex-wrap items-center bg-slate-100 dark:bg-slate-800/80 rounded-xl p-1.5 border border-slate-200/80 dark:border-slate-700 w-full lg:w-fit">
               <button
                 onClick={() => setActiveTab("account")}
-                className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-all flex-1 sm:flex-none ${
+                className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex-1 sm:flex-none ${
                   activeTab === "account"
                     ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs border border-slate-200/60 dark:border-slate-800"
                     : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
@@ -100,7 +100,7 @@ export default function SettingsPage() {
 
               <button
                 onClick={() => setActiveTab("notifications")}
-                className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-all flex-1 sm:flex-none ${
+                className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex-1 sm:flex-none ${
                   activeTab === "notifications"
                     ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs border border-slate-200/60 dark:border-slate-800"
                     : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
@@ -112,7 +112,7 @@ export default function SettingsPage() {
 
               <button
                 onClick={() => setActiveTab("privacy")}
-                className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-all flex-1 sm:flex-none ${
+                className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex-1 sm:flex-none ${
                   activeTab === "privacy"
                     ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs border border-slate-200/60 dark:border-slate-800"
                     : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
@@ -124,7 +124,7 @@ export default function SettingsPage() {
 
               <button
                 onClick={() => setActiveTab("security")}
-                className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-all flex-1 sm:flex-none ${
+                className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex-1 sm:flex-none ${
                   activeTab === "security"
                     ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs border border-slate-200/60 dark:border-slate-800"
                     : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
@@ -147,7 +147,7 @@ export default function SettingsPage() {
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6 shadow-2xs space-y-4 sm:space-y-5">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-slate-100 dark:border-slate-800 pb-3 sm:pb-4">
                 <div>
-                  <h3 className="text-sm sm:text-base font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5 sm:gap-2">
+                  <h3 className="text-sm sm:text-base font-medium uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5 sm:gap-2">
                     <GraduationCap className="h-4 w-4 text-slate-600 dark:text-slate-400 shrink-0" />
                     Institutional Credentials
                   </h3>
@@ -155,7 +155,7 @@ export default function SettingsPage() {
                     Verified credentials managed by Pak-Austria Fachhochschule (PAF-IAST).
                   </p>
                 </div>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-sm sm:text-base font-bold w-fit">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-sm sm:text-base font-medium w-fit">
                   <CheckCircle2 className="h-3 w-3 text-emerald-400 dark:text-emerald-600 shrink-0" />
                   Verified Student (Azure SSO)
                 </span>
@@ -164,28 +164,28 @@ export default function SettingsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm">
                 <div className="p-3 sm:p-3.5 rounded-lg border border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/30">
                   <span className="text-slate-400 font-medium block mb-1 text-sm">Student Full Name</span>
-                  <p className="font-bold text-slate-900 dark:text-white text-sm sm:text-base break-words">
+                  <p className="font-medium text-slate-900 dark:text-white text-sm sm:text-base break-words">
                     {profile?.name || "Student User"}
                   </p>
                 </div>
 
                 <div className="p-3 sm:p-3.5 rounded-lg border border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/30">
                   <span className="text-slate-400 font-medium block mb-1 text-sm">Official University Email</span>
-                  <p className="font-bold text-slate-900 dark:text-white text-sm sm:text-base break-all">
+                  <p className="font-medium text-slate-900 dark:text-white text-sm sm:text-base break-all">
                     {user?.email || "student@paf-iast.edu.pk"}
                   </p>
                 </div>
 
                 <div className="p-3 sm:p-3.5 rounded-lg border border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/30">
                   <span className="text-slate-400 font-medium block mb-1 text-sm">Department / Academic Discipline</span>
-                  <p className="font-bold text-slate-900 dark:text-white text-sm sm:text-base break-words">
+                  <p className="font-medium text-slate-900 dark:text-white text-sm sm:text-base break-words">
                     {profile?.department || "Computer Science / Software Engineering"}
                   </p>
                 </div>
 
                 <div className="p-3 sm:p-3.5 rounded-lg border border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/30">
                   <span className="text-slate-400 font-medium block mb-1 text-sm">Current Semester & Batch</span>
-                  <p className="font-bold text-slate-900 dark:text-white text-sm sm:text-base">
+                  <p className="font-medium text-slate-900 dark:text-white text-sm sm:text-base">
                     {profile?.semester ? `Semester ${profile.semester}` : "Semester 7/8"} • Senior Batch
                   </p>
                 </div>
@@ -197,7 +197,7 @@ export default function SettingsPage() {
                 </span>
                 <Link
                   href="/dashboard/profile"
-                  className="inline-flex items-center gap-1 text-sm font-bold text-slate-900 dark:text-white hover:underline w-fit"
+                  className="inline-flex items-center gap-1 text-sm font-medium text-slate-900 dark:text-white hover:underline w-fit"
                 >
                   Edit Portfolio Bio & Skills <ExternalLink className="w-3 h-3" />
                 </Link>
@@ -207,11 +207,11 @@ export default function SettingsPage() {
             {/* Discovery Preview Card */}
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center font-bold text-slate-800 dark:text-slate-200 shrink-0">
+                <div className="w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center font-medium text-slate-800 dark:text-slate-200 shrink-0">
                   {(profile?.name || "S").charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base">
+                  <h4 className="font-medium text-slate-900 dark:text-white text-sm sm:text-base">
                     Public Discovery Card Preview
                   </h4>
                   <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 mt-0.5">
@@ -235,7 +235,7 @@ export default function SettingsPage() {
             {/* PWA Push Notification Panel */}
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6 shadow-2xs">
               <div className="mb-4">
-                <h3 className="text-sm sm:text-base font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5 sm:gap-2">
+                <h3 className="text-sm sm:text-base font-medium uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5 sm:gap-2">
                   <Smartphone className="h-4 w-4 text-slate-600 dark:text-slate-400 shrink-0" />
                   Web Push Notification Service
                 </h3>
@@ -250,7 +250,7 @@ export default function SettingsPage() {
             {/* Granular Alert Preferences */}
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6 shadow-2xs space-y-3 sm:space-y-4">
               <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
-                <h3 className="text-sm sm:text-base font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5 sm:gap-2">
+                <h3 className="text-sm sm:text-base font-medium uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5 sm:gap-2">
                   <Bell className="h-4 w-4 text-slate-600 dark:text-slate-400 shrink-0" />
                   Alert Channels & Event Triggers
                 </h3>
@@ -263,7 +263,7 @@ export default function SettingsPage() {
                 {/* Trigger 1 */}
                 <div className="py-3 flex items-start sm:items-center justify-between gap-3">
                   <div className="min-w-0 pr-2">
-                    <h4 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base leading-snug">
+                    <h4 className="font-medium text-slate-900 dark:text-white text-sm sm:text-base leading-snug">
                       FYP Partner Requests & Invitations
                     </h4>
                     <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
@@ -281,7 +281,7 @@ export default function SettingsPage() {
                 {/* Trigger 2 */}
                 <div className="py-3 flex items-start sm:items-center justify-between gap-3">
                   <div className="min-w-0 pr-2">
-                    <h4 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base leading-snug">
+                    <h4 className="font-medium text-slate-900 dark:text-white text-sm sm:text-base leading-snug">
                       Teammate Direct Messages
                     </h4>
                     <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
@@ -299,7 +299,7 @@ export default function SettingsPage() {
                 {/* Trigger 3 */}
                 <div className="py-3 flex items-start sm:items-center justify-between gap-3">
                   <div className="min-w-0 pr-2">
-                    <h4 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base leading-snug">
+                    <h4 className="font-medium text-slate-900 dark:text-white text-sm sm:text-base leading-snug">
                       AI Idea Validation Complete
                     </h4>
                     <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
@@ -317,7 +317,7 @@ export default function SettingsPage() {
                 {/* Trigger 4 */}
                 <div className="py-3 flex items-start sm:items-center justify-between gap-3">
                   <div className="min-w-0 pr-2">
-                    <h4 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base leading-snug">
+                    <h4 className="font-medium text-slate-900 dark:text-white text-sm sm:text-base leading-snug">
                       Workspace Tasks & Milestones
                     </h4>
                     <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
@@ -342,7 +342,7 @@ export default function SettingsPage() {
             {/* Discovery & Team Visibility */}
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6 shadow-2xs space-y-4">
               <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
-                <h3 className="text-sm sm:text-base font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5 sm:gap-2">
+                <h3 className="text-sm sm:text-base font-medium uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5 sm:gap-2">
                   <Users className="h-4 w-4 text-slate-600 dark:text-slate-400 shrink-0" />
                   Partner Matching & Discovery Visibility
                 </h3>
@@ -355,7 +355,7 @@ export default function SettingsPage() {
                 {/* Group Public Visibility */}
                 <div className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
-                    <h4 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base leading-snug">
+                    <h4 className="font-medium text-slate-900 dark:text-white text-sm sm:text-base leading-snug">
                       Display FYP Group on Public Profile
                     </h4>
                     <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
@@ -365,7 +365,7 @@ export default function SettingsPage() {
                   <button
                     onClick={() => updateGroupVisibility.mutate(!isGroupVisible)}
                     disabled={updateGroupVisibility.isPending || !group}
-                    className={`inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold transition w-fit shrink-0 ${
+                    className={`inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition w-fit shrink-0 ${
                       isGroupVisible
                         ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
                         : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700"
@@ -388,7 +388,7 @@ export default function SettingsPage() {
 
             {/* Validation History Privacy */}
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6 shadow-2xs space-y-3 text-sm">
-              <h3 className="text-sm sm:text-base font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5 sm:gap-2">
+              <h3 className="text-sm sm:text-base font-medium uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5 sm:gap-2">
                 <Sparkles className="h-4 w-4 text-slate-600 dark:text-slate-400 shrink-0" />
                 Idea Validation Quota & Storage
               </h3>
@@ -398,7 +398,7 @@ export default function SettingsPage() {
               <div className="pt-2">
                 <Link
                   href="/dashboard/fyp-ideas/validate"
-                  className="inline-flex items-center gap-1.5 text-sm font-bold text-slate-900 dark:text-white underline hover:opacity-80"
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-900 dark:text-white underline hover:opacity-80"
                 >
                   View My Validation History & Quotas →
                 </Link>
@@ -414,7 +414,7 @@ export default function SettingsPage() {
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6 shadow-2xs space-y-4">
               <div className="border-b border-slate-100 dark:border-slate-800 pb-3 flex items-center justify-between">
                 <div>
-                  <h3 className="text-sm sm:text-base font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5 sm:gap-2">
+                  <h3 className="text-sm sm:text-base font-medium uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5 sm:gap-2">
                     <Lock className="h-4 w-4 text-slate-600 dark:text-slate-400 shrink-0" />
                     Authentication & Session
                   </h3>
@@ -426,15 +426,15 @@ export default function SettingsPage() {
 
               <div className="bg-slate-50 dark:bg-slate-800/50 p-3 sm:p-4 rounded-lg border border-slate-100 dark:border-slate-800 text-sm space-y-2">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                  <span className="font-bold text-slate-800 dark:text-slate-200 text-sm sm:text-base">Identity Provider:</span>
+                  <span className="font-medium text-slate-800 dark:text-slate-200 text-sm sm:text-base">Identity Provider:</span>
                   <span className="font-mono text-slate-600 dark:text-slate-400 text-sm sm:text-base break-all">PAF-IAST Microsoft Azure AD</span>
                 </div>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                  <span className="font-bold text-slate-800 dark:text-slate-200 text-sm sm:text-base">Session Type:</span>
+                  <span className="font-medium text-slate-800 dark:text-slate-200 text-sm sm:text-base">Session Type:</span>
                   <span className="text-slate-600 dark:text-slate-400 text-sm sm:text-base">Secure HTTP-Only JWT Cookie</span>
                 </div>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                  <span className="font-bold text-slate-800 dark:text-slate-200 text-sm sm:text-base">Active Email:</span>
+                  <span className="font-medium text-slate-800 dark:text-slate-200 text-sm sm:text-base">Active Email:</span>
                   <span className="text-slate-600 dark:text-slate-400 text-sm sm:text-base break-all">{user?.email}</span>
                 </div>
               </div>
@@ -458,7 +458,7 @@ export default function SettingsPage() {
               <div className="flex items-start gap-2.5 border-b border-red-100 dark:border-red-900/30 pb-3">
                 <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
                 <div>
-                  <h3 className="text-sm sm:text-base font-bold uppercase tracking-wider text-red-900 dark:text-red-300">
+                  <h3 className="text-sm sm:text-base font-medium uppercase tracking-wider text-red-900 dark:text-red-300">
                     Danger Zone: Request Account Deletion
                   </h3>
                   <p className="text-sm sm:text-base text-red-600 dark:text-red-400 mt-0.5">
