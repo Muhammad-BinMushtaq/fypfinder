@@ -59,33 +59,31 @@ export function MobileBottomNav() {
   };
 
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 safe-area-inset-bottom">
-      <div className="flex items-center justify-around h-16 px-2">
+    <nav className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[24rem] z-50 bg-white/75 dark:bg-slate-900/75 backdrop-blur-xl border border-white/30 dark:border-slate-700/50 shadow-2xl rounded-full overflow-visible pb-[env(safe-area-inset-bottom)]">
+      <div className="flex items-center justify-between h-16 px-4 gap-1">
         {navItems.map((item) => {
           const active = isActive(item.href);
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`relative flex flex-col items-center justify-center flex-1 h-full transition-colors ${
+              className={`relative flex flex-col items-center justify-center w-12 h-12 rounded-full transition-all duration-300 ${
                 active
-                  ? "text-gray-900 dark:text-white"
-                  : "text-gray-500 dark:text-gray-400"
+                  ? "bg-black/5 dark:bg-white/10 text-gray-900 dark:text-white"
+                  : "text-gray-500 dark:text-gray-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white"
               }`}
             >
               <div className="relative">
                 {item.icon}
                 {item.showUnreadBadge && unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 flex items-center justify-center text-[10px] font-bold bg-red-500 text-white rounded-full">
+                  <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 flex items-center justify-center text-[9px] font-bold bg-red-500 text-white rounded-full shadow-sm ring-2 ring-white dark:ring-slate-900">
                     {unreadCount > 99 ? "99+" : unreadCount}
                   </span>
                 )}
               </div>
-              <span className={`text-[10px] mt-1 font-medium ${active ? "font-semibold" : ""}`}>
-                {item.label}
-              </span>
+              <span className="sr-only">{item.label}</span>
               {active && (
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-gray-900 dark:bg-white rounded-full" />
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-gray-900 dark:bg-white rounded-full" />
               )}
             </Link>
           );

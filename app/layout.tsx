@@ -65,7 +65,7 @@ export default function RootLayout({
         <link rel="icon" href="/icons/icon-192x192.png" type="image/png" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
       </head>
-      <body className={`${inter.className} bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 min-h-screen`}>
+      <body className={`${inter.className} bg-slate-50 dark:bg-[#020617] text-slate-900 dark:text-slate-100 min-h-screen selection:bg-blue-500/20 selection:text-blue-700 dark:selection:text-blue-300 antialiased`}>
         <ThemeProvider>
           <AppProviders>
             <ToastContainer 

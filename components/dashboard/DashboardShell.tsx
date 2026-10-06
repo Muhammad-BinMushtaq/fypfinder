@@ -51,7 +51,7 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex">
+    <div className="min-h-screen bg-slate-100 dark:bg-[#020617] flex">
       {/* Desktop Sidebar */}
       <DashboardSidebar
         userEmail={userEmail || "user@example.com"}
@@ -60,79 +60,85 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
       />
 
       {/* Main content */}
-      <main className="flex-1 min-w-0 w-full lg:ml-72 pb-20 lg:pb-0 overflow-x-hidden">
-        {/* Mobile Header */}
-        <div className="lg:hidden sticky top-0 z-40 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 px-3.5 py-2.5">
-          <div className="flex items-center justify-between gap-2">
-            <Link href="/dashboard/profile" className="flex items-center gap-2 shrink-0 min-w-0">
-              <div className="w-7 h-7 bg-gray-900 dark:bg-white rounded-lg flex items-center justify-center shrink-0">
-                <GraduationCap className="w-4 h-4 text-white dark:text-gray-900" />
-              </div>
-              <span className="font-bold text-gray-900 dark:text-white text-sm sm:text-base truncate">FYP Finder</span>
-            </Link>
+      <main className="flex-1 min-w-0 w-full lg:pl-[17.5rem] lg:pr-4 lg:py-4 pb-28 lg:pb-4 overflow-x-hidden flex flex-col min-h-screen">
+        
+        {/* Floating Desktop Main Container */}
+        <div className="flex-1 flex flex-col lg:bg-white/75 lg:dark:bg-slate-900/60 lg:backdrop-blur-xl lg:border lg:border-white/40 lg:dark:border-white/10 lg:shadow-[0_8px_30px_rgb(0,0,0,0.04)] lg:dark:shadow-2xl lg:rounded-3xl relative">
+          
+          {/* Mobile Header (Glass) */}
+          <div className="lg:hidden sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-white/20 dark:border-white/10 px-4 py-3 shadow-sm">
+            <div className="flex items-center justify-between gap-2">
+              <Link href="/dashboard/profile" className="flex items-center gap-2 shrink-0 min-w-0">
+                <div className="w-8 h-8 bg-gradient-to-tr from-gray-900 to-gray-700 dark:from-white dark:to-gray-200 rounded-xl flex items-center justify-center shrink-0 shadow-md">
+                  <GraduationCap className="w-4 h-4 text-white dark:text-gray-900" />
+                </div>
+                <span className="font-bold tracking-tight text-gray-900 dark:text-white text-base truncate">FYP Finder</span>
+              </Link>
 
-            <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
-              {/* FYP Ideas */}
+              <div className="flex items-center gap-2 shrink-0">
+                <Link
+                  href="/dashboard/fyp-ideas"
+                  title="FYP Ideas Archive"
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
+                >
+                  <Lightbulb className="w-4 h-4" />
+                </Link>
+                <Link
+                  href="/dashboard/fyp-ideas/validate"
+                  title="Validate Idea"
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
+                >
+                  <Sparkles className="w-4 h-4" />
+                </Link>
+                <Link
+                  href="/dashboard/settings"
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-black/5 dark:bg-white/10 text-gray-600 dark:text-gray-300 hover:bg-black/10 dark:hover:bg-white/20 transition-colors"
+                  aria-label="Settings"
+                >
+                  <Settings className="h-4 w-4" />
+                </Link>
+                <InstallButton />
+                <ThemeToggle />
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop Header (Minimal & Floating inside main container) */}
+          <div className="hidden lg:flex sticky top-0 z-40 bg-transparent px-6 py-4 items-center justify-between border-b border-gray-100 dark:border-white/5">
+            <div className="flex-1">
+              {/* Optional: Breadcrumbs or Page Title could go here */}
+            </div>
+            <div className="flex items-center gap-3">
+              <InstallButton />
+              <div className="h-4 w-px bg-gray-200 dark:bg-white/10"></div>
               <Link
                 href="/dashboard/fyp-ideas"
-                title="FYP Ideas Archive"
-                className="flex items-center gap-1 px-2 py-1.5 text-xs font-medium text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 rounded-lg transition-colors border border-amber-200 dark:border-amber-800"
+                title="FYP Ideas"
+                className="flex items-center justify-center w-9 h-9 text-gray-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-full transition-all"
               >
-                <Lightbulb className="w-3.5 h-3.5" />
-                <span className="hidden xs:inline sm:inline">Ideas</span>
+                <Lightbulb className="w-4 h-4" />
               </Link>
-              {/* Validate Idea */}
               <Link
                 href="/dashboard/fyp-ideas/validate"
                 title="Validate Idea"
-                className="flex items-center gap-1 px-2 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 dark:hover:bg-blue-950/50 rounded-lg transition-colors border border-blue-200 dark:border-blue-900/40"
+                className="flex items-center justify-center w-9 h-9 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-full transition-all"
               >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span className="hidden xs:inline sm:inline">Validate</span>
+                <Sparkles className="w-4 h-4" />
               </Link>
-              {/* Settings */}
-              <Link
-                href="/dashboard/settings"
-                className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-gray-600 transition-colors hover:bg-gray-100 dark:border-slate-700 dark:bg-slate-900 dark:text-gray-300 dark:hover:bg-slate-700"
-                aria-label="Settings"
-              >
-                <Settings className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              </Link>
-              {/* Install Button */}
-              <InstallButton />
               <ThemeToggle />
             </div>
           </div>
-        </div>
 
-        {/* Desktop Header */}
-        <div className="hidden lg:block sticky top-0 z-40 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-gray-200 dark:border-slate-700 px-4 py-3 lg:px-6">
-          <div className="flex items-center justify-end gap-3">
-            <InstallButton />
-            <Link
-              href="/dashboard/fyp-ideas"
-              className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-lg transition-colors"
-            >
-              <Lightbulb className="w-4 h-4" />
-              FYP Ideas
-            </Link>
-            <Link
-              href="/dashboard/fyp-ideas/validate"
-              className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 dark:hover:bg-blue-950/50 rounded-lg transition-colors border border-blue-200 dark:border-blue-900/40"
-            >
-              <Sparkles className="w-4 h-4" />
-              Validate Idea
-            </Link>
-            <ThemeToggle />
+          <SuspensionBanner />
+
+          {/* Content Area */}
+          <div className="flex-1 lg:rounded-b-3xl relative z-10 p-4 lg:p-6">
+            {children}
           </div>
+          
+          <PushPermissionBanner />
+          <InstallPromptBanner />
         </div>
-
-        <SuspensionBanner />
-
-        <div>{children}</div>
-
-        <PushPermissionBanner />
-        <InstallPromptBanner />
       </main>
 
       {/* Mobile Bottom Navigation */}
