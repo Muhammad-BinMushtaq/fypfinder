@@ -46,8 +46,8 @@ export function RequestEmptyState({ variant, type }: RequestEmptyStateProps) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/40 text-center">
-      <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-2xs">
+    <div className="flex flex-col items-center justify-center py-16 px-4 rounded-2xl border-2 border-dashed border-white/40 dark:border-white/10 bg-white/50 dark:bg-slate-900/40 text-center">
+      <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 bg-black/5 dark:bg-white/5 backdrop-blur-md text-slate-700 dark:text-slate-300 border border-white/40 dark:border-white/10 shadow-xl">
         {isReceived ? (
           <Inbox className="w-6 h-6 stroke-[1.75]" />
         ) : (
@@ -65,7 +65,7 @@ export function RequestEmptyState({ variant, type }: RequestEmptyStateProps) {
 
       <Link
         href="/dashboard/discovery"
-        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-100 transition shadow-2xs"
+        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-100 transition shadow-xl"
       >
         <Search className="w-4 h-4" />
         <span>Explore Student Discovery</span>

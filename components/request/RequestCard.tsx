@@ -106,7 +106,7 @@ export function RequestCard({
   const isIncoming = variant === "received";
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-slate-350 dark:hover:border-slate-700 transition-all duration-200 p-5 sm:p-6 flex flex-col justify-between shadow-2xs overflow-hidden">
+    <div className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-xl rounded-3xl border border-white/40 dark:border-white/10 hover:bg-white/80 dark:hover:bg-slate-900/60 transition-all duration-300 p-5 sm:p-6 flex flex-col justify-between shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-xl overflow-hidden group">
       <div>
         {/* Card Header: Type Badge, Direction & Status */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
