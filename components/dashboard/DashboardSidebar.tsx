@@ -16,7 +16,7 @@ import {
   LogOut,
   ChevronDown,
   GraduationCap,
-  Sparkles,
+  ClipboardCheck,
 } from "lucide-react";
 
 interface NavItem {
@@ -63,7 +63,7 @@ const navItems: NavItem[] = [
   {
     label: "Idea Validator",
     href: "/dashboard/fyp-ideas/validate",
-    icon: <Sparkles className="w-5 h-5" />,
+    icon: <ClipboardCheck className="w-5 h-5" />,
     badge: "AI",
   },
   {

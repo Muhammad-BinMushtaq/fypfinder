@@ -11,7 +11,7 @@ import { PushPermissionBanner } from "@/components/pwa/PushPermissionBanner";
 import { InstallPromptBanner } from "@/components/pwa/InstallPromptBanner";
 import { InstallButton } from "@/components/pwa/InstallButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { GraduationCap, Lightbulb, Settings, Sparkles } from "lucide-react";
+import { GraduationCap, Lightbulb, Settings, ClipboardCheck } from "lucide-react";
 import clientLogger from "@/lib/client-logger";
 
 interface DashboardShellProps {
@@ -88,7 +88,7 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
                   title="Validate Idea"
                   className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
                 >
-                  <Sparkles className="w-4 h-4" />
+                  <ClipboardCheck className="w-4 h-4" />
                 </Link>
                 <Link
                   href="/dashboard/settings"
@@ -123,7 +123,7 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
                 title="Validate Idea"
                 className="flex items-center justify-center w-9 h-9 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-full transition-all"
               >
-                <Sparkles className="w-4 h-4" />
+                <ClipboardCheck className="w-4 h-4" />
               </Link>
               <ThemeToggle />
             </div>

@@ -72,9 +72,9 @@ export default function PartnerRequestsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-transparent text-slate-900 dark:text-slate-100 font-sans pb-16 overflow-x-hidden">
+    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans pb-16 overflow-x-hidden">
       {/* Top Header Banner */}
-      <div className="border-b border-white/40 dark:border-white/10 bg-black/5 dark:bg-white/5 backdrop-blur-md">
+      <div className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
           {/* Back Link */}
           <Link
@@ -88,7 +88,7 @@ export default function PartnerRequestsPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium uppercase tracking-wider bg-black/5 dark:bg-white/10 text-slate-800 dark:text-slate-300 backdrop-blur-md">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-300">
                   <Users className="h-4 w-4" />
                   Capstone Groups
                 </span>
@@ -113,7 +113,7 @@ export default function PartnerRequestsPage() {
 
         {/* Pending Badge */}
         {pendingReceivedCount > 0 && activeTab === "received" && (
-          <div className="p-3.5 bg-slate-50 dark:bg-slate-900/60 rounded-3xl border border-white/40 dark:border-white/10 flex items-center gap-2.5 text-xs text-slate-700 dark:text-slate-300">
+          <div className="p-3.5 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center gap-2.5 text-xs text-slate-700 dark:text-slate-300">
             <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
             <span className="font-medium">
               You have {pendingReceivedCount} pending partner request

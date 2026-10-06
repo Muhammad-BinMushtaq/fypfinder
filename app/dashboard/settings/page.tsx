@@ -48,9 +48,9 @@ export default function SettingsPage() {
   const isGroupVisible = currentMember?.showGroupOnProfile ?? true;
 
   return (
-    <div className="min-h-screen bg-transparent text-slate-900 dark:text-slate-100 font-sans pb-16 overflow-x-hidden">
+    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans pb-16 overflow-x-hidden">
       {/* Top Header Banner */}
-      <div className="border-b border-white/40 dark:border-white/10 bg-black/5 dark:bg-white/5 backdrop-blur-md">
+      <div className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="min-w-0">
@@ -75,7 +75,7 @@ export default function SettingsPage() {
             <div className="flex items-center gap-2 shrink-0">
               <Link
                 href="/dashboard/profile"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl border border-white/40 dark:border-white/10 bg-white/80 dark:bg-white/10 backdrop-blur-md text-slate-700 dark:text-slate-300 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition shadow-xl"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition shadow-2xs"
               >
                 <User className="h-4 w-4" />
                 View Profile
@@ -85,12 +85,12 @@ export default function SettingsPage() {
 
           {/* Segmented Navigation Tabs (Pill style, flex-wrap to prevent horizontal scroll) */}
           <div className="mt-8">
-            <div className="inline-flex flex-wrap items-center bg-black/5 dark:bg-white/5 backdrop-blur-md rounded-3xl p-1.5 border border-white/20 dark:border-white/5 w-full lg:w-fit">
+            <div className="inline-flex flex-wrap items-center bg-slate-100 dark:bg-slate-800/80 rounded-xl p-1.5 border border-slate-200/80 dark:border-slate-700 w-full lg:w-fit">
               <button
                 onClick={() => setActiveTab("account")}
-                className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all flex-1 sm:flex-none ${
+                className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex-1 sm:flex-none ${
                   activeTab === "account"
-                    ? "bg-white/80 dark:bg-white/10 backdrop-blur-md text-slate-900 dark:text-white shadow-xl border border-white/40 dark:border-white/10"
+                    ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs border border-slate-200/60 dark:border-slate-800"
                     : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
@@ -100,9 +100,9 @@ export default function SettingsPage() {
 
               <button
                 onClick={() => setActiveTab("notifications")}
-                className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all flex-1 sm:flex-none ${
+                className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex-1 sm:flex-none ${
                   activeTab === "notifications"
-                    ? "bg-white/80 dark:bg-white/10 backdrop-blur-md text-slate-900 dark:text-white shadow-xl border border-white/40 dark:border-white/10"
+                    ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs border border-slate-200/60 dark:border-slate-800"
                     : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
@@ -112,9 +112,9 @@ export default function SettingsPage() {
 
               <button
                 onClick={() => setActiveTab("privacy")}
-                className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all flex-1 sm:flex-none ${
+                className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex-1 sm:flex-none ${
                   activeTab === "privacy"
-                    ? "bg-white/80 dark:bg-white/10 backdrop-blur-md text-slate-900 dark:text-white shadow-xl border border-white/40 dark:border-white/10"
+                    ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs border border-slate-200/60 dark:border-slate-800"
                     : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
@@ -124,9 +124,9 @@ export default function SettingsPage() {
 
               <button
                 onClick={() => setActiveTab("security")}
-                className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all flex-1 sm:flex-none ${
+                className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex-1 sm:flex-none ${
                   activeTab === "security"
-                    ? "bg-white/80 dark:bg-white/10 backdrop-blur-md text-slate-900 dark:text-white shadow-xl border border-white/40 dark:border-white/10"
+                    ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs border border-slate-200/60 dark:border-slate-800"
                     : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
@@ -144,8 +144,8 @@ export default function SettingsPage() {
         {activeTab === "account" && (
           <div className="space-y-4 sm:space-y-6">
             {/* Institutional ID Card */}
-            <div className="rounded-3xl border border-white/40 dark:border-white/10 bg-white/80 dark:bg-white/10 backdrop-blur-md p-4 sm:p-6 shadow-xl space-y-4 sm:space-y-5">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-white/20 dark:border-white/5 pb-3 sm:pb-4">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6 shadow-2xs space-y-4 sm:space-y-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-slate-100 dark:border-slate-800 pb-3 sm:pb-4">
                 <div>
                   <h3 className="text-sm sm:text-base font-medium uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5 sm:gap-2">
                     <GraduationCap className="h-4 w-4 text-slate-600 dark:text-slate-400 shrink-0" />
@@ -162,28 +162,28 @@ export default function SettingsPage() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm">
-                <div className="p-3 sm:p-3.5 rounded-2xl border border-white/20 dark:border-white/5 bg-slate-50/50 dark:bg-slate-800/30">
+                <div className="p-3 sm:p-3.5 rounded-lg border border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/30">
                   <span className="text-slate-400 font-medium block mb-1 text-sm">Student Full Name</span>
                   <p className="font-medium text-slate-900 dark:text-white text-sm sm:text-base break-words">
                     {profile?.name || "Student User"}
                   </p>
                 </div>
 
-                <div className="p-3 sm:p-3.5 rounded-2xl border border-white/20 dark:border-white/5 bg-slate-50/50 dark:bg-slate-800/30">
+                <div className="p-3 sm:p-3.5 rounded-lg border border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/30">
                   <span className="text-slate-400 font-medium block mb-1 text-sm">Official University Email</span>
                   <p className="font-medium text-slate-900 dark:text-white text-sm sm:text-base break-all">
                     {user?.email || "student@paf-iast.edu.pk"}
                   </p>
                 </div>
 
-                <div className="p-3 sm:p-3.5 rounded-2xl border border-white/20 dark:border-white/5 bg-slate-50/50 dark:bg-slate-800/30">
+                <div className="p-3 sm:p-3.5 rounded-lg border border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/30">
                   <span className="text-slate-400 font-medium block mb-1 text-sm">Department / Academic Discipline</span>
                   <p className="font-medium text-slate-900 dark:text-white text-sm sm:text-base break-words">
                     {profile?.department || "Computer Science / Software Engineering"}
                   </p>
                 </div>
 
-                <div className="p-3 sm:p-3.5 rounded-2xl border border-white/20 dark:border-white/5 bg-slate-50/50 dark:bg-slate-800/30">
+                <div className="p-3 sm:p-3.5 rounded-lg border border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/30">
                   <span className="text-slate-400 font-medium block mb-1 text-sm">Current Semester & Batch</span>
                   <p className="font-medium text-slate-900 dark:text-white text-sm sm:text-base">
                     {profile?.semester ? `Semester ${profile.semester}` : "Semester 7/8"} • Senior Batch
@@ -191,7 +191,7 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-white/20 dark:border-white/5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
                 <span className="text-sm sm:text-base text-slate-400">
                   To update official department or name, contact the PAF-IAST registrar.
                 </span>
@@ -205,7 +205,7 @@ export default function SettingsPage() {
             </div>
 
             {/* Discovery Preview Card */}
-            <div className="rounded-3xl border border-white/40 dark:border-white/10 bg-black/5 dark:bg-white/5 backdrop-blur-md p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center font-medium text-slate-800 dark:text-slate-200 shrink-0">
                   {(profile?.name || "S").charAt(0).toUpperCase()}
@@ -221,7 +221,7 @@ export default function SettingsPage() {
               </div>
               <Link
                 href="/dashboard/discovery"
-                className="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-2xl bg-white/80 dark:bg-white/10 backdrop-blur-md border border-white/40 dark:border-white/10 text-slate-800 dark:text-slate-200 text-sm font-semibold hover:bg-slate-100 dark:hover:bg-slate-700 transition w-full sm:w-fit shrink-0"
+                className="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm font-semibold hover:bg-slate-100 dark:hover:bg-slate-700 transition w-full sm:w-fit shrink-0"
               >
                 Go to Partner Discovery
               </Link>
@@ -233,7 +233,7 @@ export default function SettingsPage() {
         {activeTab === "notifications" && (
           <div className="space-y-4 sm:space-y-6">
             {/* PWA Push Notification Panel */}
-            <div className="rounded-3xl border border-white/40 dark:border-white/10 bg-white/80 dark:bg-white/10 backdrop-blur-md p-4 sm:p-6 shadow-xl">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6 shadow-2xs">
               <div className="mb-4">
                 <h3 className="text-sm sm:text-base font-medium uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5 sm:gap-2">
                   <Smartphone className="h-4 w-4 text-slate-600 dark:text-slate-400 shrink-0" />
@@ -248,8 +248,8 @@ export default function SettingsPage() {
             </div>
 
             {/* Granular Alert Preferences */}
-            <div className="rounded-3xl border border-white/40 dark:border-white/10 bg-white/80 dark:bg-white/10 backdrop-blur-md p-4 sm:p-6 shadow-xl space-y-3 sm:space-y-4">
-              <div className="border-b border-white/20 dark:border-white/5 pb-3">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6 shadow-2xs space-y-3 sm:space-y-4">
+              <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
                 <h3 className="text-sm sm:text-base font-medium uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5 sm:gap-2">
                   <Bell className="h-4 w-4 text-slate-600 dark:text-slate-400 shrink-0" />
                   Alert Channels & Event Triggers
@@ -340,8 +340,8 @@ export default function SettingsPage() {
         {activeTab === "privacy" && (
           <div className="space-y-4 sm:space-y-6">
             {/* Discovery & Team Visibility */}
-            <div className="rounded-3xl border border-white/40 dark:border-white/10 bg-white/80 dark:bg-white/10 backdrop-blur-md p-4 sm:p-6 shadow-xl space-y-4">
-              <div className="border-b border-white/20 dark:border-white/5 pb-3">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6 shadow-2xs space-y-4">
+              <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
                 <h3 className="text-sm sm:text-base font-medium uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5 sm:gap-2">
                   <Users className="h-4 w-4 text-slate-600 dark:text-slate-400 shrink-0" />
                   Partner Matching & Discovery Visibility
@@ -365,10 +365,10 @@ export default function SettingsPage() {
                   <button
                     onClick={() => updateGroupVisibility.mutate(!isGroupVisible)}
                     disabled={updateGroupVisibility.isPending || !group}
-                    className={`inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-2xl text-sm font-medium transition w-fit shrink-0 ${
+                    className={`inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition w-fit shrink-0 ${
                       isGroupVisible
                         ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
-                        : "bg-black/5 dark:bg-white/5 backdrop-blur-md text-slate-600 dark:text-slate-400 border border-white/40 dark:border-white/10"
+                        : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700"
                     }`}
                   >
                     {isGroupVisible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
@@ -377,7 +377,7 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Institutional Notice */}
-                <div className="py-3.5 flex items-start gap-2.5 sm:gap-3 bg-black/5 dark:bg-white/5 backdrop-blur-md p-3 rounded-2xl mt-2">
+                <div className="py-3.5 flex items-start gap-2.5 sm:gap-3 bg-slate-50 dark:bg-slate-800/40 p-3 rounded-lg mt-2">
                   <Info className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
                   <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                     <strong>PAF-IAST Academic Policy:</strong> FYP teams must strictly consist of 2 to 3 registered students. Once your group reaches 3 approved members, your group will be automatically locked.
@@ -387,7 +387,7 @@ export default function SettingsPage() {
             </div>
 
             {/* Validation History Privacy */}
-            <div className="rounded-3xl border border-white/40 dark:border-white/10 bg-white/80 dark:bg-white/10 backdrop-blur-md p-4 sm:p-6 shadow-xl space-y-3 text-sm">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6 shadow-2xs space-y-3 text-sm">
               <h3 className="text-sm sm:text-base font-medium uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5 sm:gap-2">
                 <Sparkles className="h-4 w-4 text-slate-600 dark:text-slate-400 shrink-0" />
                 Idea Validation Quota & Storage
@@ -411,8 +411,8 @@ export default function SettingsPage() {
         {activeTab === "security" && (
           <div className="space-y-4 sm:space-y-6">
             {/* SSO Security Card */}
-            <div className="rounded-3xl border border-white/40 dark:border-white/10 bg-white/80 dark:bg-white/10 backdrop-blur-md p-4 sm:p-6 shadow-xl space-y-4">
-              <div className="border-b border-white/20 dark:border-white/5 pb-3 flex items-center justify-between">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6 shadow-2xs space-y-4">
+              <div className="border-b border-slate-100 dark:border-slate-800 pb-3 flex items-center justify-between">
                 <div>
                   <h3 className="text-sm sm:text-base font-medium uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5 sm:gap-2">
                     <Lock className="h-4 w-4 text-slate-600 dark:text-slate-400 shrink-0" />
@@ -424,7 +424,7 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <div className="bg-slate-50 dark:bg-slate-800/50 p-3 sm:p-4 rounded-2xl border border-white/20 dark:border-white/5 text-sm space-y-2">
+              <div className="bg-slate-50 dark:bg-slate-800/50 p-3 sm:p-4 rounded-lg border border-slate-100 dark:border-slate-800 text-sm space-y-2">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                   <span className="font-medium text-slate-800 dark:text-slate-200 text-sm sm:text-base">Identity Provider:</span>
                   <span className="font-mono text-slate-600 dark:text-slate-400 text-sm sm:text-base break-all">PAF-IAST Microsoft Azure AD</span>
@@ -445,7 +445,7 @@ export default function SettingsPage() {
                 </span>
                 <button
                   onClick={() => logout()}
-                  className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-2xl border border-white/40 dark:border-white/10 bg-white/80 dark:bg-white/10 backdrop-blur-md text-slate-700 dark:text-slate-300 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition shrink-0"
+                  className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition shrink-0"
                 >
                   <LogOut className="h-3.5 w-3.5" />
                   Sign Out
@@ -454,7 +454,7 @@ export default function SettingsPage() {
             </div>
 
             {/* Danger Zone: Account Deletion */}
-            <div className="rounded-3xl border border-red-200 dark:border-red-900/40 bg-red-50/30 dark:bg-red-950/10 p-4 sm:p-6 space-y-4">
+            <div className="rounded-xl border border-red-200 dark:border-red-900/40 bg-red-50/30 dark:bg-red-950/10 p-4 sm:p-6 space-y-4">
               <div className="flex items-start gap-2.5 border-b border-red-100 dark:border-red-900/30 pb-3">
                 <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
                 <div>
