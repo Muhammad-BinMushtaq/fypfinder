@@ -93,7 +93,7 @@ export function DashboardSidebar({ userEmail, onLogout, isLoggingOut }: Dashboar
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
 
   return (
-    <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:top-4 lg:bottom-4 lg:left-4 z-40 bg-white/75 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-2xl rounded-3xl overflow-hidden transition-all duration-300">
+    <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:top-4 lg:bottom-4 lg:left-4 z-50 bg-white/75 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-2xl rounded-3xl overflow-hidden transition-all duration-300">
       {/* Logo */}
       <div className="pt-8 pb-4 px-6">
         <Link href="/dashboard/profile" className="flex items-center gap-3 group">

@@ -9,9 +9,7 @@ import {
   LayoutGrid, 
   List, 
   X, 
-  Sparkles, 
   Lock, 
-  Layers,
   GraduationCap
 } from "lucide-react";
 import Link from "next/link";
@@ -264,48 +262,10 @@ export default function FYPIdeasPage() {
             <div className="flex items-center gap-2">
               <Link
                 href="/dashboard/fyp-ideas/validate"
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-medium shadow-sm hover:bg-slate-800 dark:hover:bg-slate-100 transition"
+                className="inline-flex items-center px-3.5 py-2 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-medium shadow-sm hover:bg-slate-800 dark:hover:bg-slate-100 transition"
               >
-                <Sparkles className="h-3.5 w-3.5" />
-                Validate My Own Idea
+                Validate Idea
               </Link>
-            </div>
-          </div>
-
-          {/* Interactive Category Filter Pills */}
-          <div className="mt-6 pt-5 border-t border-slate-200 dark:border-slate-800/80">
-            <div className="flex items-center gap-1.5 mb-2.5 text-[11px] font-medium uppercase tracking-wider text-slate-500">
-              <Layers className="h-3.5 w-3.5" />
-              <span>Browse by Thematic Area</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {(Object.keys(CATEGORIES) as CategoryKey[]).map((key) => {
-                const cat = CATEGORIES[key];
-                const count = CATEGORY_COUNTS[key];
-                const isSelected = selectedCategory === key;
-                return (
-                  <button
-                    key={key}
-                    onClick={() => setSelectedCategory(isSelected && key !== "all" ? "all" : key)}
-                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                      isSelected
-                        ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm"
-                        : "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-400 dark:hover:border-slate-600"
-                    }`}
-                  >
-                    <span>{cat.label}</span>
-                    <span
-                      className={`text-[10px] px-1.5 py-0.2 rounded-full font-medium ${
-                        isSelected
-                          ? "bg-slate-800 text-slate-200 dark:bg-slate-100 dark:text-slate-800"
-                          : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
-                      }`}
-                    >
-                      {count}
-                    </span>
-                  </button>
-                );
-              })}
             </div>
           </div>
         </div>
@@ -337,6 +297,22 @@ export default function FYPIdeasPage() {
 
           {/* Filter Dropdowns & View Toggle */}
           <div className="flex flex-wrap items-center gap-2">
+            {/* Thematic Area / Category Filter */}
+            <div className="relative">
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value as CategoryKey)}
+                className="appearance-none pl-3 pr-8 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white text-xs font-medium focus:ring-2 focus:ring-slate-900 dark:focus:ring-white outline-none cursor-pointer max-w-[170px] truncate"
+              >
+                {(Object.keys(CATEGORIES) as CategoryKey[]).map((key) => (
+                  <option key={key} value={key}>
+                    {CATEGORIES[key].label} {key !== "all" ? `(${CATEGORY_COUNTS[key]})` : ""}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+            </div>
+
             {/* Batch Filter */}
             <div className="relative">
               <select

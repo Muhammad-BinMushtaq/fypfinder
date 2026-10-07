@@ -95,6 +95,7 @@ export function ValidatorWizard({ onSubmit, isPending, mode, remainingToday, ini
   const [techInput, setTechInput] = useState("")
   const [teamSize, setTeamSize] = useState(initialValues?.teamSize ? String(initialValues.teamSize) : "")
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [showAllTemplates, setShowAllTemplates] = useState(false)
 
   useEffect(() => {
     if (initialValues?.title) {
@@ -180,17 +181,17 @@ export function ValidatorWizard({ onSubmit, isPending, mode, remainingToday, ini
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       {/* Quick Templates Drawer */}
-      <div className="rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/40 p-4">
-        <div className="flex items-center justify-between mb-2.5">
-          <span className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+      <div className="rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/40 p-3 sm:p-3.5">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[11px] font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
             Starter Templates
           </span>
           <span className="text-xs text-gray-400 dark:text-gray-500">
             Pre-fill fields to test
           </span>
         </div>
-        <div className="flex flex-wrap gap-1.5">
-          {QUICK_TEMPLATES.map((t) => (
+        <div className="flex flex-wrap items-center gap-1.5">
+          {(showAllTemplates ? QUICK_TEMPLATES : QUICK_TEMPLATES.slice(0, 2)).map((t) => (
             <button
               key={t.name}
               type="button"
@@ -200,6 +201,15 @@ export function ValidatorWizard({ onSubmit, isPending, mode, remainingToday, ini
               {t.name}
             </button>
           ))}
+          {QUICK_TEMPLATES.length > 2 && (
+            <button
+              type="button"
+              onClick={() => setShowAllTemplates(!showAllTemplates)}
+              className="rounded-lg border border-dashed border-gray-300 dark:border-slate-600 px-2.5 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-400 transition"
+            >
+              {showAllTemplates ? "Show less" : `+${QUICK_TEMPLATES.length - 2} more`}
+            </button>
+          )}
         </div>
       </div>
 
