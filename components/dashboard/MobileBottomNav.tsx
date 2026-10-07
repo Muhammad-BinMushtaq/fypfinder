@@ -49,7 +49,10 @@ export function MobileBottomNav() {
   };
 
   return (
-    <nav className="lg:hidden fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-1.75rem)] max-w-sm z-50 bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl border border-slate-200/70 dark:border-slate-800 shadow-2xl rounded-2xl overflow-hidden pb-[env(safe-area-inset-bottom)]">
+    <nav 
+      data-mobile-bottom-nav="true"
+      className="lg:hidden fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-1.75rem)] max-w-sm z-50 bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl border border-slate-200/70 dark:border-slate-800 shadow-2xl rounded-2xl overflow-hidden pb-[env(safe-area-inset-bottom)]"
+    >
       <div className="grid grid-cols-3 items-center h-16 px-1">
         {navItems.map((item) => {
           const active = isActive(item.href);

@@ -2,8 +2,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useMyProfile } from "@/hooks/student/useMyProfile";
-import { Plus, Pencil, Trash2, Sprout, TrendingUp, Award, Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, Pencil, Trash2, Sprout, TrendingUp, Award, Loader2, ChevronDown, ChevronUp, X } from "lucide-react";
 import { SkillCombobox } from "@/components/ui/SkillCombobox";
 import type { Skill, ExperienceLevel } from "@/services/student.service";
 import { toast } from "react-toastify";
@@ -17,6 +18,7 @@ export function SkillsSection({ skills }: SkillsSectionProps) {
   const [showModal, setShowModal] = useState(false);
   const [editingSkill, setEditingSkill] = useState<Skill | null>(null);
   const [showAllSkills, setShowAllSkills] = useState(false);
+  const [mounted, setMounted] = useState(false);
   
   const SKILLS_LIMIT = 4;
   const visibleSkills = showAllSkills ? skills : skills.slice(0, SKILLS_LIMIT);
@@ -27,16 +29,34 @@ export function SkillsSection({ skills }: SkillsSectionProps) {
     description: "",
   });
 
-  // Lock body scroll when modal is open
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Lock body scroll and hide mobile bottom nav when modal is open
   useEffect(() => {
     if (showModal) {
       document.body.style.overflow = "hidden";
+      document.body.classList.add("modal-open");
     } else {
-      document.body.style.overflow = "";
+      document.body.style.overflow = "unset";
+      document.body.classList.remove("modal-open");
     }
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = "unset";
+      document.body.classList.remove("modal-open");
     };
+  }, [showModal]);
+
+  // Close modal on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && showModal) {
+        resetForm();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [showModal]);
 
   const resetForm = () => {
@@ -177,27 +197,40 @@ export function SkillsSection({ skills }: SkillsSectionProps) {
       </div>
 
       {/* Add/Edit Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-y-auto">
+      {mounted && showModal && createPortal(
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 overflow-y-auto overscroll-contain animate-in fade-in duration-200"
+          onClick={resetForm}
+        >
           {/* Backdrop */}
           <div 
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={resetForm}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+            aria-hidden="true"
           />
 
           <div 
-            className="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[calc(100dvh-2rem)] my-auto animate-in fade-in zoom-in-95 duration-200"
+            className="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[calc(100dvh-2rem)] my-auto animate-in fade-in zoom-in-95 duration-200 z-10"
             onClick={(e) => e.stopPropagation()}
           >
             <form onSubmit={handleSubmit} className="flex flex-col h-full overflow-hidden">
               <div className="p-5 sm:p-7 space-y-5 overflow-y-auto">
-                <div>
-                  <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-1">
-                    {editingSkill ? "Edit Skill" : "Add New Skill"}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                    Add a technical skill and your proficiency level.
-                  </p>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-1">
+                      {editingSkill ? "Edit Skill" : "Add New Skill"}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Add a technical skill and your proficiency level.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={resetForm}
+                    className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
+                    aria-label="Close"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
 
                 <div className="space-y-4">
@@ -242,14 +275,14 @@ export function SkillsSection({ skills }: SkillsSectionProps) {
                   type="button"
                   onClick={resetForm}
                   disabled={isBusy}
-                  className="px-5 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition-colors"
+                  className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isBusy || !formData.name.trim()}
-                  className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2"
+                  className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2"
                 >
                   {isBusy && <Loader2 className="w-4 h-4 animate-spin" />}
                   {isBusy ? "Saving..." : "Save Skill"}
@@ -257,7 +290,8 @@ export function SkillsSection({ skills }: SkillsSectionProps) {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

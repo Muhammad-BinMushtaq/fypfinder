@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { GraduationCap, BookOpen, Github, Linkedin, Lock, Eye, Building2, Calendar, X, Loader2 } from "lucide-react";
 import { ProfilePictureUpload } from "./ProfilePictureUpload";
 import { getDepartmentLabel } from "@/lib/departments";
@@ -20,17 +21,36 @@ export function IdentityCard({ profile }: IdentityCardProps) {
   const [isSemesterModalOpen, setIsSemesterModalOpen] = useState(false);
   const [semesterRequest, setSemesterRequest] = useState({ newSemester: profile.semester.toString(), reason: "" });
   const [isSubmittingRequest, setIsSubmittingRequest] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  // Lock body scroll when modal is open to keep background fixed and clean
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Lock body scroll and hide mobile bottom nav when modal is open
   useEffect(() => {
     if (isSemesterModalOpen) {
       document.body.style.overflow = "hidden";
+      document.body.classList.add("modal-open");
     } else {
-      document.body.style.overflow = "";
+      document.body.style.overflow = "unset";
+      document.body.classList.remove("modal-open");
     }
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = "unset";
+      document.body.classList.remove("modal-open");
     };
+  }, [isSemesterModalOpen]);
+
+  // Close modal on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isSemesterModalOpen) {
+        setIsSemesterModalOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isSemesterModalOpen]);
 
   const getAvailabilityConfig = (status: string) => {
@@ -175,17 +195,20 @@ export function IdentityCard({ profile }: IdentityCardProps) {
       </div>
 
       {/* Request Semester Change Modal */}
-      {isSemesterModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-y-auto">
+      {mounted && isSemesterModalOpen && createPortal(
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 overflow-y-auto overscroll-contain animate-in fade-in duration-200"
+          onClick={() => setIsSemesterModalOpen(false)}
+        >
           {/* Backdrop */}
           <div 
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={() => setIsSemesterModalOpen(false)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+            aria-hidden="true"
           />
 
           {/* Modal Dialog */}
           <div 
-            className="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[calc(100dvh-2rem)] my-auto animate-in fade-in zoom-in-95 duration-200"
+            className="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[calc(100dvh-2rem)] my-auto animate-in fade-in zoom-in-95 duration-200 z-10"
             onClick={(e) => e.stopPropagation()}
           >
             <form onSubmit={handleSemesterRequest} className="flex flex-col h-full overflow-hidden">
@@ -261,7 +284,8 @@ export function IdentityCard({ profile }: IdentityCardProps) {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

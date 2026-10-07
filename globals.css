@@ -65,6 +65,7 @@
 }
 
 /* Hide mobile bottom nav when modal dialog is active */
-body.modal-open nav.lg\:hidden {
+body.modal-open nav.lg\:hidden,
+body.modal-open [data-mobile-bottom-nav] {
   display: none !important;
 }
