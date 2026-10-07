@@ -41,7 +41,7 @@ export function useSession() {
     staleTime: 1 * 60 * 1000, // 1 minute - shorter to catch auth changes
     gcTime: 5 * 60 * 1000, // 5 minutes  
     refetchOnWindowFocus: true, // Refetch when user returns to tab
-    refetchOnMount: true, // Always check on mount
+    refetchOnMount: false, // Respect staleTime instead of redundant re-fetching on every page mount
     retry: false, // auth failures should not retry
   });
 

@@ -3,7 +3,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useMyProfile } from "@/hooks/student/useMyProfile";
 import { useTheme } from "@/contexts/ThemeContext";
 import { User, Settings, Moon, Sun, LogOut, ChevronRight } from "lucide-react";
@@ -19,8 +19,15 @@ export function MobileProfileMenu({ userEmail, onLogout, isLoggingOut }: MobileP
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const router = useRouter();
   const { profile, isLoading } = useMyProfile();
   const { theme, toggleTheme } = useTheme();
+
+  // Eagerly prefetch profile and settings routes on mount
+  useEffect(() => {
+    router.prefetch("/dashboard/profile");
+    router.prefetch("/dashboard/settings");
+  }, [router]);
 
   // Close when pathname changes
   useEffect(() => {
@@ -109,7 +116,8 @@ export function MobileProfileMenu({ userEmail, onLogout, isLoggingOut }: MobileP
           <div className="space-y-0.5">
             <Link
               href="/dashboard/profile"
-              className="flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              prefetch={true}
+              className="flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-[0.98] transition-all"
             >
               <div className="flex items-center gap-2.5">
                 <User className="w-4 h-4 text-slate-400" />
@@ -120,7 +128,8 @@ export function MobileProfileMenu({ userEmail, onLogout, isLoggingOut }: MobileP
 
             <Link
               href="/dashboard/settings"
-              className="flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              prefetch={true}
+              className="flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-[0.98] transition-all"
             >
               <div className="flex items-center gap-2.5">
                 <Settings className="w-4 h-4 text-slate-400" />

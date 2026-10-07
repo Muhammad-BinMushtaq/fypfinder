@@ -108,10 +108,25 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
         },
         staleTime: 5 * 60 * 1000,
       });
+
+      queryClient.prefetchQuery({
+        queryKey: ["group", "my-group"],
+        queryFn: async () => {
+          const res = await fetch("/api/group/get-my-group");
+          if (!res.ok) return null;
+          const json = await res.json();
+          return json.data || null;
+        },
+        staleTime: 5 * 60 * 1000,
+      });
+
+      // Eagerly prefetch profile and settings pages
+      router.prefetch("/dashboard/profile");
+      router.prefetch("/dashboard/settings");
     }, 1200);
 
     return () => clearTimeout(timer);
-  }, [queryClient]);
+  }, [queryClient, router]);
 
   const handleLogout = async () => {
     try {
