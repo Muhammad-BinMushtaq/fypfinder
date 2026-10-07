@@ -37,6 +37,7 @@ export interface StudentProfile {
   name: string;
   department: string;
   semester: number;
+  isGraduated?: boolean;
   profilePicture?: string;
   interests?: string;
   phone?: string;

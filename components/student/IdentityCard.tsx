@@ -124,18 +124,29 @@ export function IdentityCard({ profile }: IdentityCardProps) {
             <span className="truncate">{getDepartmentLabel(profile.department)}</span>
           </div>
           <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2" title="Locked from roll number">
-              <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
-              <span>Semester {profile.semester}</span>
-              <Lock className="w-3 h-3 text-slate-400 dark:text-slate-500 ml-0.5" />
+            <div className="flex items-center gap-2" title={profile.isGraduated ? "Graduated Alumni" : "Locked from roll number"}>
+              {profile.isGraduated ? (
+                <>
+                  <GraduationCap className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span className="text-emerald-500 font-medium">Graduated Alumni</span>
+                </>
+              ) : (
+                <>
+                  <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
+                  <span>Semester {profile.semester}</span>
+                  <Lock className="w-3 h-3 text-slate-400 dark:text-slate-500 ml-0.5" />
+                </>
+              )}
             </div>
-            <button 
-              type="button"
-              onClick={() => setIsSemesterModalOpen(true)}
-              className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium px-2 py-1 rounded-md bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors shrink-0"
-            >
-              Request Change
-            </button>
+            {!profile.isGraduated && (
+              <button 
+                type="button"
+                onClick={() => setIsSemesterModalOpen(true)}
+                className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium px-2 py-1 rounded-md bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors shrink-0"
+              >
+                Request Change
+              </button>
+            )}
           </div>
         </div>
 

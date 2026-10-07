@@ -109,6 +109,7 @@ model Student {
   projects       Project[]
   
   onboardingCompleted Boolean     @default(false)
+  isGraduated         Boolean     @default(false) // Added to track alumni
   primaryRoles        Json?       // max 2 e.g. ["Frontend Lead", "AI/ML Specialist"]
   seekingStatus       String      @default("LOOKING_FOR_TEAM") // "LOOKING_FOR_TEAM" | "HAS_TEAM_LOOKING_FOR_MEMBERS" | "NOT_LOOKING"
 

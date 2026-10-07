@@ -39,6 +39,7 @@ interface SendRequestButtonsProps {
   isUserGroupLocked?: boolean;
   /** Target student's availability status */
   targetAvailability?: "AVAILABLE" | "BUSY" | "AWAY";
+  isTargetGraduated?: boolean;
 }
 
 export function SendRequestButtons({
@@ -51,6 +52,7 @@ export function SendRequestButtons({
   isTargetGroupLocked = false,
   isUserGroupLocked = false,
   targetAvailability = "AVAILABLE",
+  isTargetGraduated = false,
 }: SendRequestButtonsProps) {
   const [showMessageModal, setShowMessageModal] = useState(false);
   const [showPartnerModal, setShowPartnerModal] = useState(false);
@@ -239,6 +241,11 @@ export function SendRequestButtons({
               <Clock className="w-3.5 h-3.5 shrink-0" />
               <span>Pending</span>
             </div>
+          ) : isTargetGraduated ? (
+            <div className="w-full h-10 inline-flex items-center justify-center gap-1.5 px-2 text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium rounded-xl border border-slate-200/60 dark:border-slate-700/60 truncate" title="Graduated alumni cannot form new groups">
+              <Ban className="w-3.5 h-3.5 shrink-0" />
+              <span>Alumni</span>
+            </div>
           ) : !canPartner ? (
             <div className="w-full h-10 inline-flex items-center justify-center gap-1.5 px-2 text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium rounded-xl border border-slate-200/60 dark:border-slate-700/60 truncate">
               <Ban className="w-3.5 h-3.5 shrink-0" />
@@ -271,7 +278,7 @@ export function SendRequestButtons({
         </div>
 
         {/* Minimalist Neutral Semester Mismatch Disclaimer */}
-        {!canPartner && targetSemester !== undefined && currentSemester !== undefined && currentSemester !== 8 && (
+        {!canPartner && !isTargetGraduated && targetSemester !== undefined && currentSemester !== undefined && currentSemester !== 8 && (
           <p className="text-center text-[11px] text-slate-500 dark:text-slate-400 mt-2">
             Partner requests require matching semesters (You: Sem {currentSemester}, Them: Sem {targetSemester}).
           </p>

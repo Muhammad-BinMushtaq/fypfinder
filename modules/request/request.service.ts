@@ -261,6 +261,14 @@ export async function sendPartnerRequest(
         throw new Error("Semester 8 students cannot send partner requests. You can still view profiles and send messages.")
     }
 
+    // 2.6️⃣ Graduated alumni restriction
+    if (sender.isGraduated) {
+        throw new Error("Graduated students cannot send partner requests.")
+    }
+    if (receiver.isGraduated) {
+        throw new Error("You cannot send partner requests to graduated students.")
+    }
+
     // 3️⃣ Eligibility checks (semester rule)
     if (sender.currentSemester !== receiver.currentSemester) {
         throw new Error("Both students must be in same semesters")

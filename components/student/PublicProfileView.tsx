@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Github, Linkedin, ExternalLink, Mail, Building2, Briefcase, Calendar, Award, Target, Code, Gamepad2, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, Github, Linkedin, ExternalLink, Mail, Building2, Briefcase, Calendar, Award, Target, Code, Gamepad2, ChevronDown, ChevronUp, GraduationCap } from "lucide-react";
 import type { PublicStudentProfile } from "@/services/studentPublic.service";
 import { SendRequestButtons } from "@/components/request/SendRequestButtons";
 import { getDepartmentLabel } from "@/lib/departments";
@@ -118,8 +118,17 @@ export function PublicProfileView({
                 <span className="truncate">{getDepartmentLabel(profile.department)}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
-                <span>Semester {profile.semester}</span>
+                {profile.isGraduated ? (
+                  <>
+                    <GraduationCap className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span className="text-emerald-500 font-medium">Graduated Alumni</span>
+                  </>
+                ) : (
+                  <>
+                    <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
+                    <span>Semester {profile.semester}</span>
+                  </>
+                )}
               </div>
               {profile.email && (
                 <a href={`mailto:${profile.email}`} className="flex items-center gap-2 hover:text-slate-900 dark:hover:text-white transition-colors truncate">
@@ -164,6 +173,7 @@ export function PublicProfileView({
                 isTargetGroupLocked={!profile.availableForGroup}
                 isUserGroupLocked={isUserGroupLocked}
                 targetAvailability={profile.availability}
+                isTargetGraduated={profile.isGraduated}
               />
             </div>
           </div>

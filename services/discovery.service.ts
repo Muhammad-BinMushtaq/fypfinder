@@ -47,7 +47,7 @@ export interface DiscoveryResponse {
 
 export interface DiscoveryFilters {
   department?: string;
-  semester?: number;
+  semester?: number | string;
   skills?: string[];
   availability?: "AVAILABLE" | "BUSY" | "AWAY"; // Filter by availability status
   limit?: number;

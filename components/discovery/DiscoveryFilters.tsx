@@ -1,4 +1,4 @@
-﻿// components/discovery/DiscoveryFilters.tsx
+// components/discovery/DiscoveryFilters.tsx
 "use client";
 
 /**
@@ -25,7 +25,7 @@ interface DiscoveryFiltersProps {
   appliedFilters: Filters;
   hasUnappliedChanges: boolean;
   onDepartmentChange: (department: string | undefined) => void;
-  onSemesterChange: (semester: number | undefined) => void;
+  onSemesterChange: (semester: string | number | undefined) => void;
   onSkillsChange: (skills: string[] | undefined) => void;
   onAvailabilityChange: (availability: "AVAILABLE" | "BUSY" | "AWAY" | undefined) => void;
   onApply: () => void;
@@ -37,9 +37,11 @@ interface DiscoveryFiltersProps {
 
 // Available semesters for FYP students
 const SEMESTERS = [
-  { value: 5, label: "Semester 5" },
-  { value: 6, label: "Semester 6" },
-  { value: 7, label: "Semester 7" },
+  { value: "5", label: "Semester 5" },
+  { value: "6", label: "Semester 6" },
+  { value: "7", label: "Semester 7" },
+  { value: "8", label: "Semester 8" },
+  { value: "alumni", label: "Graduated / Alumni" },
 ];
 
 // Availability statuses
@@ -314,9 +316,16 @@ export function DiscoveryFilters({
           </label>
           <select
             value={pendingFilters.semester || ""}
-            onChange={(e) =>
-              onSemesterChange(e.target.value ? Number(e.target.value) : undefined)
-            }
+            onChange={(e) => {
+              const val = e.target.value;
+              if (!val) {
+                onSemesterChange(undefined);
+              } else if (val === "alumni") {
+                onSemesterChange("alumni");
+              } else {
+                onSemesterChange(Number(val));
+              }
+            }}
             disabled={isLoading || isFetching}
             className="w-full px-3 py-2.5 sm:py-3 border border-slate-200/50 dark:border-white/5 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-white shadow-none hover:bg-slate-100 dark:hover:bg-slate-800"
           >

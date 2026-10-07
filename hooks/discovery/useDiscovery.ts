@@ -83,7 +83,7 @@ export function useDiscovery(options: UseDiscoveryOptions = {}) {
     }));
   }, []);
 
-  const setSemester = useCallback((semester: number | undefined) => {
+  const setSemester = useCallback((semester: string | number | undefined) => {
     setPendingFilters((prev) => ({
       ...prev,
       semester,

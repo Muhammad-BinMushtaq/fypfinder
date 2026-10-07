@@ -80,7 +80,7 @@ export async function getMatchedStudents(
     const offset = Math.max(Number(searchParams.get("offset")) || 0, 0)
 
     const department = searchParams.get("department")
-    const semesterParam = searchParams.get("semester")
+    const semesterParam = searchParams.get("semester") // can be "5", "6", "7", "8", or "alumni"
     const skillNames = searchParams.getAll("skill") // skill names, not IDs
     const availabilityParam = searchParams.get("availability") // AVAILABLE, BUSY, AWAY
 
@@ -88,14 +88,6 @@ export async function getMatchedStudents(
     const where: any = {
         // exclude current user
         userId: { not: userId },
-
-        // enforce eligibility (semesters 5-8 are FYP eligible)
-        // Note: Semester 8 students can appear in discovery but cannot send partner requests
-        currentSemester: {
-            gte: 5,
-            lte: 8,
-        },
-
         // user account must be active
         user: {
             status: UserStatus.ACTIVE,
@@ -118,11 +110,21 @@ export async function getMatchedStudents(
         }
     }
 
-    if (semesterParam) {
+    if (semesterParam === "alumni") {
+        where.isGraduated = true;
+    } else if (semesterParam) {
         const semester = Number(semesterParam)
         if (!Number.isNaN(semester)) {
-            where.currentSemester = semester
+            where.currentSemester = semester;
+            where.isGraduated = false;
         }
+    } else {
+        // Default filter if no semester specified: Active FYP students (Sem 5-8), exclude alumni
+        where.currentSemester = {
+            gte: 5,
+            lte: 8,
+        };
+        where.isGraduated = false;
     }
 
     if (skillNames.length > 0) {

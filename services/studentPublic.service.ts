@@ -63,6 +63,7 @@ export interface PublicStudentProfile {
   email: string;
   department: string;
   semester: number;
+  isGraduated?: boolean;
   profilePicture?: string | null;
   interests?: string;
   availability: "AVAILABLE" | "BUSY" | "AWAY";
