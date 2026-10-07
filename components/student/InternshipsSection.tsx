@@ -218,53 +218,62 @@ export function InternshipsSection({ internships, onUpdate }: InternshipsSection
 
       {/* Add/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-0 bg-slate-900/50 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && resetForm()}>
-          <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-xl">
-            <form onSubmit={handleSubmit} className="flex flex-col">
-              <div className="p-6 sm:p-8 space-y-6">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-y-auto">
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={resetForm}
+          />
+
+          <div 
+            className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[calc(100dvh-2rem)] my-auto animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <form onSubmit={handleSubmit} className="flex flex-col h-full overflow-hidden">
+              <div className="p-5 sm:p-7 space-y-5 overflow-y-auto">
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-1">
                     {editingId ? "Edit Experience" : "Add Experience"}
                   </h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                  <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                     Include details about your internships or previous jobs.
                   </p>
                 </div>
 
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-slate-900 dark:text-white">Company Name *</label>
+                    <div className="space-y-1.5">
+                      <label className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white">Company Name *</label>
                       <input
                         type="text"
                         required
                         value={formData.companyName}
                         onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
                         placeholder="e.g. Google"
-                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
+                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-base sm:text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-slate-900 dark:text-white">Position *</label>
+                    <div className="space-y-1.5">
+                      <label className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white">Position *</label>
                       <input
                         type="text"
                         required
                         value={formData.position}
                         onChange={(e) => setFormData({ ...formData, position: e.target.value })}
                         placeholder="e.g. Frontend Engineer"
-                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
+                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-base sm:text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-slate-900 dark:text-white">Duration *</label>
+                    <div className="space-y-1.5">
+                      <label className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white">Duration *</label>
                       <select
                         required
                         value={formData.duration}
                         onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
+                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-base sm:text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
                       >
                         <option value="" disabled>Select duration</option>
                         {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
@@ -273,31 +282,31 @@ export function InternshipsSection({ internships, onUpdate }: InternshipsSection
                         <option value="12+ months">12+ months</option>
                       </select>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-slate-900 dark:text-white">Certificate URL</label>
+                    <div className="space-y-1.5">
+                      <label className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white">Certificate URL</label>
                       <input
                         type="url"
                         value={formData.certificateLink}
                         onChange={(e) => setFormData({ ...formData, certificateLink: e.target.value })}
                         placeholder="https://..."
-                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
+                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-base sm:text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-900 dark:text-white">Description</label>
+                  <div className="space-y-1.5">
+                    <label className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white">Description</label>
                     <textarea
                       value={formData.description}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                       placeholder="What were your responsibilities and achievements?"
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors resize-none min-h-[100px]"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-base sm:text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors resize-none min-h-[90px] max-h-[140px]"
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="bg-slate-50 dark:bg-slate-800/50 p-4 sm:px-8 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
+              <div className="bg-slate-50 dark:bg-slate-800/50 p-4 sm:px-7 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3 shrink-0">
                 <button
                   type="button"
                   onClick={resetForm}
