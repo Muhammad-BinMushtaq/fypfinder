@@ -223,7 +223,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
       {/* Add/Edit Modal */}
       {mounted && showModal && createPortal(
         <div 
-          className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 overflow-y-auto overscroll-contain animate-in fade-in duration-200"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200"
           onClick={resetForm}
         >
           {/* Backdrop */}
@@ -233,98 +233,99 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
           />
 
           <div 
-            className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[calc(100dvh-2rem)] my-auto animate-in fade-in zoom-in-95 duration-200 z-10"
+            className="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden flex flex-col max-h-[min(90vh,620px)] animate-in zoom-in-95 duration-200 z-10"
             onClick={(e) => e.stopPropagation()}
           >
-            <form onSubmit={handleSubmit} className="flex flex-col h-full overflow-hidden">
-              <div className="p-5 sm:p-7 space-y-5 overflow-y-auto">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-1">
-                      {editingProject ? "Edit Project" : "Add New Project"}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                      Add details about a project you've built.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={resetForm}
-                    className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
-                    aria-label="Close"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
+            {/* Header */}
+            <div className="p-4 sm:p-6 pb-3 sm:pb-4 flex items-start justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 shrink-0">
+              <div className="min-w-0">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+                  {editingProject ? "Edit Project" : "Add New Project"}
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+                  Add details about a project you've built.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={resetForm}
+                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+              {/* Scrollable Form Body */}
+              <div className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
+                <div className="space-y-1.5">
+                  <label className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white">Project Name *</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="e.g. E-Commerce Website"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-base sm:text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
+                  />
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white">Description</label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="What did you build and what technologies did you use?"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-base sm:text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors resize-none min-h-[90px] max-h-[140px]"
+                  />
+                </div>
+
+                <div className="space-y-3.5">
                   <div className="space-y-1.5">
-                    <label className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white">Project Name *</label>
+                    <label className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white flex items-center gap-1.5">
+                      <Github className="w-4 h-4" /> Source Code URL
+                    </label>
                     <input
-                      type="text"
-                      required
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder="e.g. E-Commerce Website"
+                      type="url"
+                      value={formData.githubLink}
+                      onChange={(e) => setFormData({ ...formData, githubLink: e.target.value })}
+                      placeholder="https://github.com/..."
                       className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-base sm:text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
                     />
                   </div>
-
                   <div className="space-y-1.5">
-                    <label className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white">Description</label>
-                    <textarea
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      placeholder="What did you build and what technologies did you use?"
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-base sm:text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors resize-none min-h-[90px] max-h-[140px]"
+                    <label className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white flex items-center gap-1.5">
+                      <ExternalLink className="w-4 h-4" /> Live Demo URL
+                    </label>
+                    <input
+                      type="url"
+                      value={formData.liveLink}
+                      onChange={(e) => setFormData({ ...formData, liveLink: e.target.value })}
+                      placeholder="https://..."
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-base sm:text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
                     />
                   </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white flex items-center gap-1.5">
-                        <Github className="w-4 h-4" /> Source Code URL
-                      </label>
-                      <input
-                        type="url"
-                        value={formData.githubLink}
-                        onChange={(e) => setFormData({ ...formData, githubLink: e.target.value })}
-                        placeholder="https://github.com/..."
-                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-base sm:text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white flex items-center gap-1.5">
-                        <ExternalLink className="w-4 h-4" /> Live Demo URL
-                      </label>
-                      <input
-                        type="url"
-                        value={formData.liveLink}
-                        onChange={(e) => setFormData({ ...formData, liveLink: e.target.value })}
-                        placeholder="https://..."
-                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-base sm:text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
-                      />
-                    </div>
-                  </div>
-                  <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
-                    <strong>Tip:</strong> Paste a YouTube, Figma, or Loom URL above to automatically embed it in your profile!
-                  </p>
                 </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                  <strong>Tip:</strong> Paste a YouTube, Figma, or Loom URL above to automatically embed it!
+                </p>
               </div>
 
-              <div className="bg-slate-50 dark:bg-slate-800/50 p-4 sm:px-7 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3 shrink-0">
+              {/* Footer Actions */}
+              <div className="p-4 sm:p-6 pt-3 sm:pt-4 border-t border-slate-100 dark:border-slate-800/80 flex gap-3 bg-slate-50/50 dark:bg-slate-900/40 shrink-0">
                 <button
                   type="button"
                   onClick={resetForm}
                   disabled={isBusy}
-                  className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition-colors"
+                  className="flex-1 px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-xs sm:text-sm"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isBusy || !formData.name.trim()}
-                  className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2"
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-sm disabled:opacity-50 text-xs sm:text-sm"
                 >
                   {isBusy && <Loader2 className="w-4 h-4 animate-spin" />}
                   {isBusy ? "Saving..." : "Save Project"}

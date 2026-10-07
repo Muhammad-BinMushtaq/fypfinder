@@ -239,7 +239,7 @@ export function InternshipsSection({ internships, onUpdate }: InternshipsSection
       {/* Add/Edit Modal */}
       {mounted && showModal && createPortal(
         <div 
-          className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 overflow-y-auto overscroll-contain animate-in fade-in duration-200"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200"
           onClick={resetForm}
         >
           {/* Backdrop */}
@@ -249,109 +249,108 @@ export function InternshipsSection({ internships, onUpdate }: InternshipsSection
           />
 
           <div 
-            className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[calc(100dvh-2rem)] my-auto animate-in fade-in zoom-in-95 duration-200 z-10"
+            className="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden flex flex-col max-h-[min(90vh,620px)] animate-in zoom-in-95 duration-200 z-10"
             onClick={(e) => e.stopPropagation()}
           >
-            <form onSubmit={handleSubmit} className="flex flex-col h-full overflow-hidden">
-              <div className="p-5 sm:p-7 space-y-5 overflow-y-auto">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-1">
-                      {editingId ? "Edit Experience" : "Add Experience"}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                      Include details about your internships or previous jobs.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={resetForm}
-                    className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
-                    aria-label="Close"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
+            {/* Header */}
+            <div className="p-4 sm:p-6 pb-3 sm:pb-4 flex items-start justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 shrink-0">
+              <div className="min-w-0">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+                  {editingId ? "Edit Experience" : "Add Experience"}
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+                  Include details about your internships or previous jobs.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={resetForm}
+                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+              {/* Scrollable Form Body */}
+              <div className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
+                <div className="space-y-1.5">
+                  <label className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white">Company Name *</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.companyName}
+                    onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                    placeholder="e.g. Google"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-base sm:text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
+                  />
                 </div>
 
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white">Company Name *</label>
-                      <input
-                        type="text"
-                        required
-                        value={formData.companyName}
-                        onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                        placeholder="e.g. Google"
-                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-base sm:text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white">Position *</label>
-                      <input
-                        type="text"
-                        required
-                        value={formData.position}
-                        onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-                        placeholder="e.g. Frontend Engineer"
-                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-base sm:text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
-                      />
-                    </div>
-                  </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white">Position *</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.position}
+                    onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+                    placeholder="e.g. Frontend Engineer"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-base sm:text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
+                  />
+                </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white">Duration *</label>
-                      <select
-                        required
-                        value={formData.duration}
-                        onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-base sm:text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
-                      >
-                        <option value="" disabled>Select duration</option>
-                        {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-                          <option key={m} value={`${m} month${m > 1 ? 's' : ''}`}>{`${m} month${m > 1 ? 's' : ''}`}</option>
-                        ))}
-                        <option value="12+ months">12+ months</option>
-                      </select>
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white">Certificate URL</label>
-                      <input
-                        type="url"
-                        value={formData.certificateLink}
-                        onChange={(e) => setFormData({ ...formData, certificateLink: e.target.value })}
-                        placeholder="https://..."
-                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-base sm:text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
-                      />
-                    </div>
-                  </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white">Duration *</label>
+                  <select
+                    required
+                    value={formData.duration}
+                    onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-base sm:text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
+                  >
+                    <option value="" disabled>Select duration</option>
+                    {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                      <option key={m} value={`${m} month${m > 1 ? 's' : ''}`}>{`${m} month${m > 1 ? 's' : ''}`}</option>
+                    ))}
+                    <option value="12+ months">12+ months</option>
+                  </select>
+                </div>
 
-                  <div className="space-y-1.5">
-                    <label className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white">Description</label>
-                    <textarea
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      placeholder="What were your responsibilities and achievements?"
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-base sm:text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors resize-none min-h-[90px] max-h-[140px]"
-                    />
-                  </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white">Certificate URL</label>
+                  <input
+                    type="url"
+                    value={formData.certificateLink}
+                    onChange={(e) => setFormData({ ...formData, certificateLink: e.target.value })}
+                    placeholder="https://..."
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-base sm:text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white">Description</label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="What were your responsibilities and achievements?"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-base sm:text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors resize-none min-h-[90px] max-h-[140px]"
+                  />
                 </div>
               </div>
 
-              <div className="bg-slate-50 dark:bg-slate-800/50 p-4 sm:px-7 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3 shrink-0">
+              {/* Footer Actions */}
+              <div className="p-4 sm:p-6 pt-3 sm:pt-4 border-t border-slate-100 dark:border-slate-800/80 flex gap-3 bg-slate-50/50 dark:bg-slate-900/40 shrink-0">
                 <button
                   type="button"
                   onClick={resetForm}
                   disabled={isLoading}
-                  className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition-colors"
+                  className="flex-1 px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-xs sm:text-sm"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isLoading || !formData.companyName.trim() || !formData.position.trim() || !formData.duration}
-                  className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2"
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-sm disabled:opacity-50 text-xs sm:text-sm"
                 >
                   {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
                   {isLoading ? "Saving..." : "Save Experience"}

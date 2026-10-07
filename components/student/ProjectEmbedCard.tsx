@@ -111,7 +111,7 @@ export function ProjectEmbedCard({ embedType, embedUrl, mediaMetadata }: Project
 
         {mounted && isPdfModalOpen && createPortal(
           <div 
-            className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 overflow-y-auto overscroll-contain animate-in fade-in duration-200"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200"
             onClick={() => setIsPdfModalOpen(false)}
           >
             <div 

@@ -117,7 +117,7 @@ export function DeletionRequestButton() {
       {/* Confirmation Modal */}
       {mounted && showModal && createPortal(
         <div 
-          className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 overflow-y-auto overscroll-contain animate-in fade-in duration-200"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200"
           onClick={() => setShowModal(false)}
         >
           {/* Backdrop */}
@@ -127,20 +127,21 @@ export function DeletionRequestButton() {
           />
 
           <div 
-            className="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-7 overflow-hidden flex flex-col max-h-[calc(100dvh-2rem)] my-auto animate-in fade-in zoom-in-95 duration-200 z-10"
+            className="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden flex flex-col max-h-[min(90vh,620px)] animate-in zoom-in-95 duration-200 z-10"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-center gap-3">
+            {/* Header */}
+            <div className="p-4 sm:p-6 pb-3 sm:pb-4 flex items-start justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 shrink-0">
+              <div className="flex items-center gap-3 min-w-0">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-100 dark:bg-red-900/30">
                   <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
                 </div>
-                <div>
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-                    Request Account Deletion
-                  </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    This will submit a deletion request to administrators
+                <div className="min-w-0">
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight truncate">
+                    Delete Account
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                    Submit deletion request to admins
                   </p>
                 </div>
               </div>
@@ -154,28 +155,32 @@ export function DeletionRequestButton() {
               </button>
             </div>
 
-            <div className="mt-4 rounded-xl bg-red-50 dark:bg-red-900/20 p-3.5 border border-red-200/60 dark:border-red-800/40">
-              <p className="text-xs font-semibold text-red-800 dark:text-red-200">
-                Warning: After an administrator approves your request:
+            {/* Scrollable Form Body */}
+            <div className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
+              <div className="rounded-xl bg-red-50 dark:bg-red-900/20 p-3.5 border border-red-200/60 dark:border-red-800/40">
+                <p className="text-xs font-semibold text-red-800 dark:text-red-200">
+                  Warning: After an administrator approves your request:
+                </p>
+                <ul className="mt-2 list-inside list-disc text-xs text-red-700 dark:text-red-300 space-y-1">
+                  <li>Your profile will be permanently deleted</li>
+                  <li>All your messages will be removed</li>
+                  <li>Your group memberships will be cancelled</li>
+                  <li>This action cannot be undone</li>
+                </ul>
+              </div>
+
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                Are you sure you want to request permanent deletion of your account and all associated data?
               </p>
-              <ul className="mt-2 list-inside list-disc text-xs text-red-700 dark:text-red-300 space-y-1">
-                <li>Your profile will be permanently deleted</li>
-                <li>All your messages will be removed</li>
-                <li>Your group memberships will be cancelled</li>
-                <li>This action cannot be undone</li>
-              </ul>
             </div>
 
-            <p className="mt-4 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-              Are you sure you want to request deletion of your account?
-            </p>
-
-            <div className="mt-6 flex justify-end gap-3 shrink-0">
+            {/* Footer Actions */}
+            <div className="p-4 sm:p-6 pt-3 sm:pt-4 border-t border-slate-100 dark:border-slate-800/80 flex gap-3 bg-slate-50/50 dark:bg-slate-900/40 shrink-0">
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
                 disabled={isRequesting}
-                className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition-colors"
+                className="flex-1 px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-xs sm:text-sm"
               >
                 Cancel
               </button>
@@ -183,14 +188,14 @@ export function DeletionRequestButton() {
                 type="button"
                 onClick={handleRequest}
                 disabled={isRequesting}
-                className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-red-600 text-white hover:bg-red-700 transition-colors shadow-sm disabled:opacity-50 inline-flex items-center gap-2"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 transition-all shadow-sm disabled:opacity-50 text-xs sm:text-sm"
               >
                 {isRequesting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   <Trash2 className="h-4 w-4" />
                 )}
-                Confirm Deletion Request
+                Confirm Deletion
               </button>
             </div>
           </div>
