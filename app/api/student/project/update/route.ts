@@ -3,20 +3,23 @@ import { UserRole } from "@/lib/generated/prisma/enums"
 import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
 import { updateProject } from "@/modules/student/student.service"
+import { projectUpdateSchema, firstIssue } from "@/lib/validation/profile"
 
 export async function PATCH(req: Request) {
   try {
     const user = await requireRole(UserRole.STUDENT)
 
     const body = await req.json()
-    const { projectId, name, description, liveLink, githubLink, embedType, embedUrl, mediaMetadata } = body
-
-    if (!projectId) {
+    
+    const parsed = projectUpdateSchema.safeParse(body)
+    if (!parsed.success) {
       return NextResponse.json(
-        { success: false, message: "Project ID is required" },
+        { success: false, message: firstIssue(parsed.error) },
         { status: 400 }
       )
     }
+
+    const { projectId, name, description, liveLink, githubLink, embedType, embedUrl, mediaMetadata } = parsed.data
 
     const updatedProject = await updateProject(user.id, projectId, {
       name,

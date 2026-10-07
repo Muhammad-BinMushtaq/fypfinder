@@ -73,7 +73,7 @@ export function PublicProfileView({
         <div className="lg:col-span-4 lg:sticky lg:top-8 space-y-6">
           <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-7 shadow-sm">
             {/* Avatar & Header */}
-            <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
+            <div className="flex flex-col items-center text-center">
               <div className="relative mb-4 w-24 h-24 rounded-full overflow-hidden border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex-shrink-0 shadow-sm">
                 {profile.profilePicture ? (
                   <img src={profile.profilePicture} alt={profile.name} className="w-full h-full object-cover" />
@@ -89,7 +89,7 @@ export function PublicProfileView({
                 {profile.name}
               </h1>
               
-              <div className="mt-2.5 flex flex-wrap items-center justify-center sm:justify-start gap-2 text-xs font-medium">
+              <div className="mt-2.5 flex flex-wrap items-center justify-center gap-2 text-xs font-medium">
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60">
                   <span className={`w-2 h-2 rounded-full ${availabilityConfig.dot}`} />
                   <span className={availabilityConfig.text}>{availabilityConfig.label}</span>
@@ -120,14 +120,14 @@ export function PublicProfileView({
 
             {/* Roles */}
             {profile.primaryRoles && profile.primaryRoles.length > 0 && (
-              <div className="mt-5 pt-5 border-t border-slate-100 dark:border-slate-800">
+              <div className="mt-5 pt-5 border-t border-slate-100 dark:border-slate-800 flex justify-center">
                 <PrimaryRoleBadges roles={profile.primaryRoles} />
               </div>
             )}
 
             {/* Socials */}
             {(profile.githubUrl || profile.linkedinUrl) && (
-              <div className="mt-5 pt-5 border-t border-slate-100 dark:border-slate-800 flex gap-2.5">
+              <div className="mt-5 pt-5 border-t border-slate-100 dark:border-slate-800 flex justify-center gap-2.5">
                 {profile.githubUrl && (
                   <a href={profile.githubUrl} target="_blank" rel="noreferrer" className="w-9 h-9 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 transition-colors">
                     <Github className="w-4 h-4" />

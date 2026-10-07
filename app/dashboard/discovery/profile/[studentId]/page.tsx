@@ -84,13 +84,13 @@ export default function PublicProfilePage() {
               <div className="lg:col-span-4 space-y-6">
                 <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-7 shadow-sm">
                   {/* Avatar */}
-                  <div className="w-24 h-24 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse mb-4 mx-auto sm:mx-0" />
+                  <div className="w-24 h-24 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse mb-4 mx-auto" />
                   
                   {/* Name */}
-                  <div className="h-7 w-44 bg-slate-200 dark:bg-slate-800 rounded-lg animate-pulse mx-auto sm:mx-0" />
+                  <div className="h-7 w-44 bg-slate-200 dark:bg-slate-800 rounded-lg animate-pulse mx-auto" />
 
                   {/* Status Badges */}
-                  <div className="mt-3 flex gap-2 justify-center sm:justify-start">
+                  <div className="mt-3 flex gap-2 justify-center">
                     <div className="h-6 w-24 bg-slate-200 dark:bg-slate-800 rounded-full animate-pulse" />
                     <div className="h-6 w-28 bg-slate-200 dark:bg-slate-800 rounded-full animate-pulse" />
                   </div>

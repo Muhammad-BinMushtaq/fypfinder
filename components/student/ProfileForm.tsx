@@ -1,499 +1,371 @@
-// components/student/ProfileForm.tsx
 "use client";
 
 import { useState, useEffect } from "react";
 import { useMyProfile } from "@/hooks/student/useMyProfile";
-import { ChevronDown, ChevronUp, User, Target, Gamepad2, Code, Briefcase } from "lucide-react";
-import type { StudentProfile, AvailabilityStatus } from "@/services/student.service";
+import type { StudentProfile } from "@/services/student.service";
 import { AVAILABLE_ROLES, PrimaryRoleBadges } from "./PrimaryRoleBadges";
-import { FYP_INDUSTRIES, getIndustryLabel, getIndustriesByCategory } from "@/lib/industries";
+import { getIndustriesByCategory, getIndustryLabel } from "@/lib/industries";
+import { Loader2 } from "lucide-react";
+import { toast } from "react-toastify";
 
 interface ProfileFormProps {
   profile: StudentProfile;
 }
 
 export function ProfileForm({ profile }: ProfileFormProps) {
-  const { updateProfileAsync, isUpdating } = useMyProfile();
+  return (
+    <div className="space-y-6">
+      <AboutCard profile={profile} />
+      <ProfessionalCard profile={profile} />
+      <ContactLinksCard profile={profile} />
+    </div>
+  );
+}
+
+function AboutCard({ profile }: { profile: StudentProfile }) {
+  const { updateProfileAsync } = useMyProfile();
   const [isEditing, setIsEditing] = useState(false);
-  const [isOpen, setIsOpen] = useState(true); // Collapsible state
-  const [error, setError] = useState<string>("");
-  const [success, setSuccess] = useState<string>("");
+  const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
-    interests: "",
-    phone: "",
-    linkedinUrl: "",
-    githubUrl: "",
-    availability: "AVAILABLE" as AvailabilityStatus,
-    currentSemester: 5,
-    // New professional fields
-    careerGoal: "",
-    hobbies: "",
-    preferredTechStack: "",
-    fypIndustry: "",
-    primaryRoles: [] as string[],
-    seekingStatus: "LOOKING_FOR_TEAM",
+    interests: profile.interests || "",
+    careerGoal: profile.careerGoal || "",
+    hobbies: profile.hobbies || "",
   });
 
-  useEffect(() => {
-    if (profile) {
-      setFormData({
-        interests: profile.interests || "",
-        phone: profile.phone || "",
-        linkedinUrl: profile.linkedinUrl || "",
-        githubUrl: profile.githubUrl || "",
-        availability: profile.availability || "AVAILABLE",
-        currentSemester: profile.semester || 5,
-        // New professional fields
-        careerGoal: profile.careerGoal || "",
-        hobbies: profile.hobbies || "",
-        preferredTechStack: profile.preferredTechStack || "",
-        fypIndustry: profile.fypIndustry || "",
-        primaryRoles: Array.isArray(profile.primaryRoles) ? profile.primaryRoles : [],
-        seekingStatus: profile.seekingStatus || "LOOKING_FOR_TEAM",
-      });
-    }
-  }, [profile]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = async () => {
+    setIsSaving(true);
     try {
-      setError("");
-      setSuccess("");
       await updateProfileAsync(formData);
-      setSuccess("Profile updated successfully!");
       setIsEditing(false);
-      // Clear success message after 3 seconds
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : "Failed to update profile";
-      setError(errorMsg);
+      toast.success("Profile updated successfully!");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to update profile");
+      console.error(e);
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const handleCancel = () => {
-    setFormData({
-      interests: profile.interests || "",
-      phone: profile.phone || "",
-      linkedinUrl: profile.linkedinUrl || "",
-      githubUrl: profile.githubUrl || "",
-      availability: profile.availability || "AVAILABLE",
-      currentSemester: profile.semester || 5,
-      // New professional fields
-      careerGoal: profile.careerGoal || "",
-      hobbies: profile.hobbies || "",
-      preferredTechStack: profile.preferredTechStack || "",
-      fypIndustry: profile.fypIndustry || "",
-      primaryRoles: Array.isArray(profile.primaryRoles) ? profile.primaryRoles : [],
-      seekingStatus: profile.seekingStatus || "LOOKING_FOR_TEAM",
-    });
-    setIsEditing(false);
-    setError("");
-    setSuccess("");
-  };
-
-  const getAvailabilityColor = (status: AvailabilityStatus) => {
-    const colors = {
-      AVAILABLE: "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800",
-      BUSY: "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800",
-      AWAY: "bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-600",
-    };
-    return colors[status];
-  };
-
-  return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 overflow-hidden">
-      {/* Header - Clickable for collapse */}
-      <div 
-        className="px-4 sm:px-6 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors"
-        onClick={() => !isEditing && setIsOpen(!isOpen)}
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 min-w-0">
-            <User className="w-5 h-5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
-            <div className="min-w-0">
-              <h2 className="text-base font-semibold text-gray-900 dark:text-white">Personal Information</h2>
-              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">Manage your profile and preferences</p>
-            </div>
+  if (!isEditing) {
+    return (
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-7 shadow-sm">
+        <div className="flex justify-between items-center mb-5">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">About Me</h2>
+          <button onClick={() => setIsEditing(true)} className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">Edit</button>
+        </div>
+        <div className="space-y-4 text-sm">
+          <div>
+            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Bio & Interests</h3>
+            <p className="text-slate-700 dark:text-slate-300 leading-relaxed">{profile.interests || "Not provided"}</p>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {!isEditing && isOpen && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsEditing(true);
-                }}
-                className="px-3 py-1.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium text-xs rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
-              >
-                Edit
-              </button>
-            )}
-            {!isEditing && (
-              isOpen ? (
-                <ChevronUp className="w-4 h-4 text-gray-400" />
-              ) : (
-                <ChevronDown className="w-4 h-4 text-gray-400" />
-              )
-            )}
+          <div>
+            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Career Goal</h3>
+            <p className="text-slate-700 dark:text-slate-300">{profile.careerGoal || "Not provided"}</p>
+          </div>
+          <div>
+            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Hobbies</h3>
+            <p className="text-slate-700 dark:text-slate-300">{profile.hobbies || "Not provided"}</p>
           </div>
         </div>
       </div>
+    );
+  }
 
-      {/* Collapsible Form */}
-      {isOpen && (
-      <form onSubmit={handleSubmit} className="p-4 sm:p-8">
-        {error && (
-          <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-xs sm:text-sm">
-            {error}
-          </div>
-        )}
-        
-        {success && (
-          <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-400 text-xs sm:text-sm font-medium">
-            {success}
-          </div>
-        )}
+  return (
+    <div className="bg-slate-50 dark:bg-slate-800/50 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 sm:p-7 shadow-inner">
+      <div className="flex justify-between items-center mb-5">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white">Edit About Me</h2>
+      </div>
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Bio & Interests</label>
+          <textarea
+            value={formData.interests}
+            onChange={(e) => setFormData({ ...formData, interests: e.target.value })}
+            placeholder="Tell us about yourself..."
+            rows={3}
+            className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 resize-none transition-colors"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Career Goal</label>
+          <input
+            type="text"
+            value={formData.careerGoal}
+            onChange={(e) => setFormData({ ...formData, careerGoal: e.target.value })}
+            className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Hobbies</label>
+          <input
+            type="text"
+            value={formData.hobbies}
+            onChange={(e) => setFormData({ ...formData, hobbies: e.target.value })}
+            className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
+          />
+        </div>
+        <div className="flex justify-end gap-3 mt-6">
+          <button onClick={() => setIsEditing(false)} disabled={isSaving} className="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">Cancel</button>
+          <button onClick={handleSave} disabled={isSaving} className="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors inline-flex items-center gap-2">
+            {isSaving && <Loader2 className="w-4 h-4 animate-spin" />} Save
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-7">
-          {/* Name (Read-only) */}
+function ProfessionalCard({ profile }: { profile: StudentProfile }) {
+  const { updateProfileAsync } = useMyProfile();
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [formData, setFormData] = useState({
+    preferredTechStack: profile.preferredTechStack || "",
+    fypIndustry: profile.fypIndustry || "",
+    primaryRoles: Array.isArray(profile.primaryRoles) ? profile.primaryRoles : [],
+    seekingStatus: profile.seekingStatus || "LOOKING_FOR_TEAM",
+  });
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await updateProfileAsync(formData);
+      setIsEditing(false);
+      toast.success("Profile updated successfully!");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to update profile");
+      console.error(e);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (!isEditing) {
+    return (
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-7 shadow-sm">
+        <div className="flex justify-between items-center mb-5">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Professional</h2>
+          <button onClick={() => setIsEditing(true)} className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">Edit</button>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
           <div>
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
-              Full Name
-            </label>
-            <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-100 dark:bg-slate-700/50 rounded-lg text-gray-700 dark:text-gray-400 font-medium border border-gray-200 dark:border-slate-600 cursor-not-allowed opacity-75 text-sm sm:text-base">
-              {profile.name}
-              <span className="ml-1 sm:ml-2 text-[10px] sm:text-xs text-gray-500 dark:text-gray-500">(Cannot be changed)</span>
-            </div>
+            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Primary Roles</h3>
+            {profile.primaryRoles && profile.primaryRoles.length > 0 ? (
+              <PrimaryRoleBadges roles={profile.primaryRoles} />
+            ) : (
+              <p className="text-slate-700 dark:text-slate-300">Not provided</p>
+            )}
           </div>
-
-          {/* Department (Read-only) */}
           <div>
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
-              Department
-            </label>
-            <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-100 dark:bg-slate-700/50 rounded-lg text-gray-700 dark:text-gray-400 font-medium border border-gray-200 dark:border-slate-600 cursor-not-allowed opacity-75 text-sm sm:text-base">
-              {profile.department}
-              <span className="ml-1 sm:ml-2 text-[10px] sm:text-xs text-gray-500 dark:text-gray-500">(Cannot be changed)</span>
-            </div>
+            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Preferred Tech Stack</h3>
+            <p className="text-slate-700 dark:text-slate-300">{profile.preferredTechStack || "Not provided"}</p>
           </div>
-
-          {/* Semester */}
           <div>
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
-              Current Semester
-            </label>
-            {isEditing ? (
-              <select
-                value={formData.currentSemester}
-                onChange={(e) => setFormData({ ...formData, currentSemester: parseInt(e.target.value) })}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent outline-none transition-all text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
-              >
-                <option value={5}>Semester 5</option>
-                <option value={6}>Semester 6</option>
-                <option value={7}>Semester 7</option>
-                <option value={8}>Semester 8</option>
-              </select>
-            ) : (
-              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-900 dark:text-white font-medium border border-gray-200 dark:border-slate-600 text-sm sm:text-base">
-                Semester {profile.semester}
-              </div>
-            )}
+            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">FYP Industry</h3>
+            <p className="text-slate-700 dark:text-slate-300">{profile.fypIndustry ? getIndustryLabel(profile.fypIndustry) : "Not provided"}</p>
           </div>
-
-          {/* Availability */}
           <div>
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
-              Availability Status
-            </label>
-            {isEditing ? (
-              <select
-                value={formData.availability}
-                onChange={(e) => setFormData({ ...formData, availability: e.target.value as AvailabilityStatus })}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent outline-none transition-all text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
-              >
-                <option value="AVAILABLE">Available</option>
-                <option value="BUSY">Busy</option>
-                <option value="AWAY">Away</option>
-              </select>
-            ) : (
-              <div className={`inline-flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-semibold text-xs sm:text-sm ${getAvailabilityColor(profile.availability)}`}>
-                <span className={`w-2 h-2 rounded-full ${profile.availability === "AVAILABLE" ? "bg-green-500" : profile.availability === "BUSY" ? "bg-yellow-500" : "bg-gray-500"}`} />
-                {profile.availability === "AVAILABLE" && "Available"}
-                {profile.availability === "BUSY" && "Busy"}
-                {profile.availability === "AWAY" && "Away"}
-              </div>
-            )}
-          </div>
-
-          {/* Phone */}
-          <div>
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
-              Phone Number
-            </label>
-            {isEditing ? (
-              <input
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                placeholder="+1234567890"
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent outline-none transition-all text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
-              />
-            ) : (
-              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-700 dark:text-gray-300 font-medium text-sm sm:text-base border border-gray-200 dark:border-slate-600">
-                {profile.phone || "Not provided"}
-              </div>
-            )}
-          </div>
-
-          {/* LinkedIn */}
-          <div>
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
-              LinkedIn URL
-            </label>
-            {isEditing ? (
-              <input
-                type="url"
-                value={formData.linkedinUrl}
-                onChange={(e) => setFormData({ ...formData, linkedinUrl: e.target.value })}
-                placeholder="https://linkedin.com/in/username"
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent outline-none transition-all text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
-              />
-            ) : (
-              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-700 dark:text-gray-300 font-medium text-sm sm:text-base border border-gray-200 dark:border-slate-600">
-                {profile.linkedinUrl ? (
-                  <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-gray-900 dark:text-white hover:underline">
-                    View Profile →
-                  </a>
-                ) : (
-                  "Not provided"
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* GitHub */}
-          <div>
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
-              GitHub URL
-            </label>
-            {isEditing ? (
-              <input
-                type="url"
-                value={formData.githubUrl}
-                onChange={(e) => setFormData({ ...formData, githubUrl: e.target.value })}
-                placeholder="https://github.com/username"
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent outline-none transition-all text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
-              />
-            ) : (
-              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-700 dark:text-gray-300 font-medium text-sm sm:text-base border border-gray-200 dark:border-slate-600">
-                {profile.githubUrl ? (
-                  <a href={profile.githubUrl} target="_blank" rel="noopener noreferrer" className="text-gray-900 dark:text-white hover:underline">
-                    View Profile →
-                  </a>
-                ) : (
-                  "Not provided"
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Interests - Full Width */}
-          <div className="md:col-span-2">
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
-              Interests & Bio
-            </label>
-            {isEditing ? (
-              <textarea
-                value={formData.interests}
-                onChange={(e) => setFormData({ ...formData, interests: e.target.value })}
-                placeholder="Tell us about your interests and what you're looking for in a project..."
-                rows={4}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent outline-none transition-all resize-none text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
-              />
-            ) : (
-              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-700 dark:text-gray-300 font-medium min-h-20 sm:min-h-24 flex items-center text-sm sm:text-base border border-gray-200 dark:border-slate-600">
-                {profile.interests || "Not provided"}
-              </div>
-            )}
-          </div>
-
-          {/* Career Goal - Full Width */}
-          <div className="md:col-span-2">
-            <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
-              <Target className="w-4 h-4" /> Career Goal
-            </label>
-            {isEditing ? (
-              <input
-                type="text"
-                value={formData.careerGoal}
-                onChange={(e) => setFormData({ ...formData, careerGoal: e.target.value })}
-                placeholder="e.g., Become AI/ML Engineer at a startup"
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent outline-none transition-all text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
-              />
-            ) : (
-              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-700 dark:text-gray-300 font-medium text-sm sm:text-base border border-gray-200 dark:border-slate-600">
-                {profile.careerGoal || "Not provided"}
-              </div>
-            )}
-          </div>
-
-          {/* FYP Industry */}
-          <div>
-            <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
-              <Briefcase className="w-4 h-4" /> FYP Industry
-            </label>
-            {isEditing ? (
-              <select
-                value={formData.fypIndustry}
-                onChange={(e) => setFormData({ ...formData, fypIndustry: e.target.value })}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent outline-none transition-all text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
-              >
-                <option value="">Select an industry...</option>
-                {Object.entries(getIndustriesByCategory()).map(([category, industries]) => (
-                  <optgroup key={category} label={category}>
-                    {industries.map((ind) => (
-                      <option key={ind.value} value={ind.value}>
-                        {ind.label}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
-            ) : (
-              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-700 dark:text-gray-300 font-medium text-sm sm:text-base border border-gray-200 dark:border-slate-600">
-                {profile.fypIndustry ? getIndustryLabel(profile.fypIndustry) : "Not provided"}
-              </div>
-            )}
-          </div>
-
-          {/* Hobbies */}
-          <div>
-            <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
-              <Gamepad2 className="w-4 h-4" /> Hobbies
-            </label>
-            {isEditing ? (
-              <input
-                type="text"
-                value={formData.hobbies}
-                onChange={(e) => setFormData({ ...formData, hobbies: e.target.value })}
-                placeholder="e.g., Coding, Gaming, Open-source"
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent outline-none transition-all text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
-              />
-            ) : (
-              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-700 dark:text-gray-300 font-medium text-sm sm:text-base border border-gray-200 dark:border-slate-600">
-                {profile.hobbies || "Not provided"}
-              </div>
-            )}
-          </div>
-
-          {/* Preferred Tech Stack */}
-          <div>
-            <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
-              <Code className="w-4 h-4" /> Preferred Tech Stack
-            </label>
-            {isEditing ? (
-              <input
-                type="text"
-                value={formData.preferredTechStack}
-                onChange={(e) => setFormData({ ...formData, preferredTechStack: e.target.value })}
-                placeholder="e.g., React, Node.js, Python, MongoDB"
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent outline-none transition-all text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
-              />
-            ) : (
-              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-700 dark:text-gray-300 font-medium text-sm sm:text-base border border-gray-200 dark:border-slate-600">
-                {profile.preferredTechStack || "Not provided"}
-              </div>
-            )}
-          </div>
-
-          {/* Primary Roles */}
-          <div className="md:col-span-2">
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
-              Primary Roles (Max 2)
-            </label>
-            {isEditing ? (
-              <div className="flex flex-wrap gap-2">
-                {AVAILABLE_ROLES.map((role) => {
-                  const isSelected = formData.primaryRoles.includes(role);
-                  return (
-                    <button
-                      key={role}
-                      type="button"
-                      onClick={() => {
-                        if (isSelected) {
-                          setFormData({ ...formData, primaryRoles: formData.primaryRoles.filter((r) => r !== role) });
-                        } else if (formData.primaryRoles.length < 2) {
-                          setFormData({ ...formData, primaryRoles: [...formData.primaryRoles, role] });
-                        }
-                      }}
-                      className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-                        isSelected
-                          ? "bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 border-blue-300 dark:border-blue-700"
-                          : "bg-white dark:bg-slate-800 text-gray-600 dark:text-gray-400 border-gray-300 dark:border-slate-600 hover:border-gray-400 dark:hover:border-slate-500"
-                      } ${!isSelected && formData.primaryRoles.length >= 2 ? "opacity-50 cursor-not-allowed" : ""}`}
-                    >
-                      {role}
-                    </button>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="min-h-[42px] px-3 sm:px-4 py-2 bg-gray-50 dark:bg-slate-700 rounded-lg border border-gray-200 dark:border-slate-600 flex items-center">
-                {formData.primaryRoles.length > 0 ? (
-                  <PrimaryRoleBadges roles={formData.primaryRoles} />
-                ) : (
-                  <span className="text-gray-500 dark:text-gray-400 text-sm">Not provided</span>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Seeking Status */}
-          <div className="md:col-span-2">
-            <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2.5">
-              Seeking Status
-            </label>
-            {isEditing ? (
-              <select
-                value={formData.seekingStatus}
-                onChange={(e) => setFormData({ ...formData, seekingStatus: e.target.value })}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent outline-none transition-all text-sm sm:text-base bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
-              >
-                <option value="LOOKING_FOR_TEAM">Looking for Team Members</option>
-                <option value="HAS_TEAM_LOOKING_FOR_MEMBERS">Have a Team, Looking for Members</option>
-                <option value="NOT_LOOKING">Not Looking Right Now</option>
-              </select>
-            ) : (
-              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-700 dark:text-gray-300 font-medium text-sm sm:text-base border border-gray-200 dark:border-slate-600">
-                {formData.seekingStatus === "LOOKING_FOR_TEAM" ? "Looking for Team Members"
-                 : formData.seekingStatus === "HAS_TEAM_LOOKING_FOR_MEMBERS" ? "Have a Team, Looking for Members"
+            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Seeking Status</h3>
+            <p className="text-slate-700 dark:text-slate-300">
+              {profile.seekingStatus === "LOOKING_FOR_TEAM" ? "Looking for Team Members"
+                 : profile.seekingStatus === "HAS_TEAM_LOOKING_FOR_MEMBERS" ? "Have a Team, Looking for Members"
                  : "Not Looking Right Now"}
-              </div>
-            )}
+            </p>
           </div>
         </div>
+      </div>
+    );
+  }
 
-        {/* Action Buttons */}
-        {isEditing && (
-          <div className="mt-6 sm:mt-8 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 sm:justify-end">
-            <button
-              type="button"
-              onClick={handleCancel}
-              disabled={isUpdating}
-              className="w-full sm:w-auto px-5 sm:px-6 py-2.5 border-2 border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 transition-all duration-300 text-sm sm:text-base"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isUpdating}
-              className="w-full sm:w-auto px-5 sm:px-6 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-semibold rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 text-sm sm:text-base"
-            >
-              {isUpdating ? "Saving..." : "Save Changes"}
-            </button>
+  return (
+    <div className="bg-slate-50 dark:bg-slate-800/50 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 sm:p-7 shadow-inner">
+      <div className="flex justify-between items-center mb-5">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white">Edit Professional Details</h2>
+      </div>
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Primary Roles (Max 2)</label>
+          <div className="flex flex-wrap gap-2">
+            {AVAILABLE_ROLES.map((role) => {
+              const isSelected = formData.primaryRoles.includes(role);
+              return (
+                <button
+                  key={role}
+                  type="button"
+                  onClick={() => {
+                    if (isSelected) {
+                      setFormData({ ...formData, primaryRoles: formData.primaryRoles.filter((r) => r !== role) });
+                    } else if (formData.primaryRoles.length < 2) {
+                      setFormData({ ...formData, primaryRoles: [...formData.primaryRoles, role] });
+                    }
+                  }}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                    isSelected
+                      ? "bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-900 dark:border-white"
+                      : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600"
+                  } ${!isSelected && formData.primaryRoles.length >= 2 ? "opacity-50 cursor-not-allowed" : ""}`}
+                >
+                  {role}
+                </button>
+              );
+            })}
           </div>
-        )}
-      </form>
-      )}
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Preferred Tech Stack</label>
+            <input
+              type="text"
+              value={formData.preferredTechStack}
+              onChange={(e) => setFormData({ ...formData, preferredTechStack: e.target.value })}
+              className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Seeking Status</label>
+            <select
+              value={formData.seekingStatus}
+              onChange={(e) => setFormData({ ...formData, seekingStatus: e.target.value })}
+              className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
+            >
+              <option value="LOOKING_FOR_TEAM">Looking for Team</option>
+              <option value="HAS_TEAM_LOOKING_FOR_MEMBERS">Have a Team</option>
+              <option value="NOT_LOOKING">Not Looking</option>
+            </select>
+          </div>
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">FYP Industry</label>
+            <select
+              value={formData.fypIndustry}
+              onChange={(e) => setFormData({ ...formData, fypIndustry: e.target.value })}
+              className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
+            >
+              <option value="">Select an industry...</option>
+              {Object.entries(getIndustriesByCategory()).map(([category, industries]) => (
+                <optgroup key={category} label={category}>
+                  {industries.map((ind) => (
+                    <option key={ind.value} value={ind.value}>{ind.label}</option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className="flex justify-end gap-3 mt-6">
+          <button onClick={() => setIsEditing(false)} disabled={isSaving} className="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">Cancel</button>
+          <button onClick={handleSave} disabled={isSaving} className="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors inline-flex items-center gap-2">
+            {isSaving && <Loader2 className="w-4 h-4 animate-spin" />} Save
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ContactLinksCard({ profile }: { profile: StudentProfile }) {
+  const { updateProfileAsync } = useMyProfile();
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [formData, setFormData] = useState({
+    phone: profile.phone || "",
+    linkedinUrl: profile.linkedinUrl || "",
+    githubUrl: profile.githubUrl || "",
+  });
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await updateProfileAsync(formData);
+      setIsEditing(false);
+      toast.success("Profile updated successfully!");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to update profile");
+      console.error(e);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (!isEditing) {
+    return (
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-7 shadow-sm">
+        <div className="flex justify-between items-center mb-5">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Contact & Links</h2>
+          <button onClick={() => setIsEditing(true)} className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">Edit</button>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+          <div>
+            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Phone</h3>
+            <p className="text-slate-700 dark:text-slate-300">{profile.phone || "Not provided"}</p>
+          </div>
+          <div className="space-y-3 sm:space-y-0 sm:col-span-2 sm:grid sm:grid-cols-2 sm:gap-4">
+            <div>
+              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">LinkedIn</h3>
+              {profile.linkedinUrl ? (
+                <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline break-all">
+                  {profile.linkedinUrl}
+                </a>
+              ) : (
+                <p className="text-slate-700 dark:text-slate-300">Not provided</p>
+              )}
+            </div>
+            <div>
+              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">GitHub</h3>
+              {profile.githubUrl ? (
+                <a href={profile.githubUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline break-all">
+                  {profile.githubUrl}
+                </a>
+              ) : (
+                <p className="text-slate-700 dark:text-slate-300">Not provided</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-slate-50 dark:bg-slate-800/50 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 sm:p-7 shadow-inner">
+      <div className="flex justify-between items-center mb-5">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white">Edit Contact & Links</h2>
+      </div>
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Phone Number</label>
+          <input
+            type="tel"
+            value={formData.phone}
+            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">LinkedIn URL</label>
+          <input
+            type="url"
+            value={formData.linkedinUrl}
+            onChange={(e) => setFormData({ ...formData, linkedinUrl: e.target.value })}
+            className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">GitHub URL</label>
+          <input
+            type="url"
+            value={formData.githubUrl}
+            onChange={(e) => setFormData({ ...formData, githubUrl: e.target.value })}
+            className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
+          />
+        </div>
+        <div className="flex justify-end gap-3 mt-6">
+          <button onClick={() => setIsEditing(false)} disabled={isSaving} className="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">Cancel</button>
+          <button onClick={handleSave} disabled={isSaving} className="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors inline-flex items-center gap-2">
+            {isSaving && <Loader2 className="w-4 h-4 animate-spin" />} Save
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

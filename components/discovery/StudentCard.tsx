@@ -58,11 +58,6 @@ export function StudentCard({ student }: StudentCardProps) {
       className="group cursor-pointer block h-full"
     >
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-white/5 transition-all duration-300 overflow-hidden h-full flex flex-col hover:-translate-y-1 hover:shadow-xl relative">
-        {/* Click Affordance Indicator (Option 1: Minimal Top-Right Arrow) */}
-        <div className="absolute top-4 right-4 w-7 h-7 rounded-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white group-hover:border-slate-300 dark:group-hover:border-slate-600 transition-all duration-200">
-          <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-        </div>
-
         {/* Header Section */}
         <div className="p-6 flex flex-col items-center text-center space-y-4">
           
@@ -110,7 +105,7 @@ export function StudentCard({ student }: StudentCardProps) {
         </div>
 
         {/* Skills - Minimal Pill Layout */}
-        <div className="px-6 pb-6 mt-auto">
+        <div className="px-6 mt-auto">
           {student.skills && student.skills.length > 0 ? (
             <div className="flex flex-wrap justify-center gap-1.5">
               {student.skills.slice(0, 3).map((skill, idx) => (
@@ -130,6 +125,11 @@ export function StudentCard({ student }: StudentCardProps) {
           ) : (
             <div className="h-[26px]"></div>
           )}
+        </div>
+
+        {/* Clear Click Affordance */}
+        <div className="px-6 py-4 mt-4 border-t border-slate-50 dark:border-slate-800/50 flex justify-center items-center text-sm font-medium text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+          View Profile <ArrowUpRight className="w-4 h-4 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
       </div>
     </div>

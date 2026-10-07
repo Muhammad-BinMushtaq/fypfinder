@@ -3,37 +3,23 @@ import { UserRole } from "@/lib/generated/prisma/enums"
 import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
 import { addProject } from "@/modules/student/student.service"
+import { projectCreateSchema, firstIssue } from "@/lib/validation/profile"
 
 export async function POST(req: Request) {
     try {
         const user = await requireRole(UserRole.STUDENT)
 
         const body = await req.json()
-        const { name, description, liveLink, githubLink, embedType, embedUrl, mediaMetadata } = body
-
-        if (!name) {
+        
+        const parsed = projectCreateSchema.safeParse(body)
+        if (!parsed.success) {
             return NextResponse.json(
-                { success: false, message: "Project name is required" },
+                { success: false, message: firstIssue(parsed.error) },
                 { status: 400 }
             )
         }
 
-        if (!githubLink) {
-            return NextResponse.json(
-                { success: false, message: "GitHub repository URL is required" },
-                { status: 400 }
-            )
-        }
-
-        // Validate URL format
-        try {
-            new URL(githubLink)
-        } catch {
-            return NextResponse.json(
-                { success: false, message: "Invalid GitHub URL format" },
-                { status: 400 }
-            )
-        }
+        const { name, description, liveLink, githubLink, embedType, embedUrl, mediaMetadata } = parsed.data
 
         const project = await addProject(user.id, { name, description, liveLink, githubLink, embedType, embedUrl, mediaMetadata })
 

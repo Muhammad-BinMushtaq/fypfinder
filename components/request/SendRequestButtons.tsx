@@ -272,22 +272,16 @@ export function SendRequestButtons({
 
         {/* Minimalist Neutral Semester Mismatch Disclaimer */}
         {!canPartner && targetSemester !== undefined && currentSemester !== undefined && currentSemester !== 8 && (
-          <div className="w-full text-xs text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl border border-slate-200/80 dark:border-slate-700/60 flex items-start gap-2.5 leading-relaxed">
-            <Info className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0 mt-0.5" />
-            <span>
-              Partner requests require the same semester (You: Sem {currentSemester}, Them: Sem {targetSemester}).
-            </span>
-          </div>
+          <p className="text-center text-[11px] text-slate-500 dark:text-slate-400 mt-2">
+            Partner requests require matching semesters (You: Sem {currentSemester}, Them: Sem {targetSemester}).
+          </p>
         )}
 
         {/* Minimalist Neutral Semester 8 Disclaimer */}
         {currentSemester === 8 && (
-          <div className="w-full text-xs text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl border border-slate-200/80 dark:border-slate-700/60 flex items-start gap-2.5 leading-relaxed">
-            <Info className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0 mt-0.5" />
-            <span>
-              Semester 8 students can message but cannot form partner groups.
-            </span>
-          </div>
+          <p className="text-center text-[11px] text-slate-500 dark:text-slate-400 mt-2">
+            Semester 8 students can message but cannot form partner groups.
+          </p>
         )}
       </div>
 
