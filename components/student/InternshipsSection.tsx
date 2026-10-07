@@ -133,7 +133,7 @@ export function InternshipsSection({ internships, onUpdate }: InternshipsSection
                           <Building2 className="w-3.5 h-3.5 text-slate-400 sm:hidden" />
                           {internship.companyName}
                         </p>
-                        <span className="hidden sm:inline text-slate-300 dark:text-slate-600">•</span>
+                        <span className="hidden sm:inline text-slate-300 dark:text-slate-600">â€¢</span>
                         <p className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5 text-xs sm:text-sm">
                           <Calendar className="w-3.5 h-3.5" />
                           {internship.duration}
