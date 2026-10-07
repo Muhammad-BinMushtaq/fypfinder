@@ -6,13 +6,17 @@ import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { MobileBottomNav } from "@/components/dashboard/MobileBottomNav";
+import { MobileProfileMenu } from "@/components/dashboard/MobileProfileMenu";
 import { SuspensionBanner } from "@/components/student/SuspensionBanner";
 import { PushPermissionBanner } from "@/components/pwa/PushPermissionBanner";
 import { InstallPromptBanner } from "@/components/pwa/InstallPromptBanner";
 import { InstallButton } from "@/components/pwa/InstallButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { GraduationCap, Lightbulb, Settings, ClipboardCheck } from "lucide-react";
+import { GraduationCap, Lightbulb, ClipboardCheck, MessageSquare, UserCheck } from "lucide-react";
 import { useVisualViewport } from "@/hooks/useVisualViewport";
+import { useUnreadCount } from "@/hooks/messaging/useUnreadCount";
+import { useReceivedPartnerRequests } from "@/hooks/request/usePartnerRequests";
+import { useReceivedMessageRequests } from "@/hooks/request/useMessageRequests";
 import clientLogger from "@/lib/client-logger";
 
 interface DashboardShellProps {
@@ -25,6 +29,13 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const { unreadCount } = useUnreadCount();
+  const { data: partnerReqs } = useReceivedPartnerRequests();
+  const { data: messageReqs } = useReceivedMessageRequests();
+  const pendingPartnerCount = partnerReqs?.filter((r) => r.status === "PENDING").length ?? 0;
+  const pendingMessageCount = messageReqs?.filter((r) => r.status === "PENDING").length ?? 0;
+  const totalPendingRequests = pendingPartnerCount + pendingMessageCount;
 
   const isChatOpen = pathname.startsWith("/dashboard/messages/") && pathname !== "/dashboard/messages";
   const viewportHeight = useVisualViewport(isChatOpen);
@@ -111,39 +122,52 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
         >
           {/* Mobile Header (Glass) - Hidden when in active chat */}
           {!isChatOpen && (
-            <div className="lg:hidden sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-white/20 dark:border-white/10 px-4 py-3 shadow-sm">
-              <div className="flex items-center justify-between gap-2">
-                <Link href="/dashboard/profile" className="flex items-center gap-2 shrink-0 min-w-0">
+            <div className="lg:hidden sticky top-0 z-40 bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl border-b border-slate-200/60 dark:border-white/10 px-4 py-2.5 shadow-xs">
+              <div className="flex items-center justify-between gap-3">
+                {/* Brand Link */}
+                <Link href="/dashboard/discovery" className="flex items-center gap-2.5 shrink-0 min-w-0">
                   <div className="w-8 h-8 bg-gradient-to-tr from-gray-900 to-gray-700 dark:from-white dark:to-gray-200 rounded-xl flex items-center justify-center shrink-0 shadow-md">
                     <GraduationCap className="w-4 h-4 text-white dark:text-gray-900" />
                   </div>
                   <span className="font-bold tracking-tight text-gray-900 dark:text-white text-base truncate">FYP Finder</span>
                 </Link>
 
+                {/* Right utility actions (Option A: Requests, Messages, Profile Avatar Dropdown) */}
                 <div className="flex items-center gap-2 shrink-0">
+                  {/* Requests Link */}
                   <Link
-                    href="/dashboard/fyp-ideas"
-                    title="FYP Ideas Archive"
-                    className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
+                    href="/dashboard/requests"
+                    title="Requests"
+                    className="relative flex h-8 w-8 items-center justify-center rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                   >
-                    <Lightbulb className="w-4 h-4" />
+                    <UserCheck className="w-4 h-4" />
+                    {totalPendingRequests > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 min-w-[15px] h-3.5 px-0.5 flex items-center justify-center text-[9px] font-bold bg-blue-600 text-white rounded-full shadow-xs">
+                        {totalPendingRequests > 9 ? "9+" : totalPendingRequests}
+                      </span>
+                    )}
                   </Link>
+
+                  {/* Messages Link */}
                   <Link
-                    href="/dashboard/fyp-ideas/validate"
-                    title="Validate Idea"
-                    className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
+                    href="/dashboard/messages"
+                    title="Messages"
+                    className="relative flex h-8 w-8 items-center justify-center rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                   >
-                    <ClipboardCheck className="w-4 h-4" />
+                    <MessageSquare className="w-4 h-4" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 min-w-[15px] h-3.5 px-0.5 flex items-center justify-center text-[9px] font-bold bg-red-500 text-white rounded-full shadow-xs">
+                        {unreadCount > 99 ? "99+" : unreadCount}
+                      </span>
+                    )}
                   </Link>
-                  <Link
-                    href="/dashboard/settings"
-                    className="flex h-8 w-8 items-center justify-center rounded-full bg-black/5 dark:bg-white/10 text-gray-600 dark:text-gray-300 hover:bg-black/10 dark:hover:bg-white/20 transition-colors"
-                    aria-label="Settings"
-                  >
-                    <Settings className="h-4 w-4" />
-                  </Link>
-                  <InstallButton />
-                  <ThemeToggle />
+
+                  {/* Profile Dropdown */}
+                  <MobileProfileMenu
+                    userEmail={userEmail}
+                    onLogout={handleLogout}
+                    isLoggingOut={isLoggingOut}
+                  />
                 </div>
               </div>
             </div>

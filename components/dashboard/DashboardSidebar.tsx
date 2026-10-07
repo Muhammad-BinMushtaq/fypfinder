@@ -30,14 +30,20 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   {
-    label: "My Profile",
-    href: "/dashboard/profile",
-    icon: <User className="w-5 h-5" />,
-  },
-  {
-    label: "Discovery",
+    label: "Find Partners",
     href: "/dashboard/discovery",
     icon: <Search className="w-5 h-5" />,
+  },
+  {
+    label: "Validate FYP",
+    href: "/dashboard/fyp-ideas/validate",
+    icon: <ClipboardCheck className="w-5 h-5" />,
+    badge: "AI",
+  },
+  {
+    label: "Previous FYPs",
+    href: "/dashboard/fyp-ideas",
+    icon: <BookOpen className="w-5 h-5" />,
   },
   {
     label: "Messages",
@@ -56,15 +62,9 @@ const navItems: NavItem[] = [
     icon: <FolderKanban className="w-5 h-5" />,
   },
   {
-    label: "FYP Ideas",
-    href: "/dashboard/fyp-ideas",
-    icon: <BookOpen className="w-5 h-5" />,
-  },
-  {
-    label: "Idea Validator",
-    href: "/dashboard/fyp-ideas/validate",
-    icon: <ClipboardCheck className="w-5 h-5" />,
-    badge: "AI",
+    label: "My Profile",
+    href: "/dashboard/profile",
+    icon: <User className="w-5 h-5" />,
   },
   {
     label: "Settings",
