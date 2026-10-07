@@ -63,3 +63,8 @@
 * {
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.05s ease;
 }
+
+/* Hide mobile bottom nav when modal dialog is active */
+body.modal-open nav.lg\:hidden {
+  display: none !important;
+}

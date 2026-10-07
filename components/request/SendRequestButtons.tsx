@@ -17,12 +17,13 @@
  * ⚠️ Backend validates all eligibility. These buttons just trigger the request.
  */
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useSendMessageRequest, useSentMessageRequests, useReceivedMessageRequests } from "@/hooks/request/useMessageRequests";
 import { useSendPartnerRequest, useSentPartnerRequests } from "@/hooks/request/usePartnerRequests";
 import { useStartConversation } from "@/hooks/messaging/useStartConversation";
 import { useCheckMessagePermission } from "@/hooks/messaging/useCheckMessagePermission";
-import { MessageSquare, Users, Loader2, Check, Ban, Clock, Send, Info } from "lucide-react";
+import { MessageSquare, Users, Loader2, Check, Ban, Clock, Send, Info, X } from "lucide-react";
 import { toast } from "react-toastify";
 
 interface SendRequestButtonsProps {
@@ -60,6 +61,39 @@ export function SendRequestButtons({
   const [partnerReason, setPartnerReason] = useState("");
   const [messageSuccess, setMessageSuccess] = useState(false);
   const [partnerSuccess, setPartnerSuccess] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Lock background scroll, hide mobile bottom nav, and isolate interaction
+  useEffect(() => {
+    const isAnyModalOpen = showMessageModal || showPartnerModal;
+    if (isAnyModalOpen) {
+      document.body.style.overflow = "hidden";
+      document.body.classList.add("modal-open");
+    } else {
+      document.body.style.overflow = "unset";
+      document.body.classList.remove("modal-open");
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+      document.body.classList.remove("modal-open");
+    };
+  }, [showMessageModal, showPartnerModal]);
+
+  // Close modals on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setShowMessageModal(false);
+        setShowPartnerModal(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   // Mutations
   const sendMessageMutation = useSendMessageRequest();
@@ -135,7 +169,7 @@ export function SendRequestButtons({
   const handleSendPartnerRequest = async () => {
     try {
       if (partnerReason.trim() === "") {
-        toast.error("Please provide a reason for your message request");
+        toast.error("Please provide a reason for your partner request");
         return;
       }
       await sendPartnerMutation.mutateAsync({
@@ -293,45 +327,77 @@ export function SendRequestButtons({
       </div>
 
       {/* Message Request Modal */}
-      {showMessageModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {mounted && showMessageModal && createPortal(
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 overflow-y-auto overscroll-contain animate-in fade-in duration-200"
+          onClick={() => setShowMessageModal(false)}
+        >
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={() => setShowMessageModal(false)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+            aria-hidden="true"
           />
 
-          {/* Modal */}
-          <div className="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-6 animate-in fade-in zoom-in-95 duration-200">
-            <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">
-              Message Request to {targetName}
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
-              Add an optional message explaining why you want to connect.
-            </p>
-
-            <textarea
-              value={messageReason}
-              onChange={(e) => setMessageReason(e.target.value)}
-              placeholder="Hi! I'd like to discuss potential FYP collaboration..."
-              className="w-full h-24 px-4 py-3 border border-gray-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-white focus:border-transparent resize-none"
-              maxLength={500}
-            />
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 text-right">
-              {messageReason.length}/500
-            </p>
-
-            <div className="flex gap-3 mt-4">
+          {/* Modal Dialog */}
+          <div 
+            className="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden flex flex-col max-h-[calc(100dvh-2rem)] my-auto animate-in zoom-in-95 duration-200 z-10"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="p-4 sm:p-6 pb-3 flex items-start justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80">
+              <div className="min-w-0">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight truncate">
+                  Message Request
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                  Connect with <span className="font-semibold text-slate-800 dark:text-slate-200">{targetName}</span>
+                </p>
+              </div>
               <button
+                type="button"
                 onClick={() => setShowMessageModal(false)}
-                className="flex-1 px-4 py-2.5 bg-gray-100 dark:bg-slate-600 text-gray-700 dark:text-gray-300 font-medium rounded-xl hover:bg-gray-200 dark:hover:bg-slate-500 transition-colors"
+                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Scrollable Form Body */}
+            <div className="p-4 sm:p-6 space-y-3.5 overflow-y-auto">
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                Add an optional message explaining why you want to connect.
+              </p>
+
+              <div>
+                <textarea
+                  value={messageReason}
+                  onChange={(e) => setMessageReason(e.target.value)}
+                  placeholder="Hi! I'd like to discuss potential FYP collaboration..."
+                  className="w-full h-24 sm:h-28 px-3.5 py-2.5 sm:px-4 sm:py-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-800/60 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-white focus:border-transparent resize-none text-base sm:text-sm transition-all"
+                  maxLength={500}
+                />
+                <div className="flex justify-between items-center mt-1 text-[11px] text-slate-400 dark:text-slate-500">
+                  <span>Keep it relevant and polite</span>
+                  <span>{messageReason.length}/500</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Actions */}
+            <div className="p-4 sm:p-6 pt-3 sm:pt-4 border-t border-slate-100 dark:border-slate-800/80 flex gap-3 bg-slate-50/50 dark:bg-slate-900/40">
+              <button
+                type="button"
+                onClick={() => setShowMessageModal(false)}
+                className="flex-1 px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-xs sm:text-sm"
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleSendMessageRequest}
-                disabled={sendMessageMutation.isPending}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium rounded-xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-all disabled:opacity-50"
+                disabled={sendMessageMutation.isPending || !messageReason.trim()}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-sm disabled:opacity-50 text-xs sm:text-sm"
               >
                 {sendMessageMutation.isPending ? (
                   <>
@@ -344,49 +410,82 @@ export function SendRequestButtons({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Partner Request Modal */}
-      {showPartnerModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {mounted && showPartnerModal && createPortal(
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 overflow-y-auto overscroll-contain animate-in fade-in duration-200"
+          onClick={() => setShowPartnerModal(false)}
+        >
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={() => setShowPartnerModal(false)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+            aria-hidden="true"
           />
 
-          {/* Modal */}
-          <div className="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-6 animate-in fade-in zoom-in-95 duration-200">
-            <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">
-              Partner Request to {targetName}
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
-              Add an optional message explaining why you want to partner with them for your FYP.
-            </p>
-
-            <textarea
-              value={partnerReason}
-              onChange={(e) => setPartnerReason(e.target.value)}
-              placeholder="Hi! I'm looking for a partner for my FYP project on machine learning..."
-              className="w-full h-24 px-4 py-3 border border-gray-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-white focus:border-transparent resize-none"
-              maxLength={500}
-            />
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 text-right">
-              {partnerReason.length}/500
-            </p>
-
-            <div className="flex gap-3 mt-4">
+          {/* Modal Dialog */}
+          <div 
+            className="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden flex flex-col max-h-[calc(100dvh-2rem)] my-auto animate-in zoom-in-95 duration-200 z-10"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="p-4 sm:p-6 pb-3 flex items-start justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80">
+              <div className="min-w-0">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight truncate">
+                  Partner Request
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                  Invite <span className="font-semibold text-slate-800 dark:text-slate-200">{targetName}</span> to your FYP group
+                </p>
+              </div>
               <button
+                type="button"
                 onClick={() => setShowPartnerModal(false)}
-                className="flex-1 px-4 py-2.5 bg-gray-100 dark:bg-slate-600 text-gray-700 dark:text-gray-300 font-medium rounded-xl hover:bg-gray-200 dark:hover:bg-slate-500 transition-colors"
+                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Scrollable Form Body */}
+            <div className="p-4 sm:p-6 space-y-3.5 overflow-y-auto">
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                Add an optional message explaining why you want to partner with them for your FYP.
+              </p>
+
+              <div>
+                <textarea
+                  value={partnerReason}
+                  onChange={(e) => setPartnerReason(e.target.value)}
+                  placeholder="Hi! I'm looking for a partner for my FYP project on..."
+                  className="w-full h-24 sm:h-28 px-3.5 py-2.5 sm:px-4 sm:py-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-800/60 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-white focus:border-transparent resize-none text-base sm:text-sm transition-all"
+                  maxLength={500}
+                />
+                <div className="flex justify-between items-center mt-1 text-[11px] text-slate-400 dark:text-slate-500">
+                  <span>Describe your skills or project ideas</span>
+                  <span>{partnerReason.length}/500</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Actions */}
+            <div className="p-4 sm:p-6 pt-3 sm:pt-4 border-t border-slate-100 dark:border-slate-800/80 flex gap-3 bg-slate-50/50 dark:bg-slate-900/40">
+              <button
+                type="button"
+                onClick={() => setShowPartnerModal(false)}
+                className="flex-1 px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-xs sm:text-sm"
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleSendPartnerRequest}
-                disabled={sendPartnerMutation.isPending}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium rounded-xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-all disabled:opacity-50"
+                disabled={sendPartnerMutation.isPending || !partnerReason.trim()}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-sm disabled:opacity-50 text-xs sm:text-sm"
               >
                 {sendPartnerMutation.isPending ? (
                   <>
@@ -399,7 +498,8 @@ export function SendRequestButtons({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
