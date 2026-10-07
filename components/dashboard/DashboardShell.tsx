@@ -84,6 +84,35 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
     };
   }, [isChatOpen]);
 
+  // Proactively warm up React Query cache for instant tab switches
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      queryClient.prefetchQuery({
+        queryKey: ["conversations"],
+        queryFn: async () => {
+          const res = await fetch("/api/messaging/get-conversations");
+          if (!res.ok) return [];
+          const json = await res.json();
+          return json.data?.conversations || [];
+        },
+        staleTime: 5 * 60 * 1000,
+      });
+
+      queryClient.prefetchQuery({
+        queryKey: ["discovery", { limit: 12, offset: 0 }],
+        queryFn: async () => {
+          const res = await fetch("/api/discovery/get-matched-students?limit=12&offset=0");
+          if (!res.ok) return null;
+          const json = await res.json();
+          return json.data || null;
+        },
+        staleTime: 5 * 60 * 1000,
+      });
+    }, 1200);
+
+    return () => clearTimeout(timer);
+  }, [queryClient]);
+
   const handleLogout = async () => {
     try {
       setIsLoggingOut(true);
@@ -159,7 +188,7 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
                     <span className="font-bold tracking-tight text-base truncate">{getSubPageTitle()}</span>
                   </button>
                 ) : (
-                  <Link href="/dashboard/discovery" className="flex items-center gap-2.5 shrink-0 min-w-0">
+                  <Link href="/dashboard/discovery" prefetch={true} className="flex items-center gap-2.5 shrink-0 min-w-0">
                     <div className="w-8 h-8 bg-gradient-to-tr from-gray-900 to-gray-700 dark:from-white dark:to-gray-200 rounded-xl flex items-center justify-center shrink-0 shadow-md">
                       <GraduationCap className="w-4 h-4 text-white dark:text-gray-900" />
                     </div>
@@ -172,8 +201,9 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
                   {/* Requests Link */}
                   <Link
                     href="/dashboard/requests"
+                    prefetch={true}
                     title="Requests"
-                    className="relative flex h-8 w-8 items-center justify-center rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    className="relative flex h-8 w-8 items-center justify-center rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-90 transition-all"
                   >
                     <UserPlus className="w-4 h-4" />
                     {totalPendingRequests > 0 && (
@@ -186,8 +216,9 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
                   {/* Messages Link */}
                   <Link
                     href="/dashboard/messages"
+                    prefetch={true}
                     title="Messages"
-                    className="relative flex h-8 w-8 items-center justify-center rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    className="relative flex h-8 w-8 items-center justify-center rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-90 transition-all"
                   >
                     <MessageCircleMore className="w-4 h-4" />
                     {unreadCount > 0 && (
@@ -219,6 +250,7 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
                 <div className="h-4 w-px bg-gray-200 dark:bg-white/10"></div>
                 <Link
                   href="/dashboard/fyp-ideas"
+                  prefetch={true}
                   title="FYP Ideas"
                   className="flex items-center justify-center w-9 h-9 text-gray-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-full transition-all"
                 >
@@ -226,6 +258,7 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
                 </Link>
                 <Link
                   href="/dashboard/fyp-ideas/validate"
+                  prefetch={true}
                   title="Validate Idea"
                   className="flex items-center justify-center w-9 h-9 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-full transition-all"
                 >

@@ -135,7 +135,8 @@ export function DashboardSidebar({ userEmail, onLogout, isLoggingOut }: Dashboar
                       <Link
                         key={child.href}
                         href={child.href}
-                        className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ${
+                        prefetch={true}
+                        className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-150 active:scale-[0.98] ${
                           pathname === child.href
                             ? "text-gray-900 dark:text-white font-medium"
                             : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"
@@ -152,7 +153,8 @@ export function DashboardSidebar({ userEmail, onLogout, isLoggingOut }: Dashboar
               // Single item
               <Link
                 href={item.href}
-                className={`group flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                prefetch={true}
+                className={`group flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-150 active:scale-[0.98] ${
                   isActive(item.href)
                     ? "bg-black/5 dark:bg-white/10 text-gray-900 dark:text-white"
                     : "text-gray-600 dark:text-gray-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white"
