@@ -2,9 +2,10 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronUp, Plus, Pencil, Trash2, ExternalLink, Building2, Briefcase, Calendar } from "lucide-react";
+import { Plus, Pencil, Trash2, ExternalLink, Building2, Briefcase, Calendar, Loader2 } from "lucide-react";
 import type { Internship } from "@/services/student.service";
 import * as studentService from "@/services/student.service";
+import { toast } from "react-toastify";
 
 interface InternshipsSectionProps {
   internships: Internship[];
@@ -12,11 +13,9 @@ interface InternshipsSectionProps {
 }
 
 export function InternshipsSection({ internships, onUpdate }: InternshipsSectionProps) {
-  const [isOpen, setIsOpen] = useState(true);
-  const [isAdding, setIsAdding] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const [formData, setFormData] = useState({
     companyName: "",
@@ -34,62 +33,8 @@ export function InternshipsSection({ internships, onUpdate }: InternshipsSection
       description: "",
       certificateLink: "",
     });
-    setIsAdding(false);
     setEditingId(null);
-    setError("");
-  };
-
-  const handleAdd = async () => {
-    if (!formData.companyName || !formData.position || !formData.duration) {
-      setError("Company name, position, and duration are required");
-      return;
-    }
-
-    setIsLoading(true);
-    setError("");
-    try {
-      await studentService.addInternship(formData);
-      resetForm();
-      onUpdate?.();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to add internship");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleUpdate = async () => {
-    if (!editingId) return;
-    if (!formData.companyName || !formData.position || !formData.duration) {
-      setError("Company name, position, and duration are required");
-      return;
-    }
-
-    setIsLoading(true);
-    setError("");
-    try {
-      await studentService.updateInternship(editingId, formData);
-      resetForm();
-      onUpdate?.();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update internship");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this internship?")) return;
-
-    setIsLoading(true);
-    try {
-      await studentService.removeInternship(id);
-      onUpdate?.();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete internship");
-    } finally {
-      setIsLoading(false);
-    }
+    setShowModal(false);
   };
 
   const startEdit = (internship: Internship) => {
@@ -101,220 +46,248 @@ export function InternshipsSection({ internships, onUpdate }: InternshipsSection
       certificateLink: internship.certificateLink || "",
     });
     setEditingId(internship.id);
-    setIsAdding(false);
+    setShowModal(true);
   };
 
-  const renderForm = () => (
-    <div className="p-4 bg-gray-50 dark:bg-slate-700/50 rounded-lg space-y-4">
-      {error && (
-        <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-xs sm:text-sm">
-          {error}
-        </div>
-      )}
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this internship?")) return;
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-            Company Name *
-          </label>
-          <input
-            type="text"
-            value={formData.companyName}
-            onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-            placeholder="e.g., Google"
-            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-            Position *
-          </label>
-          <input
-            type="text"
-            value={formData.position}
-            onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-            placeholder="e.g., Software Engineer Intern"
-            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
-          />
-        </div>
-      </div>
+    setIsLoading(true);
+    try {
+      await studentService.removeInternship(id);
+      toast.success("Experience deleted successfully!");
+      onUpdate?.();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete internship");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-            Duration *
-          </label>
-          <select
-            value={formData.duration}
-            onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
-          >
-            <option value="">Select duration</option>
-            <option value="1 month">1 month</option>
-            <option value="2 months">2 months</option>
-            <option value="3 months">3 months</option>
-            <option value="4 months">4 months</option>
-            <option value="5 months">5 months</option>
-            <option value="6 months">6 months</option>
-            <option value="7 months">7 months</option>
-            <option value="8 months">8 months</option>
-            <option value="9 months">9 months</option>
-            <option value="10 months">10 months</option>
-            <option value="11 months">11 months</option>
-            <option value="12 months">12 months</option>
-            <option value="12+ months">12+ months</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-            Certificate Link
-          </label>
-          <input
-            type="url"
-            value={formData.certificateLink}
-            onChange={(e) => setFormData({ ...formData, certificateLink: e.target.value })}
-            placeholder="https://..."
-            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
-          />
-        </div>
-      </div>
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.companyName || !formData.position || !formData.duration) {
+      toast.error("Company name, position, and duration are required");
+      return;
+    }
 
-      <div>
-        <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-          Description
-        </label>
-        <textarea
-          value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          placeholder="Describe your responsibilities and achievements..."
-          rows={3}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-white resize-none"
-        />
-      </div>
-
-      <div className="flex gap-3 justify-end">
-        <button
-          onClick={resetForm}
-          disabled={isLoading}
-          className="px-4 py-2 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-600 text-sm font-medium"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={editingId ? handleUpdate : handleAdd}
-          disabled={isLoading}
-          className="px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 text-sm font-medium disabled:opacity-50"
-        >
-          {isLoading ? "Saving..." : editingId ? "Update" : "Add"}
-        </button>
-      </div>
-    </div>
-  );
+    setIsLoading(true);
+    try {
+      if (editingId) {
+        await studentService.updateInternship(editingId, formData);
+        toast.success("Experience updated successfully!");
+      } else {
+        await studentService.addInternship(formData);
+        toast.success("Experience added successfully!");
+      }
+      resetForm();
+      onUpdate?.();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to save internship");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 overflow-hidden">
-      {/* Header */}
-      <div
-        className="px-4 sm:px-6 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors"
-        onClick={() => !isAdding && !editingId && setIsOpen(!isOpen)}
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 min-w-0">
-            <Briefcase className="w-5 h-5 text-gray-600 dark:text-gray-400 flex-shrink-0" />
-            <div className="min-w-0">
-              <h2 className="text-base font-semibold text-gray-900 dark:text-white">Internship Experience</h2>
-              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                {internships.length} internship{internships.length !== 1 ? "s" : ""} added
-              </p>
-            </div>
+    <>
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-7 shadow-sm">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Experience</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Internships and professional work</p>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {!isAdding && !editingId && isOpen && internships.length < 10 && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsAdding(true);
-                }}
-                className="p-1.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
-              >
-                <Plus className="w-4 h-4" />
-              </button>
-            )}
-            {!isAdding && !editingId && (isOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />)}
-          </div>
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors"
+          >
+            <Plus className="w-4 h-4" /> Add
+          </button>
         </div>
-      </div>
 
-      {/* Content */}
-      {isOpen && (
-        <div className="p-4 sm:p-6 border-t border-gray-100 dark:border-slate-700 space-y-4">
-          {(isAdding || editingId) && renderForm()}
-
-          {!isAdding && !editingId && internships.length === 0 && (
-            <p className="text-gray-500 dark:text-gray-400 text-sm text-center py-4">
-              No internships added yet. Click + to add your experience.
-            </p>
-          )}
-
-          {!isAdding && internships.map((internship) => (
-            editingId === internship.id ? null : (
+        {internships.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-slate-500 dark:text-slate-400 text-sm">No experience added yet.</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {internships.map((internship) => (
               <div
                 key={internship.id}
-                className="p-4 bg-gray-50 dark:bg-slate-700/50 rounded-lg"
+                className="group relative bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 border border-slate-100 dark:border-slate-700/50 hover:border-slate-200 dark:hover:border-slate-600 transition-colors"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Building2 className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                      <h3 className="font-semibold text-gray-900 dark:text-white text-sm truncate">
-                        {internship.companyName}
+                    <div className="flex items-center gap-2.5 mb-1.5">
+                      <div className="w-8 h-8 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center flex-shrink-0">
+                        <Building2 className="w-4 h-4 text-slate-400" />
+                      </div>
+                      <h3 className="font-semibold text-slate-900 dark:text-white text-base truncate">
+                        {internship.position}
                       </h3>
                     </div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <Briefcase className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                      <p className="text-gray-700 dark:text-gray-300 text-sm">{internship.position}</p>
+                    
+                    <div className="pl-10.5 sm:pl-11">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-sm mb-3">
+                        <p className="font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                          <Building2 className="w-3.5 h-3.5 text-slate-400 sm:hidden" />
+                          {internship.companyName}
+                        </p>
+                        <span className="hidden sm:inline text-slate-300 dark:text-slate-600">•</span>
+                        <p className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5 text-xs sm:text-sm">
+                          <Calendar className="w-3.5 h-3.5" />
+                          {internship.duration}
+                        </p>
+                      </div>
+                      
+                      {internship.description && (
+                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-3">
+                          {internship.description}
+                        </p>
+                      )}
+                      
+                      {internship.certificateLink && (
+                        <a
+                          href={internship.certificateLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          View Certificate
+                        </a>
+                      )}
                     </div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                      <p className="text-gray-500 dark:text-gray-400 text-xs">{internship.duration}</p>
-                    </div>
-                    {internship.description && (
-                      <p className="text-gray-600 dark:text-gray-400 text-xs mt-2 line-clamp-2">
-                        {internship.description}
-                      </p>
-                    )}
-                    {internship.certificateLink && (
-                      <a
-                        href={internship.certificateLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 mt-2 text-xs text-blue-600 dark:text-blue-400 hover:underline"
-                      >
-                        <ExternalLink className="w-3 h-3" />
-                        View Certificate
-                      </a>
-                    )}
                   </div>
-                  <div className="flex gap-1 flex-shrink-0">
+
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 -mr-2 -mt-2 flex-shrink-0">
                     <button
                       onClick={() => startEdit(internship)}
-                      className="p-1.5 text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-slate-600 rounded"
+                      disabled={isLoading}
+                      className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors disabled:opacity-50"
+                      title="Edit experience"
                     >
-                      <Pencil className="w-4 h-4" />
+                      <Pencil className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => handleDelete(internship.id)}
-                      className="p-1.5 text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-200 dark:hover:bg-slate-600 rounded"
+                      disabled={isLoading}
+                      className="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors disabled:opacity-50"
+                      title="Delete experience"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
               </div>
-            )
-          ))}
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Add/Edit Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0 bg-slate-900/50 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && resetForm()}>
+          <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-xl">
+            <form onSubmit={handleSubmit} className="flex flex-col">
+              <div className="p-6 sm:p-8 space-y-6">
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+                    {editingId ? "Edit Experience" : "Add Experience"}
+                  </h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    Include details about your internships or previous jobs.
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-900 dark:text-white">Company Name *</label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.companyName}
+                        onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                        placeholder="e.g. Google"
+                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-900 dark:text-white">Position *</label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.position}
+                        onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+                        placeholder="e.g. Frontend Engineer"
+                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-900 dark:text-white">Duration *</label>
+                      <select
+                        required
+                        value={formData.duration}
+                        onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
+                      >
+                        <option value="" disabled>Select duration</option>
+                        {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                          <option key={m} value={`${m} month${m > 1 ? 's' : ''}`}>{`${m} month${m > 1 ? 's' : ''}`}</option>
+                        ))}
+                        <option value="12+ months">12+ months</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-900 dark:text-white">Certificate URL</label>
+                      <input
+                        type="url"
+                        value={formData.certificateLink}
+                        onChange={(e) => setFormData({ ...formData, certificateLink: e.target.value })}
+                        placeholder="https://..."
+                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-900 dark:text-white">Description</label>
+                    <textarea
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      placeholder="What were your responsibilities and achievements?"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors resize-none min-h-[100px]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-slate-50 dark:bg-slate-800/50 p-4 sm:px-8 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  disabled={isLoading}
+                  className="px-5 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isLoading || !formData.companyName.trim() || !formData.position.trim() || !formData.duration}
+                  className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2"
+                >
+                  {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {isLoading ? "Saving..." : "Save Experience"}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

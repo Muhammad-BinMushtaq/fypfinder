@@ -3,11 +3,10 @@
 
 import { useState } from "react";
 import { useMyProfile } from "@/hooks/student/useMyProfile";
-import { ChevronDown, ChevronUp, Pencil, Trash2, ExternalLink, Github, FolderGit2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Github, ExternalLink, Loader2 } from "lucide-react";
 import type { Project } from "@/services/student.service";
 import { ProjectEmbedCard } from "./ProjectEmbedCard";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 interface ProjectsSectionProps {
   projects: Project[];
@@ -15,27 +14,20 @@ interface ProjectsSectionProps {
 
 export function ProjectsSection({ projects }: ProjectsSectionProps) {
   const { addProjectAsync, updateProjectAsync, removeProjectAsync, isAddingProject, isUpdatingProject, isRemovingProject } = useMyProfile();
-  const [isOpen, setIsOpen] = useState(true); // Collapsible state
   const [showModal, setShowModal] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    liveLink: "",
     githubLink: "",
-    embedType: "NONE",
-    embedUrl: "",
-    mediaMetadata: null as any,
+    liveLink: "",
   });
-  const [error, setError] = useState<string>("");
-  const [success, setSuccess] = useState<string>("");
 
   const resetForm = () => {
-    setFormData({ name: "", description: "", liveLink: "", githubLink: "", embedType: "NONE", embedUrl: "", mediaMetadata: null });
+    setFormData({ name: "", description: "", githubLink: "", liveLink: "" });
     setEditingProject(null);
     setShowModal(false);
-    setError("");
-    setSuccess("");
   };
 
   const handleEdit = (project: Project) => {
@@ -43,11 +35,8 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
     setFormData({
       name: project.name,
       description: project.description || "",
-      liveLink: project.liveLink || "",
       githubLink: project.githubLink || "",
-      embedType: project.embedType || "NONE",
-      embedUrl: project.embedUrl || "",
-      mediaMetadata: project.mediaMetadata || null,
+      liveLink: project.liveLink || "",
     });
     setShowModal(true);
   };
@@ -55,13 +44,10 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
   const handleDelete = async (projectId: string) => {
     if (confirm("Are you sure you want to delete this project?")) {
       try {
-        setError("");
-        setSuccess("");
         await removeProjectAsync(projectId);
-        setSuccess("Project deleted successfully!");
-        setTimeout(() => setSuccess(""), 2000);
-      } catch (error) {
-        setError(error instanceof Error ? error.message : "Failed to delete project");
+        toast.success("Project deleted successfully!");
+      } catch (error: any) {
+        toast.error(error.message || "Failed to delete project");
       }
     }
   };
@@ -69,50 +55,31 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim()) {
-      setError("Project name is required");
-      return;
-    }
-
-    // GitHub link is required for new projects
-    if (!editingProject && !formData.githubLink.trim()) {
-      setError("GitHub repository URL is required");
-      return;
-    }
-
-    // Validate GitHub URL format if provided
-    if (formData.githubLink.trim() && !isValidUrl(formData.githubLink)) {
-      setError("Please enter a valid GitHub URL");
-      return;
-    }
-
-    // Validate live link format if provided
-    if (formData.liveLink.trim() && !isValidUrl(formData.liveLink)) {
-      setError("Please enter a valid live link URL");
+      toast.error("Project name is required");
       return;
     }
 
     try {
-      setError("");
-      setSuccess("");
       if (editingProject) {
         await updateProjectAsync({
           projectId: editingProject.id,
           data: formData,
         });
+        toast.success("Project updated successfully!");
       } else {
         await addProjectAsync(formData);
+        toast.success("Project added successfully!");
       }
-      setSuccess(editingProject ? "Project updated successfully!" : "Project added successfully!");
       resetForm();
-      setTimeout(() => setSuccess(""), 2000);
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Failed to save project");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to save project");
     }
   };
 
   const isBusy = isAddingProject || isUpdatingProject || isRemovingProject;
 
   const isValidUrl = (url: string) => {
+    if (!url) return true; // empty is valid
     try {
       new URL(url);
       return true;
@@ -122,308 +89,187 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 overflow-hidden">
-      {/* Header - Clickable for collapse */}
-      <div 
-        className="px-4 sm:px-6 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 min-w-0">
-            <FolderGit2 className="w-5 h-5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
-            <div className="min-w-0">
-              <h2 className="text-base font-semibold text-gray-900 dark:text-white">Personal Projects</h2>
-              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                {projects.length > 0 ? `${projects.length} projects added` : "Showcase your previous work"}
-              </p>
-            </div>
+    <>
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-7 shadow-sm">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Personal Projects</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Showcase your previous work</p>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {isOpen && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowModal(true);
-                }}
-                className="px-3 py-1.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium text-xs rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
-              >
-                + Add
-              </button>
-            )}
-            {isOpen ? (
-              <ChevronUp className="w-4 h-4 text-gray-400" />
-            ) : (
-              <ChevronDown className="w-4 h-4 text-gray-400" />
-            )}
-          </div>
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors"
+          >
+            <Plus className="w-4 h-4" /> Add
+          </button>
         </div>
-      </div>
 
-      {/* Helper Text */}
-      {isOpen && (
-        <div className="px-4 sm:px-6 pb-3">
-          <p className="text-xs text-gray-400 dark:text-gray-500">
-            Add past or personal projects (not your FYP idea) to demonstrate your skills.
-          </p>
-        </div>
-      )}
-
-      {/* Collapsible Content */}
-      {isOpen && (
-      <>
-      {/* Success/Error Messages */}
-      <div className="px-4 sm:px-6">
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-sm">
-            {error}
-          </div>
-        )}
-        {success && (
-          <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-400 text-sm">
-            {success}
-          </div>
-        )}
-      </div>
-
-      {/* Projects List */}
-      <div className="p-4 sm:p-6 pt-0">
         {projects.length === 0 ? (
-          <div className="text-center py-10">
-            <div className="w-16 h-16 mx-auto mb-3 bg-gray-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
-              <FolderGit2 className="w-8 h-8 text-gray-400 dark:text-gray-500" />
-            </div>
-            <p className="text-gray-600 dark:text-gray-400 text-base font-medium">No projects added yet</p>
-            <p className="text-gray-500 dark:text-gray-500 mt-2 text-sm">Add your first project to showcase your work</p>
+          <div className="text-center py-8">
+            <p className="text-slate-500 dark:text-slate-400 text-sm">No projects added yet.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {projects.map((project) => (
               <div
                 key={project.id}
-                className="group relative bg-gray-50 dark:bg-slate-700/50 rounded-xl p-4 border border-gray-200 dark:border-slate-600 hover:border-gray-300 dark:hover:border-slate-500 transition-all duration-300 overflow-hidden"
+                className="group relative bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 border border-slate-100 dark:border-slate-700/50 hover:border-slate-200 dark:hover:border-slate-600 transition-colors flex flex-col h-full"
               >
-                {/* Background gradient on hover */}
-                <div className="absolute inset-0 bg-gray-100/50 dark:bg-slate-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                <div className="relative z-10">
-                  <div className="flex items-start justify-between mb-3">
-                    <h3 className="font-semibold text-gray-900 dark:text-white text-base flex-1 pr-2">{project.name}</h3>
-                    <div className="flex gap-1">
-                      <button
-                        onClick={() => handleEdit(project)}
-                        disabled={isBusy}
-                        className="p-1.5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-lg transition-colors duration-200 disabled:opacity-50"
-                        title="Edit project"
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(project.id)}
-                        disabled={isBusy}
-                        className="p-1.5 text-gray-600 dark:text-gray-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors duration-200 disabled:opacity-50"
-                        title="Delete project"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+                <div className="flex items-start justify-between mb-3">
+                  <h3 className="font-semibold text-slate-900 dark:text-white text-base truncate pr-2">{project.name}</h3>
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 -mr-2 -mt-2 flex-shrink-0">
+                    <button
+                      onClick={() => handleEdit(project)}
+                      disabled={isBusy}
+                      className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors disabled:opacity-50"
+                      title="Edit project"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(project.id)}
+                      disabled={isBusy}
+                      className="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors disabled:opacity-50"
+                      title="Delete project"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
                   </div>
+                </div>
 
-                  {/* Description */}
-                  {project.description && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-3 line-clamp-3">{project.description}</p>
-                  )}
+                {project.description && (
+                  <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
+                    {project.description}
+                  </p>
+                )}
 
-                  {/* Links */}
-                  <div className="flex gap-2 flex-wrap">
-                    {project.liveLink && isValidUrl(project.liveLink) && (
-                      <a
-                        href={project.liveLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200"
-                      >
-                        <ExternalLink className="w-3 h-3" /> Live Demo
-                      </a>
-                    )}
-                    {project.githubLink && isValidUrl(project.githubLink) && (
-                      <a
-                        href={project.githubLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200"
-                      >
-                        <Github className="w-3 h-3" /> GitHub
-                      </a>
-                    )}
-                  </div>
+                <div className="mb-4">
                   <ProjectEmbedCard 
                     embedType={project.embedType} 
                     embedUrl={project.embedUrl} 
                     mediaMetadata={project.mediaMetadata} 
                   />
                 </div>
+
+                <div className="mt-auto flex flex-wrap gap-3 pt-2">
+                  {project.liveLink && (
+                    <a
+                      href={project.liveLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" /> Live Demo
+                    </a>
+                  )}
+                  {project.githubLink && (
+                    <a
+                      href={project.githubLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    >
+                      <Github className="w-3.5 h-3.5" /> Source Code
+                    </a>
+                  )}
+                </div>
               </div>
             ))}
           </div>
         )}
       </div>
-      </>
-      )}
 
-      {/* Modal */}
       {showModal && (
-        <div 
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4"
-          onClick={(e) => e.target === e.currentTarget && resetForm()}
-        >
-          <div className="bg-white dark:bg-slate-800 rounded-t-2xl sm:rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="px-4 sm:px-6 py-4 bg-gray-100 dark:bg-slate-700 border-b border-gray-200 dark:border-slate-600 flex items-center justify-between flex-shrink-0">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                {editingProject ? "Edit Project" : "Add New Project"}
-              </h3>
-              <button
-                onClick={resetForm}
-                className="text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-600 p-1.5 rounded-lg transition-colors"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
-              {error && (
-                <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-sm">
-                  {error}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0 bg-slate-900/50 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && resetForm()}>
+          <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-xl">
+            <form onSubmit={handleSubmit} className="flex flex-col">
+              <div className="p-6 sm:p-8 space-y-6">
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+                    {editingProject ? "Edit Project" : "Add New Project"}
+                  </h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    Add details about a project you've built.
+                  </p>
                 </div>
-              )}
 
-              {/* Name */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                  Project Name *
-                </label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="e.g., E-commerce Platform"
-                  className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-400 dark:focus:ring-slate-500 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
-                  required
-                />
-              </div>
-
-              {/* Description */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                  Description
-                </label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Describe your project and key features..."
-                  rows={3}
-                  className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-400 dark:focus:ring-slate-500 focus:border-transparent outline-none transition-all resize-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
-                />
-              </div>
-
-              {/* Live Link */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                  Live Demo Link
-                </label>
-                <input
-                  type="url"
-                  value={formData.liveLink}
-                  onChange={(e) => setFormData({ ...formData, liveLink: e.target.value })}
-                  placeholder="https://example.com"
-                  className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-400 dark:focus:ring-slate-500 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
-                />
-              </div>
-
-              {/* GitHub Link */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                  GitHub Repository
-                </label>
-                <input
-                  type="url"
-                  value={formData.githubLink}
-                  onChange={(e) => setFormData({ ...formData, githubLink: e.target.value })}
-                  placeholder="https://github.com/username/repo"
-                  className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-400 dark:focus:ring-slate-500 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
-                />
-              </div>
-
-              {/* Embed Section */}
-              <div className="border-t border-gray-200 dark:border-slate-600 pt-4 mt-2">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                  Project Media Embed
-                </label>
-                <select
-                  value={formData.embedType}
-                  onChange={(e) => setFormData({ ...formData, embedType: e.target.value, embedUrl: "", mediaMetadata: null })}
-                  className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-400 dark:focus:ring-slate-500 outline-none mb-3 text-gray-900 dark:text-white"
-                >
-                  <option value="NONE">None</option>
-                  <option value="GITHUB">GitHub Repo Card</option>
-                  <option value="PDF">PDF Upload / Link</option>
-                  <option value="DEMO">Live Demo Iframe</option>
-                </select>
-
-                {formData.embedType !== "NONE" && (
-                  <div>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-900 dark:text-white">Project Name *</label>
                     <input
-                      type="url"
-                      value={formData.embedUrl}
-                      onChange={(e) => setFormData({ ...formData, embedUrl: e.target.value })}
-                      onBlur={async () => {
-                        if (formData.embedType === "GITHUB" && formData.embedUrl) {
-                          try {
-                            const res = await fetch(`/api/student/github-meta?url=${encodeURIComponent(formData.embedUrl)}`);
-                            const result = await res.json();
-                            if (result.success) {
-                              setFormData(prev => ({ ...prev, mediaMetadata: result.data }));
-                            }
-                          } catch (err) {
-                            console.error("Failed to fetch github meta", err);
-                          }
-                        }
-                      }}
-                      placeholder={
-                        formData.embedType === "PDF" ? "Enter PDF URL (mock for upload)" :
-                        formData.embedType === "GITHUB" ? "https://github.com/owner/repo" :
-                        "https://example.com/demo"
-                      }
-                      className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-gray-400 dark:focus:ring-slate-500 outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+                      type="text"
+                      required
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      placeholder="e.g. E-Commerce Website"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
                     />
-                    {formData.embedType === "GITHUB" && (
-                      <p className="text-xs text-gray-500 mt-1">Leave input to fetch repository details automatically.</p>
-                    )}
                   </div>
-                )}
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-900 dark:text-white">Description</label>
+                    <textarea
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      placeholder="What did you build and what technologies did you use?"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors resize-none min-h-[100px]"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-900 dark:text-white flex items-center gap-1.5">
+                        <Github className="w-4 h-4" /> Source Code URL
+                      </label>
+                      <input
+                        type="url"
+                        value={formData.githubLink}
+                        onChange={(e) => setFormData({ ...formData, githubLink: e.target.value })}
+                        placeholder="https://github.com/..."
+                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-900 dark:text-white flex items-center gap-1.5">
+                        <ExternalLink className="w-4 h-4" /> Live Demo URL
+                      </label>
+                      <input
+                        type="url"
+                        value={formData.liveLink}
+                        onChange={(e) => setFormData({ ...formData, liveLink: e.target.value })}
+                        placeholder="https://..."
+                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-2 leading-relaxed">
+                    <strong>Tip:</strong> Paste a YouTube, Figma, or Loom URL above to automatically embed it in your profile!
+                  </p>
+                </div>
               </div>
 
-              {/* Actions */}
-              <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 pt-2">
+              <div className="bg-slate-50 dark:bg-slate-800/50 p-4 sm:px-8 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
                 <button
                   type="button"
                   onClick={resetForm}
                   disabled={isBusy}
-                  className="flex-1 px-4 py-2.5 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 transition-all"
+                  className="px-5 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isBusy || !formData.name.trim()}
-                  className="flex-1 px-4 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2"
                 >
-                  {isBusy ? "Saving..." : editingProject ? "Update Project" : "Add Project"}
+                  {isBusy && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {isBusy ? "Saving..." : "Save Project"}
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
