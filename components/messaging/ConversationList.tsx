@@ -1,8 +1,12 @@
 // components/messaging/ConversationList.tsx
 "use client"
 
+import Link from "next/link"
+import { UserPlus } from "lucide-react"
 import { ConversationItem } from "./ConversationItem"
 import { useConversations } from "@/hooks/messaging/useConversations"
+import { useReceivedPartnerRequests } from "@/hooks/request/usePartnerRequests"
+import { useReceivedMessageRequests } from "@/hooks/request/useMessageRequests"
 
 interface ConversationListProps {
   activeConversationId?: string
@@ -10,6 +14,11 @@ interface ConversationListProps {
 
 export function ConversationList({ activeConversationId }: ConversationListProps) {
   const { conversations, isLoading, isError } = useConversations()
+  const { data: partnerReqs } = useReceivedPartnerRequests()
+  const { data: messageReqs } = useReceivedMessageRequests()
+  const pendingPartnerCount = partnerReqs?.filter((r) => r.status === "PENDING").length ?? 0
+  const pendingMessageCount = messageReqs?.filter((r) => r.status === "PENDING").length ?? 0
+  const totalPendingRequests = pendingPartnerCount + pendingMessageCount
 
   if (isLoading) {
     return (
@@ -60,8 +69,21 @@ export function ConversationList({ activeConversationId }: ConversationListProps
   if (conversations.length === 0) {
     return (
       <div className="h-full flex flex-col">
-        <div className="p-4 border-b border-gray-200 dark:border-slate-700">
+        <div className="p-4 border-b border-gray-200 dark:border-slate-700 flex items-center justify-between gap-2">
           <h2 className="text-lg font-semibold text-gray-800 dark:text-white">Messages</h2>
+          <Link
+            href="/dashboard/requests"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50/90 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-colors text-xs font-semibold shadow-2xs"
+            title="View partner and message requests"
+          >
+            <UserPlus className="w-3.5 h-3.5" />
+            <span>Requests</span>
+            {totalPendingRequests > 0 && (
+              <span className="w-4 h-4 rounded-full bg-blue-600 text-white text-[10px] flex items-center justify-center font-bold">
+                {totalPendingRequests > 9 ? "9+" : totalPendingRequests}
+              </span>
+            )}
+          </Link>
         </div>
         <div className="flex-1 flex items-center justify-center p-4">
           <div className="text-center">
@@ -92,11 +114,26 @@ export function ConversationList({ activeConversationId }: ConversationListProps
 
   return (
     <div className="h-full flex flex-col">
-      <div className="p-4 border-b border-gray-200 dark:border-slate-700">
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-white">Messages</h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          {conversations.length} conversation{conversations.length !== 1 ? "s" : ""}
-        </p>
+      <div className="p-4 border-b border-gray-200 dark:border-slate-700 flex items-center justify-between gap-2">
+        <div>
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-white">Messages</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {conversations.length} conversation{conversations.length !== 1 ? "s" : ""}
+          </p>
+        </div>
+        <Link
+          href="/dashboard/requests"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50/90 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-colors text-xs font-semibold shadow-2xs"
+          title="View partner and message requests"
+        >
+          <UserPlus className="w-3.5 h-3.5" />
+          <span>Requests</span>
+          {totalPendingRequests > 0 && (
+            <span className="w-4 h-4 rounded-full bg-blue-600 text-white text-[10px] flex items-center justify-center font-bold">
+              {totalPendingRequests > 9 ? "9+" : totalPendingRequests}
+            </span>
+          )}
+        </Link>
       </div>
       <div className="flex-1 overflow-y-auto">
         {conversations.map((conversation) => (

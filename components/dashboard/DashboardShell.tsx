@@ -12,7 +12,7 @@ import { PushPermissionBanner } from "@/components/pwa/PushPermissionBanner";
 import { InstallPromptBanner } from "@/components/pwa/InstallPromptBanner";
 import { InstallButton } from "@/components/pwa/InstallButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { GraduationCap, Lightbulb, ClipboardCheck, MessageSquare, UserCheck } from "lucide-react";
+import { GraduationCap, Lightbulb, ClipboardCheck, MessageCircleMore, UserPlus, ArrowLeft } from "lucide-react";
 import { useVisualViewport } from "@/hooks/useVisualViewport";
 import { useUnreadCount } from "@/hooks/messaging/useUnreadCount";
 import { useReceivedPartnerRequests } from "@/hooks/request/usePartnerRequests";
@@ -39,6 +39,28 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
 
   const isChatOpen = pathname.startsWith("/dashboard/messages/") && pathname !== "/dashboard/messages";
   const viewportHeight = useVisualViewport(isChatOpen);
+
+  const isSubPage =
+    pathname === "/dashboard/profile" ||
+    pathname === "/dashboard/settings" ||
+    pathname === "/dashboard/requests" ||
+    pathname.startsWith("/dashboard/discovery/profile");
+
+  const getSubPageTitle = () => {
+    if (pathname === "/dashboard/profile") return "My Profile";
+    if (pathname === "/dashboard/settings") return "Settings";
+    if (pathname === "/dashboard/requests") return "Requests";
+    if (pathname.startsWith("/dashboard/discovery/profile")) return "Profile";
+    return "Back";
+  };
+
+  const handleBack = () => {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+    } else {
+      router.push("/dashboard/discovery");
+    }
+  };
 
   useEffect(() => {
     if (!isChatOpen) return;
@@ -124,13 +146,26 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
           {!isChatOpen && (
             <div className="lg:hidden sticky top-0 z-40 bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl border-b border-slate-200/60 dark:border-white/10 px-4 py-2.5 shadow-xs">
               <div className="flex items-center justify-between gap-3">
-                {/* Brand Link */}
-                <Link href="/dashboard/discovery" className="flex items-center gap-2.5 shrink-0 min-w-0">
-                  <div className="w-8 h-8 bg-gradient-to-tr from-gray-900 to-gray-700 dark:from-white dark:to-gray-200 rounded-xl flex items-center justify-center shrink-0 shadow-md">
-                    <GraduationCap className="w-4 h-4 text-white dark:text-gray-900" />
-                  </div>
-                  <span className="font-bold tracking-tight text-gray-900 dark:text-white text-base truncate">FYP Finder</span>
-                </Link>
+                {/* Brand Link or Back Navigation */}
+                {isSubPage ? (
+                  <button
+                    onClick={handleBack}
+                    className="flex items-center gap-2 -ml-1 text-slate-800 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors shrink-0 max-w-[55%]"
+                    aria-label="Back"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-center shrink-0">
+                      <ArrowLeft className="w-4 h-4" />
+                    </div>
+                    <span className="font-bold tracking-tight text-base truncate">{getSubPageTitle()}</span>
+                  </button>
+                ) : (
+                  <Link href="/dashboard/discovery" className="flex items-center gap-2.5 shrink-0 min-w-0">
+                    <div className="w-8 h-8 bg-gradient-to-tr from-gray-900 to-gray-700 dark:from-white dark:to-gray-200 rounded-xl flex items-center justify-center shrink-0 shadow-md">
+                      <GraduationCap className="w-4 h-4 text-white dark:text-gray-900" />
+                    </div>
+                    <span className="font-bold tracking-tight text-gray-900 dark:text-white text-base truncate">FYP Finder</span>
+                  </Link>
+                )}
 
                 {/* Right utility actions (Option A: Requests, Messages, Profile Avatar Dropdown) */}
                 <div className="flex items-center gap-2 shrink-0">
@@ -140,7 +175,7 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
                     title="Requests"
                     className="relative flex h-8 w-8 items-center justify-center rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                   >
-                    <UserCheck className="w-4 h-4" />
+                    <UserPlus className="w-4 h-4" />
                     {totalPendingRequests > 0 && (
                       <span className="absolute -top-0.5 -right-0.5 min-w-[15px] h-3.5 px-0.5 flex items-center justify-center text-[9px] font-bold bg-blue-600 text-white rounded-full shadow-xs">
                         {totalPendingRequests > 9 ? "9+" : totalPendingRequests}
@@ -154,7 +189,7 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
                     title="Messages"
                     className="relative flex h-8 w-8 items-center justify-center rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                   >
-                    <MessageSquare className="w-4 h-4" />
+                    <MessageCircleMore className="w-4 h-4" />
                     {unreadCount > 0 && (
                       <span className="absolute -top-0.5 -right-0.5 min-w-[15px] h-3.5 px-0.5 flex items-center justify-center text-[9px] font-bold bg-red-500 text-white rounded-full shadow-xs">
                         {unreadCount > 99 ? "99+" : unreadCount}
