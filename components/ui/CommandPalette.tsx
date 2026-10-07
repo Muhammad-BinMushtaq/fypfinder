@@ -202,7 +202,7 @@ export function CommandPalette() {
                     </div>
                     <div className="ml-3 flex-1">
                       <p className={`text-sm font-medium ${isSelected ? "text-blue-900 dark:text-blue-100" : "text-gray-900 dark:text-white"}`}>{item.name}</p>
-                      <p className="text-xs text-gray-500">{item.department} • Semester {item.semester}</p>
+                      <p className="text-xs text-gray-500">{item.department} • {item.isGraduated ? "Graduated Alumni" : `Semester ${item.semester}`}</p>
                     </div>
                     <span className="text-xs text-gray-400">Student</span>
                   </>

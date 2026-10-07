@@ -18,6 +18,7 @@ export interface MatchedStudent {
   name: string;
   department: string;
   semester: number;
+  isGraduated?: boolean;
   profilePicture: string | null;
   skills: string[];
   interests: string | null;

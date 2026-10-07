@@ -8,7 +8,7 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { FolderGit2, ArrowUpRight } from "lucide-react";
+import { FolderGit2, ArrowUpRight, GraduationCap } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { prefetchPublicProfile } from "@/hooks/student/usePublicProfile";
 import type { MatchedStudent } from "@/services/discovery.service";
@@ -84,8 +84,17 @@ export function StudentCard({ student }: StudentCardProps) {
             <h3 className="font-semibold text-slate-900 dark:text-white text-lg tracking-tight truncate px-2">
               {student.name}
             </h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400 truncate mt-0.5">
-              {student.department} · Sem {student.semester}
+            <p className="text-sm text-slate-500 dark:text-slate-400 truncate mt-0.5 flex items-center justify-center gap-1.5">
+              <span>{student.department}</span>
+              <span>·</span>
+              {student.isGraduated ? (
+                <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
+                  <GraduationCap className="w-3.5 h-3.5 shrink-0" />
+                  Alumni
+                </span>
+              ) : (
+                <span>Sem {student.semester}</span>
+              )}
             </p>
           </div>
 
