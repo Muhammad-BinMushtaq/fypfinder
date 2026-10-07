@@ -1,9 +1,9 @@
 // components/student/ProjectsSection.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMyProfile } from "@/hooks/student/useMyProfile";
-import { Plus, Pencil, Trash2, Github, ExternalLink, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Github, ExternalLink, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import type { Project } from "@/services/student.service";
 import { ProjectEmbedCard } from "./ProjectEmbedCard";
 import { toast } from "react-toastify";
@@ -16,6 +16,10 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
   const { addProjectAsync, updateProjectAsync, removeProjectAsync, isAddingProject, isUpdatingProject, isRemovingProject } = useMyProfile();
   const [showModal, setShowModal] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [showAllProjects, setShowAllProjects] = useState(false);
+  
+  const PROJECTS_LIMIT = 2;
+  const visibleProjects = showAllProjects ? projects : projects.slice(0, PROJECTS_LIMIT);
   
   const [formData, setFormData] = useState({
     name: "",
@@ -23,6 +27,18 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
     githubLink: "",
     liveLink: "",
   });
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (showModal) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showModal]);
 
   const resetForm = () => {
     setFormData({ name: "", description: "", githubLink: "", liveLink: "" });
@@ -78,16 +94,6 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
 
   const isBusy = isAddingProject || isUpdatingProject || isRemovingProject;
 
-  const isValidUrl = (url: string) => {
-    if (!url) return true; // empty is valid
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
   return (
     <>
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-7 shadow-sm">
@@ -109,78 +115,93 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
             <p className="text-slate-500 dark:text-slate-400 text-sm">No projects added yet.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {projects.map((project) => (
-              <div
-                key={project.id}
-                className="group relative bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 border border-slate-100 dark:border-slate-700/50 hover:border-slate-200 dark:hover:border-slate-600 transition-colors flex flex-col h-full"
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <h3 className="font-semibold text-slate-900 dark:text-white text-base truncate pr-2">{project.name}</h3>
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 -mr-2 -mt-2 flex-shrink-0">
-                    <button
-                      onClick={() => handleEdit(project)}
-                      disabled={isBusy}
-                      className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors disabled:opacity-50"
-                      title="Edit project"
-                    >
-                      <Pencil className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(project.id)}
-                      disabled={isBusy}
-                      className="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors disabled:opacity-50"
-                      title="Delete project"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+          <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {visibleProjects.map((project) => (
+                <div
+                  key={project.id}
+                  className="group relative bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 border border-slate-100 dark:border-slate-700/50 hover:border-slate-200 dark:hover:border-slate-600 transition-colors flex flex-col h-full"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <h3 className="font-semibold text-slate-900 dark:text-white text-base truncate pr-2">{project.name}</h3>
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 -mr-2 -mt-2 flex-shrink-0">
+                      <button
+                        onClick={() => handleEdit(project)}
+                        disabled={isBusy}
+                        className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors disabled:opacity-50"
+                        title="Edit project"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(project.id)}
+                        disabled={isBusy}
+                        className="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors disabled:opacity-50"
+                        title="Delete project"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {project.description && (
+                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
+                      {project.description}
+                    </p>
+                  )}
+
+                  <div className="mb-4">
+                    <ProjectEmbedCard 
+                      embedType={project.embedType} 
+                      embedUrl={project.embedUrl} 
+                      mediaMetadata={project.mediaMetadata} 
+                    />
+                  </div>
+
+                  <div className="mt-auto flex flex-wrap gap-3 pt-2">
+                    {project.liveLink && (
+                      <a
+                        href={project.liveLink}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" /> Live Demo
+                      </a>
+                    )}
+                    {project.githubLink && (
+                      <a
+                        href={project.githubLink}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                      >
+                        <Github className="w-3.5 h-3.5" /> Source Code
+                      </a>
+                    )}
                   </div>
                 </div>
-
-                {project.description && (
-                  <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
-                    {project.description}
-                  </p>
+              ))}
+            </div>
+            
+            {projects.length > PROJECTS_LIMIT && (
+              <button
+                onClick={() => setShowAllProjects(!showAllProjects)}
+                className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 self-start"
+              >
+                {showAllProjects ? (
+                  <><ChevronUp className="w-4 h-4" /> Show Less</>
+                ) : (
+                  <><ChevronDown className="w-4 h-4" /> See All {projects.length} Projects</>
                 )}
-
-                <div className="mb-4">
-                  <ProjectEmbedCard 
-                    embedType={project.embedType} 
-                    embedUrl={project.embedUrl} 
-                    mediaMetadata={project.mediaMetadata} 
-                  />
-                </div>
-
-                <div className="mt-auto flex flex-wrap gap-3 pt-2">
-                  {project.liveLink && (
-                    <a
-                      href={project.liveLink}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" /> Live Demo
-                    </a>
-                  )}
-                  {project.githubLink && (
-                    <a
-                      href={project.githubLink}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                    >
-                      <Github className="w-3.5 h-3.5" /> Source Code
-                    </a>
-                  )}
-                </div>
-              </div>
-            ))}
+              </button>
+            )}
           </div>
         )}
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0 bg-slate-900/50 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && resetForm()}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-0 bg-slate-900/50 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && resetForm()}>
           <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-xl">
             <form onSubmit={handleSubmit} className="flex flex-col">
               <div className="p-6 sm:p-8 space-y-6">

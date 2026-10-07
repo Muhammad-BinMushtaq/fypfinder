@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Github, Linkedin, ExternalLink, Mail, Building2, Briefcase, Calendar, Award, Target, Code, Gamepad2 } from "lucide-react";
+import { ArrowLeft, Github, Linkedin, ExternalLink, Mail, Building2, Briefcase, Calendar, Award, Target, Code, Gamepad2, ChevronDown, ChevronUp } from "lucide-react";
 import type { PublicStudentProfile } from "@/services/studentPublic.service";
 import { SendRequestButtons } from "@/components/request/SendRequestButtons";
 import { getDepartmentLabel } from "@/lib/departments";
@@ -25,6 +25,17 @@ export function PublicProfileView({
   isUserGroupLocked = false,
 }: PublicProfileViewProps) {
   const isSameStudent = currentStudentId === profile.id;
+  const [showAllSkills, setShowAllSkills] = useState(false);
+  const [showAllProjects, setShowAllProjects] = useState(false);
+  const [showAllInternships, setShowAllInternships] = useState(false);
+
+  const SKILLS_LIMIT = 4;
+  const PROJECTS_LIMIT = 2;
+  const INTERNSHIPS_LIMIT = 2;
+
+  const visibleSkills = showAllSkills ? profile.skills : profile.skills.slice(0, SKILLS_LIMIT);
+  const visibleProjects = showAllProjects ? profile.projects : profile.projects.slice(0, PROJECTS_LIMIT);
+  const visibleInternships = showAllInternships ? profile.internships : profile.internships?.slice(0, INTERNSHIPS_LIMIT);
 
   const getInitials = (name: string) =>
     name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
@@ -253,15 +264,29 @@ export function PublicProfileView({
             {profile.skills.length === 0 ? (
               <p className="text-sm text-slate-500 italic">No skills listed</p>
             ) : (
-              <div className="flex flex-wrap gap-2">
-                {profile.skills.map((skill) => (
-                  <div key={skill.id} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-white/5">
-                    <span className="text-sm font-medium text-slate-900 dark:text-white">{skill.name}</span>
-                    <span className="text-[10px] uppercase tracking-wider font-semibold text-slate-400">
-                      {getSkillLevelConfig(skill.level).label}
-                    </span>
-                  </div>
-                ))}
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-wrap gap-2">
+                  {visibleSkills.map((skill) => (
+                    <div key={skill.id} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-white/5">
+                      <span className="text-sm font-medium text-slate-900 dark:text-white">{skill.name}</span>
+                      <span className="text-[10px] uppercase tracking-wider font-semibold text-slate-400">
+                        {getSkillLevelConfig(skill.level).label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                {profile.skills.length > SKILLS_LIMIT && (
+                  <button
+                    onClick={() => setShowAllSkills(!showAllSkills)}
+                    className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 self-start"
+                  >
+                    {showAllSkills ? (
+                      <><ChevronUp className="w-4 h-4" /> Show Less</>
+                    ) : (
+                      <><ChevronDown className="w-4 h-4" /> See All {profile.skills.length} Skills</>
+                    )}
+                  </button>
+                )}
               </div>
             )}
           </section>
@@ -272,27 +297,41 @@ export function PublicProfileView({
             {profile.projects.length === 0 ? (
               <p className="text-sm text-slate-500 italic">No projects listed</p>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {profile.projects.map((project) => (
-                  <div key={project.id} className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-100 dark:border-white/5 shadow-sm hover:shadow-md transition-shadow">
-                    <p className="text-base font-semibold text-slate-900 dark:text-white">{project.name}</p>
-                    {project.description && (
-                      <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">{project.description}</p>
-                    )}
-                    <div className="mt-6 flex flex-wrap gap-3">
-                      {project.liveLink && (
-                        <a href={project.liveLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                          <ExternalLink className="w-3.5 h-3.5" /> Live Demo
-                        </a>
+              <div className="flex flex-col gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {visibleProjects.map((project) => (
+                    <div key={project.id} className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-100 dark:border-white/5 shadow-sm hover:shadow-md transition-shadow">
+                      <p className="text-base font-semibold text-slate-900 dark:text-white">{project.name}</p>
+                      {project.description && (
+                        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">{project.description}</p>
                       )}
-                      {project.githubLink && (
-                        <a href={project.githubLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                          <Github className="w-3.5 h-3.5" /> Source Code
-                        </a>
-                      )}
+                      <div className="mt-6 flex flex-wrap gap-3">
+                        {project.liveLink && (
+                          <a href={project.liveLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                            <ExternalLink className="w-3.5 h-3.5" /> Live Demo
+                          </a>
+                        )}
+                        {project.githubLink && (
+                          <a href={project.githubLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                            <Github className="w-3.5 h-3.5" /> Source Code
+                          </a>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+                {profile.projects.length > PROJECTS_LIMIT && (
+                  <button
+                    onClick={() => setShowAllProjects(!showAllProjects)}
+                    className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 self-start"
+                  >
+                    {showAllProjects ? (
+                      <><ChevronUp className="w-4 h-4" /> Show Less</>
+                    ) : (
+                      <><ChevronDown className="w-4 h-4" /> See All {profile.projects.length} Projects</>
+                    )}
+                  </button>
+                )}
               </div>
             )}
           </section>
@@ -301,31 +340,45 @@ export function PublicProfileView({
           {profile.internships && profile.internships.length > 0 && (
             <section className="space-y-4">
               <h2 className="text-xl font-semibold text-slate-900 dark:text-white tracking-tight">Experience</h2>
-              <div className="space-y-4">
-                {profile.internships.map((internship) => (
-                  <div key={internship.id} className="flex gap-4">
-                    <div className="flex-shrink-0 mt-1">
-                      <div className="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-slate-100 dark:border-white/5">
-                        <Building2 className="w-4 h-4 text-slate-400" />
+              <div className="flex flex-col gap-4">
+                <div className="space-y-4">
+                  {visibleInternships?.map((internship) => (
+                    <div key={internship.id} className="flex gap-4">
+                      <div className="flex-shrink-0 mt-1">
+                        <div className="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-slate-100 dark:border-white/5">
+                          <Building2 className="w-4 h-4 text-slate-400" />
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-base font-semibold text-slate-900 dark:text-white">{internship.position}</p>
+                        <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{internship.companyName}</p>
+                        <p className="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5" /> {internship.duration}
+                        </p>
+                        {internship.description && (
+                          <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">{internship.description}</p>
+                        )}
+                        {internship.certificateLink && (
+                          <a href={internship.certificateLink} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                            <Award className="w-3.5 h-3.5" /> View Certificate
+                          </a>
+                        )}
                       </div>
                     </div>
-                    <div>
-                      <p className="text-base font-semibold text-slate-900 dark:text-white">{internship.position}</p>
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{internship.companyName}</p>
-                      <p className="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5" /> {internship.duration}
-                      </p>
-                      {internship.description && (
-                        <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">{internship.description}</p>
-                      )}
-                      {internship.certificateLink && (
-                        <a href={internship.certificateLink} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline">
-                          <Award className="w-3.5 h-3.5" /> View Certificate
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+                {profile.internships.length > INTERNSHIPS_LIMIT && (
+                  <button
+                    onClick={() => setShowAllInternships(!showAllInternships)}
+                    className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 self-start"
+                  >
+                    {showAllInternships ? (
+                      <><ChevronUp className="w-4 h-4" /> Show Less</>
+                    ) : (
+                      <><ChevronDown className="w-4 h-4" /> See All {profile.internships.length} Experiences</>
+                    )}
+                  </button>
+                )}
               </div>
             </section>
           )}

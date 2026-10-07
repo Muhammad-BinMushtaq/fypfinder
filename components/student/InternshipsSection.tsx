@@ -1,8 +1,8 @@
 // components/student/InternshipsSection.tsx
 "use client";
 
-import { useState } from "react";
-import { Plus, Pencil, Trash2, ExternalLink, Building2, Briefcase, Calendar, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Plus, Pencil, Trash2, ExternalLink, Building2, Briefcase, Calendar, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import type { Internship } from "@/services/student.service";
 import * as studentService from "@/services/student.service";
 import { toast } from "react-toastify";
@@ -16,6 +16,10 @@ export function InternshipsSection({ internships, onUpdate }: InternshipsSection
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showAllInternships, setShowAllInternships] = useState(false);
+
+  const INTERNSHIPS_LIMIT = 2;
+  const visibleInternships = showAllInternships ? internships : internships.slice(0, INTERNSHIPS_LIMIT);
 
   const [formData, setFormData] = useState({
     companyName: "",
@@ -24,6 +28,18 @@ export function InternshipsSection({ internships, onUpdate }: InternshipsSection
     description: "",
     certificateLink: "",
   });
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (showModal) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showModal]);
 
   const resetForm = () => {
     setFormData({
@@ -110,84 +126,99 @@ export function InternshipsSection({ internships, onUpdate }: InternshipsSection
             <p className="text-slate-500 dark:text-slate-400 text-sm">No experience added yet.</p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {internships.map((internship) => (
-              <div
-                key={internship.id}
-                className="group relative bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 border border-slate-100 dark:border-slate-700/50 hover:border-slate-200 dark:hover:border-slate-600 transition-colors"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2.5 mb-1.5">
-                      <div className="w-8 h-8 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center flex-shrink-0">
-                        <Building2 className="w-4 h-4 text-slate-400" />
-                      </div>
-                      <h3 className="font-semibold text-slate-900 dark:text-white text-base truncate">
-                        {internship.position}
-                      </h3>
-                    </div>
-                    
-                    <div className="pl-10.5 sm:pl-11">
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-sm mb-3">
-                        <p className="font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                          <Building2 className="w-3.5 h-3.5 text-slate-400 sm:hidden" />
-                          {internship.companyName}
-                        </p>
-                        <span className="hidden sm:inline text-slate-300 dark:text-slate-600">•</span>
-                        <p className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5 text-xs sm:text-sm">
-                          <Calendar className="w-3.5 h-3.5" />
-                          {internship.duration}
-                        </p>
+          <div className="flex flex-col gap-4">
+            <div className="space-y-4">
+              {visibleInternships.map((internship) => (
+                <div
+                  key={internship.id}
+                  className="group relative bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 border border-slate-100 dark:border-slate-700/50 hover:border-slate-200 dark:hover:border-slate-600 transition-colors"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2.5 mb-1.5">
+                        <div className="w-8 h-8 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center flex-shrink-0">
+                          <Building2 className="w-4 h-4 text-slate-400" />
+                        </div>
+                        <h3 className="font-semibold text-slate-900 dark:text-white text-base truncate">
+                          {internship.position}
+                        </h3>
                       </div>
                       
-                      {internship.description && (
-                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-3">
-                          {internship.description}
-                        </p>
-                      )}
-                      
-                      {internship.certificateLink && (
-                        <a
-                          href={internship.certificateLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline"
-                        >
-                          <ExternalLink className="w-3.5 h-3.5" />
-                          View Certificate
-                        </a>
-                      )}
+                      <div className="pl-10.5 sm:pl-11">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-sm mb-3">
+                          <p className="font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                            <Building2 className="w-3.5 h-3.5 text-slate-400 sm:hidden" />
+                            {internship.companyName}
+                          </p>
+                          <span className="hidden sm:inline text-slate-300 dark:text-slate-600">•</span>
+                          <p className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5 text-xs sm:text-sm">
+                            <Calendar className="w-3.5 h-3.5" />
+                            {internship.duration}
+                          </p>
+                        </div>
+                        
+                        {internship.description && (
+                          <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-3">
+                            {internship.description}
+                          </p>
+                        )}
+                        
+                        {internship.certificateLink && (
+                          <a
+                            href={internship.certificateLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                            View Certificate
+                          </a>
+                        )}
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 -mr-2 -mt-2 flex-shrink-0">
-                    <button
-                      onClick={() => startEdit(internship)}
-                      disabled={isLoading}
-                      className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors disabled:opacity-50"
-                      title="Edit experience"
-                    >
-                      <Pencil className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(internship.id)}
-                      disabled={isLoading}
-                      className="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors disabled:opacity-50"
-                      title="Delete experience"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 -mr-2 -mt-2 flex-shrink-0">
+                      <button
+                        onClick={() => startEdit(internship)}
+                        disabled={isLoading}
+                        className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors disabled:opacity-50"
+                        title="Edit experience"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(internship.id)}
+                        disabled={isLoading}
+                        className="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors disabled:opacity-50"
+                        title="Delete experience"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+            
+            {internships.length > INTERNSHIPS_LIMIT && (
+              <button
+                onClick={() => setShowAllInternships(!showAllInternships)}
+                className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 self-start"
+              >
+                {showAllInternships ? (
+                  <><ChevronUp className="w-4 h-4" /> Show Less</>
+                ) : (
+                  <><ChevronDown className="w-4 h-4" /> See All {internships.length} Experiences</>
+                )}
+              </button>
+            )}
           </div>
         )}
       </div>
 
       {/* Add/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0 bg-slate-900/50 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && resetForm()}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-0 bg-slate-900/50 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && resetForm()}>
           <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-xl">
             <form onSubmit={handleSubmit} className="flex flex-col">
               <div className="p-6 sm:p-8 space-y-6">

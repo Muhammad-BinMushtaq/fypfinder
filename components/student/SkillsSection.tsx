@@ -1,9 +1,9 @@
 // components/student/SkillsSection.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMyProfile } from "@/hooks/student/useMyProfile";
-import { Plus, Pencil, Trash2, Sprout, TrendingUp, Award, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Sprout, TrendingUp, Award, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import { SkillCombobox } from "@/components/ui/SkillCombobox";
 import type { Skill, ExperienceLevel } from "@/services/student.service";
 import { toast } from "react-toastify";
@@ -16,11 +16,28 @@ export function SkillsSection({ skills }: SkillsSectionProps) {
   const { addSkillAsync, updateSkillAsync, removeSkillAsync, isAddingSkill, isUpdatingSkill, isRemovingSkill } = useMyProfile();
   const [showModal, setShowModal] = useState(false);
   const [editingSkill, setEditingSkill] = useState<Skill | null>(null);
+  const [showAllSkills, setShowAllSkills] = useState(false);
+  
+  const SKILLS_LIMIT = 4;
+  const visibleSkills = showAllSkills ? skills : skills.slice(0, SKILLS_LIMIT);
+
   const [formData, setFormData] = useState({
     name: "",
     level: "BEGINNER" as ExperienceLevel,
     description: "",
   });
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (showModal) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showModal]);
 
   const resetForm = () => {
     setFormData({ name: "", level: "BEGINNER", description: "" });
@@ -77,21 +94,9 @@ export function SkillsSection({ skills }: SkillsSectionProps) {
 
   const getLevelConfig = (level: ExperienceLevel) => {
     const config = {
-      BEGINNER: {
-        badge: "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700",
-        label: "Beginner",
-        Icon: Sprout,
-      },
-      INTERMEDIATE: {
-        badge: "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800/60",
-        label: "Intermediate",
-        Icon: TrendingUp,
-      },
-      ADVANCED: {
-        badge: "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/60",
-        label: "Advanced",
-        Icon: Award,
-      },
+      BEGINNER: { label: "Beginner" },
+      INTERMEDIATE: { label: "Intermediate" },
+      ADVANCED: { label: "Advanced" },
     };
     return config[level];
   };
@@ -118,56 +123,62 @@ export function SkillsSection({ skills }: SkillsSectionProps) {
             <p className="text-slate-500 dark:text-slate-400 text-sm">No skills added yet.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {skills.map((skill) => {
-              const config = getLevelConfig(skill.level);
-              return (
-                <div
-                  key={skill.id}
-                  className="group relative bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 sm:p-5 border border-slate-100 dark:border-slate-700/50 hover:border-slate-200 dark:hover:border-slate-600 transition-colors flex flex-col h-full"
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-semibold text-slate-900 dark:text-white text-base truncate pr-2">{skill.name}</h3>
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 -mr-2 -mt-2">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-wrap gap-2 sm:gap-3">
+              {visibleSkills.map((skill) => {
+                const config = getLevelConfig(skill.level);
+                return (
+                  <div
+                    key={skill.id}
+                    className="group relative inline-flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 rounded-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 hover:border-slate-300 dark:hover:border-slate-600 transition-all pr-12"
+                  >
+                    <span className="text-sm font-medium text-slate-900 dark:text-white">{skill.name}</span>
+                    <span className="text-[10px] uppercase tracking-wider font-semibold text-slate-400">
+                      {config.label}
+                    </span>
+
+                    <div className="absolute right-1 opacity-0 group-hover:opacity-100 transition-opacity flex items-center bg-slate-50 dark:bg-slate-800/90 rounded-full px-1 py-1">
                       <button
                         onClick={() => handleEdit(skill)}
                         disabled={isBusy}
-                        className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors disabled:opacity-50"
+                        className="p-1.5 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors disabled:opacity-50 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700"
                         title="Edit skill"
                       >
-                        <Pencil className="w-3.5 h-3.5" />
+                        <Pencil className="w-3 h-3" />
                       </button>
                       <button
                         onClick={() => handleDelete(skill.id)}
                         disabled={isBusy}
-                        className="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors disabled:opacity-50"
+                        className="p-1.5 text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors disabled:opacity-50 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700"
                         title="Delete skill"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-3 h-3" />
                       </button>
                     </div>
                   </div>
-
-                  <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide uppercase self-start mb-3 ${config.badge}`}>
-                    <config.Icon className="w-3 h-3" />
-                    {config.label}
-                  </div>
-
-                  {skill.description && (
-                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mt-auto">
-                      {skill.description}
-                    </p>
-                  )}
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
+            
+            {skills.length > SKILLS_LIMIT && (
+              <button
+                onClick={() => setShowAllSkills(!showAllSkills)}
+                className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 self-start"
+              >
+                {showAllSkills ? (
+                  <><ChevronUp className="w-4 h-4" /> Show Less</>
+                ) : (
+                  <><ChevronDown className="w-4 h-4" /> See All {skills.length} Skills</>
+                )}
+              </button>
+            )}
           </div>
         )}
       </div>
 
       {/* Add/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0 bg-slate-900/50 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && resetForm()}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-0 bg-slate-900/50 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && resetForm()}>
           <div className="bg-white dark:bg-slate-900 w-full max-w-[425px] rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-xl">
             <form onSubmit={handleSubmit} className="flex flex-col">
               <div className="p-6 sm:p-8 space-y-6">
