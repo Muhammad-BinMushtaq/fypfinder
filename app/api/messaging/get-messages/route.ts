@@ -4,7 +4,7 @@ import prisma from "@/lib/db"
 import { requireRole } from "@/lib/auth"
 import { UserRole } from "@/lib/generated/prisma/enums"
 import logger from "@/lib/logger"
-import { getMessages, markMessagesAsRead } from "@/modules/messaging/messaging.service"
+import { getMessages } from "@/modules/messaging/messaging.service"
 
 export async function GET(request: NextRequest) {
   try {
@@ -35,9 +35,6 @@ export async function GET(request: NextRequest) {
     }
 
     const messages = await getMessages(conversationId, student.id, { cursor, limit })
-
-    // Mark messages as read when fetching
-    await markMessagesAsRead(conversationId, student.id)
 
     return NextResponse.json(
       { success: true, message: "Messages fetched", data: { messages } },

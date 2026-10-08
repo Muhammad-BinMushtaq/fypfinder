@@ -78,13 +78,12 @@ export function useMessages(conversationId: string | null) {
   })
 
   useEffect(() => {
-    if (!conversationId || !query.isSuccess) return
+    if (!conversationId) return
 
-    // Messages fetch marks messages as read on the server.
-    // Keep conversation previews + unread badges in sync.
+    // When opening a conversation, sync conversation list and unread count once
     queryClient.invalidateQueries({ queryKey: ["conversations"] })
     queryClient.invalidateQueries({ queryKey: ["unreadCount"] })
-  }, [conversationId, query.isSuccess, query.dataUpdatedAt, queryClient])
+  }, [conversationId, queryClient])
 
   const invalidateMessages = () => {
     if (conversationId) {

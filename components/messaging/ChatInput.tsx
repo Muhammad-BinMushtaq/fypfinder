@@ -72,7 +72,7 @@ export function ChatInput({ onSend, isPending, disabled = false }: ChatInputProp
               }
             }}
             placeholder="Type a message..."
-            disabled={isPending || disabled}
+            disabled={disabled}
             rows={1}
             className={`w-full resize-none rounded-2xl border ${
               isOverLimit ? "border-red-300 dark:border-red-600" : "border-gray-200 dark:border-slate-600"

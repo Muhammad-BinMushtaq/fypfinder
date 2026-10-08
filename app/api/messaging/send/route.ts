@@ -5,10 +5,19 @@ import { requireRole } from "@/lib/auth"
 import { UserRole } from "@/lib/generated/prisma/enums"
 import logger from "@/lib/logger"
 import { sendMessage } from "@/modules/messaging/messaging.service"
+import { messageRateLimiter } from "@/lib/rate-limit"
 
 export async function POST(request: NextRequest) {
   try {
     const user = await requireRole(UserRole.STUDENT)
+
+    const rateLimit = messageRateLimiter.check(`student:${user.id}`)
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { success: false, message: "Too many messages sent. Please slow down.", retryAfter: rateLimit.retryAfter },
+        { status: 429 }
+      )
+    }
 
     const body = await request.json()
     const { conversationId, content } = body

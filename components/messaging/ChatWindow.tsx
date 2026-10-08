@@ -30,12 +30,14 @@ interface ChatWindowProps {
 }
 
 interface RealtimePayload {
+  eventType?: "INSERT" | "UPDATE" | "DELETE"
   new: {
     id: string
     conversationId: string
     senderId: string
     content: string
     isRead: boolean
+    isEdited?: boolean
     createdAt: string
   }
   errors?: string[]
@@ -43,8 +45,8 @@ interface RealtimePayload {
 
 type ConnectionStatus = "connecting" | "connected" | "disconnected" | "error"
 
-// Polling interval in milliseconds
-const POLLING_INTERVAL = 3000 // 3 seconds
+// Gentle fallback polling interval when WebSocket is not connected
+const FALLBACK_POLLING_INTERVAL = 25000 // 25 seconds
 
 export function ChatWindow({
   conversationId,
@@ -54,6 +56,7 @@ export function ChatWindow({
   const router = useRouter()
   const queryClient = useQueryClient()
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>("connecting")
+  const [isPermissionDenied, setIsPermissionDenied] = useState(false)
   const channelRef = useRef<ReturnType<ReturnType<typeof getSupabaseClient>["channel"]> | null>(null)
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -62,15 +65,51 @@ export function ChatWindow({
   const { editMessage } = useEditMessage()
   const viewportHeight = useVisualViewport(true)
 
-  // Always-on polling as the primary message update mechanism
-  // This ensures messages update even if Supabase Realtime isn't working
+  // Explicitly mark incoming messages as read when opening this conversation
+  useEffect(() => {
+    if (!conversationId) return
+    fetch("/api/messaging/mark-read", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ conversationId }),
+    }).catch(() => {})
+  }, [conversationId])
+
+  // Check whether messaging is permitted with peer student
+  useEffect(() => {
+    if (!otherStudent?.id) return
+    let isMounted = true
+    fetch(`/api/messaging/check-permission?targetStudentId=${otherStudent.id}`)
+      .then((res) => res.json())
+      .then((json) => {
+        if (isMounted && json.success && json.data?.allowed === false) {
+          setIsPermissionDenied(true)
+        }
+      })
+      .catch(() => {})
+
+    return () => {
+      isMounted = false
+    }
+  }, [otherStudent?.id])
+
+  // Connection-aware fallback polling (only runs when Realtime WebSocket is NOT connected)
   useEffect(() => {
     if (!conversationId) return
 
-    // Start polling immediately
+    // If connected via Realtime WebSocket, skip polling to preserve battery & server resources
+    if (connectionStatus === "connected") {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current)
+        pollingIntervalRef.current = null
+      }
+      return
+    }
+
+    // Gentle fallback polling only when disconnected/connecting/error
     pollingIntervalRef.current = setInterval(() => {
       refetch()
-    }, POLLING_INTERVAL)
+    }, FALLBACK_POLLING_INTERVAL)
 
     return () => {
       if (pollingIntervalRef.current) {
@@ -78,9 +117,9 @@ export function ChatWindow({
         pollingIntervalRef.current = null
       }
     }
-  }, [conversationId, refetch])
+  }, [conversationId, connectionStatus, refetch])
 
-  // 🔔 REALTIME: Enhanced real-time subscription (supplements polling)
+  // 🔔 REALTIME: Filtered conversation subscription for INSERT and UPDATE events
   useEffect(() => {
     if (!conversationId || !currentStudent.id) return
 
@@ -92,60 +131,106 @@ export function ChatWindow({
       .on(
         "postgres_changes",
         {
-          event: "INSERT",
+          event: "*",
           schema: "public",
           table: "Message",
+          filter: `conversationId=eq.${conversationId}`,
         },
         (payload: RealtimePayload) => {
-          // Handle errors in payload
           if (payload?.errors?.length) {
             clientLogger.warn("[Chat] Realtime payload errors:", payload.errors)
             return
           }
-          
-          // If RLS blocks payload or invalid data, skip
+
           if (!payload?.new || !payload.new.id || !payload.new.conversationId) {
             return
           }
-          
+
           const newRow = payload.new
 
-          // Only process messages for THIS conversation
           if (newRow.conversationId !== conversationId) {
             return
           }
 
-          // Skip own messages (handled optimistically by useSendMessage)
-          if (newRow.senderId === currentStudent.id) return
-
-          // Prevent in-flight fetch from overwriting realtime update
-          queryClient.cancelQueries({ queryKey: ["messages", conversationId] })
-
-          const newMessage: Message = {
-            id: newRow.id,
-            conversationId: newRow.conversationId,
-            senderId: newRow.senderId,
-            content: newRow.content || "",
-            isRead: newRow.isRead ?? false,
-            createdAt: newRow.createdAt || new Date().toISOString(),
-            sender: {
-              id: newRow.senderId,
-              name: otherStudent.name,
-              profilePicture: otherStudent.profilePicture,
-            },
+          // Handle UPDATE: edits and read receipts (✓ -> ✓✓)
+          if (payload.eventType === "UPDATE") {
+            queryClient.setQueryData<Message[]>(
+              ["messages", conversationId],
+              (old = []) =>
+                old.map((m) =>
+                  m.id === newRow.id
+                    ? {
+                        ...m,
+                        content: newRow.content ?? m.content,
+                        isEdited: newRow.isEdited ?? m.isEdited,
+                        isRead: newRow.isRead ?? m.isRead,
+                      }
+                    : m
+                )
+            )
+            return
           }
 
-          // Add to cache (prevents duplicates)
-          queryClient.setQueryData<Message[]>(
-            ["messages", conversationId],
-            (old = []) => {
-              if (old.some((m) => m.id === newMessage.id)) return old
-              return [...old, newMessage]
+          // Handle INSERT:
+          if (newRow.senderId !== currentStudent.id) {
+            const newMessage: Message = {
+              id: newRow.id,
+              conversationId: newRow.conversationId,
+              senderId: newRow.senderId,
+              content: newRow.content || "",
+              isRead: newRow.isRead ?? false,
+              isEdited: newRow.isEdited ?? false,
+              createdAt: newRow.createdAt || new Date().toISOString(),
+              sender: {
+                id: newRow.senderId,
+                name: otherStudent.name,
+                profilePicture: otherStudent.profilePicture,
+              },
             }
-          )
+
+            queryClient.setQueryData<Message[]>(
+              ["messages", conversationId],
+              (old = []) => {
+                if (old.some((m) => m.id === newMessage.id)) return old
+                return [...old, newMessage]
+              }
+            )
+
+            // Mark received message as read since user is actively viewing this chat
+            fetch("/api/messaging/mark-read", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ conversationId }),
+            }).catch(() => {})
+          } else {
+            // Own message synced from another tab/device
+            queryClient.setQueryData<Message[]>(
+              ["messages", conversationId],
+              (old = []) => {
+                if (old.some((m) => m.id === newRow.id || (m.isOptimistic && m.content === newRow.content))) {
+                  return old
+                }
+                const ownMessage: Message = {
+                  id: newRow.id,
+                  conversationId: newRow.conversationId,
+                  senderId: newRow.senderId,
+                  content: newRow.content || "",
+                  isRead: newRow.isRead ?? false,
+                  isEdited: newRow.isEdited ?? false,
+                  createdAt: newRow.createdAt || new Date().toISOString(),
+                  sender: {
+                    id: currentStudent.id,
+                    name: currentStudent.name,
+                    profilePicture: null,
+                  },
+                }
+                return [...old, ownMessage]
+              }
+            )
+          }
         }
       )
-      .subscribe((status: string, err?: Error) => {
+      .subscribe((status: string) => {
         if (status === "SUBSCRIBED") {
           setConnectionStatus("connected")
         } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
@@ -166,6 +251,7 @@ export function ChatWindow({
   }, [
     conversationId,
     currentStudent.id,
+    currentStudent.name,
     otherStudent.name,
     otherStudent.profilePicture,
     queryClient,
@@ -292,7 +378,13 @@ export function ChatWindow({
         isLoading={isLoading}
         onEditMessage={handleEditMessage}
       />
-      <ChatInput onSend={handleSendMessage} isPending={isPending} />
+      {isPermissionDenied ? (
+        <div className="shrink-0 p-3.5 text-center bg-amber-50 dark:bg-amber-950/40 border-t border-amber-200 dark:border-amber-800 text-xs font-medium text-amber-800 dark:text-amber-300">
+          Messaging is closed between these accounts. Send a new connection request to chat.
+        </div>
+      ) : (
+        <ChatInput onSend={handleSendMessage} isPending={isPending} />
+      )}
     </div>
   )
 }

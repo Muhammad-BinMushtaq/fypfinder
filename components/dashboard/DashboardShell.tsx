@@ -15,6 +15,8 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { GraduationCap, Lightbulb, ClipboardCheck, MessageCircleMore, UserPlus, ArrowLeft } from "lucide-react";
 import { useVisualViewport } from "@/hooks/useVisualViewport";
 import { useUnreadCount } from "@/hooks/messaging/useUnreadCount";
+import { useRealtimeConversationUpdates } from "@/hooks/messaging/useRealtimeMessages";
+import { useMyProfile } from "@/hooks/student/useMyProfile";
 import { useReceivedPartnerRequests } from "@/hooks/request/usePartnerRequests";
 import { useReceivedMessageRequests } from "@/hooks/request/useMessageRequests";
 import clientLogger from "@/lib/client-logger";
@@ -29,6 +31,9 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const { profile } = useMyProfile();
+  useRealtimeConversationUpdates(profile?.id ?? null);
 
   const { unreadCount } = useUnreadCount();
   const { data: partnerReqs } = useReceivedPartnerRequests();

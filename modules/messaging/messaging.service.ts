@@ -231,12 +231,13 @@ export async function sendMessage(
   senderId: string,
   content: string
 ) {
-  // Validate content
-  if (!content || content.trim().length === 0) {
+  // Validate and sanitize content (strip zero-width spaces/invisible characters)
+  const sanitized = content.replace(/[\u200B-\u200D\uFEFF]/g, "").trim()
+  if (!sanitized || sanitized.length === 0) {
     throw new Error("Message content cannot be empty")
   }
 
-  if (content.length > 1000) {
+  if (sanitized.length > 1000) {
     throw new Error("Message content cannot exceed 1000 characters")
   }
 
@@ -270,7 +271,7 @@ export async function sendMessage(
     data: {
       conversationId,
       senderId,
-      content: content.trim(),
+      content: sanitized,
     },
     include: {
       sender: {
@@ -323,7 +324,7 @@ export async function getMessages(
     throw new Error("You are not a participant in this conversation")
   }
 
-  // Build query
+  // Build query: fetch latest messages in descending order, then reverse to chronological order
   const messages = await prisma.message.findMany({
     where: { conversationId },
     include: {
@@ -331,7 +332,7 @@ export async function getMessages(
         select: { id: true, name: true, profilePicture: true },
       },
     },
-    orderBy: { createdAt: "asc" },
+    orderBy: { createdAt: "desc" },
     take: limit,
     ...(cursor && {
       cursor: { id: cursor },
@@ -339,7 +340,8 @@ export async function getMessages(
     }),
   })
 
-  return messages
+  // Return in chronological order (oldest of the fetched slice first, newest last)
+  return messages.reverse()
 }
 
 /**
@@ -417,11 +419,12 @@ export async function editMessage(
   senderId: string,
   newContent: string
 ) {
-  if (!newContent || newContent.trim().length === 0) {
+  const sanitized = newContent.replace(/[\u200B-\u200D\uFEFF]/g, "").trim()
+  if (!sanitized || sanitized.length === 0) {
     throw new Error("Message content cannot be empty")
   }
 
-  if (newContent.length > 1000) {
+  if (sanitized.length > 1000) {
     throw new Error("Message content cannot exceed 1000 characters")
   }
 
@@ -446,7 +449,7 @@ export async function editMessage(
   const updated = await prisma.message.update({
     where: { id: messageId },
     data: {
-      content: newContent.trim(),
+      content: sanitized,
       isEdited: true,
     },
     include: {

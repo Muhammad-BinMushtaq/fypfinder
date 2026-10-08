@@ -2,7 +2,8 @@
 "use client"
 
 import Link from "next/link"
-import { UserPlus } from "lucide-react"
+import { useState } from "react"
+import { UserPlus, Search } from "lucide-react"
 import { ConversationItem } from "./ConversationItem"
 import { useConversations } from "@/hooks/messaging/useConversations"
 import { useReceivedPartnerRequests } from "@/hooks/request/usePartnerRequests"
@@ -13,12 +14,17 @@ interface ConversationListProps {
 }
 
 export function ConversationList({ activeConversationId }: ConversationListProps) {
+  const [searchQuery, setSearchQuery] = useState("")
   const { conversations, isLoading, isError } = useConversations()
   const { data: partnerReqs } = useReceivedPartnerRequests()
   const { data: messageReqs } = useReceivedMessageRequests()
   const pendingPartnerCount = partnerReqs?.filter((r) => r.status === "PENDING").length ?? 0
   const pendingMessageCount = messageReqs?.filter((r) => r.status === "PENDING").length ?? 0
   const totalPendingRequests = pendingPartnerCount + pendingMessageCount
+
+  const filteredConversations = conversations.filter((c) =>
+    (c.otherStudent?.name || "").toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
   if (isLoading) {
     return (
@@ -135,14 +141,34 @@ export function ConversationList({ activeConversationId }: ConversationListProps
           )}
         </Link>
       </div>
+
+      {conversations.length > 2 && (
+        <div className="px-3 py-2 border-b border-gray-100 dark:border-slate-800">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Filter by name..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-8 pr-3 py-1 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-xs text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white"
+            />
+          </div>
+        </div>
+      )}
+
       <div className="flex-1 overflow-y-auto">
-        {conversations.map((conversation) => (
-          <ConversationItem
-            key={conversation.id}
-            conversation={conversation}
-            isActive={conversation.id === activeConversationId}
-          />
-        ))}
+        {filteredConversations.length === 0 ? (
+          <p className="text-xs text-gray-400 text-center py-6">No matching conversations</p>
+        ) : (
+          filteredConversations.map((conversation) => (
+            <ConversationItem
+              key={conversation.id}
+              conversation={conversation}
+              isActive={conversation.id === activeConversationId}
+            />
+          ))
+        )}
       </div>
     </div>
   )

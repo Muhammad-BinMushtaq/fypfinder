@@ -18,12 +18,12 @@ export function ConversationItem({ conversation, isActive }: ConversationItemPro
   })
 
   // Get initials for avatar
-  const initials = otherStudent.name
+  const initials = (otherStudent?.name || "Student")
     .split(" ")
     .map((n) => n[0])
     .join("")
     .toUpperCase()
-    .slice(0, 2)
+    .slice(0, 2) || "?"
 
   return (
     <Link href={`/dashboard/messages/${conversation.id}`}>
