@@ -104,6 +104,10 @@ export interface ValidationResult {
   accessMode: "student" | "guest"
   hiddenSections: string[]
   createdAt: string
+  problemStatement?: string
+  ideaDescription?: string
+  coreFeatures?: string
+  teamSize?: number | null
 }
 
 export interface ExtractedPdfIdeaFields {
