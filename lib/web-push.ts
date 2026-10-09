@@ -73,11 +73,12 @@ export interface NotificationPayload {
   tag?: string;
   data?: {
     url?: string;
-    type?: 'message' | 'message_request' | 'partner_request';
+    type?: 'message' | 'message_request' | 'partner_request' | 'feedback_update';
     conversationId?: string;
     requestId?: string;
     senderId?: string;
     senderName?: string;
+    status?: string;
   };
   actions?: Array<{
     action: string;
