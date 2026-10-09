@@ -1,6 +1,6 @@
 "use client"
 
-import type { ReactNode } from "react"
+import { useState, type ReactNode } from "react"
 import Link from "next/link"
 import { RadarChart } from "./RadarChart"
 import { ProposalDownloadButton } from "./ProposalDownloadButton"
@@ -75,6 +75,8 @@ export function ValidationResult({
     )
   }
 
+  const [activeTab, setActiveTab] = useState<"all" | "rubrics" | "benchmarks" | "roadmap">("all")
+
   const finalTone = getScoreTone(report.finalScore, 100)
   const recommendationTone = getRecommendationTone(result.recommendation)
   const originalityTone = getOriginalityTone(report.originalityVerdict)
@@ -117,12 +119,22 @@ export function ValidationResult({
               <StatusPill tone={recommendationTone} />
               <StatusPill tone={originalityTone} />
             </div>
-            <h2 className="mt-3 text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white leading-snug">
-              {report.plainSummary}
+            <h2 className="mt-3 text-lg sm:text-xl font-bold tracking-tight text-gray-900 dark:text-white leading-snug">
+              {result.title || "Executive Idea Assessment"}
             </h2>
-            <p className="mt-2 text-xs sm:text-sm leading-relaxed text-gray-600 dark:text-gray-300">
-              {report.shouldBuild}
+            <p className="mt-2 text-xs sm:text-sm font-normal leading-relaxed text-gray-600 dark:text-gray-300">
+              {report.plainSummary}
             </p>
+
+            {report.shouldBuild && (
+              <div className="mt-3.5 flex items-start gap-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 px-3.5 py-2.5 text-xs text-slate-700 dark:text-slate-300">
+                <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+                <div className="leading-relaxed">
+                  <span className="font-semibold text-slate-900 dark:text-white">Recommendation: </span>
+                  {report.shouldBuild}
+                </div>
+              </div>
+            )}
 
             <div className="mt-5 grid grid-cols-3 gap-2.5">
               <QuickStat
@@ -152,221 +164,292 @@ export function ValidationResult({
         remainingToday={remainingToday}
       />
 
-      {/* Radar Chart & Multi-factor Assessment */}
-      <section className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-sm">
-        <div className="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-4 mb-6">
-          <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
-            <BarChart3 className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-            Evaluation Matrix & Factor Breakdown
-          </div>
-          <span className="text-xs text-gray-400 dark:text-gray-500">7 Core Rubrics</span>
-        </div>
-
-        <div className="mb-8">
-          <RadarChart
-            scores={{
-              feasibility: report.scoringBreakdown.feasibilityResources.score * (100 / report.scoringBreakdown.feasibilityResources.maxScore),
-              originality: report.scoringBreakdown.originalityNovelty.score * (100 / report.scoringBreakdown.originalityNovelty.maxScore),
-              complexity: report.scoringBreakdown.problemClarityRelevance.score * (100 / report.scoringBreakdown.problemClarityRelevance.maxScore),
-              marketRelevance: report.scoringBreakdown.impactUsefulness.score * (100 / report.scoringBreakdown.impactUsefulness.maxScore),
-              timelineRealism: report.scoringBreakdown.improvementPotential.score * (100 / report.scoringBreakdown.improvementPotential.maxScore),
-            }}
-          />
-        </div>
-
-        <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="space-y-2.5">
-            {SCORE_SECTIONS.map((section) => {
-              const item = report.scoringBreakdown[section.key]
-              return (
-                <ScorePanel
-                  key={section.key}
-                  title={section.title}
-                  maxLabel={section.maxLabel}
-                  item={item}
-                />
-              )
-            })}
-          </div>
-
-          <div className="space-y-3">
-            <VisualMetric
-              label="Originality & Novelty"
-              score={report.scoringBreakdown.originalityNovelty.score}
-              max={report.scoringBreakdown.originalityNovelty.maxScore}
-            />
-            <VisualMetric
-              label="Impact & Relevance"
-              score={report.scoringBreakdown.impactUsefulness.score}
-              max={report.scoringBreakdown.impactUsefulness.maxScore}
-            />
-            <VisualMetric
-              label="Feasibility & Resource Scope"
-              score={report.scoringBreakdown.feasibilityResources.score}
-              max={report.scoringBreakdown.feasibilityResources.maxScore}
-            />
-            <VisualMetric
-              label="Growth Potential"
-              score={report.scoringBreakdown.improvementPotential.score}
-              max={report.scoringBreakdown.improvementPotential.maxScore}
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Past FYP Similarity Comparison */}
-      <section className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 border-b border-gray-100 dark:border-slate-800 pb-5 mb-5">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                Historical FYP Comparison Check
-              </span>
-              <StatusPill tone={originalityTone} />
-            </div>
-            <p className="mt-1.5 text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
-              {report.originalityReason}
-            </p>
-            {report.pastIdeaComparisonSummary && (
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                {report.pastIdeaComparisonSummary}
-              </p>
-            )}
-          </div>
-          <div className="shrink-0 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 p-3 text-center sm:w-32">
-            <div className="text-xl font-bold text-gray-900 dark:text-white">
-              {report.originalityScore}/10
-            </div>
-            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">Novelty Rating</div>
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          {report.similarPastIdeas.length > 0 ? (
-            report.similarPastIdeas.map((idea, index) => (
-              <div
-                key={`${idea.title}-${index}`}
-                className="rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30 p-4"
-              >
-                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
-                  <div>
-                    <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
-                      {idea.title}
-                    </h4>
-                    <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-                      {idea.batch} • Group {idea.groupNumber}
-                      {idea.supervisor ? ` • Supervisor: ${idea.supervisor}` : ""}
-                    </p>
-                  </div>
-                  <span className="w-fit rounded-md bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 px-2.5 py-1 text-[11px] font-medium text-gray-700 dark:text-gray-300">
-                    Similarity: {idea.similarityScore}/10
-                  </span>
-                </div>
-                <p className="mt-2.5 text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
-                  {idea.similarityReason}
-                </p>
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  <span className="font-medium text-gray-700 dark:text-gray-300">Key difference:</span> {idea.keyDifference}
-                </p>
-              </div>
-            ))
-          ) : (
-            <div className="rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/20 p-4 text-xs text-gray-500 dark:text-gray-400 text-center">
-              No direct past FYP overlaps detected in PAF-IAST historical submissions.
-            </div>
+      {/* Interactive Assessment Navigator */}
+      <div className="flex flex-wrap items-center justify-center gap-1.5 p-1 rounded-2xl bg-gray-100 dark:bg-slate-800/80 border border-gray-200/60 dark:border-slate-700/60">
+        <button
+          type="button"
+          onClick={() => setActiveTab("all")}
+          className={`px-3.5 py-1.5 text-xs font-semibold rounded-xl transition-all ${
+            activeTab === "all"
+              ? "bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-xs"
+              : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+          }`}
+        >
+          All Insights
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("rubrics")}
+          className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-xl transition-all ${
+            activeTab === "rubrics"
+              ? "bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-xs"
+              : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+          }`}
+        >
+          <BarChart3 className="h-3.5 w-3.5" />
+          Evaluation Matrix
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("benchmarks")}
+          className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-xl transition-all ${
+            activeTab === "benchmarks"
+              ? "bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-xs"
+              : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+          }`}
+        >
+          <Layers3 className="h-3.5 w-3.5" />
+          PAF-IAST Historical Matchups
+          {report.similarPastIdeas.length > 0 && (
+            <span className="ml-0.5 rounded-full bg-slate-200 dark:bg-slate-700 px-1.5 py-0.2 text-[10px] font-bold text-slate-800 dark:text-slate-200">
+              {report.similarPastIdeas.length}
+            </span>
           )}
-        </div>
-      </section>
-
-      {/* Strengths, Weaknesses, Uniqueness, Beneficiaries Grid */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <ReportPanel title="Strengths & Advantages" icon={<CheckCircle2 className="h-4 w-4 text-emerald-500" />}>
-          <BulletList items={report.strongPoints} />
-        </ReportPanel>
-        <ReportPanel title="Potential Concerns & Pitfalls" icon={<AlertTriangle className="h-4 w-4 text-amber-500" />}>
-          <BulletList items={report.concernPoints} />
-        </ReportPanel>
-        <ReportPanel title="Target Stakeholders" icon={<Users className="h-4 w-4 text-gray-500" />}>
-          <p className="text-xs text-gray-700 dark:text-gray-300">{report.whoWillUseIt}</p>
-          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">{report.whyItMatters}</p>
-        </ReportPanel>
-        <ReportPanel title="Differentiation Strategy" icon={<Sparkles className="h-4 w-4 text-gray-500" />}>
-          <BulletList items={report.uniquenessImprovements} />
-        </ReportPanel>
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("roadmap")}
+          className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-xl transition-all ${
+            activeTab === "roadmap"
+              ? "bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-xs"
+              : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+          }`}
+        >
+          <Map className="h-3.5 w-3.5" />
+          Action Roadmap
+        </button>
       </div>
 
-      {/* MVP Scope & Action Priorities */}
-      <section className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-sm">
-        <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white mb-5">
-          <Layers3 className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-          MVP Boundary & Action Priorities
-        </div>
-        <div className="grid gap-4 sm:grid-cols-3">
-          <ActionColumn title="Core MVP Scope" items={report.mvpRecommendations} />
-          <ActionColumn title="Immediate Next Steps" items={report.simpleNextSteps} />
-          <ActionColumn title="Implementation Priorities" items={report.roadmapPriorities} />
-        </div>
-      </section>
-
-      {/* Advanced Features */}
-      {report.advancedFeatureSuggestions.length > 0 && (
-        <ReportPanel title="Suggested Advanced Features" icon={<MonitorCog className="h-4 w-4 text-gray-500" />}>
-          <div className="grid gap-2.5 sm:grid-cols-2">
-            {report.advancedFeatureSuggestions.map((item, index) => (
-              <FeatureSuggestion key={`${item}-${index}`} text={item} index={index} />
-            ))}
-          </div>
-        </ReportPanel>
-      )}
-
-      {/* Roadmap & Guidance */}
-      {!result.previewLocked ? (
+      {/* 1. Evaluation Matrix & Rubrics */}
+      {(activeTab === "all" || activeTab === "rubrics") && (
         <>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <ReportPanel title="Technical Stack Direction" icon={<Wrench className="h-4 w-4 text-gray-500" />}>
-              <BulletList items={report.simpleTechDirection} />
-            </ReportPanel>
-            <ReportPanel title="Risk Mitigation Tactics" icon={<ShieldCheck className="h-4 w-4 text-gray-500" />}>
-              <BulletList items={report.riskReductionSteps} />
-            </ReportPanel>
-          </div>
-
-          <ReportPanel title="Implementation Timeline & Phasing" icon={<Map className="h-4 w-4 text-gray-500" />}>
-            <div className="space-y-4 pt-1">
-              {report.roadmap.map((phase, index) => (
-                <div
-                  key={`${phase.phase}-${index}`}
-                  className="rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30 p-4"
-                >
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <h4 className="text-xs font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-900 dark:bg-white text-[10px] font-bold text-white dark:text-gray-900">
-                        {index + 1}
-                      </span>
-                      {phase.phase}
-                    </h4>
-                    <span className="inline-flex items-center gap-1 text-[11px] text-gray-400 dark:text-gray-500">
-                      <Clock3 className="h-3 w-3" />
-                      {phase.duration}
-                    </span>
-                  </div>
-                  <BulletList items={phase.tasks} compact />
-                </div>
-              ))}
+          <section className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-sm">
+            <div className="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-4 mb-6">
+              <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
+                <BarChart3 className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                Evaluation Matrix & Factor Breakdown
+              </div>
+              <span className="text-xs text-gray-400 dark:text-gray-500">7 Core Rubrics</span>
             </div>
-          </ReportPanel>
 
+            <div className="mb-8">
+              <RadarChart
+                scores={{
+                  feasibility: report.scoringBreakdown.feasibilityResources.score * (100 / report.scoringBreakdown.feasibilityResources.maxScore),
+                  originality: report.scoringBreakdown.originalityNovelty.score * (100 / report.scoringBreakdown.originalityNovelty.maxScore),
+                  complexity: report.scoringBreakdown.problemClarityRelevance.score * (100 / report.scoringBreakdown.problemClarityRelevance.maxScore),
+                  marketRelevance: report.scoringBreakdown.impactUsefulness.score * (100 / report.scoringBreakdown.impactUsefulness.maxScore),
+                  timelineRealism: report.scoringBreakdown.improvementPotential.score * (100 / report.scoringBreakdown.improvementPotential.maxScore),
+                }}
+              />
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+              <div className="space-y-2.5">
+                {SCORE_SECTIONS.map((section) => {
+                  const item = report.scoringBreakdown[section.key]
+                  return (
+                    <ScorePanel
+                      key={section.key}
+                      title={section.title}
+                      maxLabel={section.maxLabel}
+                      item={item}
+                    />
+                  )
+                })}
+              </div>
+
+              <div className="space-y-3">
+                <VisualMetric
+                  label="Originality & Novelty"
+                  score={report.scoringBreakdown.originalityNovelty.score}
+                  max={report.scoringBreakdown.originalityNovelty.maxScore}
+                />
+                <VisualMetric
+                  label="Impact & Relevance"
+                  score={report.scoringBreakdown.impactUsefulness.score}
+                  max={report.scoringBreakdown.impactUsefulness.maxScore}
+                />
+                <VisualMetric
+                  label="Feasibility & Resource Scope"
+                  score={report.scoringBreakdown.feasibilityResources.score}
+                  max={report.scoringBreakdown.feasibilityResources.maxScore}
+                />
+                <VisualMetric
+                  label="Growth Potential"
+                  score={report.scoringBreakdown.improvementPotential.score}
+                  max={report.scoringBreakdown.improvementPotential.maxScore}
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* Strengths & Potential Concerns */}
           <div className="grid gap-4 sm:grid-cols-2">
-            <ReportPanel title="Elevator Pitch" icon={<Lightbulb className="h-4 w-4 text-gray-500" />}>
-              <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">{report.elevatorPitch}</p>
+            <ReportPanel title="Strengths & Advantages" icon={<CheckCircle2 className="h-4 w-4 text-emerald-500" />}>
+              <BulletList items={report.strongPoints} />
             </ReportPanel>
-            <ReportPanel title="Supervisor Review Advice" icon={<Target className="h-4 w-4 text-gray-500" />}>
-              <BulletList items={report.plainLanguageAdvice} />
+            <ReportPanel title="Potential Concerns & Pitfalls" icon={<AlertTriangle className="h-4 w-4 text-amber-500" />}>
+              <BulletList items={report.concernPoints} />
             </ReportPanel>
           </div>
         </>
-      ) : (
-        <LockedPreview hiddenSections={result.hiddenSections} />
+      )}
+
+      {/* 2. Past FYP Similarity Comparison & Differentiators */}
+      {(activeTab === "all" || activeTab === "benchmarks") && (
+        <>
+          <section className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 border-b border-gray-100 dark:border-slate-800 pb-5 mb-5">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                    Historical FYP Comparison Check
+                  </span>
+                  <StatusPill tone={originalityTone} />
+                </div>
+                <p className="mt-1.5 text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+                  {report.originalityReason}
+                </p>
+                {report.pastIdeaComparisonSummary && (
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    {report.pastIdeaComparisonSummary}
+                  </p>
+                )}
+              </div>
+              <div className="shrink-0 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 p-3 text-center sm:w-32">
+                <div className="text-xl font-bold text-gray-900 dark:text-white">
+                  {report.originalityScore}/10
+                </div>
+                <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">Novelty Rating</div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {report.similarPastIdeas.length > 0 ? (
+                report.similarPastIdeas.map((idea, index) => (
+                  <div
+                    key={`${idea.title}-${index}`}
+                    className="rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30 p-4"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
+                          {idea.title}
+                        </h4>
+                        <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                          {idea.batch} • Group {idea.groupNumber}
+                          {idea.supervisor ? ` • Supervisor: ${idea.supervisor}` : ""}
+                        </p>
+                      </div>
+                      <span className="w-fit rounded-md bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 px-2.5 py-1 text-[11px] font-medium text-gray-700 dark:text-gray-300">
+                        Similarity: {idea.similarityScore}/10
+                      </span>
+                    </div>
+                    <p className="mt-2.5 text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+                      {idea.similarityReason}
+                    </p>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Key difference:</span> {idea.keyDifference}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <div className="rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/20 p-4 text-xs text-gray-500 dark:text-gray-400 text-center">
+                  No direct past FYP overlaps detected in PAF-IAST historical submissions.
+                </div>
+              )}
+            </div>
+          </section>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <ReportPanel title="Target Stakeholders" icon={<Users className="h-4 w-4 text-gray-500" />}>
+              <p className="text-xs text-gray-700 dark:text-gray-300">{report.whoWillUseIt}</p>
+              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">{report.whyItMatters}</p>
+            </ReportPanel>
+            <ReportPanel title="Differentiation Strategy" icon={<Sparkles className="h-4 w-4 text-gray-500" />}>
+              <BulletList items={report.uniquenessImprovements} />
+            </ReportPanel>
+          </div>
+        </>
+      )}
+
+      {/* 3. Action Roadmap & Implementation */}
+      {(activeTab === "all" || activeTab === "roadmap") && (
+        <>
+          <section className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-sm">
+            <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white mb-5">
+              <Layers3 className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+              MVP Boundary & Action Priorities
+            </div>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <ActionColumn title="Core MVP Scope" items={report.mvpRecommendations} />
+              <ActionColumn title="Immediate Next Steps" items={report.simpleNextSteps} />
+              <ActionColumn title="Implementation Priorities" items={report.roadmapPriorities} />
+            </div>
+          </section>
+
+          {/* Advanced Features */}
+          {report.advancedFeatureSuggestions.length > 0 && (
+            <ReportPanel title="Suggested Advanced Features" icon={<MonitorCog className="h-4 w-4 text-gray-500" />}>
+              <div className="grid gap-2.5 sm:grid-cols-2">
+                {report.advancedFeatureSuggestions.map((item, index) => (
+                  <FeatureSuggestion key={`${item}-${index}`} text={item} index={index} />
+                ))}
+              </div>
+            </ReportPanel>
+          )}
+
+          {/* Roadmap & Guidance */}
+          {!result.previewLocked ? (
+            <>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <ReportPanel title="Technical Stack Direction" icon={<Wrench className="h-4 w-4 text-gray-500" />}>
+                  <BulletList items={report.simpleTechDirection} />
+                </ReportPanel>
+                <ReportPanel title="Risk Mitigation Tactics" icon={<ShieldCheck className="h-4 w-4 text-gray-500" />}>
+                  <BulletList items={report.riskReductionSteps} />
+                </ReportPanel>
+              </div>
+
+              <ReportPanel title="Implementation Timeline & Phasing" icon={<Map className="h-4 w-4 text-gray-500" />}>
+                <div className="space-y-4 pt-1">
+                  {report.roadmap.map((phase, index) => (
+                    <div
+                      key={`${phase.phase}-${index}`}
+                      className="rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30 p-4"
+                    >
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <h4 className="text-xs font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-900 dark:bg-white text-[10px] font-bold text-white dark:text-gray-900">
+                            {index + 1}
+                          </span>
+                          {phase.phase}
+                        </h4>
+                        <span className="inline-flex items-center gap-1 text-[11px] text-gray-400 dark:text-gray-500">
+                          <Clock3 className="h-3 w-3" />
+                          {phase.duration}
+                        </span>
+                      </div>
+                      <BulletList items={phase.tasks} compact />
+                    </div>
+                  ))}
+                </div>
+              </ReportPanel>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <ReportPanel title="Elevator Pitch" icon={<Lightbulb className="h-4 w-4 text-gray-500" />}>
+                  <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">{report.elevatorPitch}</p>
+                </ReportPanel>
+                <ReportPanel title="Supervisor Review Advice" icon={<Target className="h-4 w-4 text-gray-500" />}>
+                  <BulletList items={report.plainLanguageAdvice} />
+                </ReportPanel>
+              </div>
+            </>
+          ) : (
+            <LockedPreview hiddenSections={result.hiddenSections} />
+          )}
+        </>
       )}
     </div>
   )

@@ -15,25 +15,6 @@ export function PdfIdeaUpload({
 
   return (
     <div className="mx-auto max-w-2xl space-y-5">
-      {/* Informative quota and description pill */}
-      <div className="rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/60 dark:bg-slate-800/40 p-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-              Document Extraction & Synthesis
-            </h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-              Automated PDF parsing using AI models.
-            </p>
-          </div>
-          {typeof remainingToday === "number" && (
-            <div className="self-start sm:self-center shrink-0 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-1.5 text-xs text-gray-600 dark:text-gray-300">
-              <span className="font-semibold text-gray-900 dark:text-white">{remainingToday}</span> of 5 daily checks left
-            </div>
-          )}
-        </div>
-      </div>
-
       {/* Modern Minimalist Placeholder */}
       <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-12 text-center">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-300 mb-4">

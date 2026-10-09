@@ -258,6 +258,29 @@ export function ValidatorWizard({ onSubmit, isPending, mode, remainingToday, ini
             <div>
               <div className="flex items-center justify-between">
                 <label className="text-sm font-medium text-gray-900 dark:text-white">
+                  Project Title
+                </label>
+                <span className="text-xs text-gray-400 dark:text-gray-500">
+                  {title.length}/200
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 mb-2">
+                Clear, descriptive title for your proposal
+              </p>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                maxLength={200}
+                placeholder="e.g. Autonomous Campus Navigation & Shuttle Telemetry"
+                className="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50/40 dark:bg-slate-800/40 px-3.5 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none transition focus:border-gray-900 dark:focus:border-white focus:bg-white dark:focus:bg-slate-900"
+              />
+              {errors.title && <p className="mt-1.5 text-xs text-red-500">{errors.title}</p>}
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-gray-900 dark:text-white">
                   Primary Domain
                 </label>
                 {errors.domain && <span className="text-xs text-red-500">{errors.domain}</span>}
@@ -281,29 +304,6 @@ export function ValidatorWizard({ onSubmit, isPending, mode, remainingToday, ini
                   </button>
                 ))}
               </div>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-gray-900 dark:text-white">
-                  Project Title
-                </label>
-                <span className="text-xs text-gray-400 dark:text-gray-500">
-                  {title.length}/200
-                </span>
-              </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 mb-2">
-                Clear, descriptive title for your proposal
-              </p>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                maxLength={200}
-                placeholder="e.g. Autonomous Campus Navigation & Shuttle Telemetry"
-                className="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50/40 dark:bg-slate-800/40 px-3.5 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none transition focus:border-gray-900 dark:focus:border-white focus:bg-white dark:focus:bg-slate-900"
-              />
-              {errors.title && <p className="mt-1.5 text-xs text-red-500">{errors.title}</p>}
             </div>
           </div>
         )}

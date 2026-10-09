@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useMyProfile } from "@/hooks/student/useMyProfile";
 import { useTheme } from "@/contexts/ThemeContext";
-import { User, Settings, Moon, Sun, LogOut, ChevronRight } from "lucide-react";
+import { User, Settings, FolderKanban, Moon, Sun, LogOut, ChevronRight } from "lucide-react";
 import { InstallButton } from "@/components/pwa/InstallButton";
 
 interface MobileProfileMenuProps {
@@ -23,10 +23,11 @@ export function MobileProfileMenu({ userEmail, onLogout, isLoggingOut }: MobileP
   const { profile, isLoading } = useMyProfile();
   const { theme, toggleTheme } = useTheme();
 
-  // Eagerly prefetch profile and settings routes on mount
+  // Eagerly prefetch profile, settings, and project management routes on mount
   useEffect(() => {
     router.prefetch("/dashboard/profile");
     router.prefetch("/dashboard/settings");
+    router.prefetch("/dashboard/fyp");
   }, [router]);
 
   // Close when pathname changes
@@ -134,6 +135,18 @@ export function MobileProfileMenu({ userEmail, onLogout, isLoggingOut }: MobileP
               <div className="flex items-center gap-2.5">
                 <Settings className="w-4 h-4 text-slate-400" />
                 <span>Settings</span>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-400" />
+            </Link>
+
+            <Link
+              href="/dashboard/fyp"
+              prefetch={true}
+              className="flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-[0.98] transition-all"
+            >
+              <div className="flex items-center gap-2.5">
+                <FolderKanban className="w-4 h-4 text-slate-400" />
+                <span>Project Management</span>
               </div>
               <ChevronRight className="w-4 h-4 text-slate-400" />
             </Link>

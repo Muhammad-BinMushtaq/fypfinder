@@ -218,26 +218,26 @@ function SubmissionMethodSelector({
         <button
           type="button"
           onClick={() => onChange("manual")}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
+          className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
             value === "manual"
               ? "bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm"
               : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
           }`}
         >
-          <PencilLine className="h-4 w-4" />
-          Interactive Form
+          <PencilLine className="h-3.5 w-3.5" />
+          Form
         </button>
         <button
           type="button"
           onClick={() => onChange("pdf")}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
+          className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
             value === "pdf"
               ? "bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm"
               : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
           }`}
         >
-          <FileText className="h-4 w-4" />
-          Upload Proposal PDF
+          <FileText className="h-3.5 w-3.5" />
+          Upload PDF
         </button>
       </div>
     </div>
