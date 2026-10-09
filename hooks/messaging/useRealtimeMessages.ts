@@ -35,24 +35,33 @@ export function useRealtimeConversationUpdates(currentStudentId: string | null) 
           if (payload.eventType === "UPDATE") {
             const updatedRow = payload.new as {
               id: string
-              conversationId: string
+              conversationId?: string
+              conversation_id?: string
+              conversationid?: string
               content: string
-              isRead: boolean
+              isRead?: boolean
+              is_read?: boolean
+              isread?: boolean
               createdAt: string
               senderId: string
             }
+
+            const rowConversationId = updatedRow.conversationId || updatedRow.conversation_id || updatedRow.conversationid;
+            const rowIsRead = updatedRow.isRead ?? updatedRow.is_read ?? updatedRow.isread ?? false;
+
+            if (!rowConversationId) return;
 
             queryClient.setQueryData<Conversation[]>(
               ["conversations"],
               (old = []) => {
                 return old.map((c) => {
-                  if (c.id === updatedRow.conversationId && c.lastMessage?.id === updatedRow.id) {
+                  if (c.id === rowConversationId && c.lastMessage?.id === updatedRow.id) {
                     return {
                       ...c,
                       lastMessage: {
                         ...c.lastMessage,
                         content: updatedRow.content,
-                        isRead: updatedRow.isRead,
+                        isRead: rowIsRead,
                       },
                     }
                   }
@@ -66,20 +75,35 @@ export function useRealtimeConversationUpdates(currentStudentId: string | null) 
           if (payload.eventType === "INSERT") {
             const newRow = payload.new as {
               id: string
-              conversationId: string
+              conversationId?: string
+              conversation_id?: string
+              conversationid?: string
               content: string
-              createdAt: string
-              senderId: string
-              isRead: boolean
+              createdAt?: string
+              created_at?: string
+              createdat?: string
+              senderId?: string
+              sender_id?: string
+              senderid?: string
+              isRead?: boolean
+              is_read?: boolean
+              isread?: boolean
             }
 
+            const rowConversationId = newRow.conversationId || newRow.conversation_id || newRow.conversationid;
+            const rowSenderId = newRow.senderId || newRow.sender_id || newRow.senderid;
+            const rowIsRead = newRow.isRead ?? newRow.is_read ?? newRow.isread ?? false;
+            const rowCreatedAt = newRow.createdAt || newRow.created_at || newRow.createdat || new Date().toISOString();
+
+            if (!rowConversationId) return;
+
             // Ignore our own messages (optimistic updates already handle them)
-            if (newRow.senderId === currentStudentId) return
+            if (rowSenderId === currentStudentId) return
 
             const conversations =
               queryClient.getQueryData<Conversation[]>(["conversations"]) || []
             const existing = conversations.find(
-              (c) => c.id === newRow.conversationId
+              (c) => c.id === rowConversationId
             )
 
             if (!existing) {
@@ -92,35 +116,35 @@ export function useRealtimeConversationUpdates(currentStudentId: string | null) 
             // Check if user is actively viewing this conversation
             const isCurrentlyViewing =
               typeof window !== "undefined" &&
-              window.location.pathname.startsWith(`/dashboard/messages/${newRow.conversationId}`)
+              window.location.pathname.startsWith(`/dashboard/messages/${rowConversationId}`)
 
             // Update conversation preview + unread count locally
             queryClient.setQueryData<Conversation[]>(
               ["conversations"],
               (old = []) => {
                 const updated = old.map((c) =>
-                  c.id === newRow.conversationId
+                  c.id === rowConversationId
                     ? {
                         ...c,
                         lastMessage: {
                           id: newRow.id,
                           content: newRow.content,
-                          senderId: newRow.senderId,
-                          isRead: isCurrentlyViewing ? true : newRow.isRead,
-                          createdAt: newRow.createdAt,
+                          senderId: rowSenderId || "",
+                          isRead: isCurrentlyViewing ? true : rowIsRead,
+                          createdAt: rowCreatedAt,
                         },
                         unreadCount: isCurrentlyViewing ? 0 : (c.unreadCount || 0) + 1,
-                        updatedAt: newRow.createdAt,
+                        updatedAt: rowCreatedAt,
                       }
                     : c
                 )
 
                 // Move updated conversation to the top
                 const moved = updated.filter(
-                  (c) => c.id === newRow.conversationId
+                  (c) => c.id === rowConversationId
                 )
                 const rest = updated.filter(
-                  (c) => c.id !== newRow.conversationId
+                  (c) => c.id !== rowConversationId
                 )
                 return [...moved, ...rest]
               }

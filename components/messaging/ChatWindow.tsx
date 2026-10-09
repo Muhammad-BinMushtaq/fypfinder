@@ -33,12 +33,20 @@ interface RealtimePayload {
   eventType?: "INSERT" | "UPDATE" | "DELETE"
   new: {
     id: string
-    conversationId: string
-    senderId: string
+    conversationId?: string
+    conversationid?: string
+    conversation_id?: string
+    senderId?: string
+    senderid?: string
+    sender_id?: string
     content: string
-    isRead: boolean
+    isRead?: boolean
+    isread?: boolean
+    is_read?: boolean
     isEdited?: boolean
-    createdAt: string
+    createdAt?: string
+    createdat?: string
+    created_at?: string
   }
   errors?: string[]
 }
@@ -146,13 +154,18 @@ export function ChatWindow({
             return
           }
 
-          if (!payload?.new || !payload.new.id || !payload.new.conversationId) {
+          const newRow = payload.new
+          
+          const rowConversationId = newRow.conversationId || newRow.conversation_id || newRow.conversationid
+          const rowSenderId = newRow.senderId || newRow.sender_id || newRow.senderid
+          const rowIsRead = newRow.isRead ?? newRow.is_read ?? newRow.isread ?? false
+          const rowCreatedAt = newRow.createdAt || newRow.created_at || newRow.createdat || new Date().toISOString()
+
+          if (!rowConversationId) {
             return
           }
 
-          const newRow = payload.new
-
-          if (newRow.conversationId !== conversationId) {
+          if (rowConversationId !== conversationId) {
             return
           }
 
@@ -167,7 +180,7 @@ export function ChatWindow({
                         ...m,
                         content: newRow.content ?? m.content,
                         isEdited: newRow.isEdited ?? m.isEdited,
-                        isRead: newRow.isRead ?? m.isRead,
+                        isRead: rowIsRead ?? m.isRead,
                       }
                     : m
                 )
@@ -176,17 +189,17 @@ export function ChatWindow({
           }
 
           // Handle INSERT:
-          if (newRow.senderId !== currentStudent.id) {
+          if (rowSenderId !== currentStudent.id) {
             const newMessage: Message = {
               id: newRow.id,
-              conversationId: newRow.conversationId,
-              senderId: newRow.senderId,
+              conversationId: rowConversationId,
+              senderId: rowSenderId || "",
               content: newRow.content || "",
-              isRead: newRow.isRead ?? false,
+              isRead: rowIsRead,
               isEdited: newRow.isEdited ?? false,
-              createdAt: newRow.createdAt || new Date().toISOString(),
+              createdAt: rowCreatedAt,
               sender: {
-                id: newRow.senderId,
+                id: rowSenderId || "",
                 name: otherStudent.name,
                 profilePicture: otherStudent.profilePicture,
               },
@@ -221,12 +234,12 @@ export function ChatWindow({
                 }
                 const ownMessage: Message = {
                   id: newRow.id,
-                  conversationId: newRow.conversationId,
-                  senderId: newRow.senderId,
+                  conversationId: rowConversationId,
+                  senderId: rowSenderId || "",
                   content: newRow.content || "",
-                  isRead: newRow.isRead ?? false,
+                  isRead: rowIsRead,
                   isEdited: newRow.isEdited ?? false,
-                  createdAt: newRow.createdAt || new Date().toISOString(),
+                  createdAt: rowCreatedAt,
                   sender: {
                     id: currentStudent.id,
                     name: currentStudent.name,
