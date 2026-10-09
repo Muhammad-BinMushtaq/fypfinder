@@ -544,14 +544,24 @@ export default async function HomePage({
               <h4 className="text-gray-900 dark:text-white font-semibold mb-3">Academic Advisor</h4>
               <p className="text-gray-900 dark:text-white font-medium text-sm mb-1">Dr. Muhammad Shuaib Qureshi</p>
               <p className="text-gray-500 dark:text-gray-400 text-xs mb-3">University Professor & Mentor • CSO at Datalligence.pk</p>
-              <a
-                href="https://datalligence.pk/wps-members/dr-muhammad-shuaib-qureshi/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-              >
-                View Advisor Profile →
-              </a>
+              <div className="flex items-center gap-4 text-xs">
+                <a
+                  href="https://www.datalligence.pk/team"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                >
+                  Datalligence Team →
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/qureshi2015/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                >
+                  LinkedIn →
+                </a>
+              </div>
             </div>
           </div>
 

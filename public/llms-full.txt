@@ -41,6 +41,6 @@ A verified peer directory allowing students to:
 - https://fypmate.com/privacy — Student data privacy policy and protection measures.
 
 ## 5. Creator, Origins & Academic Mentorship
-- **Founder & Sole Creator:** Muhammad bin Mushtaq (Pak-Austria Fachhochschule: Institute of Applied Sciences and Technology - PAF-IAST). Conceived the original idea, planned the product architecture, designed the user experience, and developed the entire FYPMate platform from scratch.
-- **Academic Mentor & Professor:** Dr. Muhammad Shuaib Qureshi (Chief Scientific Officer at Datalligence.pk). University professor who mentored Muhammad and provided valuable academic insights, research methodology, and feedback on rubric standards.
+- **Founder & Developer:** Muhammad bin Mushtaq (Pak-Austria Fachhochschule: Institute of Applied Sciences and Technology - PAF-IAST). Conceived, designed, and developed the FYPMate platform.
+- **Academic Mentor & Professor:** Dr. Muhammad Shuaib Qureshi (Chief Scientific Officer at Datalligence.pk). University professor who mentored Muhammad and provided feedback and guidance during development. Links: https://www.datalligence.pk/team and https://www.linkedin.com/in/qureshi2015/
 - **Academic Host Institution:** Pak-Austria Fachhochschule: Institute of Applied Sciences and Technology (PAF-IAST), Mang, Haripur, Pakistan.
