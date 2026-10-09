@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { getSupabaseClient } from "@/lib/supabaseClient";
 
@@ -16,9 +17,15 @@ export function MicrosoftAuthButton() {
   const errorParam = searchParams.get("error");
 
   const [isLoading, setIsLoading] = useState(false);
+  const [agreedToPrivacy, setAgreedToPrivacy] = useState(false);
   const [error, setError] = useState<string | null>(errorParam);
 
   const handleAuth = async () => {
+    if (!agreedToPrivacy) {
+      setError("Please check the box confirming you comply with the Privacy Policy to proceed.");
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
@@ -65,13 +72,40 @@ export function MicrosoftAuthButton() {
         </div>
       )}
 
+      {/* Privacy Policy Consent Checkbox */}
+      <div className="pt-0.5">
+        <label className="flex items-start gap-2.5 text-xs text-slate-600 dark:text-zinc-400 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={agreedToPrivacy}
+            onChange={(e) => {
+              setAgreedToPrivacy(e.target.checked);
+              if (error) setError(null);
+            }}
+            className="mt-0.5 h-4 w-4 rounded border-slate-300 dark:border-zinc-700 text-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-400 dark:bg-zinc-900 cursor-pointer accent-indigo-600 shrink-0"
+          />
+          <span className="leading-relaxed">
+            If you are logging in, you comply with the{" "}
+            <Link
+              href="/privacy"
+              target="_blank"
+              className="font-semibold text-slate-900 dark:text-zinc-100 underline underline-offset-2 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+            >
+              Privacy Policy
+            </Link>
+            .
+          </span>
+        </label>
+      </div>
+
       <button
         onClick={handleAuth}
-        disabled={isLoading}
-        className={`w-full flex items-center justify-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition shadow-sm ${isLoading
-            ? "cursor-not-allowed bg-slate-200 dark:bg-zinc-700 text-slate-400 dark:text-zinc-400"
+        disabled={isLoading || !agreedToPrivacy}
+        className={`w-full flex items-center justify-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition shadow-sm ${
+          isLoading || !agreedToPrivacy
+            ? "cursor-not-allowed bg-slate-200 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500 opacity-60"
             : "bg-slate-900 text-white hover:bg-slate-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200 active:scale-[0.99]"
-          }`}
+        }`}
       >
         {isLoading ? (
           <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24">
