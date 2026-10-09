@@ -32,7 +32,6 @@ import { useSendMessageRequest } from "@/hooks/request/useMessageRequests";
 import { useSendPartnerRequest } from "@/hooks/request/usePartnerRequests";
 import { useStartConversation } from "@/hooks/messaging/useStartConversation";
 import { getDepartmentLabel } from "@/lib/departments";
-import { PrimaryRoleBadges } from "@/components/student/PrimaryRoleBadges";
 import { toast } from "react-toastify";
 import type { MatchedStudent } from "@/services/discovery.service";
 
@@ -198,9 +197,9 @@ export function StudentCard({
       <div
         onClick={handleCardClick}
         onMouseEnter={handleMouseEnter}
-        className="group cursor-pointer block h-full text-left"
+        className="group cursor-pointer block h-full text-left select-none"
       >
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 transition-all duration-300 overflow-hidden h-full flex flex-col hover:-translate-y-1 hover:shadow-xl relative p-5 sm:p-6">
+        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 transition-all duration-300 overflow-hidden h-full flex flex-col hover:-translate-y-1 hover:shadow-xl relative p-5 sm:p-6 select-none">
           {/* Avatar & Header (Matching Detail Page Card) */}
           <div className="flex flex-col items-center text-center">
             {/* Avatar */}
@@ -258,13 +257,6 @@ export function StudentCard({
               )}
             </div>
           </div>
-
-          {/* Primary Roles (if any) */}
-          {student.primaryRoles && student.primaryRoles.length > 0 && (
-            <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/60 flex justify-center">
-              <PrimaryRoleBadges roles={student.primaryRoles} />
-            </div>
-          )}
 
           {/* Spacer to push actions to bottom */}
           <div className="flex-1 min-h-[12px]"></div>
@@ -404,11 +396,15 @@ export function StudentCard({
               )}
             </div>
 
-            {/* Minimal "View Profile ↗" Affordance */}
-            <div className="flex justify-center items-center text-xs font-medium text-slate-400 dark:text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white transition-colors pt-1">
-              <span>View Profile</span>
-              <ArrowUpRight className="w-3.5 h-3.5 ml-1 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </div>
+            {/* View Profile Action (A bit larger, clearly clickable, select-none) */}
+            <button
+              type="button"
+              onClick={handleCardClick}
+              className="w-full pt-2 pb-0.5 flex justify-center items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors select-none cursor-pointer group/link active:scale-[0.99]"
+            >
+              <span className="select-none">View Profile</span>
+              <ArrowUpRight className="w-4 h-4 transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 shrink-0" />
+            </button>
           </div>
         </div>
       </div>
