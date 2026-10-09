@@ -26,12 +26,16 @@ export function ProposalDownloadButton({ validation }: ProposalDownloadButtonPro
       const element = templateRef.current
       const isMobile = typeof window !== "undefined" && window.innerWidth < 640
       
-      // Fast, optimized snapshotting without network cache-busting delay
+      // Fast, optimized snapshotting without excessive canvas allocation
       const dataUrl = await toPng(element, {
-        pixelRatio: isMobile ? 1.25 : 1.5,
+        pixelRatio: isMobile ? 1.0 : 1.2,
         backgroundColor: "#ffffff",
+        cacheBust: false,
       })
       
+      // Yield to the browser main thread after canvas rasterization so animation frames tick
+      await new Promise((resolve) => setTimeout(resolve, 30))
+
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
@@ -56,12 +60,13 @@ export function ProposalDownloadButton({ validation }: ProposalDownloadButtonPro
       pdf.addImage(dataUrl, "PNG", 0, position, pdfWidth, imgHeight, undefined, "FAST")
       heightLeft -= pageHeight
 
-      // Add subsequent pages if content exceeds one page
+      // Add subsequent pages if content exceeds one page with non-blocking micro-yields
       while (heightLeft > 0) {
         position -= pageHeight
         pdf.addPage()
         pdf.addImage(dataUrl, "PNG", 0, position, pdfWidth, imgHeight, undefined, "FAST")
         heightLeft -= pageHeight
+        await new Promise((resolve) => setTimeout(resolve, 20))
       }
 
       const rawTitle = validation.title || validation.report.plainSummary || "FYP_Idea"
@@ -69,6 +74,9 @@ export function ProposalDownloadButton({ validation }: ProposalDownloadButtonPro
         .replace(/^\[[^\]]+\]\s*/, "")
         .replace(/[^a-zA-Z0-9_-]/g, "_")
         .slice(0, 30)
+
+      // Yield before saving so download initiation doesn't freeze the spinner
+      await new Promise((resolve) => setTimeout(resolve, 20))
 
       pdf.save(`FYP_Validation_Report_${safeTitle}.pdf`)
     } catch (error) {

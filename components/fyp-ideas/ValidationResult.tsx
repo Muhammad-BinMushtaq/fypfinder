@@ -106,35 +106,21 @@ export function ValidationResult({
           ========================================================================= */}
       <article className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-12 text-slate-900 dark:text-slate-100 shadow-sm leading-relaxed space-y-10">
         
-        {/* ================= HEADER & INSTITUTIONAL BRANDING ================= */}
-        <header className="border-b-2 border-slate-900 dark:border-white pb-6">
-          <div className="flex flex-wrap items-center justify-between text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2 gap-2">
-            <span>Pak-Austria Fachhochschule (PAF-IAST)</span>
+        {/* ================= REPORT HEADER & PROJECT TITLE ================= */}
+        <header className="border-b-2 border-slate-900 dark:border-white pb-6 space-y-5">
+          <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 pb-3 gap-2">
             <span>AI Evaluation Engine v2.4</span>
             <span>Ref: {result.id ? result.id.slice(0, 8).toUpperCase() : "VAL-PAF"}</span>
           </div>
 
-          <div className="text-center my-4">
-            <h1 className="text-xl sm:text-2xl font-black uppercase tracking-wider text-slate-900 dark:text-white">
-              Pak-Austria Fachhochschule
-            </h1>
-            <h2 className="text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 tracking-wide mt-0.5">
-              Institute of Applied Sciences and Technology
-            </h2>
-            <div className="mt-3 inline-block bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[11px] font-bold uppercase tracking-widest px-4 py-1 rounded-full shadow-xs">
-              FYP Idea Validation & Feasibility Assessment Report
-            </div>
-          </div>
-
-          {/* Start directly from Project Title below Assessment Report badge */}
-          <div className="mt-6 pt-5 border-t border-slate-200 dark:border-slate-800 space-y-3.5">
+          <div className="space-y-3.5">
             <div>
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400 block mb-1">
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 block mb-1">
                 Project Title:
               </span>
-              <p className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white leading-snug">
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
                 {cleanTitle}
-              </p>
+              </h1>
             </div>
 
             {result.problemStatement ? (
@@ -207,25 +193,48 @@ export function ValidationResult({
             </div>
           </div>
 
-          {/* Verdict summary line tags */}
-          <div className="flex flex-wrap items-center gap-2 text-xs font-medium">
-            <span className="bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-bold px-3 py-1 rounded text-xs">
-              Recommendation: {recommendationLabel}
-            </span>
-            <span className="bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200 font-bold px-3 py-1 rounded border border-slate-300 dark:border-slate-700 text-xs">
-              Novelty: {originalityLabel} ({report.originalityScore}/10)
-            </span>
-            <span className="bg-slate-50 text-slate-700 dark:bg-slate-800/60 dark:text-slate-300 px-2.5 py-1 rounded border border-slate-200 dark:border-slate-700 text-xs">
-              Difficulty: <strong className="capitalize text-slate-900 dark:text-white">{report.difficultyLevel}</strong>
-            </span>
-            <span className="bg-slate-50 text-slate-700 dark:bg-slate-800/60 dark:text-slate-300 px-2.5 py-1 rounded border border-slate-200 dark:border-slate-700 text-xs">
-              Team Fit: <strong className="text-slate-900 dark:text-white">{report.teamFit}</strong>
-            </span>
-            <span className="bg-slate-50 text-slate-700 dark:bg-slate-800/60 dark:text-slate-300 px-2.5 py-1 rounded border border-slate-200 dark:border-slate-700 text-xs">
-              Hardware: <strong className="text-slate-900 dark:text-white">
-                {report.hardwareRequirement?.isSoftwareOnly ? "Software Only ($0 Cloud Tier)" : "Hardware Required"}
-              </strong>
-            </span>
+          {/* Executive Evaluation Core Metrics - Minimal Editorial Layout */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 py-3.5 border-y border-slate-200 dark:border-slate-800 text-xs">
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block">
+                Recommendation
+              </span>
+              <span className="font-extrabold text-slate-900 dark:text-white mt-1 block">
+                {recommendationLabel}
+              </span>
+            </div>
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block">
+                Novelty
+              </span>
+              <span className="font-semibold text-slate-800 dark:text-slate-200 mt-1 block">
+                {originalityLabel} ({report.originalityScore}/10)
+              </span>
+            </div>
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block">
+                Difficulty
+              </span>
+              <span className="font-semibold capitalize text-slate-800 dark:text-slate-200 mt-1 block">
+                {report.difficultyLevel}
+              </span>
+            </div>
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block">
+                Team Fit
+              </span>
+              <span className="font-semibold text-slate-800 dark:text-slate-200 mt-1 block">
+                {report.teamFit}
+              </span>
+            </div>
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block">
+                Hardware
+              </span>
+              <span className="font-semibold text-slate-800 dark:text-slate-200 mt-1 block">
+                {report.hardwareRequirement?.isSoftwareOnly ? "Software Only ($0 Tier)" : "Hardware Required"}
+              </span>
+            </div>
           </div>
 
           {/* Timeline in bullet points */}
