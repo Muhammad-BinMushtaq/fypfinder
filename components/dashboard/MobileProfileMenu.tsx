@@ -146,7 +146,7 @@ export function MobileProfileMenu({ userEmail, onLogout, isLoggingOut }: MobileP
             >
               <div className="flex items-center gap-2.5">
                 <FolderKanban className="w-4 h-4 text-slate-400" />
-                <span>Project Management</span>
+                <span>FYP Management</span>
               </div>
               <ChevronRight className="w-4 h-4 text-slate-400" />
             </Link>

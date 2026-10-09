@@ -11,17 +11,17 @@ const MILESTONES = [
 
 export function DeadlineTimeline() {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900/60">
       <div className="mb-6 flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">FYP Timeline</h3>
-        <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800 dark:bg-amber-950/50 dark:text-amber-200">
-          Semester 7
+        <h3 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white">FYP Milestones</h3>
+        <span className="rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 px-3 py-1 text-xs font-semibold text-slate-700 dark:text-slate-300">
+          Academic Year 2026-2027
         </span>
       </div>
 
       <div className="relative">
         {/* Continuous line */}
-        <div className="absolute left-[15px] top-4 bottom-4 w-[2px] bg-gray-200 dark:bg-slate-700 sm:left-1/2 sm:-ml-[1px]" />
+        <div className="absolute left-[15px] top-4 bottom-4 w-[2px] bg-slate-200 dark:bg-slate-800 sm:left-1/2 sm:-ml-[1px]" />
         
         <div className="space-y-8">
           {MILESTONES.map((milestone, i) => {

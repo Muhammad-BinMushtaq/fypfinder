@@ -19,6 +19,7 @@ interface TaskDetailModalProps {
   isSaving: boolean;
   isDeleting?: boolean;
   defaultStatus?: string;
+  isReadOnly?: boolean;
 }
 
 export function TaskDetailModal({
@@ -30,6 +31,7 @@ export function TaskDetailModal({
   isSaving,
   isDeleting,
   defaultStatus = "TODO",
+  isReadOnly = false,
 }: TaskDetailModalProps) {
   const [title, setTitle] = useState(task?.title || "");
   const [description, setDescription] = useState(task?.description || "");
@@ -41,6 +43,10 @@ export function TaskDetailModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isReadOnly) {
+      onClose();
+      return;
+    }
     if (!title.trim()) return;
 
     onSave({
@@ -55,11 +61,18 @@ export function TaskDetailModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl dark:bg-slate-900">
+      <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">
         <div className="flex items-center justify-between border-b border-gray-100 p-5 dark:border-slate-800">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            {task ? "Edit Task" : "New Task"}
-          </h2>
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              {isReadOnly ? "Task Preview" : task ? "Edit Task" : "New Task"}
+            </h2>
+            {isReadOnly && (
+              <p className="text-xs text-amber-600 dark:text-amber-400 mt-0.5">
+                Preview Mode • Form a group to create live tasks
+              </p>
+            )}
+          </div>
           <button
             onClick={onClose}
             className="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-slate-800 dark:hover:text-gray-300"
@@ -151,36 +164,51 @@ export function TaskDetailModal({
           </div>
 
           <div className="mt-8 flex items-center justify-between">
-            {task && onDelete ? (
-              <button
-                type="button"
-                onClick={() => onDelete(task.id)}
-                disabled={isDeleting}
-                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50 dark:hover:bg-red-950/30"
-              >
-                <Trash className="h-4 w-4" />
-                Delete
-              </button>
+            {isReadOnly ? (
+              <>
+                <div />
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="rounded-xl bg-slate-900 px-6 py-2 text-sm font-semibold text-white hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 transition-colors"
+                >
+                  Close Preview
+                </button>
+              </>
             ) : (
-              <div />
-            )}
+              <>
+                {task && onDelete ? (
+                  <button
+                    type="button"
+                    onClick={() => onDelete(task.id)}
+                    disabled={isDeleting}
+                    className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50 dark:hover:bg-red-950/30"
+                  >
+                    <Trash className="h-4 w-4" />
+                    Delete
+                  </button>
+                ) : (
+                  <div />
+                )}
 
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={onClose}
-                className="rounded-xl px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-slate-800"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isSaving || !title.trim()}
-                className="rounded-xl bg-gray-900 px-6 py-2 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-50 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
-              >
-                {isSaving ? "Saving..." : "Save Task"}
-              </button>
-            </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="rounded-xl px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-slate-800"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSaving || !title.trim()}
+                    className="rounded-xl bg-gray-900 px-6 py-2 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-50 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
+                  >
+                    {isSaving ? "Saving..." : "Save Task"}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </form>
       </div>

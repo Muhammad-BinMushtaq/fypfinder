@@ -24,10 +24,11 @@ const fetchTasks = async (): Promise<FYPTask[]> => {
   return json.data;
 };
 
-export const useGroupTasks = (groupId: string) => {
+export const useGroupTasks = (groupId: string, enabled = true) => {
   return useQuery({
     queryKey: ["workspace", "tasks", groupId],
     queryFn: fetchTasks,
+    enabled: !!groupId && enabled,
   });
 };
 

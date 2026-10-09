@@ -69,6 +69,37 @@ async function updateGroupVisibilityApi(showGroupOnProfile: boolean) {
   return data.data;
 }
 
+// 🆕 Remove member / Leave group
+async function removeGroupMemberApi(targetStudentId: string) {
+  const res = await fetch("/api/group/remove-member", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ targetStudentId }),
+  });
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.message || "Failed to leave group");
+  }
+
+  return data.data;
+}
+
+// 🆕 Lock group
+async function lockGroupApi() {
+  const res = await fetch("/api/group/lock", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  });
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.message || "Failed to lock group");
+  }
+
+  return data.data;
+}
+
 export const groupKeys = {
   all: ["group"] as const,
   myGroup: () => [...groupKeys.all, "my-group"] as const,
@@ -128,3 +159,40 @@ export function useUpdateGroupVisibility() {
     },
   });
 }
+
+// 🆕 Hook for leaving group
+export function useLeaveGroup() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (targetStudentId: string) => removeGroupMemberApi(targetStudentId),
+    onSuccess: () => {
+      toast.success("You have left the FYP group");
+      queryClient.invalidateQueries({ queryKey: groupKeys.myGroup() });
+      queryClient.invalidateQueries({ queryKey: ["student"] });
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to leave group");
+    },
+  });
+}
+
+// 🆕 Hook for locking group
+export function useLockGroup() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: lockGroupApi,
+    onSuccess: () => {
+      toast.success("FYP group locked and finalized! Workspace is now active.");
+      queryClient.invalidateQueries({ queryKey: groupKeys.myGroup() });
+      queryClient.invalidateQueries({ queryKey: ["student"] });
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to lock group");
+    },
+  });
+}
+

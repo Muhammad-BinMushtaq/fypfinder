@@ -17,6 +17,7 @@ import {
   GraduationCap,
   ClipboardCheck,
   MessageSquarePlus,
+  FolderKanban,
 } from "lucide-react";
 
 interface NavItem {
@@ -33,6 +34,11 @@ const navItems: NavItem[] = [
     label: "Find Partners",
     href: "/dashboard/discovery",
     icon: <Search className="w-5 h-5" />,
+  },
+  {
+    label: "FYP Management",
+    href: "/dashboard/fyp",
+    icon: <FolderKanban className="w-5 h-5" />,
   },
   {
     label: "Validate FYP",

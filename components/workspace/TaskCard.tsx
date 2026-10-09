@@ -10,10 +10,10 @@ interface TaskCardProps {
 }
 
 const STATUS_COLORS = {
-  TODO: "border-l-gray-400",
-  IN_PROGRESS: "border-l-blue-500",
-  REVIEW: "border-l-amber-500",
-  DONE: "border-l-emerald-500",
+  TODO: "border-l-slate-400 dark:border-l-slate-500",
+  IN_PROGRESS: "border-l-indigo-500 dark:border-l-indigo-400",
+  REVIEW: "border-l-amber-500 dark:border-l-amber-400",
+  DONE: "border-l-emerald-500 dark:border-l-emerald-400",
 };
 
 export function TaskCard({ task, onClick, onDragStart }: TaskCardProps) {
@@ -24,9 +24,9 @@ export function TaskCard({ task, onClick, onDragStart }: TaskCardProps) {
       draggable
       onDragStart={onDragStart}
       onClick={onClick}
-      className={`group cursor-grab active:cursor-grabbing relative overflow-hidden rounded-xl border border-gray-200 bg-white p-3 shadow-sm transition hover:shadow-md dark:border-slate-700 dark:bg-slate-800 border-l-4 ${STATUS_COLORS[task.status]}`}
+      className={`group cursor-grab active:cursor-grabbing relative overflow-hidden rounded-xl border border-slate-200/90 bg-white p-3.5 shadow-xs transition-all hover:shadow-md dark:border-slate-800 dark:bg-slate-900/90 border-l-4 ${STATUS_COLORS[task.status]}`}
     >
-      <h4 className="text-sm font-semibold text-gray-900 dark:text-white line-clamp-2">
+      <h4 className="text-sm font-semibold text-slate-900 dark:text-white line-clamp-2">
         {task.title}
       </h4>
       
