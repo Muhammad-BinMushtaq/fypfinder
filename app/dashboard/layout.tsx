@@ -44,7 +44,15 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   // Fetch student to check onboarding status
   student = await prisma.student.findUnique({
     where: { userId: user.id },
-    select: { name: true, department: true, currentSemester: true, onboardingCompleted: true }
+    select: { 
+      name: true, 
+      department: true, 
+      currentSemester: true, 
+      onboardingCompleted: true,
+      skills: { select: { name: true, level: true } },
+      primaryRoles: true,
+      seekingStatus: true,
+    }
   });
 
   return (
@@ -54,6 +62,9 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           userName={student.name} 
           department={student.department} 
           semester={student.currentSemester} 
+          existingSkills={student.skills}
+          existingRoles={(student.primaryRoles as string[]) || []}
+          existingSeekingStatus={student.seekingStatus || "LOOKING_FOR_TEAM"}
         />
       )}
       {children}
