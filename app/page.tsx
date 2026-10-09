@@ -4,6 +4,22 @@ import { redirect } from "next/navigation";
 import { getAuthenticatedRedirectPath, getCurrentUser } from "@/lib/auth";
 import { LandingThemeToggle } from "@/components/landing/LandingThemeToggle";
 import { SupademoButton } from "@/components/landing/SupademoButton";
+import { 
+  GraduationCap, 
+  Sparkles, 
+  Users, 
+  Brain, 
+  ArrowRight, 
+  Search, 
+  CheckCircle2, 
+  ShieldCheck, 
+  FileText, 
+  BookOpen,
+  Lock,
+  Layers,
+  Compass,
+  Award
+} from "lucide-react";
 
 export default async function HomePage({
   searchParams,
@@ -23,7 +39,6 @@ export default async function HomePage({
     redirectPath = getAuthenticatedRedirectPath(user);
   } catch {
     // If error checking session, just show landing page
-    // This handles network errors gracefully
   }
 
   if (redirectPath) {
@@ -69,7 +84,7 @@ export default async function HomePage({
             "name": "What is FYPMate?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "FYPMate is an AI-powered academic platform helping university students find the ideal Final Year Project (FYP) teammates, discover peer collaborators by technical skill, and validate project feasibility."
+              "text": "FYPMate is an AI-powered academic platform helping university students find ideal Final Year Project (FYP) teammates, discover peer collaborators by technical skill, and validate proposal feasibility."
             }
           },
           {
@@ -77,7 +92,7 @@ export default async function HomePage({
             "name": "How does the AI FYP Idea Validator work?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "The AI FYP Idea Validator evaluates project titles and descriptions across novelty, technical difficulty, timeline feasibility, team fit, and hardware requirements, providing instant rubric-based scores and benchmark comparisons."
+              "text": "The AI FYP Idea Validator evaluates project titles and descriptions across novelty, technical difficulty, timeline feasibility, team fit, and hardware constraints, providing instant rubric-based scores and benchmark comparisons."
             }
           },
           {
@@ -85,7 +100,7 @@ export default async function HomePage({
             "name": "Who can use FYPMate?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "FYPMate is designed for university undergraduate and graduate engineering, computer science, and software students looking for project partners, research collaborators, and automated proposal evaluations."
+              "text": "FYPMate is designed for university engineering, computer science, and software students looking for project partners, research collaborators, and automated proposal evaluations."
             }
           },
           {
@@ -93,7 +108,7 @@ export default async function HomePage({
             "name": "Is FYPMate free to use?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Yes, FYPMate is completely free for university students to find project partners and validate their academic project ideas."
+              "text": "Yes, FYPMate is free for university students to find project partners and validate their academic project ideas."
             }
           }
         ]
@@ -102,38 +117,67 @@ export default async function HomePage({
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-900 relative">
+    <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 text-slate-800 dark:text-zinc-100 transition-colors relative selection:bg-slate-900 selection:text-white dark:selection:bg-white dark:selection:text-slate-950">
       {/* Schema.org Structured Data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* Subtle Grid Background - stays behind all content */}
-      <div className="fixed inset-0 bg-[linear-gradient(to_right,#e5e5e5_1px,transparent_1px),linear-gradient(to_bottom,#e5e5e5_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:64px_64px] opacity-40 dark:opacity-100" style={{ zIndex: -1 }} />
+      {/* Subtle Background Grid Pattern */}
+      <div 
+        className="fixed inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:64px_64px] opacity-40 dark:opacity-40 pointer-events-none" 
+        style={{ zIndex: 0 }} 
+      />
 
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-gray-100 dark:border-slate-800">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/85 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 transition-colors">
         <div className="max-w-6xl mx-auto px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 bg-gray-900 dark:bg-white rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-white dark:text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14v7" />
-                </svg>
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="w-9 h-9 bg-slate-900 text-white dark:bg-white dark:text-slate-950 rounded-xl flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
+                <GraduationCap className="w-5 h-5" />
               </div>
-              <span className="text-lg font-semibold text-gray-900 dark:text-white tracking-tight">FYPMate</span>
+              <span className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+                FYP<span className="font-semibold text-slate-500 dark:text-zinc-400">Mate</span>
+              </span>
+            </Link>
+
+            {/* Middle Nav Links */}
+            <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600 dark:text-zinc-300">
+              <Link 
+                href="/idea-validator" 
+                className="hover:text-slate-900 dark:hover:text-white transition-colors flex items-center gap-1.5"
+              >
+                <span>Idea Validator</span>
+                <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/40">
+                  AI
+                </span>
+              </Link>
+              <a href="#features" className="hover:text-slate-900 dark:hover:text-white transition-colors">
+                Platform
+              </a>
+              <a href="#how-it-works" className="hover:text-slate-900 dark:hover:text-white transition-colors">
+                How It Works
+              </a>
+              <Link href="/about" className="hover:text-slate-900 dark:hover:text-white transition-colors">
+                About Us
+              </Link>
             </div>
 
-            {/* CTA + Theme Toggle */}
-            <div className="flex items-center gap-2">
+            {/* Actions + Theme Toggle */}
+            <div className="flex items-center gap-2 sm:gap-3">
               <LandingThemeToggle />
               <Link
                 href="/login"
-                className="px-4 py-2 text-sm font-medium text-white dark:text-gray-900 bg-gray-900 dark:bg-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+                className="hidden sm:inline-flex text-xs sm:text-sm font-semibold text-slate-700 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white px-2.5 py-1.5 transition-colors"
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/login"
+                className="px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-white dark:text-slate-950 bg-slate-900 dark:bg-white rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shadow-xs"
               >
                 Get Started
               </Link>
@@ -143,272 +187,442 @@ export default async function HomePage({
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 sm:pt-40 sm:pb-28">
+      <section className="relative pt-32 pb-16 sm:pt-40 sm:pb-24 z-10">
         <div className="max-w-6xl mx-auto px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-full mb-8">
-              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-              <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">PAF-IAST Students Only</span>
+          <div className="max-w-3xl mx-auto text-center space-y-6">
+            {/* Campus Launchpad Badge */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-full shadow-2xs">
+              <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+              <span className="text-xs font-semibold text-slate-700 dark:text-zinc-300">
+                Pilot Campus: PAF-IAST • AI-Powered FYP Platform
+              </span>
             </div>
 
-            {/* Main Heading - UNCHANGED */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6 leading-[1.1] tracking-tight">
-              Find your FYP Partner at
+            {/* Main Value Proposition Heading */}
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white leading-[1.12] tracking-tight">
+              Find Your FYP Teammate.
               <br />
-              <span className="text-gray-900 dark:text-white">PAF-IAST</span>
+              <span className="bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-white dark:via-zinc-200 dark:to-white bg-clip-text text-transparent">
+                Validate Your Idea. Ace Defense.
+              </span>
             </h1>
 
             {/* Subheading */}
-            <p className="text-lg sm:text-xl text-gray-500 dark:text-gray-400 max-w-xl mx-auto mb-10 leading-relaxed">
-              A university platform that helps PAF-IAST students find the right teammates for their Final Year Projects.
+            <p className="text-base sm:text-lg text-slate-600 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed">
+              FYPMate connects university students by verified technical skills, helps form balanced project groups, and benchmarks research proposals with AI feasibility scoring before formal committee defense.
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
               <Link
                 href="/login"
-                className="w-full sm:w-auto px-6 py-3 text-sm font-medium text-white dark:text-gray-900 bg-gray-900 dark:bg-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-6 py-3.5 text-sm font-semibold text-white dark:text-slate-950 bg-slate-900 dark:bg-white rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors flex items-center justify-center gap-2.5 shadow-md active:scale-[0.99]"
               >
-                <svg className="w-5 h-5" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg className="w-4 h-4 shrink-0" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect width="10" height="10" fill="#F25022" />
                   <rect x="11" width="10" height="10" fill="#7FBA00" />
                   <rect y="11" width="10" height="10" fill="#00A4EF" />
                   <rect x="11" y="11" width="10" height="10" fill="#FFB900" />
                 </svg>
-                Continue with Microsoft
+                <span>Continue with Microsoft</span>
               </Link>
+
               <Link
                 href="/idea-validator"
-                className="w-full sm:w-auto px-6 py-3 text-sm font-medium text-gray-900 dark:text-white bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-950/50 transition-colors flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-6 py-3.5 text-sm font-semibold text-slate-900 dark:text-white bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors flex items-center justify-center gap-2 shadow-2xs active:scale-[0.99]"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3a7 7 0 017 7c0 2.395-1.19 4.513-3.013 5.781-.63.438-.987 1.145-.987 1.913V18a2 2 0 01-2 2h-1.326a2 2 0 01-2-2v-.306c0-.768-.358-1.475-.987-1.913A6.993 6.993 0 015 10a7 7 0 017-7z" />
-                </svg>
-                Try Idea Validator
+                <Sparkles className="w-4 h-4 text-amber-500" />
+                <span>Test AI Idea Validator</span>
               </Link>
+
               <SupademoButton />
             </div>
           </div>
 
-          {/* Demo Video */}
-          <div className="max-w-4xl mx-auto">
-            <div className="relative aspect-video rounded-2xl border border-gray-200 dark:border-slate-700 overflow-hidden shadow-2xl">
-              <iframe 
-                className="absolute inset-0 w-full h-full block"
-                src="https://www.youtube.com/embed/l5DJNJ_SBSU?si=AEzaXHlTThwBI7r3&autoplay=1&mute=1&rel=0" 
-                title="YouTube video player"
-                frameBorder={0} 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                referrerPolicy="strict-origin-when-cross-origin" 
-                allowFullScreen
-              />
+          {/* Product Showcase Window Mockup */}
+          <div className="mt-14 max-w-4xl mx-auto">
+            <div className="rounded-2xl sm:rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white/70 dark:bg-slate-900/60 p-2 sm:p-3 shadow-2xl backdrop-blur-md">
+              <div className="flex items-center justify-between px-3 py-2 mb-2">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-red-400/80" />
+                  <div className="w-3 h-3 rounded-full bg-amber-400/80" />
+                  <div className="w-3 h-3 rounded-full bg-emerald-400/80" />
+                </div>
+                <div className="px-4 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-[11px] font-semibold text-slate-600 dark:text-zinc-400 border border-slate-200/60 dark:border-slate-700/60">
+                  fypmate.com • Platform Walkthrough
+                </div>
+                <div className="w-10" />
+              </div>
+              <div className="relative aspect-video rounded-xl sm:rounded-2xl overflow-hidden bg-black shadow-inner">
+                <iframe 
+                  className="absolute inset-0 w-full h-full block"
+                  src="https://www.youtube.com/embed/l5DJNJ_SBSU?si=AEzaXHlTThwBI7r3&autoplay=1&mute=1&rel=0" 
+                  title="FYPMate Platform Walkthrough Video"
+                  frameBorder={0} 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                  referrerPolicy="strict-origin-when-cross-origin" 
+                  allowFullScreen
+                />
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-
-
-
-      {/* Profile Preview Section */}
-      <section className="py-20 sm:py-28">
+      {/* Credibility & Metrics Strip */}
+      <section className="relative z-10 py-10 border-y border-slate-200/80 dark:border-slate-800/80 bg-white/50 dark:bg-slate-900/40 backdrop-blur-xs">
         <div className="max-w-6xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight">
-              Students Looking for Partners
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+            <div className="space-y-1">
+              <p className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">2–3 Students</p>
+              <p className="text-xs text-slate-500 dark:text-zinc-400">Standard FYP Team Formation</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">5 Dimensions</p>
+              <p className="text-xs text-slate-500 dark:text-zinc-400">AI Proposal Defense Rubric</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">100% Free</p>
+              <p className="text-xs text-slate-500 dark:text-zinc-400">Open Access for Students</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">PAF-IAST</p>
+              <p className="text-xs text-slate-500 dark:text-zinc-400">Founding Campus Initiative</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Core Platform Features: The Two Engines */}
+      <section id="features" className="py-20 sm:py-28 relative z-10">
+        <div className="max-w-6xl mx-auto px-6 lg:px-8 space-y-12">
+          <div className="text-center max-w-2xl mx-auto space-y-3">
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+              The Complete Final Year Project Ecosystem
             </h2>
-            <p className="text-gray-500 dark:text-gray-400">
-              Login to unlock profiles and start connecting
+            <p className="text-sm sm:text-base text-slate-600 dark:text-zinc-400">
+              Built specifically to solve the two biggest points of failure: partner skill mismatches and rejected project proposals.
             </p>
           </div>
 
-          {/* Locked Profile Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            {/* Preview Card 1 */}
-            <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
-              <div className="p-5 border-b border-gray-100 dark:border-slate-700">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gray-900 dark:bg-white rounded-full flex items-center justify-center text-lg font-semibold text-white dark:text-gray-900 flex-shrink-0">
-                    A
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Engine 1 */}
+            <div className="p-8 rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-xs space-y-6 flex flex-col justify-between">
+              <div className="space-y-4">
+                <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/50 flex items-center justify-center">
+                  <Users className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                  Skill-Based Teammate Matching
+                </h3>
+                <p className="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed">
+                  Browse verified university classmates across computer science, software engineering, AI, and biomedical departments. Filter by technical skills, programming languages, and current availability status.
+                </p>
+                <ul className="space-y-2 text-xs text-slate-600 dark:text-zinc-400 pt-2">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Real-time availability status (Available, In Group, Busy)</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Direct messaging and formal team partner request flow</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Locked team rosters adhering to university group policies</span>
+                  </li>
+                </ul>
+              </div>
+              <Link
+                href="/login"
+                className="inline-flex items-center gap-2 text-xs font-semibold text-slate-900 dark:text-white hover:underline pt-2"
+              >
+                <span>Browse Student Discovery</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+
+            {/* Engine 2 */}
+            <div className="p-8 rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-xs space-y-6 flex flex-col justify-between">
+              <div className="space-y-4">
+                <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/50 flex items-center justify-center">
+                  <Brain className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                  AI Proposal Feasibility Engine
+                </h3>
+                <p className="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed">
+                  Test your FYP idea against five academic dimensions: novelty, technical difficulty, timeline feasibility, team fit, and hardware cost tiers before presenting to your supervisor.
+                </p>
+                <ul className="space-y-2 text-xs text-slate-600 dark:text-zinc-400 pt-2">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-amber-500 shrink-0" />
+                    <span>Scorecard (0–100) based on institutional defense rubrics</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-amber-500 shrink-0" />
+                    <span>Duplicate detection against historical university submissions</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-amber-500 shrink-0" />
+                    <span>Generated 2-semester development timeline with defense milestones</span>
+                  </li>
+                </ul>
+              </div>
+              <Link
+                href="/idea-validator"
+                className="inline-flex items-center gap-2 text-xs font-semibold text-slate-900 dark:text-white hover:underline pt-2"
+              >
+                <span>Launch Free AI Validator</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Student Directory Preview Section */}
+      <section className="py-20 sm:py-28 relative z-10 border-t border-slate-200/80 dark:border-slate-800/80">
+        <div className="max-w-6xl mx-auto px-6 lg:px-8 space-y-12">
+          <div className="text-center max-w-xl mx-auto space-y-2">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              Students Looking for Partners
+            </h2>
+            <p className="text-sm text-slate-500 dark:text-zinc-400">
+              Sign in with your university account to explore full profiles and connect in real-time.
+            </p>
+          </div>
+
+          {/* Preview Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {/* Card 1 */}
+            <div className="bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-xs">
+              <div className="p-5 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-full flex items-center justify-center font-bold text-sm shrink-0">
+                    AK
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 dark:text-white">Ahmed Khan</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">BSCS · 7th Semester</p>
+                    <h3 className="font-semibold text-slate-900 dark:text-white text-sm">Ahmed Khan</h3>
+                    <p className="text-xs text-slate-500 dark:text-zinc-400">BSCS • Semester 7</p>
                     <div className="flex items-center gap-1.5 mt-1">
-                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-                      <span className="text-xs text-gray-500 dark:text-gray-400">Available</span>
+                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+                      <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">Available</span>
                     </div>
                   </div>
                 </div>
               </div>
               <div className="relative p-5">
-                <div className="absolute inset-0 backdrop-blur-sm bg-white/80 dark:bg-slate-800/80 z-10 flex items-center justify-center">
-                  <Link href="/login" className="flex items-center gap-2 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                    Login to view
+                <div className="absolute inset-0 backdrop-blur-xs bg-white/70 dark:bg-slate-900/70 z-10 flex items-center justify-center">
+                  <Link 
+                    href="/login" 
+                    className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-semibold rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shadow-xs"
+                  >
+                    <Lock className="w-3.5 h-3.5" />
+                    <span>Login to View</span>
                   </Link>
                 </div>
-                <div className="space-y-3 opacity-40">
+                <div className="space-y-3 opacity-30 select-none">
                   <div className="flex flex-wrap gap-1.5">
-                    <span className="px-2.5 py-1 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 text-xs rounded-md">React</span>
-                    <span className="px-2.5 py-1 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 text-xs rounded-md">Node.js</span>
-                    <span className="px-2.5 py-1 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 text-xs rounded-md">Python</span>
+                    <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[11px] rounded-md">Next.js</span>
+                    <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[11px] rounded-md">Node.js</span>
+                    <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[11px] rounded-md">PostgreSQL</span>
                   </div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Passionate developer interested in web technologies...</p>
+                  <p className="text-xs text-slate-500">Full-stack developer focusing on distributed web apps...</p>
                 </div>
               </div>
             </div>
 
-            {/* Preview Card 2 */}
-            <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
-              <div className="p-5 border-b border-gray-100 dark:border-slate-700">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gray-900 dark:bg-white rounded-full flex items-center justify-center text-lg font-semibold text-white dark:text-gray-900 flex-shrink-0">
-                    S
+            {/* Card 2 */}
+            <div className="bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-xs">
+              <div className="p-5 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-sm shrink-0">
+                    SM
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 dark:text-white">Sara Malik</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">BSSE · 8th Semester</p>
+                    <h3 className="font-semibold text-slate-900 dark:text-white text-sm">Sara Malik</h3>
+                    <p className="text-xs text-slate-500 dark:text-zinc-400">BSAI • Semester 7</p>
                     <div className="flex items-center gap-1.5 mt-1">
-                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-                      <span className="text-xs text-gray-500 dark:text-gray-400">Available</span>
+                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+                      <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">Available</span>
                     </div>
                   </div>
                 </div>
               </div>
               <div className="relative p-5">
-                <div className="absolute inset-0 backdrop-blur-sm bg-white/80 dark:bg-slate-800/80 z-10 flex items-center justify-center">
-                  <Link href="/login" className="flex items-center gap-2 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                    Login to view
+                <div className="absolute inset-0 backdrop-blur-xs bg-white/70 dark:bg-slate-900/70 z-10 flex items-center justify-center">
+                  <Link 
+                    href="/login" 
+                    className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-semibold rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shadow-xs"
+                  >
+                    <Lock className="w-3.5 h-3.5" />
+                    <span>Login to View</span>
                   </Link>
                 </div>
-                <div className="space-y-3 opacity-40">
+                <div className="space-y-3 opacity-30 select-none">
                   <div className="flex flex-wrap gap-1.5">
-                    <span className="px-2.5 py-1 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 text-xs rounded-md">UI/UX</span>
-                    <span className="px-2.5 py-1 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 text-xs rounded-md">Figma</span>
-                    <span className="px-2.5 py-1 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 text-xs rounded-md">Flutter</span>
+                    <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[11px] rounded-md">PyTorch</span>
+                    <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[11px] rounded-md">Computer Vision</span>
+                    <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[11px] rounded-md">Python</span>
                   </div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Creative designer focusing on mobile-first experiences...</p>
+                  <p className="text-xs text-slate-500">AI enthusiast interested in healthcare imaging...</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 3 */}
+            <div className="bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-xs">
+              <div className="p-5 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 bg-slate-700 text-white rounded-full flex items-center justify-center font-bold text-sm shrink-0">
+                    ZT
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-slate-900 dark:text-white text-sm">Zain Tariq</h3>
+                    <p className="text-xs text-slate-500 dark:text-zinc-400">BSE • Semester 7</p>
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+                      <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">Available</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="relative p-5">
+                <div className="absolute inset-0 backdrop-blur-xs bg-white/70 dark:bg-slate-900/70 z-10 flex items-center justify-center">
+                  <Link 
+                    href="/login" 
+                    className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-semibold rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shadow-xs"
+                  >
+                    <Lock className="w-3.5 h-3.5" />
+                    <span>Login to View</span>
+                  </Link>
+                </div>
+                <div className="space-y-3 opacity-30 select-none">
+                  <div className="flex flex-wrap gap-1.5">
+                    <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[11px] rounded-md">Embedded C</span>
+                    <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[11px] rounded-md">ESP32</span>
+                    <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[11px] rounded-md">IoT Protocols</span>
+                  </div>
+                  <p className="text-xs text-slate-500">Hardware specialist building smart telemetry systems...</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="text-center mt-10">
+          <div className="text-center pt-2">
             <Link
               href="/login"
-              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-zinc-200 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors shadow-2xs"
             >
-              View All Students
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
+              <span>View All Students in Discovery</span>
+              <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
       </section>
 
-      {/* FYP Ideas Section */}
-      <section className="py-20 sm:py-28 bg-gray-50 dark:bg-slate-800/50 border-y border-gray-100 dark:border-slate-800">
-        <div className="max-w-6xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight">
+      {/* Historical FYP Inspiration Section */}
+      <section className="py-20 sm:py-28 relative z-10 bg-slate-100/60 dark:bg-slate-900/30 border-y border-slate-200/80 dark:border-slate-800/80">
+        <div className="max-w-6xl mx-auto px-6 lg:px-8 space-y-12">
+          <div className="text-center max-w-xl mx-auto space-y-2">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               FYP Ideas & Inspiration
             </h2>
-            <p className="text-gray-500 dark:text-gray-400">
-              Explore what PAF-IAST students have built before
+            <p className="text-sm text-slate-500 dark:text-zinc-400">
+              Browse approved project directions to benchmark originality and avoid duplicate concepts.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {/* FYP 1 */}
-            <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-blue-50 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <span className="text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-md">Web App</span>
+            <div className="bg-white dark:bg-slate-900/80 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 space-y-4 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-2.5 py-1 rounded-md">
+                  Computer Vision
+                </span>
+                <span className="text-[11px] text-slate-400">Semester 8</span>
               </div>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Smart Attendance System</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Face recognition-based attendance tracking for university classrooms with real-time reporting.</p>
-              <div className="pt-4 border-t border-gray-100 dark:border-slate-700">
-                <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">Supervised by</p>
-                <p className="text-sm text-gray-400 dark:text-gray-500 blur-[3px] select-none">Dr. Ahmad Hassan</p>
+              <div>
+                <h3 className="font-bold text-slate-900 dark:text-white text-base mb-1.5">Smart Attendance Verification</h3>
+                <p className="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed">
+                  Real-time edge facial recognition attendance pipeline with automated attendance logging and LMS synchronization.
+                </p>
+              </div>
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400">
+                Department of Computer Science • PAF-IAST
               </div>
             </div>
 
             {/* FYP 2 */}
-            <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-1 rounded-md">Mobile App</span>
+            <div className="bg-white dark:bg-slate-900/80 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 space-y-4 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-md">
+                  Mobile & AR
+                </span>
+                <span className="text-[11px] text-slate-400">Semester 8</span>
               </div>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Campus Navigation App</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Indoor navigation system for PAF-IAST campus with AR-based directions and building info.</p>
-              <div className="pt-4 border-t border-gray-100 dark:border-slate-700">
-                <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">Supervised by</p>
-                <p className="text-sm text-gray-400 dark:text-gray-500 blur-[3px] select-none">Prof. Fatima Khan</p>
+              <div>
+                <h3 className="font-bold text-slate-900 dark:text-white text-base mb-1.5">AR Campus Navigation</h3>
+                <p className="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed">
+                  Indoor positioning system utilizing augmented reality beacons for multi-floor university building navigation.
+                </p>
+              </div>
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400">
+                Department of Software Engineering • PAF-IAST
               </div>
             </div>
 
             {/* FYP 3 */}
-            <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-purple-50 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                  </svg>
-                </div>
-                <span className="text-xs font-medium text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 px-2 py-1 rounded-md">AI/ML</span>
+            <div className="bg-white dark:bg-slate-900/80 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 space-y-4 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/40 px-2.5 py-1 rounded-md">
+                  NLP & LLM
+                </span>
+                <span className="text-[11px] text-slate-400">Semester 8</span>
               </div>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Exam Paper Generator</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">AI-powered system to generate balanced exam papers from question banks with difficulty scoring.</p>
-              <div className="pt-4 border-t border-gray-100 dark:border-slate-700">
-                <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">Supervised by</p>
-                <p className="text-sm text-gray-400 dark:text-gray-500 blur-[3px] select-none">Dr. Imran Malik</p>
+              <div>
+                <h3 className="font-bold text-slate-900 dark:text-white text-base mb-1.5">Adaptive Exam Generator</h3>
+                <p className="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed">
+                  AI-powered balanced question paper formulation using Bloom’s taxonomy difficulty scoring and anti-leakage checks.
+                </p>
+              </div>
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400">
+                Department of Artificial Intelligence • PAF-IAST
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="py-20 sm:py-28">
+      {/* Interactive AI Idea Validator Showcase Banner */}
+      <section className="py-20 sm:py-28 relative z-10">
         <div className="max-w-5xl mx-auto px-6 lg:px-8">
-          <div className="rounded-3xl border border-amber-200 dark:border-amber-900/40 bg-gradient-to-br from-amber-50 via-white to-orange-50 dark:from-slate-900 dark:via-slate-900 dark:to-amber-950/20 p-8 sm:p-10">
-            <div className="max-w-3xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white dark:bg-slate-900 border border-amber-200 dark:border-amber-900/40 text-xs font-semibold uppercase tracking-[0.18em] text-amber-700 dark:text-amber-300">
-                AI Idea Validator
+          <div className="rounded-3xl border border-amber-200 dark:border-amber-900/40 bg-gradient-to-br from-amber-50/80 via-white to-orange-50/60 dark:from-slate-900 dark:via-slate-900 dark:to-amber-950/30 p-8 sm:p-12 shadow-sm">
+            <div className="max-w-3xl space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white dark:bg-slate-800 border border-amber-200/90 dark:border-amber-900/40 text-xs font-semibold uppercase tracking-wider text-amber-800 dark:text-amber-300">
+                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                <span>AI Feasibility Benchmark</span>
               </div>
-              <h2 className="mt-4 text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">
-                Check if your FYP idea is fresh before you commit to it
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                Check if your FYP idea is defense-ready before committing to it
               </h2>
-              <p className="mt-4 text-gray-600 dark:text-gray-300 leading-relaxed">
-                Paste your idea, compare it with past projects, and get a simple explanation of what feels strong, what feels repeated, and how to make it stand out.
+              <p className="text-sm sm:text-base text-slate-600 dark:text-zinc-300 leading-relaxed">
+                Paste your project title and concept summary. Our AI engine evaluates novelty, implementation risks, timeline feasibility, and hardware complexity with an instant academic score.
               </p>
-              <div className="mt-6 flex flex-col sm:flex-row gap-3">
+              <div className="pt-2 flex flex-col sm:flex-row gap-3">
                 <Link
                   href="/idea-validator"
-                  className="inline-flex items-center justify-center px-5 py-3 text-sm font-medium text-white dark:text-gray-900 bg-gray-900 dark:bg-white rounded-xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+                  className="inline-flex items-center justify-center gap-2 px-5 py-3 text-xs sm:text-sm font-semibold text-white dark:text-slate-900 bg-slate-900 dark:bg-white rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shadow-xs"
                 >
-                  Try 1 Free Preview
+                  <Sparkles className="w-4 h-4 text-amber-400 dark:text-amber-600" />
+                  <span>Try Free AI Analysis</span>
                 </Link>
                 <Link
-                  href="/signup"
-                  className="inline-flex items-center justify-center px-5 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-slate-700 rounded-xl hover:bg-white/70 dark:hover:bg-slate-900 transition-colors"
+                  href="/login"
+                  className="inline-flex items-center justify-center px-5 py-3 text-xs sm:text-sm font-semibold text-slate-700 dark:text-zinc-200 border border-slate-300 dark:border-slate-700 rounded-xl hover:bg-white/80 dark:hover:bg-slate-800 transition-colors"
                 >
-                  Sign Up For Full Reports
+                  Sign In for Full PDF Reports
                 </Link>
               </div>
             </div>
@@ -417,108 +631,94 @@ export default async function HomePage({
       </section>
 
       {/* How It Works Section */}
-      <section className="py-20 sm:py-28 bg-gray-50 dark:bg-slate-800/50 border-y border-gray-100 dark:border-slate-800">
-        <div className="max-w-6xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight">
+      <section id="how-it-works" className="py-20 sm:py-28 relative z-10 bg-slate-100/60 dark:bg-slate-900/30 border-y border-slate-200/80 dark:border-slate-800/80">
+        <div className="max-w-6xl mx-auto px-6 lg:px-8 space-y-16">
+          <div className="text-center max-w-xl mx-auto space-y-2">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               How It Works
             </h2>
-            <p className="text-gray-500 dark:text-gray-400">
-              Six simple steps to find your FYP partner
+            <p className="text-sm text-slate-500 dark:text-zinc-400">
+              Six simple steps from idea inception to locked FYP group
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              { step: 1, title: "Create Your Profile", desc: "Sign up and add your skills, projects, and interests." },
-              { step: 2, title: "Discover Students", desc: "Use filters to find students who match your FYP needs." },
-              { step: 3, title: "Send Message Request", desc: "Request permission to chat with potential partners." },
-              { step: 4, title: "Chat in Real Time", desc: "Discuss ideas once messaging is approved." },
-              { step: 5, title: "Send Partner Request", desc: "When ready, send a partner request to formalize." },
-              { step: 6, title: "Form Your Team", desc: "Accept requests and lock your FYP group." },
+              { step: 1, title: "Create Your Profile", desc: "Sign in with your university account and showcase your programming skills, frameworks, and domain interests." },
+              { step: 2, title: "Discover Classmates", desc: "Filter peers by technical stack, target industry, and current availability status across university departments." },
+              { step: 3, title: "Send Message Request", desc: "Send an introductory message request to prospective teammates to align on project vision." },
+              { step: 4, title: "Chat in Real Time", desc: "Discuss project concepts, technical scope, and division of labor once your messaging request is accepted." },
+              { step: 5, title: "Send Partner Request", desc: "Send a formal partner invitation to officially assemble your 2–3 member FYP team roster." },
+              { step: 6, title: "Lock Team & Launch Workspace", desc: "Finalize your group to unlock the collaborative FYP Workspace with milestones and Kanban boards." },
             ].map((item) => (
-              <div key={item.step} className="text-center">
-                <div className="w-12 h-12 mx-auto bg-gray-900 dark:bg-white rounded-xl flex items-center justify-center text-lg font-semibold text-white dark:text-gray-900 mb-4">
+              <div key={item.step} className="p-6 rounded-2xl bg-white dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 shadow-2xs space-y-3">
+                <div className="w-10 h-10 bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-xl flex items-center justify-center text-sm font-bold shadow-xs">
                   {item.step}
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{item.title}</h3>
-                <p className="text-gray-500 dark:text-gray-400 text-sm">{item.desc}</p>
+                <h3 className="text-base font-bold text-slate-900 dark:text-white">{item.title}</h3>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-zinc-400 leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 sm:py-28">
-        <div className="max-w-3xl mx-auto px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight">
-            Ready to Find Your FYP Partner?
+      {/* Ready to Begin Bottom Banner */}
+      <section className="py-20 sm:py-28 relative z-10">
+        <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center space-y-6">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            Ready to Build Your Final Year Project?
           </h2>
-          <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-xl mx-auto">
-            Join PAF-IAST students who have already found their perfect teammates.
+          <p className="text-sm sm:text-base text-slate-600 dark:text-zinc-400 max-w-xl mx-auto leading-relaxed">
+            Join ambitious university students collaborating on FYPMate, benchmark your ideas, and assemble your dream team today.
           </p>
-          <Link
-            href="/login"
-            className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium text-white dark:text-gray-900 bg-gray-900 dark:bg-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
-          >
-            Get Started
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </Link>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+            <Link
+              href="/login"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 text-sm font-semibold text-white dark:text-slate-900 bg-slate-900 dark:bg-white rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shadow-md"
+            >
+              <span>Get Started with University SSO</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              href="/idea-validator"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 text-sm font-semibold text-slate-800 dark:text-zinc-200 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors shadow-2xs"
+            >
+              <Sparkles className="w-4 h-4 text-amber-500" />
+              <span>Test AI Idea Validator</span>
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 dark:border-slate-800 py-12 bg-gray-50 dark:bg-slate-800/50">
+      <footer className="border-t border-slate-200 dark:border-slate-800 py-12 bg-white dark:bg-slate-950 relative z-10">
         <div className="max-w-6xl mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
-            {/* Brand */}
-            <div>
-              <div className="flex items-center gap-2.5 mb-4">
-                <div className="w-8 h-8 bg-gray-900 dark:bg-white rounded-lg flex items-center justify-center">
-                  <svg className="w-4 h-4 text-white dark:text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
-                  </svg>
+            {/* Brand Column */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-lg flex items-center justify-center">
+                  <GraduationCap className="w-4 h-4" />
                 </div>
-                <span className="text-lg font-semibold text-gray-900 dark:text-white">FYPMate</span>
+                <span className="text-lg font-bold text-slate-900 dark:text-white">FYPMate</span>
               </div>
-              <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
-                A platform to help university students find the perfect teammates for Final Year Projects.
+              <p className="text-slate-500 dark:text-zinc-400 text-xs sm:text-sm leading-relaxed max-w-sm">
+                The academic collaboration and AI validation platform helping university students assemble high-performing FYP teams and refine project proposals.
               </p>
             </div>
 
-            {/* Open Source */}
-            {/* <div>
-              <h4 className="text-gray-900 font-semibold mb-4">Open Source</h4>
-              <p className="text-gray-500 text-sm mb-4">
-                This project is open source and available for educational purposes.
-              </p>
-              <a
-                href="https://github.com/Muhammad-BinMushtaq/fypfinder"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0012 2z" />
-                </svg>
-                View on GitHub
-              </a>
-            </div> */}
-
-            {/* Founder & Creator */}
+            {/* Founder & Developer Column */}
             <div>
-              <h4 className="text-gray-900 dark:text-white font-semibold mb-3">Founder & Creator</h4>
-              <p className="text-gray-900 dark:text-white font-medium text-sm mb-1">Muhammad bin Mushtaq</p>
-              <p className="text-gray-500 dark:text-gray-400 text-xs mb-3">Conceived, architected & built at PAF-IAST</p>
+              <h4 className="text-slate-900 dark:text-white font-semibold text-sm mb-2">Platform Developer</h4>
+              <p className="text-slate-900 dark:text-white font-medium text-sm mb-0.5">Muhammad bin Mushtaq</p>
+              <p className="text-slate-500 dark:text-zinc-400 text-xs mb-3">Conceived, designed & built at PAF-IAST</p>
               <div className="flex items-center gap-3">
                 <a
                   href="https://www.linkedin.com/in/muhammad-bin-mushtaq1/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-8 h-8 bg-gray-100 dark:bg-slate-700 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
+                  className="w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                   title="Muhammad bin Mushtaq on LinkedIn"
                 >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -529,7 +729,7 @@ export default async function HomePage({
                   href="https://github.com/Muhammad-BinMushtaq"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-8 h-8 bg-gray-100 dark:bg-slate-700 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
+                  className="w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                   title="Muhammad bin Mushtaq on GitHub"
                 >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -539,17 +739,17 @@ export default async function HomePage({
               </div>
             </div>
 
-            {/* Academic Advisor */}
+            {/* Academic Mentor Column */}
             <div>
-              <h4 className="text-gray-900 dark:text-white font-semibold mb-3">Academic Advisor</h4>
-              <p className="text-gray-900 dark:text-white font-medium text-sm mb-1">Dr. Muhammad Shuaib Qureshi</p>
-              <p className="text-gray-500 dark:text-gray-400 text-xs mb-3">University Professor & Mentor • CSO at Datalligence.pk</p>
-              <div className="flex items-center gap-4 text-xs">
+              <h4 className="text-slate-900 dark:text-white font-semibold text-sm mb-2">Academic Mentor</h4>
+              <p className="text-slate-900 dark:text-white font-medium text-sm mb-0.5">Dr. Muhammad Shuaib Qureshi</p>
+              <p className="text-slate-500 dark:text-zinc-400 text-xs mb-3">University Professor • CSO at Datalligence.pk</p>
+              <div className="flex items-center gap-4 text-xs font-semibold">
                 <a
                   href="https://www.datalligence.pk/team"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                  className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                 >
                   Datalligence Team →
                 </a>
@@ -557,7 +757,7 @@ export default async function HomePage({
                   href="https://www.linkedin.com/in/qureshi2015/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                  className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                 >
                   LinkedIn →
                 </a>
@@ -565,16 +765,17 @@ export default async function HomePage({
             </div>
           </div>
 
-          {/* Bottom */}
-          <div className="pt-8 border-t border-gray-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-gray-400 dark:text-gray-500">
-              © 2026 FYPMate. Conceived, designed & built by Muhammad bin Mushtaq at PAF-IAST.
-            </p>
-            <div className="flex items-center gap-4">
-              <Link href="/about" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors">
+          {/* Bottom Bar */}
+          <div className="pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-zinc-400">
+            <p>© 2026 FYPMate. Created by Muhammad bin Mushtaq at PAF-IAST.</p>
+            <div className="flex items-center gap-6">
+              <Link href="/about" className="hover:text-slate-900 dark:hover:text-white transition-colors">
                 About Us
               </Link>
-              <Link href="/privacy" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors">
+              <Link href="/idea-validator" className="hover:text-slate-900 dark:hover:text-white transition-colors">
+                Idea Validator
+              </Link>
+              <Link href="/privacy" className="hover:text-slate-900 dark:hover:text-white transition-colors">
                 Privacy Policy
               </Link>
             </div>
