@@ -44,6 +44,16 @@ export function WelcomeModal({
   const [seekingStatus, setSeekingStatus] = useState(existingSeekingStatus || "LOOKING_FOR_TEAM");
   const [primaryRoles, setPrimaryRoles] = useState<string[]>(existingRoles || []);
 
+  // Lock background body scroll while modal is active (prevents background jumping/scrolling)
+  useEffect(() => {
+    if (!isOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isOpen]);
+
   // Keyboard accessibility (Escape key to dismiss)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -92,7 +102,6 @@ export function WelcomeModal({
       toast.info("Setup skipped. You can complete your profile anytime in Settings / Profile.");
       router.refresh();
     } catch {
-      // Graceful local dismiss
       router.refresh();
     } finally {
       setIsDismissing(false);
@@ -102,7 +111,7 @@ export function WelcomeModal({
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      // 1. Update Profile (Notice: do NOT send currentSemester, keeping it tamper-proof)
+      // 1. Update Profile (Keep currentSemester untouched)
       const profileRes = await fetch("/api/student/update-my-profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -150,16 +159,17 @@ export function WelcomeModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-xs p-3 sm:p-4 animate-in fade-in duration-150 overscroll-none">
+      {/* Fixed-dimension frame: Perfectly locked and identical size across all steps */}
       <div 
-        className="w-full max-w-xl max-h-[85dvh] sm:max-h-[88dvh] flex flex-col bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-800 overflow-hidden animate-in zoom-in-95 duration-200"
+        className="w-full max-w-lg md:max-w-xl h-[540px] max-h-[86vh] flex flex-col bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden"
         role="dialog"
         aria-modal="true"
         aria-labelledby="onboarding-title"
       >
         
-        {/* Header (Fixed at top) */}
-        <div className="shrink-0 bg-gray-50/90 dark:bg-slate-800/90 border-b border-gray-200 dark:border-slate-700/80 px-5 py-4 sm:px-6 flex items-center justify-between gap-3">
+        {/* Header (Fixed 64px height at top) */}
+        <div className="h-16 shrink-0 bg-gray-50/90 dark:bg-slate-800/90 border-b border-gray-200 dark:border-slate-700/80 px-6 flex items-center justify-between gap-3">
           <div className="min-w-0 flex-1">
             <h2 id="onboarding-title" className="text-base sm:text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2 truncate">
               <Sparkles className="text-amber-500 w-4.5 h-4.5 shrink-0" />
@@ -191,7 +201,7 @@ export function WelcomeModal({
             <button
               onClick={handleDismiss}
               disabled={isDismissing || isSubmitting}
-              className="p-1.5 -mr-1 text-gray-400 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white hover:bg-gray-200/70 dark:hover:bg-slate-700/70 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="p-1.5 -mr-1.5 text-gray-400 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white hover:bg-gray-200/70 dark:hover:bg-slate-700/70 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
               title="Skip setup"
               aria-label="Close setup tour"
             >
@@ -200,12 +210,12 @@ export function WelcomeModal({
           </div>
         </div>
 
-        {/* Content Body (Dynamically scrollable, guaranteed to never overflow screen) */}
-        <div className="flex-1 min-h-0 overflow-y-auto p-5 sm:p-6 space-y-5 overscroll-contain">
+        {/* Content Body (Internal scroll inside locked frame, never resizes or stretches frame) */}
+        <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5 space-y-4 overscroll-contain">
           
           {/* STEP 1: Academic Status & FYP Seeking Goal */}
           {step === 1 && (
-            <div className="space-y-4">
+            <div className="space-y-4 animate-in fade-in duration-150">
               <div className="flex items-center gap-2.5">
                 <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400 shrink-0">
                   <ShieldCheck className="w-5 h-5" />
@@ -216,7 +226,7 @@ export function WelcomeModal({
                 </div>
               </div>
 
-              {/* Read-Only Verified Status Card (No editable semester buttons!) */}
+              {/* Read-Only Verified Status Card (Locked frame, no editable semester buttons) */}
               <div className="p-3.5 rounded-xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/80 dark:border-blue-900/40">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[11px] font-semibold text-blue-700 dark:text-blue-300 uppercase tracking-wider">
@@ -275,7 +285,7 @@ export function WelcomeModal({
 
           {/* STEP 2: Top Skills */}
           {step === 2 && (
-            <div className="space-y-4">
+            <div className="space-y-4 animate-in fade-in duration-150">
               <div className="flex items-center gap-2.5">
                 <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg text-purple-600 dark:text-purple-400 shrink-0">
                   <Code2 className="w-5 h-5" />
@@ -311,7 +321,7 @@ export function WelcomeModal({
                   <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                     Proficiency Level:
                   </h4>
-                  <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
+                  <div className="space-y-2 max-h-[150px] overflow-y-auto pr-1">
                     {skills.map((skill) => (
                       <div key={skill.name} className="flex items-center justify-between p-2.5 border border-gray-200 dark:border-slate-700 rounded-lg bg-gray-50/60 dark:bg-slate-800/40 text-xs sm:text-sm">
                         <span className="font-medium text-gray-900 dark:text-white">{skill.name}</span>
@@ -334,7 +344,7 @@ export function WelcomeModal({
 
           {/* STEP 3: Primary Roles & Review */}
           {step === 3 && (
-            <div className="space-y-4">
+            <div className="space-y-4 animate-in fade-in duration-150">
               <div className="flex items-center gap-2.5">
                 <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg text-emerald-600 dark:text-emerald-400 shrink-0">
                   <Briefcase className="w-5 h-5" />
@@ -371,7 +381,7 @@ export function WelcomeModal({
               </div>
 
               {/* Summary Preview Box */}
-              <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-slate-800/60 border border-gray-200 dark:border-slate-700 text-xs space-y-1.5">
+              <div className="p-3 rounded-xl bg-gray-50 dark:bg-slate-800/60 border border-gray-200 dark:border-slate-700 text-xs space-y-1">
                 <span className="font-semibold text-gray-700 dark:text-gray-300 block mb-1">Setup Summary:</span>
                 <p className="text-gray-600 dark:text-gray-400">
                   • <strong className="text-gray-900 dark:text-white">Academic:</strong> {department} • Semester {semester}
@@ -393,8 +403,8 @@ export function WelcomeModal({
 
         </div>
 
-        {/* Footer (Fixed at bottom, always fully visible on laptops & phones) */}
-        <div className="shrink-0 p-4 sm:px-6 bg-gray-50/90 dark:bg-slate-800/90 border-t border-gray-200 dark:border-slate-700/80 flex items-center justify-between gap-3">
+        {/* Footer (Fixed 64px height at bottom, static & pinned across all steps) */}
+        <div className="h-16 shrink-0 px-6 bg-gray-50/90 dark:bg-slate-800/90 border-t border-gray-200 dark:border-slate-700/80 flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={handleBack}
