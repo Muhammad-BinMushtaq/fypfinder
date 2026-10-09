@@ -49,6 +49,52 @@ export function usePublicProfile(
     gcTime: 30 * 60 * 1000, // 30 minutes - keep cache for back navigation
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
+    refetchOnMount: false,
+    initialData: () => {
+      // Instant 0ms transition: seed from existing discovery cache if student was browsed
+      const discoveryQueries = queryClient.getQueriesData<{ items: any[] }>({
+        queryKey: ["discovery"],
+      });
+      for (const [, data] of discoveryQueries) {
+        const found = data?.items?.find((s) => s.id === studentId);
+        if (found) {
+          return {
+            id: found.id,
+            name: found.name,
+            email: "",
+            department: found.department,
+            semester: found.semester,
+            isGraduated: found.isGraduated,
+            profilePicture: found.profilePicture,
+            interests: found.interests ?? undefined,
+            availability: found.availability,
+            careerGoal: null,
+            hobbies: found.hobbies,
+            preferredTechStack: null,
+            fypIndustry: found.industryPreference,
+            primaryRoles: found.primaryRoles,
+            seekingStatus: found.seekingStatus,
+            linkedinUrl: found.linkedinUrl,
+            githubUrl: found.githubUrl,
+            isGrouped: found.isGroupLocked,
+            availableForGroup: !found.isGroupLocked,
+            groupInfo: null,
+            skills: (found.skills || []).map((s: string, idx: number) => ({
+              id: `seed-sk-${idx}`,
+              name: s,
+              level: "INTERMEDIATE" as const,
+            })),
+            projects: (found.projectNames || []).map((p: string, idx: number) => ({
+              id: `seed-pr-${idx}`,
+              name: p,
+            })),
+            internships: [],
+          };
+        }
+      }
+      return undefined;
+    },
+    initialDataUpdatedAt: () => 0, // Immediately stale to fetch full profile in background
     retry: 1, // Only retry once on failure
   });
 

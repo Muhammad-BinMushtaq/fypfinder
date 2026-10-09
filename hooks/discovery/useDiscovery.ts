@@ -71,6 +71,7 @@ export function useDiscovery(options: UseDiscoveryOptions = {}) {
     gcTime: 15 * 60 * 1000, // 15 minutes - keep cache longer for back navigation
     refetchOnWindowFocus: false, // Don't refetch on tab switch
     refetchOnReconnect: false, // Don't refetch on reconnect
+    refetchOnMount: false, // Don't refetch on mount if cache is still fresh within staleTime
     placeholderData: (previousData) => previousData, // Keep previous data while loading new
   });
 

@@ -1,4 +1,4 @@
-﻿// app/dashboard/discovery/page.tsx
+// app/dashboard/discovery/page.tsx
 "use client";
 
 /**
@@ -19,8 +19,18 @@
 import { useDiscovery } from "@/hooks/discovery/useDiscovery";
 import { StudentCard } from "@/components/discovery/StudentCard";
 import { DiscoveryFilters } from "@/components/discovery/DiscoveryFilters";
+import { useMyProfile } from "@/hooks/student/useMyProfile";
+import { useMyGroup } from "@/hooks/group/useMyGroup";
+import { useSentPartnerRequests } from "@/hooks/request/usePartnerRequests";
+import { useSentMessageRequests, useReceivedMessageRequests } from "@/hooks/request/useMessageRequests";
 
 export default function DiscoveryPage() {
+  // Current user context for instant client-side card actions (zero network queries)
+  const { profile: myProfile } = useMyProfile();
+  const { isGroupLocked } = useMyGroup();
+  const { data: sentPartnerRequests } = useSentPartnerRequests();
+  const { data: sentMessageRequests } = useSentMessageRequests();
+  const { data: receivedMessageRequests } = useReceivedMessageRequests();
   // � Discovery data (auth is handled by dashboard layout)
   const {
     students,
@@ -136,11 +146,20 @@ export default function DiscoveryPage() {
         {/* Students Grid */}
         {!isLoading && students.length > 0 && (
           <>
-            {/* Fetching overlay */}
-            <div className={`relative z-10 ${isFetching ? "opacity-60" : ""} transition-opacity`}>
+            {/* Grid */}
+            <div className="relative z-10">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
                 {students.map((student) => (
-                  <StudentCard key={student.id} student={student} />
+                  <StudentCard
+                    key={student.id}
+                    student={student}
+                    myProfileId={myProfile?.id}
+                    mySemester={myProfile?.semester}
+                    isUserGroupLocked={isGroupLocked}
+                    sentPartnerRequests={sentPartnerRequests}
+                    sentMessageRequests={sentMessageRequests}
+                    receivedMessageRequests={receivedMessageRequests}
+                  />
                 ))}
               </div>
             </div>
@@ -209,18 +228,6 @@ export default function DiscoveryPage() {
               </div>
             )}
 
-            {/* Floating loader for background fetching */}
-            {isFetching && !isLoading && (
-              <div className="fixed bottom-8 right-8 z-50">
-                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-4 flex items-center gap-3 border border-gray-200/50 dark:border-slate-700">
-                  <div className="relative">
-                    <div className="w-8 h-8 border-3 border-gray-200 dark:border-slate-700 rounded-full"></div>
-                    <div className="w-8 h-8 border-3 border-gray-600 dark:border-slate-400 border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
-                  </div>
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Updating results...</span>
-                </div>
-              </div>
-            )}
           </>
         )}
 

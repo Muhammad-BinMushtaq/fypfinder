@@ -121,16 +121,18 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
         staleTime: 5 * 60 * 1000,
       });
 
-      queryClient.prefetchQuery({
-        queryKey: ["discovery", { limit: 12, offset: 0 }],
-        queryFn: async () => {
-          const res = await fetch("/api/discovery/get-matched-students?limit=12&offset=0");
-          if (!res.ok) return null;
-          const json = await res.json();
-          return json.data || null;
-        },
-        staleTime: 5 * 60 * 1000,
-      });
+      if (pathname !== "/dashboard/discovery") {
+        queryClient.prefetchQuery({
+          queryKey: ["discovery", { limit: 12, offset: 0 }],
+          queryFn: async () => {
+            const res = await fetch("/api/discovery/get-matched-students?limit=12&offset=0");
+            if (!res.ok) return null;
+            const json = await res.json();
+            return json.data || null;
+          },
+          staleTime: 5 * 60 * 1000,
+        });
+      }
 
       queryClient.prefetchQuery({
         queryKey: ["group", "my-group"],
