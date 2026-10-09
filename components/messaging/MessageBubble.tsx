@@ -135,13 +135,30 @@ export function MessageBubble({ message, isOwn, onEdit, isEditing: externalEditi
           <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
         )}
 
-        {/* Timestamp, edited badge, and status */}
+        {/* Timestamp, edited badge, status, and inline edit */}
         {!isEditing && (
           <div
-            className={`flex items-center gap-1 mt-1 ${
+            className={`flex items-center gap-1.5 mt-1 ${
               isOwn ? "justify-end" : "justify-start"
             }`}
           >
+            {/* Inline Edit button for own messages within 15 min (accessible on touch and mobile) */}
+            {canEdit && (
+              <button
+                type="button"
+                onClick={handleStartEdit}
+                className={`text-[11px] font-medium flex items-center gap-0.5 transition-colors underline underline-offset-2 ${
+                  isOwn 
+                    ? "text-white/80 hover:text-white dark:text-gray-600 dark:hover:text-gray-900" 
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+                title="Edit message (available for 15 min)"
+              >
+                <Pencil className="w-2.5 h-2.5" />
+                <span>edit</span>
+              </button>
+            )}
+
             <span
               className={`text-xs ${
                 isOwn ? "text-white/70 dark:text-gray-500" : "text-gray-400 dark:text-gray-500"
@@ -167,17 +184,6 @@ export function MessageBubble({ message, isOwn, onEdit, isEditing: externalEditi
               </span>
             )}
           </div>
-        )}
-
-        {/* Edit button (shown on hover for desktop, subtly visible on mobile for own editable messages) */}
-        {canEdit && !isEditing && (
-          <button
-            onClick={handleStartEdit}
-            className={`absolute -top-2 ${isOwn ? "-left-8" : "-right-8"} opacity-0 max-sm:opacity-70 group-hover/msg:opacity-100 transition-opacity p-1.5 rounded-full bg-white dark:bg-slate-700 shadow-md border border-gray-200 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-600 active:scale-95`}
-            title="Edit message"
-          >
-            <Pencil className="w-3 h-3 text-gray-500 dark:text-gray-400" />
-          </button>
         )}
       </div>
     </div>

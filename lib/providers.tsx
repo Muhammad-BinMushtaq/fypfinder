@@ -62,8 +62,8 @@ export function AppProviders({ children }: ProvidersProps) {
               return false
             }
             
-            // Persist lightweight data only to avoid 5MB localStorage quota limit
-            const persistableKeys = ['profile', 'student']
+            // Persist user profile, conversations, recent messages, and unread badges
+            const persistableKeys = ['profile', 'student', 'conversations', 'messages', 'unreadCount']
             return persistableKeys.some(key => queryKey[0]?.includes(key))
           },
         },

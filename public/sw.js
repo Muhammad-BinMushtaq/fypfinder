@@ -1,8 +1,8 @@
 // FYP Finder Service Worker
-// Version: 1.1.0
+// Version: 1.1.1
 // Purpose: PWA support + Push Notifications + Offline Support
 
-const SW_VERSION = '1.1.0';
+const SW_VERSION = '1.1.1';
 const CACHE_NAME = `fypfinder-v${SW_VERSION}`;
 const RUNTIME_CACHE = `fypfinder-runtime-v${SW_VERSION}`;
 
@@ -258,17 +258,13 @@ self.addEventListener('notificationclick', (event) => {
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true })
       .then((clientList) => {
-        // Check if there's already a window open
+        // Check if there's already a window open on this origin
         for (const client of clientList) {
           const clientUrl = new URL(client.url);
-          // If we have a window on the same origin
           if (clientUrl.origin === self.location.origin) {
-            // Navigate to the target URL and focus
-            return client.navigate(urlToOpen).then((client) => {
-              if (client) {
-                return client.focus();
-              }
-            });
+            // Focus window and smoothly navigate via SPA router message (prevents hard full-page reload)
+            client.postMessage({ type: 'PWA_NAVIGATE', url: urlToOpen });
+            return client.focus();
           }
         }
         // No existing window, open a new one

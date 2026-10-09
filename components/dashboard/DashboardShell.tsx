@@ -89,6 +89,22 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
     };
   }, [isChatOpen]);
 
+  // Listen for smooth SPA navigation messages from Service Worker notification clicks
+  useEffect(() => {
+    if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
+
+    const handleSwMessage = (event: MessageEvent) => {
+      if (event.data?.type === "PWA_NAVIGATE" && event.data?.url) {
+        router.push(event.data.url);
+      }
+    };
+
+    navigator.serviceWorker.addEventListener("message", handleSwMessage);
+    return () => {
+      navigator.serviceWorker.removeEventListener("message", handleSwMessage);
+    };
+  }, [router]);
+
   // Proactively warm up React Query cache for instant tab switches
   useEffect(() => {
     const timer = setTimeout(() => {
