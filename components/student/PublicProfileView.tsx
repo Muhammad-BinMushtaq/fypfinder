@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import {
   ArrowLeft,
   Github,
@@ -10,16 +9,11 @@ import {
   ExternalLink,
   Mail,
   Building2,
-  Briefcase,
   Calendar,
   Award,
-  Code,
-  Gamepad2,
   ChevronDown,
   ChevronUp,
   GraduationCap,
-  Users,
-  FolderGit2,
 } from "lucide-react";
 import type { PublicStudentProfile } from "@/services/studentPublic.service";
 import { SendRequestButtons } from "@/components/request/SendRequestButtons";
@@ -47,7 +41,7 @@ export function PublicProfileView({
   const [showAllProjects, setShowAllProjects] = useState(false);
   const [showAllInternships, setShowAllInternships] = useState(false);
 
-  const SKILLS_LIMIT = 8;
+  const SKILLS_LIMIT = 3;
   const PROJECTS_LIMIT = 3;
   const INTERNSHIPS_LIMIT = 3;
 
@@ -118,21 +112,6 @@ export function PublicProfileView({
       .filter(Boolean);
   }, [profile.preferredTechStack]);
 
-  const getSeekingStatusLabel = (status?: string | null) => {
-    if (!status) return null;
-    switch (status) {
-      case "LOOKING_FOR_TEAM":
-        return "Seeking FYP Team";
-      case "LOOKING_FOR_MEMBERS":
-        return "Recruiting FYP Partners";
-      case "TEAM_FULL":
-        return "Team Complete";
-      default:
-        return status.replace(/_/g, " ");
-    }
-  };
-
-  const seekingStatusLabel = getSeekingStatusLabel(profile.seekingStatus);
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-20 select-none">
@@ -291,87 +270,76 @@ export function PublicProfileView({
         {/* ========================================== */}
         <main className="lg:col-span-8 space-y-6">
           
-          {/* 1. Target FYP Industry & Technical Focus */}
+          {/* 1. About & Target FYP Industry */}
           <section className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-7 shadow-sm space-y-5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
-              <div className="flex items-center gap-2.5">
-                <Briefcase className="w-4 h-4 text-slate-400 shrink-0" />
-                <div>
-                  <span className="text-xs font-medium text-slate-400 dark:text-slate-500 block">
-                    Target FYP Industry
-                  </span>
-                  <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-                    {profile.fypIndustry ? getIndustryLabel(profile.fypIndustry) : "General / Open to Ideas"}
-                  </h2>
-                </div>
-              </div>
-
-              {seekingStatusLabel && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60 shadow-xs">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  {seekingStatusLabel}
-                </span>
-              )}
+            <div className="border-b border-slate-100 dark:border-slate-800/80 pb-3">
+              <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white tracking-tight">
+                About
+              </h2>
             </div>
 
-            {/* Preferred Tech Stack */}
-            {techStackList.length > 0 && (
+            {/* Bio / About narrative */}
+            <div>
+              <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed">
+                {profile.interests || "No bio provided yet."}
+              </p>
+            </div>
+
+            {/* Target FYP Industry & Technical Focus */}
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 space-y-3">
               <div>
-                <span className="text-xs font-medium text-slate-400 dark:text-slate-500 flex items-center gap-2 mb-2.5">
-                  <Code className="w-4 h-4 text-slate-400 shrink-0" /> Preferred Technologies for FYP
+                <span className="text-xs font-medium text-slate-400 dark:text-slate-500 block mb-1">
+                  Target FYP Industry
                 </span>
-                <div className="flex flex-wrap gap-2">
-                  {techStackList.map((tech, idx) => (
-                    <span
-                      key={idx}
-                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 text-xs font-medium"
-                    >
-                      {tech}
-                    </span>
-                  ))}
+                <span className="inline-block text-xs sm:text-sm font-semibold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800/80 px-3 py-1 rounded-xl border border-slate-200/60 dark:border-slate-700/60">
+                  {profile.fypIndustry ? getIndustryLabel(profile.fypIndustry) : "General / Open to Ideas"}
+                </span>
+              </div>
+
+              {/* Preferred Tech Stack */}
+              {techStackList.length > 0 && (
+                <div className="pt-1">
+                  <span className="text-xs font-medium text-slate-400 dark:text-slate-500 block mb-2">
+                    Preferred Technologies for FYP
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {techStackList.map((tech, idx) => (
+                      <span
+                        key={idx}
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 text-xs font-medium"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Bio / About */}
-            {profile.interests && (
-              <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80">
-                <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mb-1.5">
-                  About & Collaboration Vision
-                </p>
-                <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                  {profile.interests}
-                </p>
-              </div>
-            )}
-
-            {/* Hobbies if any */}
-            {profile.hobbies && (
-              <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80">
-                <span className="text-xs font-medium text-slate-400 dark:text-slate-500 flex items-center gap-2 mb-1.5">
-                  <Gamepad2 className="w-4 h-4 text-slate-400 shrink-0" /> Hobbies & Interests
-                </span>
-                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-                  {profile.hobbies}
-                </p>
-              </div>
-            )}
+              {/* Hobbies if any */}
+              {profile.hobbies && (
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                  <span className="text-xs font-medium text-slate-400 dark:text-slate-500 block mb-1">
+                    Hobbies & Interests
+                  </span>
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                    {profile.hobbies}
+                  </p>
+                </div>
+              )}
+            </div>
           </section>
 
           {/* 2. Current FYP Team Section (if part of a group) */}
           {profile.isGrouped && profile.groupInfo && (
             <section className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-7 shadow-sm space-y-4">
               <div className="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-3">
-                <div className="flex items-center gap-2.5">
-                  <Users className="w-4 h-4 text-slate-400 shrink-0" />
-                  <div>
-                    <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-                      Current FYP Team
-                    </h2>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                      Team status and active members
-                    </p>
-                  </div>
+                <div>
+                  <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+                    Current FYP Team
+                  </h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Team status and active members
+                  </p>
                 </div>
 
                 <span
@@ -438,21 +406,28 @@ export function PublicProfileView({
           {/* 3. Skills Matrix (Clean & Structured by Proficiency) */}
           <section className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-7 shadow-sm space-y-4">
             <div className="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-3">
-              <div className="flex items-center gap-2.5">
-                <Code className="w-4 h-4 text-slate-400 shrink-0" />
-                <div>
-                  <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-                    Skills
-                  </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Demonstrated technical strengths
-                  </p>
-                </div>
+              <div>
+                <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+                  Skills
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Demonstrated technical strengths
+                </p>
               </div>
 
-              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                {profile.skills.length} Skills
-              </span>
+              {profile.skills.length > SKILLS_LIMIT ? (
+                <button
+                  onClick={() => setShowAllSkills(!showAllSkills)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-800 dark:hover:bg-slate-700/80 border border-slate-200/60 dark:border-slate-700/60 transition-all cursor-pointer shadow-xs active:scale-95"
+                >
+                  <span>{showAllSkills ? "See less" : `See more (+${profile.skills.length - SKILLS_LIMIT})`}</span>
+                  {showAllSkills ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                </button>
+              ) : (
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  {profile.skills.length} {profile.skills.length === 1 ? "Skill" : "Skills"}
+                </span>
+              )}
             </div>
 
             {profile.skills.length === 0 ? (
@@ -509,21 +484,18 @@ export function PublicProfileView({
 
           {/* 4. Featured Portfolio Projects */}
           <section className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-7 shadow-sm space-y-4">
-            <div className="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-3">
-              <div className="flex items-center gap-2.5">
-                <FolderGit2 className="w-4 h-4 text-slate-400 shrink-0" />
-                <div>
-                  <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-                    Featured Projects & Work
-                  </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Past projects demonstrating implementation ability
-                  </p>
-                </div>
+            <div className="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800/80 pb-3">
+              <div>
+                <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+                  Projects
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Past projects demonstrating implementation ability
+                </p>
               </div>
 
-              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                {profile.projects.length} Projects
+              <span className="whitespace-nowrap shrink-0 text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 px-2.5 py-1 rounded-full">
+                {profile.projects.length} {profile.projects.length === 1 ? "project" : "projects"}
               </span>
             </div>
 
@@ -601,21 +573,18 @@ export function PublicProfileView({
           {/* 5. Experience & Internships (if any) */}
           {profile.internships && profile.internships.length > 0 && (
             <section className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-7 shadow-sm space-y-4">
-              <div className="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-3">
-                <div className="flex items-center gap-2.5">
-                  <Briefcase className="w-4 h-4 text-slate-400 shrink-0" />
-                  <div>
-                    <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-                      Experience & Internships
-                    </h2>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                      Real-world organizational experience
-                    </p>
-                  </div>
+              <div className="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800/80 pb-3">
+                <div>
+                  <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+                    Experience & Internships
+                  </h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Real-world organizational experience
+                  </p>
                 </div>
 
-                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                  {profile.internships.length} Positions
+                <span className="whitespace-nowrap shrink-0 text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 px-2.5 py-1 rounded-full">
+                  {profile.internships.length} {profile.internships.length === 1 ? "position" : "positions"}
                 </span>
               </div>
 

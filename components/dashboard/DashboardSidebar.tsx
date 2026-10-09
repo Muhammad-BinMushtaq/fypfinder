@@ -10,7 +10,6 @@ import {
   Search,
   MessageSquare,
   FileText,
-  FolderKanban,
   BookOpen,
   Settings,
   LogOut,
@@ -61,11 +60,6 @@ const navItems: NavItem[] = [
     label: "Feedback",
     href: "/dashboard/feedback",
     icon: <MessageSquarePlus className="w-5 h-5" />,
-  },
-  {
-    label: "FYP Management",
-    href: "/dashboard/fyp",
-    icon: <FolderKanban className="w-5 h-5" />,
   },
   {
     label: "My Profile",
