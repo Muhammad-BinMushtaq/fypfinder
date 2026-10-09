@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
-import { MobileBottomNav } from "@/components/dashboard/MobileBottomNav";
+import { MobileBottomNav, isBottomNavAllowed } from "@/components/dashboard/MobileBottomNav";
 import { MobileProfileMenu } from "@/components/dashboard/MobileProfileMenu";
 import { SuspensionBanner } from "@/components/student/SuspensionBanner";
 import { PushPermissionBanner } from "@/components/pwa/PushPermissionBanner";
@@ -48,16 +48,20 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
   const isSubPage =
     pathname === "/dashboard/profile" ||
     pathname === "/dashboard/settings" ||
-    pathname === "/dashboard/requests" ||
+    pathname.startsWith("/dashboard/requests") ||
+    pathname === "/dashboard/messages" ||
     pathname.startsWith("/dashboard/discovery/profile");
 
   const getSubPageTitle = () => {
     if (pathname === "/dashboard/profile") return "My Profile";
     if (pathname === "/dashboard/settings") return "Settings";
-    if (pathname === "/dashboard/requests") return "Requests";
+    if (pathname.startsWith("/dashboard/requests")) return "Requests";
+    if (pathname === "/dashboard/messages") return "Messages";
     if (pathname.startsWith("/dashboard/discovery/profile")) return "Profile";
     return "Back";
   };
+
+  const shouldShowBottomNav = !isChatOpen && isBottomNavAllowed(pathname);
 
   const handleBack = () => {
     if (typeof window !== "undefined" && window.history.length > 1) {
@@ -198,7 +202,9 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
         className={`flex-1 min-w-0 w-full lg:pl-[17.5rem] ${
           isChatOpen
             ? "max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:right-0 max-lg:z-40 lg:static lg:z-0 lg:pr-4 lg:py-4 h-[100dvh] overflow-hidden flex flex-col"
-            : "lg:pr-4 lg:py-4 pb-28 lg:pb-4 overflow-x-hidden flex flex-col min-h-screen"
+            : shouldShowBottomNav
+            ? "lg:pr-4 lg:py-4 pb-28 lg:pb-4 overflow-x-hidden flex flex-col min-h-screen"
+            : "lg:pr-4 lg:py-4 pb-6 lg:pb-4 overflow-x-hidden flex flex-col min-h-screen"
         }`}
       >
         {/* Floating Desktop Main Container */}
@@ -325,8 +331,8 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
         </div>
       </main>
 
-      {/* Mobile Bottom Navigation - Hidden when in active chat */}
-      {!isChatOpen && <MobileBottomNav />}
+      {/* Mobile Bottom Navigation - Only rendered on allowed pages (Find Partners, Previous FYPs, Validate FYP) */}
+      {shouldShowBottomNav && <MobileBottomNav />}
     </div>
   );
 }
