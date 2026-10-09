@@ -72,8 +72,13 @@ export function ChatWindow({
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ conversationId }),
-    }).catch(() => {})
-  }, [conversationId])
+    })
+      .then(() => {
+        queryClient.invalidateQueries({ queryKey: ["unreadCount"] })
+        queryClient.invalidateQueries({ queryKey: ["conversations"] })
+      })
+      .catch(() => {})
+  }, [conversationId, queryClient])
 
   // Check whether messaging is permitted with peer student
   useEffect(() => {
@@ -201,7 +206,12 @@ export function ChatWindow({
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ conversationId }),
-            }).catch(() => {})
+            })
+              .then(() => {
+                queryClient.invalidateQueries({ queryKey: ["unreadCount"] })
+                queryClient.invalidateQueries({ queryKey: ["conversations"] })
+              })
+              .catch(() => {})
           } else {
             // Own message synced from another tab/device
             queryClient.setQueryData<Message[]>(

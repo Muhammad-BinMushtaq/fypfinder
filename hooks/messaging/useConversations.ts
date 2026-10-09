@@ -54,6 +54,7 @@ export function useConversations() {
   return {
     conversations: query.data || [],
     isLoading: query.isLoading,
+    isRefetching: query.isRefetching,
     isError: query.isError,
     error: query.error,
     refetch: query.refetch,

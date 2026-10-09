@@ -13,9 +13,15 @@ interface ConversationItemProps {
 export function ConversationItem({ conversation, isActive }: ConversationItemProps) {
   const { otherStudent, lastMessage, unreadCount, updatedAt } = conversation
 
-  const formattedTime = formatDistanceToNow(new Date(updatedAt), {
-    addSuffix: false,
-  })
+  let formattedTime = ""
+  try {
+    const d = new Date(updatedAt)
+    if (!isNaN(d.getTime())) {
+      formattedTime = formatDistanceToNow(d, { addSuffix: false })
+    }
+  } catch {
+    formattedTime = ""
+  }
 
   // Get initials for avatar
   const initials = (otherStudent?.name || "Student")

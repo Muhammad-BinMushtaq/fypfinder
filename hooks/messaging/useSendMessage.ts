@@ -75,10 +75,15 @@ export function useSendMessage() {
       if (context?.optimisticMessage) {
         queryClient.setQueryData<Message[]>(
           ["messages", variables.conversationId],
-          (old = []) =>
-            old.map((m) =>
+          (old = []) => {
+            // If already present under real ID (synced via Realtime first), simply filter out temp item
+            if (old.some((m) => m.id === realMessage.id)) {
+              return old.filter((m) => m.id !== context.optimisticMessage.id)
+            }
+            return old.map((m) =>
               m.id === context.optimisticMessage.id ? realMessage : m
             )
+          }
         )
       }
 

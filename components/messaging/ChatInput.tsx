@@ -18,7 +18,7 @@ export function ChatInput({ onSend, isPending, disabled = false }: ChatInputProp
       e?.preventDefault()
 
       const trimmedContent = content.trim()
-      if (!trimmedContent || isPending || disabled) return
+      if (!trimmedContent || disabled) return
 
       onSend(trimmedContent)
       setContent("")
@@ -28,7 +28,7 @@ export function ChatInput({ onSend, isPending, disabled = false }: ChatInputProp
         textareaRef.current.style.height = "auto"
       }
     },
-    [content, isPending, disabled, onSend]
+    [content, disabled, onSend]
   )
 
   const handleKeyDown = useCallback(
@@ -96,10 +96,10 @@ export function ChatInput({ onSend, isPending, disabled = false }: ChatInputProp
 
         <button
           type="submit"
-          disabled={isPending || disabled || !content.trim() || isOverLimit}
+          disabled={disabled || !content.trim() || isOverLimit}
           className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 flex items-center justify-center hover:bg-gray-800 dark:hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isPending ? (
+          {isPending && !content.trim() ? (
             <div className="w-4 h-4 border-2 border-white dark:border-gray-900 border-t-transparent rounded-full animate-spin" />
           ) : (
             <svg

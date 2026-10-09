@@ -169,11 +169,11 @@ export function MessageBubble({ message, isOwn, onEdit, isEditing: externalEditi
           </div>
         )}
 
-        {/* Edit button (shown on hover for own editable messages) */}
+        {/* Edit button (shown on hover for desktop, subtly visible on mobile for own editable messages) */}
         {canEdit && !isEditing && (
           <button
             onClick={handleStartEdit}
-            className={`absolute -top-2 ${isOwn ? "-left-8" : "-right-8"} opacity-0 group-hover/msg:opacity-100 transition-opacity p-1.5 rounded-full bg-white dark:bg-slate-700 shadow-md border border-gray-200 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-600`}
+            className={`absolute -top-2 ${isOwn ? "-left-8" : "-right-8"} opacity-0 max-sm:opacity-70 group-hover/msg:opacity-100 transition-opacity p-1.5 rounded-full bg-white dark:bg-slate-700 shadow-md border border-gray-200 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-600 active:scale-95`}
             title="Edit message"
           >
             <Pencil className="w-3 h-3 text-gray-500 dark:text-gray-400" />

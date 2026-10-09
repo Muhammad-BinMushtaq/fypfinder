@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { ConversationList } from "@/components/messaging/ConversationList"
 import { ChatWindow } from "@/components/messaging/ChatWindow"
@@ -22,7 +22,9 @@ export default function ConversationPage() {
   const {
     conversations,
     isLoading: conversationsLoading,
+    isRefetching: conversationsRefetching,
     isError,
+    refetch: refetchConversations,
   } = useConversations()
 
   // Find the current conversation from cache
@@ -30,6 +32,14 @@ export default function ConversationPage() {
     if (!conversations || !conversationId) return null
     return conversations.find((c) => c.id === conversationId) || null
   }, [conversations, conversationId])
+
+  // If conversation is not found in cache (e.g. newly created, direct link, or push notification),
+  // proactively refetch conversations to pull it from the server
+  useEffect(() => {
+    if (!conversationsLoading && !currentConversation && conversationId && !conversationsRefetching) {
+      refetchConversations()
+    }
+  }, [conversationsLoading, currentConversation, conversationId, conversationsRefetching, refetchConversations])
 
   // Profile loading
   if (profileLoading) {
@@ -49,8 +59,8 @@ export default function ConversationPage() {
     )
   }
 
-  // Conversation loading (first load only)
-  if (conversationsLoading && !currentConversation) {
+  // Conversation loading (first load or refetching missing conversation)
+  if ((conversationsLoading || conversationsRefetching) && !currentConversation) {
     return (
       <div className="h-full w-full bg-white dark:bg-slate-900 flex">
         <div className="hidden lg:block w-80 xl:w-96 border-r border-gray-200 dark:border-slate-700">
@@ -67,8 +77,8 @@ export default function ConversationPage() {
     )
   }
 
-  // Error or conversation not found
-  if (isError || (!conversationsLoading && !currentConversation)) {
+  // Error or conversation not found after refetch
+  if (isError || (!conversationsLoading && !conversationsRefetching && !currentConversation)) {
     return (
       <div className="h-full w-full bg-white dark:bg-slate-900 flex">
         <div className="hidden lg:block w-80 xl:w-96 border-r border-gray-200 dark:border-slate-700">

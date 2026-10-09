@@ -291,7 +291,7 @@ export async function sendMessage(
     conversationId,
     senderId,
     message.sender.name,
-    content.trim()
+    sanitized
   ).catch(err => console.error('Push notification error:', err))
 
   return message

@@ -55,10 +55,9 @@ export function useMessages(conversationId: string | null) {
         byId.set(msg.id, msg)
       }
       
-      // Then add optimistic messages that haven't been confirmed yet
-      // (they have temp-* IDs that won't exist in server data)
+      // Then add any cached messages (realtime or optimistic) that aren't yet in server response
       for (const msg of cached) {
-        if (msg.isOptimistic && !byId.has(msg.id)) {
+        if (!byId.has(msg.id)) {
           byId.set(msg.id, msg)
         }
       }
@@ -73,17 +72,9 @@ export function useMessages(conversationId: string | null) {
     staleTime: 5 * 60 * 1000, // 5 minutes - messages are fresh, updated via realtime
     gcTime: 30 * 60 * 1000, // 30 minutes - keep in cache for a while
     refetchOnWindowFocus: false, // Don't refetch - we have realtime updates
-    refetchOnMount: "always", // Always refetch on mount to mark messages as read
+    refetchOnMount: "always", // Always refetch on mount
     retry: 2, // Retry failed requests twice
   })
-
-  useEffect(() => {
-    if (!conversationId) return
-
-    // When opening a conversation, sync conversation list and unread count once
-    queryClient.invalidateQueries({ queryKey: ["conversations"] })
-    queryClient.invalidateQueries({ queryKey: ["unreadCount"] })
-  }, [conversationId, queryClient])
 
   const invalidateMessages = () => {
     if (conversationId) {
