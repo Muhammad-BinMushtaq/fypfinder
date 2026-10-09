@@ -559,11 +559,12 @@ export default async function HomePage({
               © 2026 FYPMate. Built for academic purposes.
             </p>
             <div className="flex items-center gap-4">
+              <Link href="/about" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors">
+                About Us
+              </Link>
               <Link href="/privacy" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors">
                 Privacy Policy
               </Link>
-
-
             </div>
           </div>
         </div>

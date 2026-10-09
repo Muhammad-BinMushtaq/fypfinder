@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: ["/", "/idea-validator", "/privacy", "/login", "/llms.txt", "/llms-full.txt"],
+        allow: ["/", "/about", "/idea-validator", "/privacy", "/login", "/llms.txt", "/llms-full.txt"],
         disallow: ["/dashboard/", "/admin/", "/api/", "/_next/"],
       },
       {
@@ -19,7 +19,7 @@ export default function robots(): MetadataRoute.Robots {
           "Google-Extended",
           "Applebot-Extended",
         ],
-        allow: ["/", "/idea-validator", "/privacy", "/llms.txt", "/llms-full.txt"],
+        allow: ["/", "/about", "/idea-validator", "/privacy", "/llms.txt", "/llms-full.txt"],
         disallow: ["/dashboard/", "/admin/", "/api/"],
       },
     ],

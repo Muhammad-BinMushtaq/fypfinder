@@ -17,6 +17,7 @@
 ## Key URLs
 
 - Home: https://fypmate.com
+- About & Academic Leadership: https://fypmate.com/about
 - AI Idea Validator Tool: https://fypmate.com/idea-validator
 - Student Sign In: https://fypmate.com/login
 - Privacy Policy: https://fypmate.com/privacy

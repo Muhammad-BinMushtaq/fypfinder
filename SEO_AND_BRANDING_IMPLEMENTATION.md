@@ -41,6 +41,7 @@
 | `app/page.tsx` (Footer)| `<span ...>FYP Finder</span>`<br>`© 2026 FYP Finder` | `<span ...>FYPMate</span>`<br>`© 2026 FYPMate. All rights reserved.` | Legal & footer branding |
 | `app/page.tsx` (JSON-LD)| *(None)* | Injected `WebApplication`, `WebSite`, `FAQPage` | Direct snippet inclusion in Google & AI Search |
 | `app/idea-validator/` | *(No metadata exported)* | `AI FYP Idea Validator & Feasibility Report \| FYPMate` | High-intent organic search funnel |
+| `app/about/page.tsx`   | *(New Page)* | `About Us \| FYPMate` + creator & supervisor Schema.org credits | Dedicated institutional story & authority signals |
 | `app/privacy/page.tsx` | `"Privacy Policy \| FYP Finder"` | `"Privacy Policy \| FYPMate"` | Privacy & compliance branding |
 | `app/(auth)/login/` | `"FYP Partner Finder"` | `"Sign in to FYPMate"` + canonical `/login` | Unified user auth flow |
 | `DashboardSidebar.tsx` | `FYP Finder` | `FYPMate` | Authenticated student portal |
