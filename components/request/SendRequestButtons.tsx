@@ -205,7 +205,7 @@ export function SendRequestButtons({
             <button
               onClick={() => startConversation({ targetStudentId })}
               disabled={isStartingChat}
-              className="w-full h-10 inline-flex items-center justify-center gap-1.5 px-2 text-xs sm:text-sm bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-medium rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-10 inline-flex items-center justify-center gap-1.5 px-2 text-xs sm:text-sm bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-600 dark:hover:bg-emerald-500 dark:text-white font-semibold rounded-xl transition-all shadow-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isStartingChat ? (
                 <>

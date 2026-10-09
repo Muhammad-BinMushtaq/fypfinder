@@ -68,7 +68,9 @@ export function StudentCard({
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    // Prefetch route bundle in background so clicking opens immediately in 0ms
+    router.prefetch(`/dashboard/discovery/profile/${student.id}`);
+  }, [router, student.id]);
 
   // Lock scroll when modal is open
   useEffect(() => {
@@ -94,6 +96,7 @@ export function StudentCard({
   };
 
   const handleMouseEnter = () => {
+    router.prefetch(`/dashboard/discovery/profile/${student.id}`);
     prefetchPublicProfile(queryClient, student.id);
   };
 
@@ -197,9 +200,9 @@ export function StudentCard({
       <div
         onClick={handleCardClick}
         onMouseEnter={handleMouseEnter}
-        className="group cursor-pointer block h-full text-left select-none"
+        className="group cursor-pointer block h-full text-left select-none transition-transform duration-100 ease-out active:scale-[0.985]"
       >
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 transition-all duration-300 overflow-hidden h-full flex flex-col hover:-translate-y-1 hover:shadow-xl relative p-5 sm:p-6 select-none">
+        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 transition-all duration-300 overflow-hidden h-full flex flex-col hover:-translate-y-1 hover:shadow-xl relative p-5 sm:p-6 select-none group-active:border-slate-300 dark:group-active:border-slate-700">
           {/* Avatar & Header (Matching Detail Page Card) */}
           <div className="flex flex-col items-center text-center">
             {/* Avatar */}
