@@ -22,7 +22,9 @@ import {
   Users,
   Palette,
   MessageSquare,
+  ArrowLeft,
 } from "lucide-react";
+import Link from "next/link";
 import { FEEDBACK_CATEGORIES, type FeedbackCategory } from "@/lib/feedback-categories";
 
 interface FeedbackItem {
@@ -189,7 +191,18 @@ export default function FeedbackPage() {
   const latestResolved = data?.latestResolvedTicket;
 
   return (
-    <div className="w-full max-w-2xl mx-auto space-y-5 pb-12">
+    <div className="w-full max-w-2xl mx-auto space-y-4 pb-12">
+      {/* Back to Discovery link */}
+      <div>
+        <Link
+          href="/dashboard/discovery"
+          className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Discovery
+        </Link>
+      </div>
+
       {/* Header section (Always visible immediately) */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xs">
         <div className="flex items-start gap-3.5">

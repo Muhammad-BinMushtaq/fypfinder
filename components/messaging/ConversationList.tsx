@@ -3,7 +3,7 @@
 
 import Link from "next/link"
 import { useState } from "react"
-import { UserPlus, Search } from "lucide-react"
+import { UserPlus, Search, ArrowLeft } from "lucide-react"
 import { ConversationItem } from "./ConversationItem"
 import { useConversations } from "@/hooks/messaging/useConversations"
 import { useReceivedPartnerRequests } from "@/hooks/request/usePartnerRequests"
@@ -75,6 +75,15 @@ export function ConversationList({ activeConversationId }: ConversationListProps
   if (conversations.length === 0) {
     return (
       <div className="h-full flex flex-col">
+        <div className="px-4 pt-3 pb-2 border-b border-gray-100 dark:border-slate-800">
+          <Link
+            href="/dashboard/discovery"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors py-0.5"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Back to Discovery
+          </Link>
+        </div>
         <div className="p-4 border-b border-gray-200 dark:border-slate-700 flex items-center justify-between gap-2">
           <h2 className="text-lg font-semibold text-gray-800 dark:text-white">Messages</h2>
           <Link
@@ -120,6 +129,15 @@ export function ConversationList({ activeConversationId }: ConversationListProps
 
   return (
     <div className="h-full flex flex-col">
+      <div className="px-4 pt-3 pb-2 border-b border-gray-100 dark:border-slate-800">
+        <Link
+          href="/dashboard/discovery"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors py-0.5"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          Back to Discovery
+        </Link>
+      </div>
       <div className="p-4 border-b border-gray-200 dark:border-slate-700 flex items-center justify-between gap-2">
         <div>
           <h2 className="text-lg font-semibold text-gray-800 dark:text-white">Messages</h2>

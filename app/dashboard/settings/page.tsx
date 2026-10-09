@@ -19,7 +19,8 @@ import {
   Users, 
   AlertTriangle,
   Info,
-  LogOut
+  LogOut,
+  ArrowLeft,
 } from "lucide-react";
 import Link from "next/link";
 import { DeletionRequestButton } from "@/components/student/DeletionRequestButton";
@@ -51,7 +52,18 @@ export default function SettingsPage() {
     <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans pb-16 overflow-x-hidden">
       {/* Top Header Banner */}
       <div className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+          {/* Back Button matching person detail view */}
+          <div className="mb-4">
+            <Link
+              href="/dashboard/discovery"
+              className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Discovery
+            </Link>
+          </div>
+
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="min-w-0">
               <div className="flex items-center gap-2 mb-2 flex-wrap">

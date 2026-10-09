@@ -8,7 +8,8 @@ import { ProfileForm } from "@/components/student/ProfileForm";
 import { ProfileCompletionProgress } from "@/components/student/ProfileCompletionProgress";
 import { InternshipsSection } from "@/components/student/InternshipsSection";
 import { IdentityCard } from "@/components/student/IdentityCard";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 export default function ProfilePage() {
   const { profile, isLoading, error, refetch } = useMyProfile();
@@ -58,7 +59,17 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-transparent text-slate-900 dark:text-slate-100 px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-      <div className="max-w-5xl mx-auto space-y-8">
+      <div className="max-w-5xl mx-auto space-y-6">
+        <div>
+          <Link
+            href="/dashboard/discovery"
+            className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Discovery
+          </Link>
+        </div>
+
         <ProfileCompletionProgress profile={profile} />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">

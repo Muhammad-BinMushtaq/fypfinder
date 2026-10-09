@@ -34,7 +34,8 @@ import {
   CheckCircle2,
   Clock,
   XCircle,
-  Inbox
+  Inbox,
+  ArrowLeft,
 } from "lucide-react";
 
 type RequestType = "partners" | "messages";
@@ -118,6 +119,16 @@ export default function RequestsPage() {
       {/* Top Header Banner */}
       <div className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-7">
+          <div className="mb-4">
+            <Link
+              href="/dashboard/discovery"
+              className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Discovery
+            </Link>
+          </div>
+
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
               <div className="flex items-center gap-2 mb-1.5">

@@ -66,11 +66,7 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
   const shouldShowBottomNav = !isChatOpen && isBottomNavAllowed(pathname);
 
   const handleBack = () => {
-    if (typeof window !== "undefined" && window.history.length > 1) {
-      router.back();
-    } else {
-      router.push("/dashboard/discovery");
-    }
+    router.push("/dashboard/discovery");
   };
 
   useEffect(() => {
@@ -235,13 +231,13 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
                 {isSubPage ? (
                   <button
                     onClick={handleBack}
-                    className="flex items-center gap-2 -ml-1 text-slate-800 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors shrink-0 max-w-[55%]"
-                    aria-label="Back"
+                    className="flex items-center gap-2 -ml-1 text-slate-800 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors shrink-0 max-w-[65%]"
+                    aria-label="Back to Discovery"
                   >
                     <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-center shrink-0">
                       <ArrowLeft className="w-4 h-4" />
                     </div>
-                    <span className="font-bold tracking-tight text-base truncate">{getSubPageTitle()}</span>
+                    <span className="font-semibold tracking-tight text-sm truncate">Back to Discovery</span>
                   </button>
                 ) : (
                   <Link href="/dashboard/discovery" prefetch={true} className="flex items-center gap-2.5 shrink-0 min-w-0">
@@ -309,7 +305,15 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
           {!isChatOpen && (
             <div className="hidden lg:flex sticky top-0 z-40 bg-transparent px-6 py-4 items-center justify-between border-b border-gray-100 dark:border-white/5">
               <div className="flex-1">
-                {/* Optional: Breadcrumbs or Page Title could go here */}
+                {isSubPage && (
+                  <Link
+                    href="/dashboard/discovery"
+                    className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    Back to Discovery
+                  </Link>
+                )}
               </div>
               <div className="flex items-center gap-3">
                 <Link
