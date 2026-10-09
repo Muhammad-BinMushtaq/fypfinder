@@ -16,22 +16,27 @@ export function ProposalDownloadButton({ validation }: ProposalDownloadButtonPro
   const templateRef = useRef<HTMLDivElement>(null)
 
   const handleDownload = async () => {
-    if (!validation.report || !templateRef.current) return
+    if (!validation.report || !templateRef.current || isGenerating) return
     
     setIsGenerating(true)
     try {
+      // Yield to the event loop so React can render the loading spinner immediately
+      await new Promise((resolve) => setTimeout(resolve, 80))
+
       const element = templateRef.current
+      const isMobile = typeof window !== "undefined" && window.innerWidth < 640
       
+      // Fast, optimized snapshotting without network cache-busting delay
       const dataUrl = await toPng(element, {
-        cacheBust: true,
-        pixelRatio: 2,
-        backgroundColor: '#ffffff'
+        pixelRatio: isMobile ? 1.25 : 1.5,
+        backgroundColor: "#ffffff",
       })
       
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
-        format: "a4"
+        format: "a4",
+        compress: true,
       })
 
       const pdfWidth = pdf.internal.pageSize.getWidth()
@@ -39,9 +44,8 @@ export function ProposalDownloadButton({ validation }: ProposalDownloadButtonPro
       
       // Calculate aspect ratio height using bounding rect
       const rect = element.getBoundingClientRect()
-      // Fallback width to 800 just in case rect width is 0 (though it shouldn't be)
-      const elementWidth = rect.width > 0 ? rect.width : 800
-      const elementHeight = rect.height > 0 ? rect.height : 1000 // reasonable fallback
+      const elementWidth = rect.width > 0 ? rect.width : 820
+      const elementHeight = rect.height > 0 ? rect.height : 1000
       
       const imgHeight = (elementHeight * pdfWidth) / elementWidth
       
@@ -49,18 +53,20 @@ export function ProposalDownloadButton({ validation }: ProposalDownloadButtonPro
       let position = 0
 
       // Add first page
-      pdf.addImage(dataUrl, "PNG", 0, position, pdfWidth, imgHeight)
+      pdf.addImage(dataUrl, "PNG", 0, position, pdfWidth, imgHeight, undefined, "FAST")
       heightLeft -= pageHeight
 
       // Add subsequent pages if content exceeds one page
       while (heightLeft > 0) {
         position -= pageHeight
         pdf.addPage()
-        pdf.addImage(dataUrl, "PNG", 0, position, pdfWidth, imgHeight)
+        pdf.addImage(dataUrl, "PNG", 0, position, pdfWidth, imgHeight, undefined, "FAST")
         heightLeft -= pageHeight
       }
 
-      const safeTitle = (validation.title || validation.report.plainSummary || "FYP_Idea")
+      const rawTitle = validation.title || validation.report.plainSummary || "FYP_Idea"
+      const safeTitle = rawTitle
+        .replace(/^\[[^\]]+\]\s*/, "")
         .replace(/[^a-zA-Z0-9_-]/g, "_")
         .slice(0, 30)
 
@@ -77,22 +83,24 @@ export function ProposalDownloadButton({ validation }: ProposalDownloadButtonPro
       <button
         onClick={handleDownload}
         disabled={isGenerating}
-        className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-gray-900 dark:bg-white px-3.5 py-1.5 text-xs font-semibold text-white dark:text-gray-900 shadow-sm transition hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-slate-900 dark:bg-white px-3.5 py-1.5 text-xs font-semibold text-white dark:text-slate-900 shadow-sm transition hover:bg-slate-800 dark:hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isGenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
-        {isGenerating ? "Generating..." : "Download Validation Report"}
+        {isGenerating ? "Preparing Report..." : "Download Validation Report"}
       </button>
 
-      {/* Off-screen rendered container for snapshotting.
-          html-to-image perfectly supports Tailwind v4 modern CSS colors (oklch/lab). */}
+      {/* Zero-opacity container positioned on-screen so browser can pre-layout without freezing */}
       <div 
         style={{ 
           position: "fixed", 
           top: 0, 
-          left: "200vw", 
-          zIndex: -9999, 
-          pointerEvents: "none" 
+          left: 0, 
+          width: 820,
+          opacity: 0, 
+          pointerEvents: "none",
+          zIndex: -9999,
         }}
+        aria-hidden="true"
       >
         <ProposalPrintTemplate ref={templateRef} validation={validation} />
       </div>

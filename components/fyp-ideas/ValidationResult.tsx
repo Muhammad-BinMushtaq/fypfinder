@@ -60,6 +60,9 @@ export function ValidationResult({
     )
   }
 
+  const rawTitle = result.title || report.plainSummary || "FYP Capstone Project Proposal"
+  const cleanTitle = rawTitle.replace(/^\[[^\]]+\]\s*/, "")
+
   const recommendationLabel = formatRecommendation(result.recommendation || report.recommendation)
   const originalityLabel = formatOriginality(report.originalityVerdict)
 
@@ -73,18 +76,6 @@ export function ValidationResult({
       // Ignore copy error
     }
   }
-
-  const assessmentDate = result.createdAt
-    ? new Date(result.createdAt).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
-    : new Date().toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
@@ -116,7 +107,7 @@ export function ValidationResult({
       <article className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-12 text-slate-900 dark:text-slate-100 shadow-sm leading-relaxed space-y-10">
         
         {/* ================= HEADER & INSTITUTIONAL BRANDING ================= */}
-        <header className="border-b-2 border-slate-900 dark:border-white pb-5">
+        <header className="border-b-2 border-slate-900 dark:border-white pb-6">
           <div className="flex flex-wrap items-center justify-between text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2 gap-2">
             <span>Pak-Austria Fachhochschule (PAF-IAST)</span>
             <span>AI Evaluation Engine v2.4</span>
@@ -135,30 +126,14 @@ export function ValidationResult({
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 pt-2 border-t border-slate-200 dark:border-slate-800 mt-3 font-medium gap-2">
-            <span>Assessment Date: {assessmentDate}</span>
-            <span>Category: Final Year Project (BS Computing / Engineering)</span>
-          </div>
-        </header>
-
-        {/* ================= 01. PROPOSAL TITLE & SUBMITTED DETAILS ================= */}
-        <section className="space-y-4">
-          <div className="border-b border-slate-200 dark:border-slate-800 pb-2">
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400 block">
-              Section 01
-            </span>
-            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tight">
-              Project Overview & Submitted Concept
-            </h3>
-          </div>
-
-          <div className="space-y-3.5">
+          {/* Start directly from Project Title below Assessment Report badge */}
+          <div className="mt-6 pt-5 border-t border-slate-200 dark:border-slate-800 space-y-3.5">
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400 block mb-1">
                 Project Title:
               </span>
-              <p className="text-lg sm:text-xl font-black text-slate-900 dark:text-white leading-snug">
-                {result.title || report.plainSummary || "FYP Capstone Project Proposal"}
+              <p className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white leading-snug">
+                {cleanTitle}
               </p>
             </div>
 
@@ -213,7 +188,7 @@ export function ValidationResult({
               </div>
             )}
           </div>
-        </section>
+        </header>
 
         {/* ================= 02. EVALUATION SCORECARD & MATRIX ================= */}
         <section className="space-y-4">
@@ -244,9 +219,6 @@ export function ValidationResult({
               Difficulty: <strong className="capitalize text-slate-900 dark:text-white">{report.difficultyLevel}</strong>
             </span>
             <span className="bg-slate-50 text-slate-700 dark:bg-slate-800/60 dark:text-slate-300 px-2.5 py-1 rounded border border-slate-200 dark:border-slate-700 text-xs">
-              Timeline: <strong className="text-slate-900 dark:text-white">{report.estimatedTimeline}</strong>
-            </span>
-            <span className="bg-slate-50 text-slate-700 dark:bg-slate-800/60 dark:text-slate-300 px-2.5 py-1 rounded border border-slate-200 dark:border-slate-700 text-xs">
               Team Fit: <strong className="text-slate-900 dark:text-white">{report.teamFit}</strong>
             </span>
             <span className="bg-slate-50 text-slate-700 dark:bg-slate-800/60 dark:text-slate-300 px-2.5 py-1 rounded border border-slate-200 dark:border-slate-700 text-xs">
@@ -254,6 +226,24 @@ export function ValidationResult({
                 {report.hardwareRequirement?.isSoftwareOnly ? "Software Only ($0 Cloud Tier)" : "Hardware Required"}
               </strong>
             </span>
+          </div>
+
+          {/* Timeline in bullet points */}
+          <div className="pt-2 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 block mb-1.5">
+              Project Timeline & Milestone Targets:
+            </span>
+            <ul className="space-y-1 pl-4 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+              <li className="list-disc leading-relaxed">
+                <strong>Estimated Overall Duration:</strong> {report.estimatedTimeline}
+              </li>
+              <li className="list-disc leading-relaxed">
+                <strong>Midterm Defense Milestone:</strong> Core MVP prototype & functional evaluation (Semester 7)
+              </li>
+              <li className="list-disc leading-relaxed">
+                <strong>Final Defense Milestone:</strong> Full system integration, testing & capstone documentation (Semester 8)
+              </li>
+            </ul>
           </div>
 
           {/* Evaluation Matrix Table */}
@@ -368,8 +358,8 @@ export function ValidationResult({
                 <div key={rubric.key} className="space-y-1.5 text-xs sm:text-sm">
                   <div className="flex items-center justify-between font-bold text-slate-900 dark:text-white">
                     <span>3.{idx + 1} {rubric.title}</span>
-                    <span className="text-[11px] font-extrabold bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
-                      Score: {item.score} / {item.maxScore}
+                    <span className="text-[11px] font-extrabold bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
+                      {item.score}/{item.maxScore}
                     </span>
                   </div>
                   <p className="text-slate-600 dark:text-slate-400 text-xs italic pl-2 border-l-2 border-slate-300 dark:border-slate-700">
@@ -395,7 +385,7 @@ export function ValidationResult({
           </div>
         </section>
 
-        {/* ================= 04. HISTORICAL OVERLAP & PAST PAF-IAST PROJECTS ================= */}
+        {/* ================= 04. BENCHMARKED PREVIOUS FYP SUBMISSIONS & NOVELTY ANALYSIS ================= */}
         <section className="space-y-4">
           <div className="border-b border-slate-200 dark:border-slate-800 pb-2 flex items-center justify-between">
             <div>
@@ -403,11 +393,11 @@ export function ValidationResult({
                 Section 04
               </span>
               <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tight">
-                Historical FYP Overlap & Novelty Analysis
+                Benchmarked Previous FYP Submissions & Novelty Analysis
               </h3>
             </div>
             <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
-              Originality: {report.originalityScore} / 10
+              Novelty: {report.originalityScore} / 10
             </span>
           </div>
 
@@ -424,7 +414,7 @@ export function ValidationResult({
 
           <div className="space-y-3 pt-1">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 block">
-              Benchmarked Past FYP Submissions:
+              Matching Previous FYP Submissions:
             </span>
             {report.similarPastIdeas && report.similarPastIdeas.length > 0 ? (
               <div className="space-y-3">
@@ -440,7 +430,7 @@ export function ValidationResult({
                       Batch: {past.batch} • Group {past.groupNumber} {past.supervisor ? `• Supervisor: ${past.supervisor}` : ""}
                     </div>
                     <p className="text-slate-700 dark:text-slate-300 text-xs">
-                      • <strong>Overlap Rationale:</strong> {past.similarityReason}
+                      • <strong>Matching Context:</strong> {past.similarityReason}
                     </p>
                     <p className="text-slate-900 dark:text-white text-xs font-medium">
                       • <strong>Key Technical Difference:</strong> {past.keyDifference}
@@ -450,7 +440,7 @@ export function ValidationResult({
               </div>
             ) : (
               <p className="text-xs text-slate-500 dark:text-slate-400 italic pl-2">
-                No direct overlapping projects identified in PAF-IAST historical repository.
+                No direct duplicate projects identified in PAF-IAST previous submissions.
               </p>
             )}
           </div>

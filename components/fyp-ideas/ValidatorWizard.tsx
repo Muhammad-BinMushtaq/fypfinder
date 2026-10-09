@@ -162,10 +162,7 @@ export function ValidatorWizard({ onSubmit, isPending, mode, remainingToday, ini
       ? `${coreFeatures}\n\nTech Stack: ${techStack.join(", ")}`
       : coreFeatures
 
-    const rawTitle = domain && !title.toLowerCase().includes(domain.toLowerCase()) 
-      ? `[${domain}] ${title.trim()}` 
-      : title.trim()
-    const finalTitle = rawTitle.slice(0, 200).trim()
+    const finalTitle = title.trim().slice(0, 200).trim()
 
     onSubmit({
       title: finalTitle,

@@ -32,6 +32,9 @@ export const ProposalPrintTemplate = forwardRef<HTMLDivElement, ProposalPrintTem
     
     if (!report) return null
 
+    const rawTitle = title || report.plainSummary || "FYP Capstone Project Proposal"
+    const cleanTitle = rawTitle.replace(/^\[[^\]]+\]\s*/, "")
+
     const recommendationLabel = formatRecommendation(validation.recommendation || report.recommendation)
     const originalityLabel = formatOriginality(report.originalityVerdict)
 
@@ -83,7 +86,7 @@ export const ProposalPrintTemplate = forwardRef<HTMLDivElement, ProposalPrintTem
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-0.5">Project Title:</span>
                 <p className="text-xl font-black text-slate-900 leading-snug">
-                  {title || report.plainSummary || "FYP Capstone Project Proposal"}
+                  {cleanTitle}
                 </p>
               </div>
 
@@ -159,11 +162,26 @@ export const ProposalPrintTemplate = forwardRef<HTMLDivElement, ProposalPrintTem
                 Difficulty: <strong className="capitalize text-slate-900">{report.difficultyLevel}</strong>
               </span>
               <span className="bg-slate-50 text-slate-700 px-2.5 py-1 rounded border border-slate-200 text-xs">
-                Timeline: <strong className="text-slate-900">{report.estimatedTimeline}</strong>
-              </span>
-              <span className="bg-slate-50 text-slate-700 px-2.5 py-1 rounded border border-slate-200 text-xs">
                 Team Fit: <strong className="text-slate-900">{report.teamFit}</strong>
               </span>
+            </div>
+
+            {/* Timeline in bullet points */}
+            <div className="pt-2 text-xs text-slate-700">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-600 block mb-1">
+                Project Timeline & Milestone Targets:
+              </span>
+              <ul className="space-y-1 pl-4 text-xs text-slate-700">
+                <li className="list-disc leading-relaxed">
+                  <strong>Estimated Overall Duration:</strong> {report.estimatedTimeline}
+                </li>
+                <li className="list-disc leading-relaxed">
+                  <strong>Midterm Defense Milestone:</strong> Core MVP prototype & functional evaluation (Semester 7)
+                </li>
+                <li className="list-disc leading-relaxed">
+                  <strong>Final Defense Milestone:</strong> Full system integration, testing & capstone documentation (Semester 8)
+                </li>
+              </ul>
             </div>
 
             {/* Evaluation Matrix Table */}
@@ -273,7 +291,7 @@ export const ProposalPrintTemplate = forwardRef<HTMLDivElement, ProposalPrintTem
                     <div className="flex items-center justify-between font-bold text-slate-900">
                       <span>3.{idx + 1} {rubric.title}</span>
                       <span className="text-[11px] font-extrabold bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
-                        Score: {item.score} / {item.maxScore}
+                        {item.score} / {item.maxScore}
                       </span>
                     </div>
                     <p className="text-slate-600 text-[11px] italic pl-2 border-l-2 border-slate-300">
@@ -299,7 +317,7 @@ export const ProposalPrintTemplate = forwardRef<HTMLDivElement, ProposalPrintTem
             </div>
           </section>
 
-          {/* ================= 04. HISTORICAL OVERLAP & PAST PAF-IAST PROJECTS ================= */}
+          {/* ================= 04. BENCHMARKED PREVIOUS FYP SUBMISSIONS & NOVELTY ANALYSIS ================= */}
           <section className="space-y-4">
             <div className="border-b border-slate-200 pb-2 flex items-center justify-between">
               <div>
@@ -307,11 +325,11 @@ export const ProposalPrintTemplate = forwardRef<HTMLDivElement, ProposalPrintTem
                   Section 04
                 </span>
                 <h3 className="text-lg font-bold text-slate-900 uppercase tracking-tight">
-                  Historical FYP Overlap & Novelty Analysis
+                  Benchmarked Previous FYP Submissions & Novelty Analysis
                 </h3>
               </div>
               <span className="text-xs font-bold text-slate-800">
-                Originality: {report.originalityScore} / 10
+                Novelty: {report.originalityScore} / 10
               </span>
             </div>
 
@@ -328,7 +346,7 @@ export const ProposalPrintTemplate = forwardRef<HTMLDivElement, ProposalPrintTem
 
             <div className="space-y-3 pt-1">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-600 block">
-                Benchmarked Past FYP Submissions:
+                Matching Previous FYP Submissions:
               </span>
               {report.similarPastIdeas && report.similarPastIdeas.length > 0 ? (
                 <div className="space-y-3">
@@ -344,7 +362,7 @@ export const ProposalPrintTemplate = forwardRef<HTMLDivElement, ProposalPrintTem
                         Batch: {past.batch} • Group {past.groupNumber} {past.supervisor ? `• Supervisor: ${past.supervisor}` : ""}
                       </div>
                       <p className="text-slate-700 text-xs">
-                        • <strong>Overlap Rationale:</strong> {past.similarityReason}
+                        • <strong>Matching Context:</strong> {past.similarityReason}
                       </p>
                       <p className="text-slate-800 text-xs">
                         • <strong>Key Technical Difference:</strong> {past.keyDifference}
@@ -354,7 +372,7 @@ export const ProposalPrintTemplate = forwardRef<HTMLDivElement, ProposalPrintTem
                 </div>
               ) : (
                 <p className="text-xs text-slate-500 italic pl-2">
-                  No direct overlapping projects identified in PAF-IAST historical repository.
+                  No direct duplicate projects identified in PAF-IAST previous submissions.
                 </p>
               )}
             </div>
