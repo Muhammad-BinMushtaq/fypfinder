@@ -576,6 +576,20 @@ export const ProposalPrintTemplate = forwardRef<HTMLDivElement, ProposalPrintTem
                 </div>
               )}
 
+              {report.defenseQuestions && report.defenseQuestions.length > 0 && (
+                <div>
+                  <h4 className="font-bold text-slate-900 mb-1">Anticipated Committee Defense Questions & Strategy:</h4>
+                  <div className="space-y-2 pl-2 border-l-2 border-slate-300">
+                    {report.defenseQuestions.map((item, idx) => (
+                      <div key={idx} className="space-y-0.5">
+                        <p className="font-semibold text-slate-900">Q{idx + 1}: {item.question}</p>
+                        <p className="text-slate-600 italic">Strategy: {item.suggestedAnswerStrategy}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {report.advancedFeatureSuggestions && report.advancedFeatureSuggestions.length > 0 && (
                 <div>
                   <h4 className="font-bold text-slate-900 mb-1">Suggested Long-Term Extensions:</h4>

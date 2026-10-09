@@ -161,14 +161,39 @@ const validationReportBaseSchema = z.object({
 
 export const legacyValidationReportSchema = validationReportBaseSchema
 
+export const defenseQuestionSchema = z.object({
+  question: z.string().default(""),
+  suggestedAnswerStrategy: z.string().default(""),
+})
+
+export const hardwareRequirementSchema = z.object({
+  isSoftwareOnly: z.boolean().default(true),
+  estimatedCost: z.string().default("$0 (Free cloud tier viable)"),
+  notes: z.string().default("Standard software development stack."),
+})
+
+export type DefenseQuestion = z.infer<typeof defenseQuestionSchema>
+export type HardwareRequirement = z.infer<typeof hardwareRequirementSchema>
+
 export const validationReportSchema = validationReportBaseSchema.extend({
   finalScore: z.coerce
     .number()
     .transform((val) => Math.max(0, Math.min(100, Math.round(val)))),
   scoringBreakdown: scoringBreakdownSchema,
-  advancedFeatureSuggestions: z.array(z.string()).min(1).default([]),
-  mvpRecommendations: z.array(z.string()).min(1).default([]),
-  roadmapPriorities: z.array(z.string()).min(1).default([]),
+  advancedFeatureSuggestions: z.array(z.string()).default([]),
+  mvpRecommendations: z.array(z.string()).default([]),
+  roadmapPriorities: z.array(z.string()).default([]),
+  readinessTier: z
+    .enum(["defense_ready", "refinement_required", "high_risk"])
+    .catch("refinement_required")
+    .default("refinement_required"),
+  goldenDirective: z.string().default(""),
+  defenseQuestions: z.array(defenseQuestionSchema).default([]),
+  hardwareRequirement: hardwareRequirementSchema.default({
+    isSoftwareOnly: true,
+    estimatedCost: "$0 (Free cloud tier viable)",
+    notes: "Standard software development stack.",
+  }),
 })
 
 export type RoadmapPhase = z.infer<typeof roadmapPhaseSchema>
@@ -176,3 +201,4 @@ export type SimilarPastIdea = z.infer<typeof similarPastIdeaSchema>
 export type DetailedScore = z.infer<typeof detailedScoreSchema>
 export type ScoringBreakdown = z.infer<typeof scoringBreakdownSchema>
 export type ValidationReport = z.infer<typeof validationReportSchema>
+

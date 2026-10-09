@@ -49,6 +49,18 @@ Important rules:
   "easy"
   "moderate"
   "challenging"
+- readinessTier must be exactly one of:
+  "defense_ready" (if finalScore >= 85)
+  "refinement_required" (if finalScore >= 65 and < 85)
+  "high_risk" (if finalScore < 65)
+- goldenDirective: exactly 1 clear, high-impact sentence telling the student the #1 most important adjustment to get supervisor approval.
+- defenseQuestions: exactly 3 tough questions a university panel or supervisor will ask during proposal defense, each with:
+  question: string
+  suggestedAnswerStrategy: string (1-2 sentences on how to answer effectively)
+- hardwareRequirement: an object with:
+  isSoftwareOnly: boolean (true if standard software/web/mobile/AI, false if IoT/robotics/embedded hardware)
+  estimatedCost: string (e.g. "$0 (Free cloud tier viable)" or "$50-100 for Raspberry Pi and sensors")
+  notes: string (brief note on physical equipment or hosting requirements)
 - roadmap should have 3 to 5 phases, each with simple tasks students can understand.
 - advancedFeatureSuggestions should include optional and advanced features when relevant, such as:
   personalized AI recommendations, calendar integration and notifications,
@@ -166,6 +178,15 @@ Return a JSON object with exactly these keys:
   - "tasks": string[] (2-4 items)
 - "elevatorPitch": string
 - "plainLanguageAdvice": string[] (3-5 items)
+- "readinessTier": "defense_ready" | "refinement_required" | "high_risk"
+- "goldenDirective": string (the #1 golden directive for the student)
+- "defenseQuestions": array of exactly 3 objects:
+  - "question": string
+  - "suggestedAnswerStrategy": string
+- "hardwareRequirement": object:
+  - "isSoftwareOnly": boolean
+  - "estimatedCost": string
+  - "notes": string
 - "similarPastIdeas": array of up to 3 objects:
   - "title": string
   - "batch": string

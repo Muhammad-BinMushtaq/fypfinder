@@ -52,6 +52,7 @@ const GUEST_HIDDEN_SECTIONS = [
   "Simple tech direction",
   "Long-form advice",
   "Full elevator pitch",
+  "Defense Questions Simulator",
 ] as const
 
 export async function validateIdea(
@@ -257,6 +258,7 @@ function buildGuestPreviewResult(
       tasks: phase.tasks.slice(0, 1),
     })),
     elevatorPitch: "Sign up to unlock the polished project pitch for this idea.",
+    defenseQuestions: [],
     similarPastIdeas: result.report.similarPastIdeas.map((idea: SimilarPastIdea) => ({
       ...idea,
       supervisor: null,
@@ -335,9 +337,44 @@ function parseStoredReport(value: unknown): ValidationReport | null {
 }
 
 function normalizeValidationReport(report: ValidationReport): ValidationReport {
+  const finalScore = computeFinalScore(report.scoringBreakdown)
+  const readinessTier =
+    report.readinessTier ||
+    (finalScore >= 85 ? "defense_ready" : finalScore >= 65 ? "refinement_required" : "high_risk")
+  const goldenDirective =
+    report.goldenDirective?.trim() ||
+    report.shouldBuild ||
+    "Focus on establishing a robust minimal viable prototype before adding extensions."
+  const defenseQuestions =
+    Array.isArray(report.defenseQuestions) && report.defenseQuestions.length > 0
+      ? report.defenseQuestions
+      : [
+          {
+            question: "How will your team measure and validate that this solution works better than manual methods?",
+            suggestedAnswerStrategy: "State your planned evaluation metrics, baseline comparison, and user testing cohorts.",
+          },
+          {
+            question: "What is your fallback strategy if external APIs or proprietary data dependencies become unavailable?",
+            suggestedAnswerStrategy: "Explain your planned offline caching, open-source models, or synthetic dataset pipelines.",
+          },
+          {
+            question: "How are individual technical contributions divided across team members for evaluation?",
+            suggestedAnswerStrategy: "Detail individual ownership across UI/UX, backend logic, and data engineering.",
+          },
+        ]
+  const hardwareRequirement = report.hardwareRequirement || {
+    isSoftwareOnly: true,
+    estimatedCost: "$0 (Free cloud tier viable)",
+    notes: "Standard software development stack.",
+  }
+
   return {
     ...report,
-    finalScore: computeFinalScore(report.scoringBreakdown),
+    finalScore,
+    readinessTier,
+    goldenDirective,
+    defenseQuestions,
+    hardwareRequirement,
   }
 }
 
@@ -424,6 +461,19 @@ function upgradeLegacyReport(
     advancedFeatureSuggestions: getDefaultAdvancedFeatureSuggestions(),
     mvpRecommendations: report.simpleNextSteps.slice(0, 5),
     roadmapPriorities: report.roadmap.map((phase: RoadmapPhase) => `${phase.phase}: ${phase.tasks[0]}`).slice(0, 5),
+    readinessTier:
+      feasibility + originality + usefulness >= 24
+        ? "defense_ready"
+        : feasibility + originality + usefulness >= 18
+          ? "refinement_required"
+          : "high_risk",
+    goldenDirective: report.shouldBuild || "Focus on establishing a minimal working prototype before adding advanced features.",
+    defenseQuestions: [],
+    hardwareRequirement: {
+      isSoftwareOnly: true,
+      estimatedCost: "$0 (Free cloud tier viable)",
+      notes: "Standard software development stack.",
+    },
   }
 
   return normalizeValidationReport(upgraded)

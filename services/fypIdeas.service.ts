@@ -40,6 +40,17 @@ export interface ScoringBreakdown {
   improvementPotential: DetailedScore
 }
 
+export interface DefenseQuestion {
+  question: string
+  suggestedAnswerStrategy: string
+}
+
+export interface HardwareRequirement {
+  isSoftwareOnly: boolean
+  estimatedCost: string
+  notes: string
+}
+
 export interface ValidationReport {
   plainSummary: string
   shouldBuild: string
@@ -74,6 +85,10 @@ export interface ValidationReport {
   elevatorPitch: string
   plainLanguageAdvice: string[]
   similarPastIdeas: SimilarPastIdea[]
+  readinessTier?: "defense_ready" | "refinement_required" | "high_risk"
+  goldenDirective?: string
+  defenseQuestions?: DefenseQuestion[]
+  hardwareRequirement?: HardwareRequirement
 }
 
 export interface ValidationResult {
