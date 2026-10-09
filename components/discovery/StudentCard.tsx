@@ -3,8 +3,9 @@
 /**
  * StudentCard Component
  * ---------------------
- * Clean, minimalist student preview card for discovery grid.
- * Equipped with minimal, non-blocking "Start Chat" and "Add Partner" actions.
+ * Clean, minimalist student preview card matching the Public Profile View styling.
+ * Equipped with minimal action buttons ("Chat" in green when active, "Partner")
+ * and the "View Profile ↗" navigation affordance. Skills removed per design.
  */
 
 import { useState, useMemo, useEffect } from "react";
@@ -12,8 +13,9 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
-  FolderGit2,
   GraduationCap,
+  Building2,
+  Calendar,
   MessageSquare,
   Users,
   Loader2,
@@ -22,12 +24,15 @@ import {
   Clock,
   Send,
   X,
+  ArrowUpRight,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { prefetchPublicProfile } from "@/hooks/student/usePublicProfile";
 import { useSendMessageRequest } from "@/hooks/request/useMessageRequests";
 import { useSendPartnerRequest } from "@/hooks/request/usePartnerRequests";
 import { useStartConversation } from "@/hooks/messaging/useStartConversation";
+import { getDepartmentLabel } from "@/lib/departments";
+import { PrimaryRoleBadges } from "@/components/student/PrimaryRoleBadges";
 import { toast } from "react-toastify";
 import type { MatchedStudent } from "@/services/discovery.service";
 
@@ -66,7 +71,7 @@ export function StudentCard({
     setMounted(true);
   }, []);
 
-  // Lock scroll when modal is active
+  // Lock scroll when modal is open
   useEffect(() => {
     const isAnyModalOpen = showMessageModal || showPartnerModal;
     if (isAnyModalOpen) {
@@ -84,7 +89,7 @@ export function StudentCard({
   const sendPartnerMutation = useSendPartnerRequest();
   const { startConversation, isPending: isStartingChat } = useStartConversation();
 
-  // Navigation to detail
+  // Navigation to detail page
   const handleCardClick = () => {
     router.push(`/dashboard/discovery/profile/${student.id}`);
   };
@@ -93,7 +98,7 @@ export function StudentCard({
     prefetchPublicProfile(queryClient, student.id);
   };
 
-  // Eligibility and request status calculated client-side (Zero extra API calls)
+  // Eligibility & request status evaluated client-side (zero extra network calls)
   const existingSentMessageRequest = useMemo(() => {
     if (!sentMessageRequests) return null;
     return sentMessageRequests.find((req: any) => req.toStudentId === student.id);
@@ -163,21 +168,21 @@ export function StudentCard({
     }
   };
 
-  const getAvailabilityConfig = () => {
+  const availabilityConfig = useMemo(() => {
+    const config: Record<string, { label: string; dot: string; text: string }> = {
+      AVAILABLE: { label: "Available", dot: "bg-emerald-500", text: "text-emerald-700 dark:text-emerald-400" },
+      BUSY: { label: "Busy", dot: "bg-amber-500", text: "text-amber-700 dark:text-amber-400" },
+      AWAY: { label: "Away", dot: "bg-slate-400", text: "text-slate-600 dark:text-slate-400" },
+    };
+    return config[student.availability] || config.AWAY;
+  }, [student.availability]);
+
+  const groupStatusConfig = useMemo(() => {
     if (student.isGroupLocked) {
-      return { label: "Locked", dotColor: "bg-slate-400" };
+      return { label: "Team locked", text: "text-slate-600 dark:text-slate-400" };
     }
-    switch (student.availability) {
-      case "AVAILABLE":
-        return { label: "Available", dotColor: "bg-emerald-500" };
-      case "BUSY":
-        return { label: "Busy", dotColor: "bg-amber-500" };
-      case "AWAY":
-        return { label: "Away", dotColor: "bg-slate-400" };
-      default:
-        return { label: "Unknown", dotColor: "bg-slate-400" };
-    }
-  };
+    return { label: "Looking for team", text: "text-emerald-700 dark:text-emerald-400" };
+  }, [student.isGroupLocked]);
 
   const getInitials = (name: string) => {
     return name
@@ -188,8 +193,6 @@ export function StudentCard({
       .slice(0, 2);
   };
 
-  const availabilityConfig = getAvailabilityConfig();
-
   return (
     <>
       <div
@@ -197,11 +200,11 @@ export function StudentCard({
         onMouseEnter={handleMouseEnter}
         className="group cursor-pointer block h-full text-left"
       >
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-white/5 transition-all duration-300 overflow-hidden h-full flex flex-col hover:-translate-y-1 hover:shadow-xl relative">
-          {/* Header Section */}
-          <div className="p-6 flex flex-col items-center text-center space-y-4">
+        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 transition-all duration-300 overflow-hidden h-full flex flex-col hover:-translate-y-1 hover:shadow-xl relative p-5 sm:p-6">
+          {/* Avatar & Header (Matching Detail Page Card) */}
+          <div className="flex flex-col items-center text-center">
             {/* Avatar */}
-            <div className="relative w-20 h-20 rounded-full overflow-hidden flex-shrink-0 bg-slate-50 dark:bg-slate-800 ring-4 ring-white dark:ring-slate-900 shadow-sm">
+            <div className="relative mb-3.5 w-20 h-20 rounded-full overflow-hidden border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex-shrink-0 shadow-sm mx-auto">
               {student.profilePicture ? (
                 <Image
                   src={student.profilePicture}
@@ -212,202 +215,200 @@ export function StudentCard({
                   loading="lazy"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-slate-400 dark:text-slate-500 font-medium text-xl">
+                <div className="w-full h-full flex items-center justify-center text-slate-400 dark:text-slate-500 font-semibold text-xl">
                   {getInitials(student.name)}
                 </div>
               )}
             </div>
 
-            {/* Core Info */}
-            <div>
-              <h3 className="font-semibold text-slate-900 dark:text-white text-lg tracking-tight truncate px-2">
-                {student.name}
-              </h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400 truncate mt-0.5 flex items-center justify-center gap-1.5">
-                <span>{student.department}</span>
-                <span>·</span>
-                {student.isGraduated ? (
-                  <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
-                    <GraduationCap className="w-3.5 h-3.5 shrink-0" />
-                    Alumni
-                  </span>
-                ) : (
-                  <span>Sem {student.semester}</span>
-                )}
-              </p>
-            </div>
+            {/* Name */}
+            <h3 className="font-bold text-slate-900 dark:text-white text-lg tracking-tight truncate px-1 w-full">
+              {student.name}
+            </h3>
 
-            {/* Status & Project Count */}
-            <div className="flex items-center justify-center gap-4 text-xs font-medium w-full">
-              <div className="flex items-center gap-1.5">
-                <span className={`w-2 h-2 rounded-full ${availabilityConfig.dotColor} shadow-sm`} />
-                <span className="text-slate-600 dark:text-slate-300">{availabilityConfig.label}</span>
+            {/* Availability & Group Badges */}
+            <div className="mt-2.5 flex flex-wrap items-center justify-center gap-1.5 text-xs font-medium">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60">
+                <span className={`w-1.5 h-1.5 rounded-full ${availabilityConfig.dot}`} />
+                <span className={availabilityConfig.text}>{availabilityConfig.label}</span>
               </div>
-              {student.projectCount > 0 && (
-                <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
-                  <FolderGit2 className="w-3.5 h-3.5 text-slate-400" />
-                  <span>
-                    {student.projectCount} Project{student.projectCount !== 1 ? "s" : ""}
-                  </span>
-                </div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60">
+                <span className={groupStatusConfig.text}>{groupStatusConfig.label}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Academic Info (Matching Detail Page Structure) */}
+          <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800/80 space-y-2 text-xs text-slate-600 dark:text-slate-400">
+            <div className="flex items-center gap-2">
+              <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              <span className="truncate">{getDepartmentLabel(student.department)}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              {student.isGraduated ? (
+                <>
+                  <GraduationCap className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                  <span className="text-emerald-600 dark:text-emerald-400 font-medium">Alumni</span>
+                </>
+              ) : (
+                <>
+                  <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <span>Semester {student.semester}</span>
+                </>
               )}
             </div>
           </div>
 
-          {/* Skills - Minimal Pill Layout */}
-          <div className="px-6 mt-auto">
-            {student.skills && student.skills.length > 0 ? (
-              <div className="flex flex-wrap justify-center gap-1.5">
-                {student.skills.slice(0, 3).map((skill, idx) => (
-                  <span
-                    key={idx}
-                    className="px-2.5 py-1 bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 text-[11px] rounded-full font-medium truncate max-w-[120px]"
-                  >
-                    {skill}
-                  </span>
-                ))}
-                {student.skills.length > 3 && (
-                  <span className="px-2 py-1 text-slate-400 dark:text-slate-500 text-[11px] font-medium">
-                    +{student.skills.length - 3}
-                  </span>
-                )}
-              </div>
-            ) : (
-              <div className="h-[26px]"></div>
-            )}
-          </div>
+          {/* Primary Roles (if any) */}
+          {student.primaryRoles && student.primaryRoles.length > 0 && (
+            <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/60 flex justify-center">
+              <PrimaryRoleBadges roles={student.primaryRoles} />
+            </div>
+          )}
 
-          {/* Minimal Action Row */}
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="px-4 py-3 mt-4 border-t border-slate-100 dark:border-white/5 grid grid-cols-2 gap-2 bg-slate-50/50 dark:bg-slate-900/50"
-          >
-            {/* 1. Chat / Message Button */}
-            {student.availability === "AWAY" ? (
-              <div className="h-8.5 inline-flex items-center justify-center gap-1 px-2 text-[11px] bg-slate-100 dark:bg-slate-800/60 text-slate-400 dark:text-slate-500 font-medium rounded-xl border border-slate-200/50 dark:border-slate-800 truncate">
-                <Clock className="w-3 h-3 shrink-0" />
-                <span>Away</span>
-              </div>
-            ) : canDirectChat ? (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  startConversation({ targetStudentId: student.id });
-                }}
-                disabled={isStartingChat}
-                className="h-8.5 inline-flex items-center justify-center gap-1.5 px-2.5 text-xs bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-medium rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-xs active:scale-95 disabled:opacity-50"
-                title="Start chatting"
-              >
-                {isStartingChat ? (
-                  <Loader2 className="w-3 h-3 animate-spin shrink-0" />
-                ) : (
-                  <Send className="w-3 h-3 shrink-0" />
-                )}
-                <span>Chat</span>
-              </button>
-            ) : hasPendingMessageRequest ? (
-              <div className="h-8.5 inline-flex items-center justify-center gap-1 px-2 text-[11px] bg-slate-100 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 font-medium rounded-xl border border-slate-200/50 dark:border-slate-800 truncate">
-                <Clock className="w-3 h-3 shrink-0" />
-                <span>Pending</span>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowMessageModal(true);
-                }}
-                disabled={sendMessageMutation.isPending || messageSuccess}
-                className="h-8.5 inline-flex items-center justify-center gap-1.5 px-2.5 text-xs bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-medium rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-xs active:scale-95 disabled:opacity-50"
-                title="Send message request"
-              >
-                {messageSuccess ? (
-                  <>
-                    <Check className="w-3 h-3 shrink-0" />
-                    <span>Sent!</span>
-                  </>
-                ) : (
-                  <>
-                    <MessageSquare className="w-3 h-3 shrink-0" />
-                    <span>Message</span>
-                  </>
-                )}
-              </button>
-            )}
+          {/* Spacer to push actions to bottom */}
+          <div className="flex-1 min-h-[12px]"></div>
 
-            {/* 2. Partner Button */}
-            {student.availability === "AWAY" ? (
-              <div className="h-8.5 inline-flex items-center justify-center gap-1 px-2 text-[11px] bg-slate-100 dark:bg-slate-800/60 text-slate-400 dark:text-slate-500 font-medium rounded-xl border border-slate-200/50 dark:border-slate-800 truncate">
-                <Clock className="w-3 h-3 shrink-0" />
-                <span>Away</span>
-              </div>
-            ) : mySemester === 8 ? (
-              <div
-                className="h-8.5 inline-flex items-center justify-center gap-1 px-2 text-[11px] bg-slate-100 dark:bg-slate-800/60 text-slate-400 dark:text-slate-500 font-medium rounded-xl border border-slate-200/50 dark:border-slate-800 truncate"
-                title="Semester 8 students cannot form new groups"
-              >
-                <Ban className="w-3 h-3 shrink-0" />
-                <span>Sem 8</span>
-              </div>
-            ) : student.isGraduated ? (
-              <div
-                className="h-8.5 inline-flex items-center justify-center gap-1 px-2 text-[11px] bg-slate-100 dark:bg-slate-800/60 text-slate-400 dark:text-slate-500 font-medium rounded-xl border border-slate-200/50 dark:border-slate-800 truncate"
-                title="Alumni cannot form student groups"
-              >
-                <Ban className="w-3 h-3 shrink-0" />
-                <span>Alumni</span>
-              </div>
-            ) : isUserGroupLocked || student.isGroupLocked ? (
-              <div
-                className="h-8.5 inline-flex items-center justify-center gap-1 px-2 text-[11px] bg-slate-100 dark:bg-slate-800/60 text-slate-400 dark:text-slate-500 font-medium rounded-xl border border-slate-200/50 dark:border-slate-800 truncate"
-                title="Team is locked"
-              >
-                <Ban className="w-3 h-3 shrink-0" />
-                <span>Locked</span>
-              </div>
-            ) : hasAcceptedPartnerRequest ? (
-              <div className="h-8.5 inline-flex items-center justify-center gap-1 px-2 text-[11px] bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 font-medium rounded-xl border border-emerald-200/60 dark:border-emerald-800/60 truncate">
-                <Check className="w-3 h-3 shrink-0" />
-                <span>Partners</span>
-              </div>
-            ) : hasPendingPartnerRequest ? (
-              <div className="h-8.5 inline-flex items-center justify-center gap-1 px-2 text-[11px] bg-slate-100 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 font-medium rounded-xl border border-slate-200/50 dark:border-slate-800 truncate">
-                <Clock className="w-3 h-3 shrink-0" />
-                <span>Pending</span>
-              </div>
-            ) : !canPartnerSemester && mySemester !== undefined ? (
-              <div
-                className="h-8.5 inline-flex items-center justify-center gap-1 px-2 text-[11px] bg-slate-100 dark:bg-slate-800/60 text-slate-400 dark:text-slate-500 font-medium rounded-xl border border-slate-200/50 dark:border-slate-800 truncate"
-                title={`Different semester (You: Sem ${mySemester}, Them: Sem ${student.semester})`}
-              >
-                <Ban className="w-3 h-3 shrink-0" />
-                <span>Diff Sem</span>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowPartnerModal(true);
-                }}
-                disabled={sendPartnerMutation.isPending || partnerSuccess}
-                className="h-8.5 inline-flex items-center justify-center gap-1.5 px-2.5 text-xs bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 font-medium rounded-xl border border-slate-200/70 dark:border-slate-700/70 transition-all shadow-xs active:scale-95 disabled:opacity-50"
-                title="Send partner request"
-              >
-                {partnerSuccess ? (
-                  <>
-                    <Check className="w-3 h-3 shrink-0" />
-                    <span>Sent!</span>
-                  </>
-                ) : (
-                  <>
-                    <Users className="w-3 h-3 shrink-0" />
-                    <span>Partner</span>
-                  </>
-                )}
-              </button>
-            )}
+          {/* Action Section */}
+          <div className="mt-4 pt-3.5 border-t border-slate-100 dark:border-slate-800/80 space-y-2.5">
+            {/* Reduced Size Action Buttons (Message / Chat & Partner) */}
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="grid grid-cols-2 gap-2"
+            >
+              {/* 1. Chat / Message Button */}
+              {student.availability === "AWAY" ? (
+                <div className="h-8 inline-flex items-center justify-center gap-1 px-2 text-[11px] bg-slate-100 dark:bg-slate-800/60 text-slate-400 dark:text-slate-500 font-medium rounded-xl border border-slate-200/50 dark:border-slate-800 truncate">
+                  <Clock className="w-3 h-3 shrink-0" />
+                  <span>Away</span>
+                </div>
+              ) : canDirectChat ? (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    startConversation({ targetStudentId: student.id });
+                  }}
+                  disabled={isStartingChat}
+                  className="h-8 inline-flex items-center justify-center gap-1.5 px-2 text-xs font-semibold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-600 dark:hover:bg-emerald-500 dark:text-white transition-all shadow-xs active:scale-95 disabled:opacity-50"
+                  title="Start chatting"
+                >
+                  {isStartingChat ? (
+                    <Loader2 className="w-3 h-3 animate-spin shrink-0" />
+                  ) : (
+                    <Send className="w-3 h-3 shrink-0" />
+                  )}
+                  <span>Chat</span>
+                </button>
+              ) : hasPendingMessageRequest ? (
+                <div className="h-8 inline-flex items-center justify-center gap-1 px-2 text-[11px] bg-slate-100 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 font-medium rounded-xl border border-slate-200/50 dark:border-slate-800 truncate">
+                  <Clock className="w-3 h-3 shrink-0" />
+                  <span>Pending</span>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowMessageModal(true);
+                  }}
+                  disabled={sendMessageMutation.isPending || messageSuccess}
+                  className="h-8 inline-flex items-center justify-center gap-1 px-2 text-xs bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-medium rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-xs active:scale-95 disabled:opacity-50"
+                  title="Send message request"
+                >
+                  {messageSuccess ? (
+                    <>
+                      <Check className="w-3 h-3 shrink-0" />
+                      <span>Sent!</span>
+                    </>
+                  ) : (
+                    <>
+                      <MessageSquare className="w-3 h-3 shrink-0" />
+                      <span>Message</span>
+                    </>
+                  )}
+                </button>
+              )}
+
+              {/* 2. Partner Button */}
+              {student.availability === "AWAY" ? (
+                <div className="h-8 inline-flex items-center justify-center gap-1 px-2 text-[11px] bg-slate-100 dark:bg-slate-800/60 text-slate-400 dark:text-slate-500 font-medium rounded-xl border border-slate-200/50 dark:border-slate-800 truncate">
+                  <Clock className="w-3 h-3 shrink-0" />
+                  <span>Away</span>
+                </div>
+              ) : mySemester === 8 ? (
+                <div
+                  className="h-8 inline-flex items-center justify-center gap-1 px-2 text-[11px] bg-slate-100 dark:bg-slate-800/60 text-slate-400 dark:text-slate-500 font-medium rounded-xl border border-slate-200/50 dark:border-slate-800 truncate"
+                  title="Semester 8 students cannot form new groups"
+                >
+                  <Ban className="w-3 h-3 shrink-0" />
+                  <span>Sem 8</span>
+                </div>
+              ) : student.isGraduated ? (
+                <div
+                  className="h-8 inline-flex items-center justify-center gap-1 px-2 text-[11px] bg-slate-100 dark:bg-slate-800/60 text-slate-400 dark:text-slate-500 font-medium rounded-xl border border-slate-200/50 dark:border-slate-800 truncate"
+                  title="Alumni cannot form student groups"
+                >
+                  <Ban className="w-3 h-3 shrink-0" />
+                  <span>Alumni</span>
+                </div>
+              ) : isUserGroupLocked || student.isGroupLocked ? (
+                <div
+                  className="h-8 inline-flex items-center justify-center gap-1 px-2 text-[11px] bg-slate-100 dark:bg-slate-800/60 text-slate-400 dark:text-slate-500 font-medium rounded-xl border border-slate-200/50 dark:border-slate-800 truncate"
+                  title="Team is locked"
+                >
+                  <Ban className="w-3 h-3 shrink-0" />
+                  <span>Locked</span>
+                </div>
+              ) : hasAcceptedPartnerRequest ? (
+                <div className="h-8 inline-flex items-center justify-center gap-1 px-2 text-[11px] bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 font-medium rounded-xl border border-emerald-200/60 dark:border-emerald-800/60 truncate">
+                  <Check className="w-3 h-3 shrink-0" />
+                  <span>Partners</span>
+                </div>
+              ) : hasPendingPartnerRequest ? (
+                <div className="h-8 inline-flex items-center justify-center gap-1 px-2 text-[11px] bg-slate-100 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 font-medium rounded-xl border border-slate-200/50 dark:border-slate-800 truncate">
+                  <Clock className="w-3 h-3 shrink-0" />
+                  <span>Pending</span>
+                </div>
+              ) : !canPartnerSemester && mySemester !== undefined ? (
+                <div
+                  className="h-8 inline-flex items-center justify-center gap-1 px-2 text-[11px] bg-slate-100 dark:bg-slate-800/60 text-slate-400 dark:text-slate-500 font-medium rounded-xl border border-slate-200/50 dark:border-slate-800 truncate"
+                  title={`Different semester (You: Sem ${mySemester}, Them: Sem ${student.semester})`}
+                >
+                  <Ban className="w-3 h-3 shrink-0" />
+                  <span>Diff Sem</span>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowPartnerModal(true);
+                  }}
+                  disabled={sendPartnerMutation.isPending || partnerSuccess}
+                  className="h-8 inline-flex items-center justify-center gap-1 px-2 text-xs bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 font-medium rounded-xl border border-slate-200/70 dark:border-slate-700/70 transition-all shadow-xs active:scale-95 disabled:opacity-50"
+                  title="Send partner request"
+                >
+                  {partnerSuccess ? (
+                    <>
+                      <Check className="w-3 h-3 shrink-0" />
+                      <span>Sent!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Users className="w-3 h-3 shrink-0" />
+                      <span>Partner</span>
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+
+            {/* Minimal "View Profile ↗" Affordance */}
+            <div className="flex justify-center items-center text-xs font-medium text-slate-400 dark:text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white transition-colors pt-1">
+              <span>View Profile</span>
+              <ArrowUpRight className="w-3.5 h-3.5 ml-1 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </div>
           </div>
         </div>
       </div>
