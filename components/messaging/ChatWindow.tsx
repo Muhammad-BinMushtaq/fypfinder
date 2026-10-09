@@ -162,6 +162,8 @@ export function ChatWindow({
           const rowCreatedAt = newRow.createdAt || newRow.created_at || newRow.createdat || new Date().toISOString()
 
           if (!rowConversationId) {
+            // Safety fallback: if row data is stripped or missing, refresh messages from API
+            queryClient.invalidateQueries({ queryKey: ["messages", conversationId] })
             return
           }
 

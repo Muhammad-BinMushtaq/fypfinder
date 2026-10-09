@@ -95,7 +95,11 @@ export function useRealtimeConversationUpdates(currentStudentId: string | null) 
             const rowIsRead = newRow.isRead ?? newRow.is_read ?? newRow.isread ?? false;
             const rowCreatedAt = newRow.createdAt || newRow.created_at || newRow.createdat || new Date().toISOString();
 
-            if (!rowConversationId) return;
+            if (!rowConversationId) {
+              queryClient.invalidateQueries({ queryKey: ["conversations"] })
+              queryClient.invalidateQueries({ queryKey: ["unreadCount"] })
+              return
+            }
 
             // Ignore our own messages (optimistic updates already handle them)
             if (rowSenderId === currentStudentId) return
@@ -113,10 +117,11 @@ export function useRealtimeConversationUpdates(currentStudentId: string | null) 
               return
             }
 
-            // Check if user is actively viewing this conversation
+            // Check if user is actively viewing this conversation in a visible tab
             const isCurrentlyViewing =
               typeof window !== "undefined" &&
-              window.location.pathname.startsWith(`/dashboard/messages/${rowConversationId}`)
+              window.location.pathname.startsWith(`/dashboard/messages/${rowConversationId}`) &&
+              document.visibilityState === "visible"
 
             // Update conversation preview + unread count locally
             queryClient.setQueryData<Conversation[]>(
@@ -156,6 +161,9 @@ export function useRealtimeConversationUpdates(currentStudentId: string | null) 
                 ["unreadCount"],
                 (old = 0) => old + 1
               )
+            } else {
+              // User is actively looking at this conversation: ensure messages stay synced
+              queryClient.invalidateQueries({ queryKey: ["messages", rowConversationId] })
             }
           }
         }
