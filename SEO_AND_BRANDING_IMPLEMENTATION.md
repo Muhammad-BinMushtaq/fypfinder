@@ -76,3 +76,13 @@ To rank and be cited directly by ChatGPT Search, Perplexity, and Google AI Overv
    - `WebApplication`: Categories `EducationalApplication`, zero-cost license, HTML5/JS support.
    - `WebSite`: Canonical identity and publisher metadata.
    - `FAQPage`: Explicit Question & Answer nodes answering what FYPMate is, how the Idea Validator works, who can use it, and student pricing.
+
+---
+
+## 5. UI Theme Engine & Visual Alignment
+
+1. **Default Theme (Light):** Configured `contexts/ThemeContext.tsx` to default to `light` mode across the platform, with smooth toggling to `dark` mode and persisted `localStorage` preferences.
+2. **FOUT Elimination:** Added an inline hydration script in `app/layout.tsx` `<head>` ensuring zero flash of unthemed content on page reload.
+3. **Login Page Theme Adaptivity:** Styled `app/(auth)/login/page.tsx` and `LoginForm.tsx` with light/dark adaptive classes and embedded `LandingThemeToggle` in the top header.
+4. **About & Privacy Visual Synchronization:** Unified `app/about/page.tsx` and `app/privacy/page.tsx` with matching navigation bars, glassmorphic cards, footer credits, and `LandingThemeToggle`.
+5. **Privacy Policy Legal Refinement:** Clarified communication policies in `app/privacy/page.tsx` to explicitly define administrative message audit conditions for student safety, anti-harassment, and academic integrity investigations.

@@ -99,10 +99,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/icons/icon-192x192.png" type="image/png" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try { if (localStorage.getItem('theme') === 'dark') { document.documentElement.classList.add('dark'); } else { document.documentElement.classList.remove('dark'); } } catch (_) {}`,
+          }}
+        />
       </head>
       <body className={`${inter.className} bg-slate-50 dark:bg-[#020617] text-slate-900 dark:text-slate-100 min-h-screen selection:bg-blue-500/20 selection:text-blue-700 dark:selection:text-blue-300 antialiased`}>
         <ThemeProvider>

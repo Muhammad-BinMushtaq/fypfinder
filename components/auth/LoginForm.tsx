@@ -60,7 +60,7 @@ export function MicrosoftAuthButton() {
   return (
     <div className="space-y-5">
       {error && (
-        <div className="rounded-lg border border-red-500/30 bg-red-950/30 p-3 text-sm text-red-300">
+        <div className="rounded-xl border border-red-200 dark:border-red-500/30 bg-red-50 dark:bg-red-950/30 p-3 text-sm text-red-600 dark:text-red-300">
           {decodeURIComponent(error)}
         </div>
       )}
@@ -68,9 +68,9 @@ export function MicrosoftAuthButton() {
       <button
         onClick={handleAuth}
         disabled={isLoading}
-        className={`w-full flex items-center justify-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition ${isLoading
-            ? "cursor-not-allowed bg-zinc-700 text-zinc-400"
-            : "bg-zinc-100 text-zinc-900 hover:bg-zinc-200"
+        className={`w-full flex items-center justify-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition shadow-sm ${isLoading
+            ? "cursor-not-allowed bg-slate-200 dark:bg-zinc-700 text-slate-400 dark:text-zinc-400"
+            : "bg-slate-900 text-white hover:bg-slate-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200 active:scale-[0.99]"
           }`}
       >
         {isLoading ? (
@@ -101,26 +101,26 @@ export function MicrosoftAuthButton() {
         {isLoading ? "Redirecting..." : "Continue with Microsoft"}
       </button>
 
-      <div className="rounded-lg border border-white/10 bg-white/5 p-4 space-y-2">
-        <p className="text-sm font-medium text-zinc-200">Requirements</p>
-        <ul className="text-xs text-zinc-400 space-y-1">
+      <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 p-4 space-y-2">
+        <p className="text-sm font-semibold text-slate-800 dark:text-zinc-200">Requirements</p>
+        <ul className="text-xs text-slate-600 dark:text-zinc-400 space-y-1.5">
           <li className="flex items-center gap-2">
-            <svg className="h-4 w-4 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-4 w-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
-            PAF-IAST university email (@paf-iast.edu.pk)
+            <span>PAF-IAST university email (@paf-iast.edu.pk)</span>
           </li>
           <li className="flex items-center gap-2">
-            <svg className="h-4 w-4 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-4 w-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
-            Bachelor students only
+            <span>Bachelor students only</span>
           </li>
           <li className="flex items-center gap-2">
-            <svg className="h-4 w-4 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-4 w-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
-            Semester 5 to 8 semester students only
+            <span>Semester 5 to 8 semester students only</span>
           </li>
         </ul>
       </div>
