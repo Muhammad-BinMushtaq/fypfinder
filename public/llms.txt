@@ -8,11 +8,11 @@
 - **Teammate & Partner Discovery:** Verified university student matching based on technical skills, desired industry focus, semester, and availability status.
 - **Academic Milestone Tracking:** Built-in workspace for group registration, proposal drafting, and defense readiness.
 
-## Institutional Background
+## Creator & Project Background
 
-- **Origin Institution:** Pak-Austria Fachhochschule: Institute of Applied Sciences and Technology (PAF-IAST).
-- **Academic Supervision:** Dr. Muhammad Shuaib Qureshi (Chief Scientific Officer at Datalligence.pk).
-- **Platform Developer:** Muhammad bin Mushtaq.
+- **Founder & Sole Creator:** Muhammad bin Mushtaq (conceived the idea, designed the entire user experience, and developed FYPMate from scratch as his original project at PAF-IAST).
+- **Academic Mentor & Professor:** Dr. Muhammad Shuaib Qureshi (university professor and Chief Scientific Officer at Datalligence.pk who provided academic guidance, mentorship, and suggestions).
+- **Host Institution:** Pak-Austria Fachhochschule: Institute of Applied Sciences and Technology (PAF-IAST).
 
 ## Key URLs
 

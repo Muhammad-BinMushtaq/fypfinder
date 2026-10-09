@@ -50,7 +50,7 @@ export default function AboutPage() {
         "@type": "Person",
         "@id": "https://fypmate.com/about#creator",
         "name": "Muhammad bin Mushtaq",
-        "jobTitle": "Creator & Lead Software Architect",
+        "jobTitle": "Founder, Sole Creator & Lead Developer",
         "affiliation": {
           "@type": "EducationalOrganization",
           "name": "Pak-Austria Fachhochschule: Institute of Applied Sciences and Technology (PAF-IAST)",
@@ -65,7 +65,7 @@ export default function AboutPage() {
         "@type": "Person",
         "@id": "https://fypmate.com/about#supervisor",
         "name": "Dr. Muhammad Shuaib Qureshi",
-        "jobTitle": "Academic Project Supervisor & Chief Scientific Officer",
+        "jobTitle": "University Professor & Academic Advisor",
         "worksFor": {
           "@type": "Organization",
           "name": "Datalligence.pk",
@@ -231,16 +231,16 @@ export default function AboutPage() {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-white">Muhammad bin Mushtaq</h3>
-                    <p className="text-xs sm:text-sm text-indigo-400 font-medium">Creator & Lead Architect</p>
+                    <p className="text-xs sm:text-sm text-indigo-400 font-medium">Founder & Sole Creator</p>
                   </div>
                 </div>
 
                 <div className="space-y-2 text-sm text-zinc-300 leading-relaxed">
                   <p>
-                    <strong>Muhammad bin Mushtaq</strong> is the founder, architect, and developer of FYPMate. Enrolled at <strong>Pak-Austria Fachhochschule: Institute of Applied Sciences and Technology (PAF-IAST)</strong>, he designed the system to solve authentic peer discovery friction and automate complex FYP evaluation workflows.
+                    <strong>Muhammad bin Mushtaq</strong> is the founder, ideator, and developer behind FYPMate. Conceived entirely as his original brainchild at <strong>Pak-Austria Fachhochschule: Institute of Applied Sciences and Technology (PAF-IAST)</strong>, he designed the user experience, engineered the complete full-stack web architecture, and built the AI idea validation engine from the ground up.
                   </p>
                   <p className="text-zinc-400 text-xs">
-                    Specializing in full-stack architecture, Next.js engineering, PostgreSQL database design, and LLM-assisted evaluation pipelines.
+                    Sole creator responsible for the concept, system architecture, database design, Next.js engineering, and AI evaluation pipeline.
                   </p>
                 </div>
               </div>
@@ -277,16 +277,16 @@ export default function AboutPage() {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-white">Dr. Muhammad Shuaib Qureshi</h3>
-                    <p className="text-xs sm:text-sm text-violet-400 font-medium">Academic Project Supervisor</p>
+                    <p className="text-xs sm:text-sm text-violet-400 font-medium">Academic Mentor & Professor</p>
                   </div>
                 </div>
 
                 <div className="space-y-2 text-sm text-zinc-300 leading-relaxed">
                   <p>
-                    <strong>Dr. Muhammad Shuaib Qureshi</strong> serves as the academic supervisor for this project. He is the <strong>Chief Scientific Officer at Datalligence.pk</strong> and an esteemed academic mentor whose research focuses on artificial intelligence, data science, and applied computing.
+                    <strong>Dr. Muhammad Shuaib Qureshi</strong> is Muhammad’s university professor and academic mentor. During the development of the platform, he offered valuable academic advice, research guidance, and thoughtful suggestions that helped refine the evaluation rubrics and academic alignment of the project.
                   </p>
                   <p className="text-zinc-400 text-xs">
-                    Guided the academic methodology, evaluation rubric criteria, technical governance, and research benchmarks that power FYPMate’s validation algorithms.
+                    University professor, research advisor, and Chief Scientific Officer at Datalligence.pk.
                   </p>
                 </div>
               </div>
@@ -298,7 +298,7 @@ export default function AboutPage() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-zinc-200 hover:text-white transition-colors"
                 >
-                  <span>View Supervisor Profile</span>
+                  <span>View Professor Profile</span>
                   <ExternalLink className="w-3.5 h-3.5 text-zinc-400" />
                 </a>
               </div>
