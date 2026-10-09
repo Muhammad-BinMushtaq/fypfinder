@@ -242,9 +242,10 @@ export default function FYPIdeasPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-300">
-                  <GraduationCap className="h-3.5 w-3.5" />
-                  PAF-IAST Repository
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60 shadow-xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <GraduationCap className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                  PAF-IAST Verified Archive
                 </span>
                 <span className="text-xs text-slate-400">•</span>
                 <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
@@ -463,7 +464,8 @@ export default function FYPIdeasPage() {
                     {/* Header Badges */}
                     <div className="flex items-center justify-between gap-2 mb-2.5">
                       <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
                           {project.batch} • Group #{project.groupNumber}
                         </span>
                       </div>
@@ -562,7 +564,8 @@ export default function FYPIdeasPage() {
                   >
                     <div className="flex-1 min-w-0 pr-4">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="px-1.5 py-0.2 rounded text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
                           {project.batch} #{project.groupNumber}
                         </span>
                         <span className="text-xs text-slate-500 dark:text-slate-400 truncate">

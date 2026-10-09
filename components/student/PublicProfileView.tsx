@@ -307,8 +307,8 @@ export function PublicProfileView({
               </div>
 
               {seekingStatusLabel && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400 dark:bg-slate-500" />
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60 shadow-xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   {seekingStatusLabel}
                 </span>
               )}
@@ -377,13 +377,13 @@ export function PublicProfileView({
                 <span
                   className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${
                     profile.groupInfo.isLocked
-                      ? "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
-                      : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
+                      ? "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200/60 dark:border-slate-700/60"
+                      : "bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60"
                   }`}
                 >
                   <span
                     className={`w-1.5 h-1.5 rounded-full ${
-                      profile.groupInfo.isLocked ? "bg-slate-400" : "bg-emerald-500"
+                      profile.groupInfo.isLocked ? "bg-slate-400" : "bg-emerald-500 animate-pulse"
                     }`}
                   />
                   {profile.groupInfo.isLocked ? "Team Finalized" : "Open for Members"}
@@ -473,12 +473,13 @@ export function PublicProfileView({
                       >
                         <span>{skill.name}</span>
                         <span
-                          className={`text-[10px] uppercase font-bold tracking-wider ${
+                          className={`text-[10px] uppercase font-bold tracking-wider inline-flex items-center gap-1 ${
                             isAdvanced
-                              ? "text-slate-300 dark:text-slate-600"
+                              ? "text-emerald-300 dark:text-emerald-600"
                               : "text-slate-400 dark:text-slate-500"
                           }`}
                         >
+                          {isAdvanced && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 dark:bg-emerald-500 shrink-0" />}
                           {skill.level}
                         </span>
                       </div>
@@ -555,8 +556,9 @@ export function PublicProfileView({
                               href={project.liveLink}
                               target="_blank"
                               rel="noreferrer"
-                              className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                              className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
                             >
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
                               <ExternalLink className="w-3.5 h-3.5" /> Live Demo
                             </a>
                           )}
