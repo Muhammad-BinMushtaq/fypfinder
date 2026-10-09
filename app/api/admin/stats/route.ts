@@ -51,16 +51,10 @@ export async function GET() {
   } catch (error: any) {
     logger.error("Admin stats error:", error)
 
-    if (error.message === "Unauthorized" || error.message === "Forbidden") {
-      return NextResponse.json(
-        { success: false, message: error.message },
-        { status: error.message === "Unauthorized" ? 401 : 403 }
-      )
-    }
-
+    const isUnauthorized = error?.message?.includes("Unauthorized")
     return NextResponse.json(
-      { success: false, message: "Failed to fetch statistics" },
-      { status: 500 }
+      { success: false, message: isUnauthorized ? "Unauthorized" : "Failed to fetch statistics" },
+      { status: isUnauthorized ? 403 : 500 }
     )
   }
 }

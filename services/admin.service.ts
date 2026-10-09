@@ -346,21 +346,38 @@ export async function unsuspendStudent(studentId: string): Promise<void> {
 
 export async function getAdminConversations(
   page: number = 1,
-  pageSize: number = 20
+  pageSize: number = 20,
+  search?: string
 ): Promise<PaginatedResponse<AdminConversation>> {
   const params = new URLSearchParams({
     page: String(page),
     pageSize: String(pageSize),
   })
+  if (search) {
+    params.set("search", search)
+  }
 
   const response = await fetch(`/api/admin/conversations?${params.toString()}`)
   const data = await response.json()
 
   if (!response.ok) {
-    throw new Error(data.message || "Failed to fetch conversations")
+    throw new Error(data.message || data.error || "Failed to fetch conversations")
   }
 
   return data
+}
+
+export async function getAdminConversationDetails(
+  conversationId: string
+): Promise<AdminConversation> {
+  const response = await fetch(`/api/admin/conversations/${conversationId}`)
+  const json = await response.json()
+
+  if (!response.ok || !json.data) {
+    throw new Error(json.message || "Failed to fetch conversation")
+  }
+
+  return json.data
 }
 
 export async function getAdminMessages(
@@ -377,7 +394,7 @@ export async function getAdminMessages(
   const data = await response.json()
 
   if (!response.ok) {
-    throw new Error(data.message || "Failed to fetch messages")
+    throw new Error(data.message || data.error || "Failed to fetch messages")
   }
 
   return data

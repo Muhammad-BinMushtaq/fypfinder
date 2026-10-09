@@ -1,10 +1,11 @@
 "use client"
 
 import { useState } from "react"
+import { usePathname } from "next/navigation"
 import { useAdminSession } from "@/hooks/admin"
 import { AdminSidebar } from "@/components/admin/AdminSidebar"
 import { ThemeToggle } from "@/components/ThemeToggle"
-import { Loader2, Bell, Search, Menu } from "lucide-react"
+import { Loader2, Menu, ChevronRight } from "lucide-react"
 
 export default function AdminAuthenticatedLayoutClient({
   children,
@@ -13,14 +14,28 @@ export default function AdminAuthenticatedLayoutClient({
 }) {
   const { admin, isLoading } = useAdminSession()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const pathname = usePathname()
+
+  // Generate breadcrumb text
+  const getSectionTitle = () => {
+    if (pathname.includes("/dashboard")) return "Dashboard"
+    if (pathname.includes("/students")) return "Students"
+    if (pathname.includes("/feedback")) return "Feedback"
+    if (pathname.includes("/messages")) return "Messages"
+    if (pathname.includes("/reports")) return "Reports"
+    if (pathname.includes("/settings")) return "Settings"
+    return "Overview"
+  }
 
   if (isLoading || !admin) {
     return (
-      <div className="flex h-screen items-center justify-center bg-slate-50 dark:bg-slate-900">
-        <div className="text-center">
-          <Loader2 className="mx-auto h-10 w-10 animate-spin text-indigo-600" />
-          <p className="mt-3 text-sm font-medium text-slate-600 dark:text-slate-400">
-            Loading admin panel...
+      <div className="flex h-screen items-center justify-center bg-slate-50 dark:bg-slate-950">
+        <div className="flex flex-col items-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 dark:bg-slate-800 text-white shadow-sm">
+            <Loader2 className="h-6 w-6 animate-spin text-slate-300" />
+          </div>
+          <p className="mt-4 text-xs font-medium tracking-wide uppercase text-slate-500 dark:text-slate-400">
+            Loading Admin Portal...
           </p>
         </div>
       </div>
@@ -28,47 +43,49 @@ export default function AdminAuthenticatedLayoutClient({
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-900">
+    <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 font-sans antialiased text-slate-900 dark:text-slate-100">
       <AdminSidebar
         isMobileOpen={isMobileMenuOpen}
         onMobileClose={() => setIsMobileMenuOpen(false)}
       />
 
-      <div className="lg:pl-72">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 shadow-sm lg:px-8">
-          <button
-            onClick={() => setIsMobileMenuOpen(true)}
-            className="lg:hidden p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-white"
-          >
-            <Menu className="h-6 w-6" />
-          </button>
-
-          <div className="hidden md:flex md:flex-1 md:items-center">
-            <div className="relative w-full max-w-md">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search..."
-                className="h-10 w-full rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 pl-10 pr-4 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-              />
-            </div>
-          </div>
-
+      <div className="lg:pl-64">
+        {/* Modern Minimal Top Header */}
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-4 lg:px-8">
           <div className="flex items-center gap-3">
-            <ThemeToggle />
-
-            <button className="relative rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-white">
-              <Bell className="h-5 w-5" />
-              <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-red-500"></span>
+            <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="lg:hidden p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors"
+              aria-label="Open navigation menu"
+            >
+              <Menu className="h-5 w-5" />
             </button>
 
-            <div className="flex items-center gap-3 rounded-lg bg-slate-50 dark:bg-slate-700 px-3 py-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-sm font-bold text-white">
+            {/* Breadcrumb Navigation */}
+            <nav className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
+              <span className="hidden sm:inline hover:text-slate-700 dark:hover:text-slate-300">Admin</span>
+              <ChevronRight className="hidden sm:inline h-3.5 w-3.5 text-slate-400" />
+              <span className="text-slate-900 dark:text-slate-100 font-semibold text-sm">
+                {getSectionTitle()}
+              </span>
+            </nav>
+          </div>
+
+          <div className="flex items-center gap-2.5">
+            <ThemeToggle />
+
+            {/* Admin Profile Pill */}
+            <div className="flex items-center gap-2.5 rounded-full border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-1.5 shadow-xs">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-900 dark:bg-slate-100 text-xs font-semibold text-white dark:text-slate-900">
                 {admin?.name?.charAt(0).toUpperCase() || admin?.email?.charAt(0).toUpperCase() || "A"}
               </div>
-              <div className="hidden sm:block">
-                <p className="text-sm font-medium text-slate-900 dark:text-white">{admin?.name || "Administrator"}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{admin?.email}</p>
+              <div className="hidden sm:block text-left">
+                <p className="text-xs font-medium leading-tight text-slate-900 dark:text-white truncate max-w-[120px]">
+                  {admin?.name || "Admin"}
+                </p>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
+                  Administrator
+                </p>
               </div>
             </div>
           </div>

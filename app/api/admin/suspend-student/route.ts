@@ -5,6 +5,8 @@ import { requireRole } from "@/lib/auth"
 import { UserRole, UserStatus } from "@/lib/generated/prisma/enums"
 import prisma from "@/lib/db"
 
+import { createSupabaseAdminClient } from "@/lib/supabase"
+
 export async function PATCH(req: Request) {
   try {
     // 🔐 Admin only
@@ -43,11 +45,23 @@ export async function PATCH(req: Request) {
     // Determine new status
     const newStatus = action === "suspend" ? UserStatus.SUSPENDED : UserStatus.ACTIVE
 
-    // Update user status
+    // Update user status in database
     await prisma.user.update({
       where: { id: student.userId },
       data: { status: newStatus },
     })
+
+    // Sync with Supabase Auth (invalidate active tokens)
+    try {
+      const supabaseAdmin = createSupabaseAdminClient()
+      if (supabaseAdmin) {
+        await supabaseAdmin.auth.admin.updateUserById(student.userId, {
+          ban_duration: action === "suspend" ? "876000h" : "none",
+        })
+      }
+    } catch (authErr) {
+      logger.warn("Could not sync ban status with Supabase Auth:", authErr)
+    }
 
     return NextResponse.json({
       success: true,
@@ -59,12 +73,13 @@ export async function PATCH(req: Request) {
   } catch (error: any) {
     logger.error("Admin suspend student error:", error)
 
+    const isUnauthorized = error?.message?.includes("Unauthorized")
     return NextResponse.json(
       {
         success: false,
-        message: error.message || "Failed to update student status",
+        message: isUnauthorized ? "Unauthorized" : (error.message || "Failed to update student status"),
       },
-      { status: 500 }
+      { status: isUnauthorized ? 403 : 500 }
     )
   }
 }

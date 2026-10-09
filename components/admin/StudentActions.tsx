@@ -4,12 +4,12 @@
 import { useState } from "react"
 import { 
   X, 
-  User, 
   Ban, 
-  CheckCircle,
-  Mail,
-  GraduationCap,
-  Calendar
+  CheckCircle2, 
+  Mail, 
+  GraduationCap, 
+  AlertTriangle,
+  Loader2 
 } from "lucide-react"
 import { 
   useSuspendStudent, 
@@ -41,188 +41,159 @@ export function StudentActions({ student, onClose }: StudentActionsProps) {
   const isLoading = suspendMutation.isPending || unsuspendMutation.isPending
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-md rounded-2xl bg-white shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+      <div className="w-full max-w-md rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-200 p-4">
-          <h3 className="text-lg font-semibold text-slate-900">Student Actions</h3>
+        <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800 p-4">
+          <h3 className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">
+            Manage Student Access
+          </h3>
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4" />
           </button>
         </div>
 
-        {/* Student Info */}
-        <div className="border-b border-slate-200 p-4">
-          <div className="flex items-center gap-4">
+        {/* Student Summary */}
+        <div className="border-b border-slate-200/80 dark:border-slate-800 p-5 bg-slate-50/50 dark:bg-slate-850/50">
+          <div className="flex items-center gap-3.5">
             {student.profilePicture ? (
               <img
                 src={student.profilePicture}
                 alt={student.name}
-                className="h-16 w-16 rounded-full object-cover ring-2 ring-slate-100"
+                className="h-12 w-12 rounded-full object-cover ring-1 ring-slate-200 dark:ring-slate-700"
               />
             ) : (
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600">
-                <span className="text-xl font-bold text-white">{student.name.charAt(0)}</span>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 font-bold text-sm text-slate-800 dark:text-slate-100">
+                {student.name.charAt(0).toUpperCase()}
               </div>
             )}
-            <div>
-              <h4 className="font-semibold text-slate-900">{student.name}</h4>
-              <div className="mt-1 flex items-center gap-1 text-sm text-slate-500">
-                <Mail className="h-3.5 w-3.5" />
+            <div className="min-w-0 flex-1">
+              <h4 className="font-bold text-slate-900 dark:text-white text-sm truncate">
+                {student.name}
+              </h4>
+              <p className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                <Mail className="h-3 w-3 shrink-0" />
                 {student.email}
-              </div>
+              </p>
               {student.department && (
-                <div className="mt-0.5 flex items-center gap-1 text-sm text-slate-500">
-                  <GraduationCap className="h-3.5 w-3.5" />
+                <p className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                  <GraduationCap className="h-3 w-3 shrink-0" />
                   {student.department}
-                </div>
+                </p>
               )}
             </div>
           </div>
 
-          {/* Status Badge */}
-          <div className="mt-4 flex items-center gap-2">
-            <span className="text-sm font-medium text-slate-600">Current Status:</span>
+          <div className="mt-3.5 flex items-center justify-between pt-3 border-t border-slate-200/60 dark:border-slate-700/60 text-xs">
+            <span className="text-slate-500 dark:text-slate-400">Current Status</span>
             <span
-              className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${
+              className={`inline-flex items-center rounded-md px-2 py-0.5 font-semibold text-[11px] ${
                 student.status === "ACTIVE"
-                  ? "border-emerald-200 bg-emerald-100 text-emerald-700"
+                  ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
                   : student.status === "SUSPENDED"
-                  ? "border-red-200 bg-red-100 text-red-700"
-                  : "border-amber-200 bg-amber-100 text-amber-700"
+                  ? "bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300"
+                  : "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300"
               }`}
             >
-              <span className={`mr-1.5 h-1.5 w-1.5 rounded-full ${
-                student.status === "ACTIVE" ? "bg-emerald-500" :
-                student.status === "SUSPENDED" ? "bg-red-500" : "bg-amber-500"
-              }`} />
-              {student.status === "DELETION_REQUESTED" ? "Deletion Requested" : student.status}
+              {student.status === "DELETION_REQUESTED" ? "Deletion Pending" : student.status}
             </span>
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="p-4">
+        {/* Actions Area */}
+        <div className="p-5">
           {confirmAction ? (
-            <ConfirmationDialog
-              action={confirmAction}
-              studentName={student.name}
-              onConfirm={
-                confirmAction === "suspend"
-                  ? handleSuspend
-                  : handleUnsuspend
-              }
-              onCancel={() => setConfirmAction(null)}
-              isLoading={isLoading}
-            />
+            <div className="text-center space-y-4">
+              <div
+                className={`mx-auto flex h-12 w-12 items-center justify-center rounded-2xl ${
+                  confirmAction === "suspend"
+                    ? "bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400"
+                    : "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"
+                }`}
+              >
+                {confirmAction === "suspend" ? (
+                  <Ban className="h-6 w-6" />
+                ) : (
+                  <CheckCircle2 className="h-6 w-6" />
+                )}
+              </div>
+
+              <div>
+                <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                  {confirmAction === "suspend" ? "Suspend Student Account" : "Unsuspend Student Account"}
+                </h4>
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  {confirmAction === "suspend"
+                    ? `Are you sure you want to suspend ${student.name}? They will immediately lose platform access.`
+                    : `Restore platform access for ${student.name}?`}
+                </p>
+              </div>
+
+              <div className="flex gap-2.5 pt-2">
+                <button
+                  onClick={() => setConfirmAction(null)}
+                  disabled={isLoading}
+                  className="flex-1 rounded-xl border border-slate-200 dark:border-slate-800 px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmAction === "suspend" ? handleSuspend : handleUnsuspend}
+                  disabled={isLoading}
+                  className={`flex-1 rounded-xl px-4 py-2 text-xs font-semibold text-white transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer ${
+                    confirmAction === "suspend"
+                      ? "bg-red-600 hover:bg-red-700"
+                      : "bg-emerald-600 hover:bg-emerald-700"
+                  }`}
+                >
+                  {isLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                  <span>{confirmAction === "suspend" ? "Confirm Suspend" : "Confirm Unsuspend"}</span>
+                </button>
+              </div>
+            </div>
           ) : (
-            <div className="space-y-2">
-              {/* Suspend/Unsuspend */}
+            <div className="space-y-3">
               {student.status === "SUSPENDED" ? (
                 <button
                   onClick={() => setConfirmAction("unsuspend")}
-                  className="flex w-full items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-left transition-colors hover:bg-emerald-100"
+                  className="flex w-full items-center justify-between rounded-xl border border-emerald-200/80 dark:border-emerald-900/50 bg-emerald-50/40 dark:bg-emerald-950/20 p-3.5 text-left transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-950/30 cursor-pointer"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100">
-                    <CheckCircle className="h-5 w-5 text-emerald-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-emerald-900">Unsuspend Student</p>
-                    <p className="text-sm text-emerald-700">Restore access to all features</p>
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300">
+                      <CheckCircle2 className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-emerald-900 dark:text-emerald-200">Unsuspend Account</p>
+                      <p className="text-[11px] text-emerald-700/80 dark:text-emerald-400/80">Reactivate access to FYP Finder</p>
+                    </div>
                   </div>
                 </button>
               ) : (
                 <button
                   onClick={() => setConfirmAction("suspend")}
-                  className="flex w-full items-center gap-3 rounded-xl border border-slate-200 px-4 py-3 text-left transition-colors hover:bg-slate-50"
+                  className="flex w-full items-center justify-between rounded-xl border border-slate-200 dark:border-slate-800 p-3.5 text-left transition-colors hover:bg-red-50/50 hover:border-red-200 dark:hover:bg-red-950/20 dark:hover:border-red-900/50 cursor-pointer"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-100">
-                    <Ban className="h-5 w-5 text-orange-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-slate-900">Suspend Student</p>
-                    <p className="text-sm text-slate-500">Disable login and all platform access</p>
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                      <Ban className="h-4 w-4 text-red-500" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-900 dark:text-white">Suspend Account</p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">Block student login and all actions</p>
+                    </div>
                   </div>
                 </button>
               )}
 
-              {/* Info Notice */}
-              <div className="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-3">
-                <p className="text-xs text-blue-700">
-                  <strong>Note:</strong> Suspended students will not be able to log in to the platform. 
-                  They will need to contact administration for account reactivation.
-                </p>
+              <div className="rounded-xl border border-slate-200/70 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-850 p-3 text-[11px] text-slate-500 dark:text-slate-400">
+                <span className="font-semibold text-slate-700 dark:text-slate-300">Note:</span> Suspended students cannot log in or participate in groups. Suspension syncs directly with the authentication provider.
               </div>
             </div>
           )}
         </div>
-      </div>
-    </div>
-  )
-}
-
-// Confirmation Dialog Component
-interface ConfirmationDialogProps {
-  action: "suspend" | "unsuspend"
-  studentName: string
-  onConfirm: () => void
-  onCancel: () => void
-  isLoading: boolean
-}
-
-function ConfirmationDialog({
-  action,
-  studentName,
-  onConfirm,
-  onCancel,
-  isLoading,
-}: ConfirmationDialogProps) {
-  const config = {
-    suspend: {
-      title: "Suspend Student",
-      message: `Are you sure you want to suspend ${studentName}? They will not be able to log in or access any platform features.`,
-      confirmText: "Suspend",
-      confirmClass: "bg-orange-600 hover:bg-orange-700",
-      icon: Ban,
-      iconClass: "text-orange-600 bg-orange-100",
-    },
-    unsuspend: {
-      title: "Unsuspend Student",
-      message: `Are you sure you want to unsuspend ${studentName}? They will regain full access to the platform.`,
-      confirmText: "Unsuspend",
-      confirmClass: "bg-emerald-600 hover:bg-emerald-700",
-      icon: CheckCircle,
-      iconClass: "text-emerald-600 bg-emerald-100",
-    },
-  }
-
-  const { title, message, confirmText, confirmClass, icon: Icon, iconClass } = config[action]
-
-  return (
-    <div className="text-center">
-      <div className={`mx-auto flex h-14 w-14 items-center justify-center rounded-full ${iconClass}`}>
-        <Icon className="h-7 w-7" />
-      </div>
-      <h4 className="mt-4 text-lg font-semibold text-slate-900">{title}</h4>
-      <p className="mt-2 text-sm text-slate-500">{message}</p>
-      <div className="mt-6 flex gap-3">
-        <button
-          onClick={onCancel}
-          disabled={isLoading}
-          className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={onConfirm}
-          disabled={isLoading}
-          className={`flex-1 rounded-xl px-4 py-2.5 text-sm font-medium text-white transition-colors disabled:opacity-50 ${confirmClass}`}
-        >
-          {isLoading ? "Processing..." : confirmText}
-        </button>
       </div>
     </div>
   )

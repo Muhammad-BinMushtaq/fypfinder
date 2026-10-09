@@ -67,6 +67,7 @@ export async function POST(req: Request) {
         })
 
         if (!user) {
+            await supabase.auth.signOut()
             return NextResponse.json(
                 { success: false, message: "User not found in database" },
                 { status: 404 }
@@ -74,6 +75,7 @@ export async function POST(req: Request) {
         }
 
         if (user.status !== UserStatus.ACTIVE) {
+            await supabase.auth.signOut()
             return NextResponse.json(
                 { success: false, message: "Account is not active" },
                 { status: 403 }
@@ -81,13 +83,15 @@ export async function POST(req: Request) {
         }
 
         if (user.role !== UserRole.ADMIN) {
+            await supabase.auth.signOut()
             return NextResponse.json(
-                { success: false, message: "Only admins can access this route" },
+                { success: false, message: "Only administrators can access the admin portal" },
                 { status: 403 }
             )
         }
 
         if (!user.admin) {
+            await supabase.auth.signOut()
             return NextResponse.json(
                 { success: false, message: "Admin profile not found" },
                 { status: 404 }

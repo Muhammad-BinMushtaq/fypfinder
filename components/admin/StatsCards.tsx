@@ -1,7 +1,7 @@
 // components/admin/StatsCards.tsx
 "use client"
 
-import { Users, UserCheck, UserX, Clock, MessageSquare, AlertTriangle, TrendingUp, Mail } from "lucide-react"
+import { Users, UserCheck, UserX, Clock, MessageSquare, AlertTriangle, ArrowRight } from "lucide-react"
 import { useAdminStats } from "@/hooks/admin"
 import Link from "next/link"
 
@@ -10,9 +10,9 @@ export function StatsCards() {
 
   if (isLoading) {
     return (
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="h-28 animate-pulse rounded-2xl bg-slate-200" />
+          <div key={i} className="h-28 animate-pulse rounded-2xl bg-slate-200/60 dark:bg-slate-800/60" />
         ))}
       </div>
     )
@@ -20,10 +20,10 @@ export function StatsCards() {
 
   if (isError || !stats) {
     return (
-      <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
-        <AlertTriangle className="mx-auto h-8 w-8 text-red-400" />
-        <p className="mt-2 font-medium text-red-600">Failed to load statistics</p>
-        <p className="text-sm text-red-500">Please try refreshing the page</p>
+      <div className="rounded-2xl border border-red-200/80 bg-red-50/50 p-6 text-center dark:border-red-900/40 dark:bg-red-950/20">
+        <AlertTriangle className="mx-auto h-7 w-7 text-red-500" />
+        <p className="mt-2 text-sm font-semibold text-red-700 dark:text-red-300">Failed to load platform statistics</p>
+        <p className="text-xs text-red-600/80 dark:text-red-400/80">Please check your connection and refresh</p>
       </div>
     )
   }
@@ -33,60 +33,60 @@ export function StatsCards() {
       label: "Total Students",
       value: stats.totalStudents,
       icon: Users,
-      gradient: "from-blue-500 to-cyan-500",
-      shadowColor: "shadow-blue-500/20",
-      bgLight: "bg-blue-50",
-      textColor: "text-blue-600",
+      badge: "Registered",
+      badgeColor: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
+      iconColor: "text-slate-700 dark:text-slate-200",
+      iconBg: "bg-slate-100 dark:bg-slate-800",
     },
     {
       label: "Active Students",
       value: stats.activeStudents,
       icon: UserCheck,
-      gradient: "from-emerald-500 to-green-500",
-      shadowColor: "shadow-emerald-500/20",
-      bgLight: "bg-emerald-50",
-      textColor: "text-emerald-600",
+      badge: "Normal",
+      badgeColor: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300",
+      iconColor: "text-emerald-600 dark:text-emerald-400",
+      iconBg: "bg-emerald-50 dark:bg-emerald-950/40",
     },
     {
       label: "Suspended",
       value: stats.suspendedStudents,
       icon: UserX,
-      gradient: "from-red-500 to-rose-500",
-      shadowColor: "shadow-red-500/20",
-      bgLight: "bg-red-50",
-      textColor: "text-red-600",
+      badge: "Restricted",
+      badgeColor: "bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300",
+      iconColor: "text-red-600 dark:text-red-400",
+      iconBg: "bg-red-50 dark:bg-red-950/40",
     },
     {
       label: "Deletion Pending",
       value: stats.deletionRequestedStudents,
       icon: Clock,
-      gradient: "from-amber-500 to-orange-500",
-      shadowColor: "shadow-amber-500/20",
-      bgLight: "bg-amber-50",
-      textColor: "text-amber-600",
+      badge: "Action Required",
+      badgeColor: "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300",
+      iconColor: "text-amber-600 dark:text-amber-400",
+      iconBg: "bg-amber-50 dark:bg-amber-950/40",
     },
     {
       label: "Conversations",
       value: stats.totalConversations,
       icon: MessageSquare,
-      gradient: "from-purple-500 to-violet-500",
-      shadowColor: "shadow-purple-500/20",
-      bgLight: "bg-purple-50",
-      textColor: "text-purple-600",
+      badge: "Active Threads",
+      badgeColor: "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300",
+      iconColor: "text-indigo-600 dark:text-indigo-400",
+      iconBg: "bg-indigo-50 dark:bg-indigo-950/40",
     },
     {
       label: "Total Messages",
       value: stats.totalMessages,
-      icon: Mail,
-      gradient: "from-indigo-500 to-blue-500",
-      shadowColor: "shadow-indigo-500/20",
-      bgLight: "bg-indigo-50",
-      textColor: "text-indigo-600",
+      icon: MessageSquare,
+      badge: "Delivered",
+      badgeColor: "bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300",
+      iconColor: "text-purple-600 dark:text-purple-400",
+      iconBg: "bg-purple-50 dark:bg-purple-950/40",
     },
   ]
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {cards.map((card) => (
         <StatCard key={card.label} {...card} />
       ))}
@@ -98,112 +98,102 @@ interface StatCardProps {
   label: string
   value: number
   icon: React.ComponentType<{ className?: string }>
-  gradient: string
-  shadowColor: string
-  bgLight: string
-  textColor: string
+  badge: string
+  badgeColor: string
+  iconColor: string
+  iconBg: string
 }
 
-function StatCard({ label, value, icon: Icon, gradient, shadowColor, bgLight, textColor }: StatCardProps) {
+function StatCard({ label, value, icon: Icon, badge, badgeColor, iconColor, iconBg }: StatCardProps) {
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:shadow-md">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-sm font-medium text-slate-500">{label}</p>
-          <p className="mt-2 text-3xl font-bold text-slate-900">{value.toLocaleString()}</p>
-        </div>
-        <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${gradient} shadow-lg ${shadowColor}`}>
-          <Icon className="h-6 w-6 text-white" />
+    <div className="group rounded-2xl border border-slate-200/80 bg-white p-5 shadow-2xs transition-all hover:border-slate-300 dark:border-slate-800/80 dark:bg-slate-900 dark:hover:border-slate-700">
+      <div className="flex items-center justify-between">
+        <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-semibold tracking-wide ${badgeColor}`}>
+          {badge}
+        </span>
+        <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${iconBg} ${iconColor}`}>
+          <Icon className="h-4 w-4" />
         </div>
       </div>
-      {/* Decorative gradient line */}
-      <div className={`absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r ${gradient} opacity-0 transition-opacity group-hover:opacity-100`} />
+      <div className="mt-4">
+        <p className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+          {value.toLocaleString()}
+        </p>
+        <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">{label}</p>
+      </div>
     </div>
   )
 }
 
-// Recent Activity Section for Dashboard
+// Quick Actions Section for Dashboard
 export function RecentActivity() {
   const { data: stats, isLoading } = useAdminStats()
 
   if (isLoading) {
     return (
-      <div className="h-64 animate-pulse rounded-2xl bg-slate-200" />
+      <div className="h-64 animate-pulse rounded-2xl bg-slate-200/60 dark:bg-slate-800/60" />
     )
   }
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <div className="flex items-center gap-2">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600">
-          <TrendingUp className="h-5 w-5 text-white" />
-        </div>
-        <div>
-          <h3 className="font-semibold text-slate-900">Quick Actions</h3>
-          <p className="text-sm text-slate-500">Common admin tasks</p>
-        </div>
+    <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-2xs dark:border-slate-800/80 dark:bg-slate-900">
+      <div>
+        <h3 className="text-base font-bold tracking-tight text-slate-900 dark:text-white">
+          Quick Actions
+        </h3>
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          Frequently accessed admin management shortcuts
+        </p>
       </div>
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-2">
+      <div className="mt-5 grid gap-2.5 sm:grid-cols-2">
         {stats && stats.deletionRequestedStudents > 0 && (
           <Link
             href="/admin/students?status=DELETION_REQUESTED"
-            className="group flex items-center gap-3 rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-4 transition-all hover:shadow-md hover:shadow-amber-100"
+            className="group flex items-center justify-between rounded-xl border border-amber-200/70 bg-amber-50/40 p-4 transition-all hover:bg-amber-50 hover:border-amber-300 dark:border-amber-900/30 dark:bg-amber-950/20 dark:hover:bg-amber-950/30"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 shadow-md shadow-amber-500/30">
-              <AlertTriangle className="h-5 w-5 text-white" />
-            </div>
             <div>
-              <p className="font-medium text-amber-900">
+              <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
                 {stats.deletionRequestedStudents} Deletion Request{stats.deletionRequestedStudents !== 1 ? "s" : ""}
               </p>
-              <p className="text-sm text-amber-700">Review pending requests</p>
+              <p className="text-xs text-amber-700/80 dark:text-amber-400/80">Pending review</p>
             </div>
+            <ArrowRight className="h-4 w-4 text-amber-600 transition-transform group-hover:translate-x-0.5" />
           </Link>
         )}
 
         <Link
           href="/admin/students"
-          className="group flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 transition-all hover:border-blue-200 hover:bg-blue-50 hover:shadow-md hover:shadow-blue-100"
+          className="group flex items-center justify-between rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 transition-all hover:bg-slate-100/70 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-800/40 dark:hover:bg-slate-800/70"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 shadow-md shadow-blue-500/30">
-            <Users className="h-5 w-5 text-white" />
-          </div>
           <div>
-            <p className="font-medium text-slate-900 group-hover:text-blue-900">Manage Students</p>
-            <p className="text-sm text-slate-500 group-hover:text-blue-700">View and manage all students</p>
+            <p className="text-sm font-semibold text-slate-900 dark:text-white">Student Directory</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Manage all student accounts</p>
           </div>
+          <ArrowRight className="h-4 w-4 text-slate-400 transition-transform group-hover:translate-x-0.5 group-hover:text-slate-700 dark:group-hover:text-slate-200" />
+        </Link>
+
+        <Link
+          href="/admin/feedback"
+          className="group flex items-center justify-between rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 transition-all hover:bg-slate-100/70 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-800/40 dark:hover:bg-slate-800/70"
+        >
+          <div>
+            <p className="text-sm font-semibold text-slate-900 dark:text-white">Student Feedback</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Review tickets & send responses</p>
+          </div>
+          <ArrowRight className="h-4 w-4 text-slate-400 transition-transform group-hover:translate-x-0.5 group-hover:text-slate-700 dark:group-hover:text-slate-200" />
         </Link>
 
         <Link
           href="/admin/messages"
-          className="group flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 transition-all hover:border-purple-200 hover:bg-purple-50 hover:shadow-md hover:shadow-purple-100"
+          className="group flex items-center justify-between rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 transition-all hover:bg-slate-100/70 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-800/40 dark:hover:bg-slate-800/70"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 shadow-md shadow-purple-500/30">
-            <MessageSquare className="h-5 w-5 text-white" />
-          </div>
           <div>
-            <p className="font-medium text-slate-900 group-hover:text-purple-900">View Conversations</p>
-            <p className="text-sm text-slate-500 group-hover:text-purple-700">Read-only message access</p>
+            <p className="text-sm font-semibold text-slate-900 dark:text-white">Conversation Audit</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Read-only student chat logs</p>
           </div>
+          <ArrowRight className="h-4 w-4 text-slate-400 transition-transform group-hover:translate-x-0.5 group-hover:text-slate-700 dark:group-hover:text-slate-200" />
         </Link>
-
-        {stats && stats.suspendedStudents > 0 && (
-          <Link
-            href="/admin/students?status=SUSPENDED"
-            className="group flex items-center gap-3 rounded-xl border border-red-200 bg-gradient-to-r from-red-50 to-rose-50 p-4 transition-all hover:shadow-md hover:shadow-red-100"
-          >
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-red-500 to-rose-500 shadow-md shadow-red-500/30">
-              <UserX className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <p className="font-medium text-red-900">
-                {stats.suspendedStudents} Suspended
-              </p>
-              <p className="text-sm text-red-700">Review suspended accounts</p>
-            </div>
-          </Link>
-        )}
       </div>
     </div>
   )

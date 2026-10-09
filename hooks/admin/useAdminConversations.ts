@@ -8,6 +8,7 @@
 import { useQuery } from "@tanstack/react-query"
 import {
   getAdminConversations,
+  getAdminConversationDetails,
   getAdminMessages,
   type AdminConversation,
   type AdminMessage,
@@ -17,12 +18,24 @@ import { adminKeys } from "./useAdminSession"
 /**
  * Fetch paginated list of all conversations
  */
-export function useAdminConversations(page: number = 1, pageSize: number = 20) {
+export function useAdminConversations(page: number = 1, pageSize: number = 20, search: string = "") {
   return useQuery({
-    queryKey: adminKeys.conversationsList(page),
-    queryFn: () => getAdminConversations(page, pageSize),
-    staleTime: 60 * 1000, // 1 minute
+    queryKey: [...adminKeys.conversations(), page, pageSize, search] as const,
+    queryFn: () => getAdminConversations(page, pageSize, search),
+    staleTime: 30 * 1000,
     placeholderData: (previousData) => previousData,
+  })
+}
+
+/**
+ * Fetch single conversation details
+ */
+export function useAdminConversationDetails(conversationId: string | null) {
+  return useQuery({
+    queryKey: [...adminKeys.conversations(), "detail", conversationId] as const,
+    queryFn: () => getAdminConversationDetails(conversationId!),
+    enabled: !!conversationId,
+    staleTime: 60 * 1000,
   })
 }
 

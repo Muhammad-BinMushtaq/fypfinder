@@ -5,6 +5,7 @@
  * Manages admin authentication state using React Query.
  */
 
+import { useEffect } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import {
@@ -78,10 +79,11 @@ export function useRequireAdmin() {
   const router = useRouter()
   const { admin, isLoading, isAuthenticated } = useAdminSession()
 
-  // Redirect if not authenticated after loading
-  if (!isLoading && !isAuthenticated) {
-    router.push("/admin/login")
-  }
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push("/admin/login")
+    }
+  }, [isLoading, isAuthenticated, router])
 
   return { admin, isLoading, isAuthenticated }
 }

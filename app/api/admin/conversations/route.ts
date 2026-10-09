@@ -13,15 +13,27 @@ export async function GET(req: NextRequest) {
     await requireRole(UserRole.ADMIN)
 
     const { searchParams } = new URL(req.url)
-    const page = parseInt(searchParams.get("page") || "1")
-    const pageSize = parseInt(searchParams.get("pageSize") || "20")
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1"))
+    const pageSize = Math.min(100, Math.max(1, parseInt(searchParams.get("pageSize") || "20")))
+    const search = searchParams.get("search")?.trim() || ""
     const skip = (page - 1) * pageSize
 
+    const where: any = {}
+    if (search) {
+      where.OR = [
+        { studentA: { name: { contains: search, mode: "insensitive" } } },
+        { studentB: { name: { contains: search, mode: "insensitive" } } },
+        { studentA: { user: { email: { contains: search, mode: "insensitive" } } } },
+        { studentB: { user: { email: { contains: search, mode: "insensitive" } } } },
+      ]
+    }
+
     // Get total count
-    const total = await prisma.conversation.count()
+    const total = await prisma.conversation.count({ where })
 
     // Get paginated conversations with participant info and last message
     const conversations = await prisma.conversation.findMany({
+      where,
       skip,
       take: pageSize,
       orderBy: { updatedAt: "desc" },
@@ -86,21 +98,15 @@ export async function GET(req: NextRequest) {
       total,
       page,
       pageSize,
-      totalPages: Math.ceil(total / pageSize),
+      totalPages: Math.ceil(total / pageSize) || 1,
     })
   } catch (error: any) {
     logger.error("Admin get conversations error:", error)
 
-    if (error.message === "Unauthorized" || error.message === "Forbidden") {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.message === "Unauthorized" ? 401 : 403 }
-      )
-    }
-
+    const isUnauthorized = error?.message?.includes("Unauthorized")
     return NextResponse.json(
-      { error: "Failed to fetch conversations" },
-      { status: 500 }
+      { error: isUnauthorized ? "Unauthorized" : "Failed to fetch conversations" },
+      { status: isUnauthorized ? 403 : 500 }
     )
   }
 }

@@ -2,63 +2,46 @@
 "use client"
 
 import { useParams } from "next/navigation"
-import { useQuery } from "@tanstack/react-query"
-import { MessageSquare, Loader2, AlertCircle, ArrowLeft, Eye } from "lucide-react"
+import { MessageSquare, Loader2, AlertCircle, ArrowLeft, Eye, Shield } from "lucide-react"
 import Link from "next/link"
 import { ConversationViewer } from "@/components/admin/ConversationViewer"
-import { getAdminConversations, type AdminConversation } from "@/services/admin.service"
+import { useAdminConversationDetails } from "@/hooks/admin"
 
 export default function AdminConversationViewPage() {
   const params = useParams()
   const conversationId = params.conversationId as string
 
-  // Get the conversation details
-  // This is a workaround - we fetch all conversations and find the one we need
-  // In a real app, you'd have a dedicated endpoint for single conversation details
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["admin", "conversation", conversationId],
-    queryFn: async () => {
-      // Fetch conversations to find the one matching our ID
-      const result = await getAdminConversations(1, 100)
-      const conversation = result.data.find((c: AdminConversation) => c.id === conversationId)
-      if (!conversation) {
-        throw new Error("Conversation not found")
-      }
-      return conversation
-    },
-    enabled: !!conversationId,
-  })
+  // Use dedicated single-conversation endpoint hook
+  const { data: conversation, isLoading, isError } = useAdminConversationDetails(conversationId)
 
   if (isLoading) {
     return (
-      <div className="flex h-[calc(100vh-4rem)] items-center justify-center bg-slate-50">
+      <div className="flex min-h-[calc(100vh-8rem)] items-center justify-center p-6">
         <div className="text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-lg">
-            <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
-          </div>
-          <p className="mt-4 text-sm font-medium text-slate-600">Loading conversation...</p>
+          <Loader2 className="mx-auto h-8 w-8 animate-spin text-slate-400 dark:text-slate-500" />
+          <p className="mt-3 text-xs font-medium text-slate-500 dark:text-slate-400">Loading conversation...</p>
         </div>
       </div>
     )
   }
 
-  if (isError || !data) {
+  if (isError || !conversation) {
     return (
-      <div className="flex h-[calc(100vh-4rem)] items-center justify-center bg-slate-50 p-6">
+      <div className="flex min-h-[calc(100vh-8rem)] items-center justify-center p-6">
         <div className="max-w-md text-center">
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-100">
-            <AlertCircle className="h-10 w-10 text-red-500" />
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 dark:bg-rose-950/30 text-rose-500">
+            <AlertCircle className="h-6 w-6" />
           </div>
-          <h2 className="mt-4 text-xl font-semibold text-slate-900">Conversation Not Found</h2>
-          <p className="mt-2 text-sm text-slate-500">
-            This conversation may have been deleted or you don&apos;t have access to view it.
+          <h2 className="mt-3 text-base font-bold text-slate-900 dark:text-white">Conversation Not Found</h2>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            This conversation may have been deleted or is not accessible.
           </p>
           <Link
             href="/admin/messages"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-5 py-2.5 text-sm font-medium text-white shadow-lg shadow-indigo-500/30 transition-all hover:shadow-xl"
+            className="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-slate-900 dark:bg-white px-4 py-2 text-xs font-semibold text-white dark:text-slate-900 shadow-xs hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors"
           >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Messages
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back to Conversations
           </Link>
         </div>
       </div>
@@ -66,47 +49,91 @@ export default function AdminConversationViewPage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] flex-col">
-      {/* Header Bar */}
-      <div className="flex-shrink-0 border-b border-slate-200 bg-white px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link
-              href="/admin/messages"
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-700"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Link>
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 shadow-md">
-                <MessageSquare className="h-6 w-6 text-white" />
+    <div className="flex h-[calc(100vh-5rem)] flex-col p-4 sm:p-6 lg:p-8 space-y-4 max-w-7xl mx-auto">
+      {/* Unified Minimal Header Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/admin/messages"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+            title="Back to conversations list"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+
+          {/* Participant Information */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center shrink-0">
+              {/* Student A Avatar */}
+              <div className="relative">
+                {conversation.studentA.profilePicture ? (
+                  <img
+                    src={conversation.studentA.profilePicture}
+                    alt={conversation.studentA.name}
+                    className="h-9 w-9 rounded-full object-cover ring-2 ring-white dark:ring-slate-900"
+                  />
+                ) : (
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs ring-2 ring-white dark:ring-slate-900">
+                    {conversation.studentA.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
               </div>
-              <div>
-                <h1 className="font-semibold text-slate-900">
-                  {data.studentA.name} & {data.studentB.name}
-                </h1>
-                <p className="text-sm text-slate-500">
-                  Conversation • {data.messageCount || 0} messages
-                </p>
+
+              {/* Student B Avatar */}
+              <div className="relative -ml-2.5">
+                {conversation.studentB.profilePicture ? (
+                  <img
+                    src={conversation.studentB.profilePicture}
+                    alt={conversation.studentB.name}
+                    className="h-9 w-9 rounded-full object-cover ring-2 ring-white dark:ring-slate-900"
+                  />
+                ) : (
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-100 font-bold text-xs ring-2 ring-white dark:ring-slate-900">
+                    {conversation.studentB.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
               </div>
             </div>
-          </div>
 
-          <div className="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm">
-            <Eye className="h-4 w-4 text-amber-600" />
-            <span className="font-medium text-amber-700">Read-only</span>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="font-semibold text-sm text-slate-900 dark:text-white">
+                  {conversation.studentA.name}
+                </span>
+                <span className="text-slate-400 text-xs">&</span>
+                <span className="font-semibold text-sm text-slate-900 dark:text-white">
+                  {conversation.studentB.name}
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                {conversation.messageCount || 0} messages exchanged
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Status Badges */}
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <div className="inline-flex items-center gap-1.5 rounded-xl border border-amber-500/20 bg-amber-500/10 px-3 py-1.5 text-xs font-medium text-amber-700 dark:text-amber-400">
+            <Eye className="h-3.5 w-3.5" />
+            <span>Read-Only Mode</span>
+          </div>
+          <div className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 shadow-xs">
+            <Shield className="h-3.5 w-3.5 text-slate-400" />
+            <span>Audit</span>
           </div>
         </div>
       </div>
 
-      {/* Conversation Viewer */}
+      {/* Main Conversation Body */}
       <div className="flex-1 overflow-hidden">
         <ConversationViewer
           conversationId={conversationId}
-          studentA={data.studentA}
-          studentB={data.studentB}
+          studentA={conversation.studentA}
+          studentB={conversation.studentB}
         />
       </div>
     </div>
   )
 }
+

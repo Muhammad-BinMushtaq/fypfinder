@@ -2,17 +2,9 @@
 "use client"
 
 import { useState } from "react"
-import { useParams } from "next/navigation"
-import { 
-  ArrowLeft, 
-  User, 
-  MessageSquare,
-  Calendar,
-  Eye
-} from "lucide-react"
-import Link from "next/link"
+import { MessageSquare, ArrowLeft, ArrowRight, Loader2, Info } from "lucide-react"
 import { useAdminMessages, type AdminMessage } from "@/hooks/admin"
-import { formatDistanceToNow } from "date-fns"
+import { formatDistanceToNow, format } from "date-fns"
 
 interface ConversationViewerProps {
   conversationId: string
@@ -36,92 +28,44 @@ export function ConversationViewer({
   studentB 
 }: ConversationViewerProps) {
   const [page, setPage] = useState(1)
-  const { data, isLoading, isError } = useAdminMessages(conversationId, page)
+  const { data, isLoading, isError } = useAdminMessages(conversationId, page, 50)
 
   const messages = data?.data || []
   const totalPages = data?.totalPages || 1
 
   return (
-    <div className="flex h-full flex-col">
-      {/* Header */}
-      <div className="border-b border-gray-200 bg-white p-4">
-        <div className="flex items-center gap-4">
-          <Link
-            href="/admin/messages"
-            className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
-          
-          <div className="flex flex-1 items-center gap-4">
-            {/* Student A */}
-            <div className="flex items-center gap-2">
-              {studentA.profilePicture ? (
-                <img
-                  src={studentA.profilePicture}
-                  alt={studentA.name}
-                  className="h-10 w-10 rounded-full object-cover"
-                />
-              ) : (
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-                  <User className="h-5 w-5 text-blue-600" />
-                </div>
-              )}
-              <div>
-                <p className="font-medium text-gray-900">{studentA.name}</p>
-                <p className="text-xs text-gray-500">{studentA.email}</p>
-              </div>
-            </div>
-
-            <MessageSquare className="h-5 w-5 text-gray-400" />
-
-            {/* Student B */}
-            <div className="flex items-center gap-2">
-              {studentB.profilePicture ? (
-                <img
-                  src={studentB.profilePicture}
-                  alt={studentB.name}
-                  className="h-10 w-10 rounded-full object-cover"
-                />
-              ) : (
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100">
-                  <User className="h-5 w-5 text-purple-600" />
-                </div>
-              )}
-              <div>
-                <p className="font-medium text-gray-900">{studentB.name}</p>
-                <p className="text-xs text-gray-500">{studentB.email}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Read-only badge */}
-          <div className="flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1.5 text-sm text-gray-600">
-            <Eye className="h-4 w-4" />
-            Read-only
-          </div>
-        </div>
-      </div>
-
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto bg-gray-50 p-4">
+    <div className="flex h-full flex-col rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-xs">
+      {/* Scrollable Messages Stream */}
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-slate-50/50 dark:bg-slate-950/40">
         {isLoading ? (
-          <div className="flex h-full items-center justify-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+          <div className="flex h-full min-h-[350px] items-center justify-center">
+            <div className="text-center">
+              <Loader2 className="mx-auto h-8 w-8 animate-spin text-slate-400 dark:text-slate-500" />
+              <p className="mt-3 text-xs font-medium text-slate-500 dark:text-slate-400">Loading conversation thread...</p>
+            </div>
           </div>
         ) : isError ? (
-          <div className="flex h-full items-center justify-center">
-            <p className="text-gray-500">Failed to load messages</p>
+          <div className="flex h-full min-h-[350px] items-center justify-center">
+            <div className="text-center">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 dark:bg-rose-950/30 text-rose-500">
+                <MessageSquare className="h-6 w-6" />
+              </div>
+              <p className="mt-3 text-sm font-semibold text-slate-800 dark:text-slate-200">Failed to load messages</p>
+              <p className="mt-1 text-xs text-slate-400">Please try refreshing the page</p>
+            </div>
           </div>
         ) : messages.length === 0 ? (
-          <div className="flex h-full items-center justify-center">
+          <div className="flex h-full min-h-[350px] items-center justify-center">
             <div className="text-center">
-              <MessageSquare className="mx-auto h-12 w-12 text-gray-300" />
-              <p className="mt-2 text-gray-500">No messages in this conversation</p>
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400">
+                <MessageSquare className="h-6 w-6" />
+              </div>
+              <p className="mt-3 text-sm font-semibold text-slate-800 dark:text-slate-200">No messages in this conversation</p>
+              <p className="mt-1 text-xs text-slate-400">Students have not exchanged messages yet</p>
             </div>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-4 max-w-3xl mx-auto">
             {messages.map((message) => (
               <MessageBubble
                 key={message.id}
@@ -135,32 +79,38 @@ export function ConversationViewer({
         )}
       </div>
 
-      {/* Pagination */}
+      {/* Pagination Footer */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 border-t border-gray-200 bg-white p-4">
-          <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page <= 1}
-            className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50"
-          >
-            Previous
-          </button>
-          <span className="text-sm text-gray-500">
-            Page {page} of {totalPages}
-          </span>
-          <button
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page >= totalPages}
-            className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50"
-          >
-            Next
-          </button>
+        <div className="flex items-center justify-between border-t border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-2.5">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Page <span className="font-semibold text-slate-900 dark:text-white">{page}</span> of{" "}
+            <span className="font-semibold text-slate-900 dark:text-white">{totalPages}</span>
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page <= 1}
+              className="inline-flex h-8 items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-800 px-2.5 text-xs font-medium text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              <span>Previous</span>
+            </button>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages}
+              className="inline-flex h-8 items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-800 px-2.5 text-xs font-medium text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40"
+            >
+              <span>Next</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
         </div>
       )}
 
-      {/* Admin Notice */}
-      <div className="border-t border-gray-200 bg-amber-50 px-4 py-3 text-center text-sm text-amber-700">
-        <strong>Admin View:</strong> This is a read-only view of the conversation. You cannot send messages.
+      {/* Administrative Read-only Disclaimer */}
+      <div className="flex items-center justify-center gap-2 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 px-4 py-2 text-center text-xs text-slate-500 dark:text-slate-400">
+        <Info className="h-3.5 w-3.5 text-slate-400" />
+        <span>Read-only administrative monitor. In compliance with student data privacy policies.</span>
       </div>
     </div>
   )
@@ -178,41 +128,62 @@ function MessageBubble({ message, isFromStudentA, studentA, studentB }: MessageB
   const sender = isFromStudentA ? studentA : studentB
 
   return (
-    <div className={`flex gap-3 ${isFromStudentA ? "" : "flex-row-reverse"}`}>
-      {/* Avatar */}
-      {sender.profilePicture ? (
-        <img
-          src={sender.profilePicture}
-          alt={sender.name}
-          className="h-8 w-8 rounded-full object-cover"
-        />
-      ) : (
-        <div
-          className={`flex h-8 w-8 items-center justify-center rounded-full ${
-            isFromStudentA ? "bg-blue-100" : "bg-purple-100"
-          }`}
-        >
-          <User className={`h-4 w-4 ${isFromStudentA ? "text-blue-600" : "text-purple-600"}`} />
+    <div className={`flex gap-3 ${isFromStudentA ? "justify-start" : "justify-end"}`}>
+      {/* Student A Avatar (Left) */}
+      {isFromStudentA && (
+        <div className="shrink-0 mt-0.5">
+          {sender.profilePicture ? (
+            <img
+              src={sender.profilePicture}
+              alt={sender.name}
+              className="h-8 w-8 rounded-full object-cover ring-1 ring-slate-200 dark:ring-slate-700"
+            />
+          ) : (
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold ring-1 ring-slate-200 dark:ring-slate-700">
+              {sender.name.charAt(0).toUpperCase()}
+            </div>
+          )}
         </div>
       )}
 
-      {/* Message */}
-      <div className={`max-w-[70%] ${isFromStudentA ? "" : "text-right"}`}>
+      {/* Bubble Content */}
+      <div className={`max-w-[75%] sm:max-w-[65%] space-y-1 ${isFromStudentA ? "text-left" : "text-right"}`}>
+        <div className="flex items-center gap-2 text-[11px] text-slate-400 dark:text-slate-500">
+          <span className="font-medium text-slate-700 dark:text-slate-300">{sender.name}</span>
+          <span>•</span>
+          <span title={format(new Date(message.createdAt), "PPpp")}>
+            {formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })}
+          </span>
+        </div>
+
         <div
-          className={`inline-block rounded-2xl px-4 py-2 ${
+          className={`inline-block rounded-2xl px-4 py-2.5 text-xs sm:text-sm leading-relaxed text-left break-words shadow-xs ${
             isFromStudentA
-              ? "rounded-tl-none bg-white shadow-sm"
-              : "rounded-tr-none bg-indigo-600 text-white"
+              ? "rounded-tl-xs bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-slate-800 dark:text-slate-100"
+              : "rounded-tr-xs bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 font-medium"
           }`}
         >
-          <p className="text-sm">{message.content}</p>
-        </div>
-        <div className="mt-1 flex items-center gap-2 text-xs text-gray-400">
-          <span>{sender.name}</span>
-          <span>•</span>
-          <span>{formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })}</span>
+          {message.content}
         </div>
       </div>
+
+      {/* Student B Avatar (Right) */}
+      {!isFromStudentA && (
+        <div className="shrink-0 mt-0.5">
+          {sender.profilePicture ? (
+            <img
+              src={sender.profilePicture}
+              alt={sender.name}
+              className="h-8 w-8 rounded-full object-cover ring-1 ring-slate-200 dark:ring-slate-700"
+            />
+          ) : (
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-100 text-xs font-bold ring-1 ring-slate-200 dark:ring-slate-700">
+              {sender.name.charAt(0).toUpperCase()}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
+

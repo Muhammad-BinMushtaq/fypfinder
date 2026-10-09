@@ -3,7 +3,7 @@
 
 import logger from "@/lib/logger"
 import { NextResponse } from "next/server"
-import { createSupabaseServerClient } from "@/lib/supabase"
+import { createSupabaseAdminClient } from "@/lib/supabase"
 import prisma from "@/lib/db"
 import { UserRole } from "@/lib/generated/prisma/enums"
 import { requireRole } from "@/lib/auth"
@@ -65,11 +65,13 @@ export async function POST(req: Request) {
             )
         }
 
-        const supabase = await createSupabaseServerClient()
+        const supabaseAdmin = createSupabaseAdminClient()
 
-        const { data, error } = await supabase.auth.signUp({
+        const { data, error } = await supabaseAdmin.auth.admin.createUser({
             email,
             password,
+            email_confirm: true,
+            user_metadata: { name: trimmedName, role: UserRole.ADMIN },
         })
 
         if (error || !data.user) {

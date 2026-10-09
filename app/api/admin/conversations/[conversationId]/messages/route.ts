@@ -79,16 +79,10 @@ export async function GET(
   } catch (error: any) {
     logger.error("Admin get messages error:", error)
 
-    if (error.message === "Unauthorized" || error.message === "Forbidden") {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.message === "Unauthorized" ? 401 : 403 }
-      )
-    }
-
+    const isUnauthorized = error?.message?.includes("Unauthorized")
     return NextResponse.json(
-      { error: "Failed to fetch messages" },
-      { status: 500 }
+      { error: isUnauthorized ? "Unauthorized" : "Failed to fetch messages" },
+      { status: isUnauthorized ? 403 : 500 }
     )
   }
 }

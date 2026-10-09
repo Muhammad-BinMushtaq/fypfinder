@@ -53,8 +53,9 @@ export function useSuspendStudent() {
   return useMutation({
     mutationFn: (studentId: string) => suspendStudent(studentId),
     onSuccess: (_, studentId) => {
-      // Invalidate students list to refetch
+      // Invalidate students list and stats to refetch
       queryClient.invalidateQueries({ queryKey: adminKeys.students() })
+      queryClient.invalidateQueries({ queryKey: adminKeys.stats() })
       
       // Update the specific student in cache if exists
       queryClient.setQueryData<StudentDetails>(
@@ -79,7 +80,9 @@ export function useUnsuspendStudent() {
   return useMutation({
     mutationFn: (studentId: string) => unsuspendStudent(studentId),
     onSuccess: (_, studentId) => {
+      // Invalidate students list and stats to refetch
       queryClient.invalidateQueries({ queryKey: adminKeys.students() })
+      queryClient.invalidateQueries({ queryKey: adminKeys.stats() })
       
       queryClient.setQueryData<StudentDetails>(
         adminKeys.student(studentId),
