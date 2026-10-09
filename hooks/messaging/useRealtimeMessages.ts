@@ -89,6 +89,11 @@ export function useRealtimeConversationUpdates(currentStudentId: string | null) 
               return
             }
 
+            // Check if user is actively viewing this conversation
+            const isCurrentlyViewing =
+              typeof window !== "undefined" &&
+              window.location.pathname.startsWith(`/dashboard/messages/${newRow.conversationId}`)
+
             // Update conversation preview + unread count locally
             queryClient.setQueryData<Conversation[]>(
               ["conversations"],
@@ -101,10 +106,10 @@ export function useRealtimeConversationUpdates(currentStudentId: string | null) 
                           id: newRow.id,
                           content: newRow.content,
                           senderId: newRow.senderId,
-                          isRead: newRow.isRead,
+                          isRead: isCurrentlyViewing ? true : newRow.isRead,
                           createdAt: newRow.createdAt,
                         },
-                        unreadCount: (c.unreadCount || 0) + 1,
+                        unreadCount: isCurrentlyViewing ? 0 : (c.unreadCount || 0) + 1,
                         updatedAt: newRow.createdAt,
                       }
                     : c
@@ -121,11 +126,13 @@ export function useRealtimeConversationUpdates(currentStudentId: string | null) 
               }
             )
 
-            // Update unread badge total
-            queryClient.setQueryData<number>(
-              ["unreadCount"],
-              (old = 0) => old + 1
-            )
+            // Update unread badge total only if not actively looking at this chat
+            if (!isCurrentlyViewing) {
+              queryClient.setQueryData<number>(
+                ["unreadCount"],
+                (old = 0) => old + 1
+              )
+            }
           }
         }
       )

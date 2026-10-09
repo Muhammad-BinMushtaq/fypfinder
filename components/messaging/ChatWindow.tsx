@@ -132,14 +132,13 @@ export function ChatWindow({
     setConnectionStatus("connecting")
 
     const channel = supabase
-      .channel(`chat:${conversationId}`)
+      .channel(`chat-window-${conversationId}`)
       .on(
         "postgres_changes",
         {
           event: "*",
           schema: "public",
           table: "Message",
-          filter: `conversationId=eq.${conversationId}`,
         },
         (payload: RealtimePayload) => {
           if (payload?.errors?.length) {
