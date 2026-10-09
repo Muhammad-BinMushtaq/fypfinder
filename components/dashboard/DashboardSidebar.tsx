@@ -100,7 +100,7 @@ export function DashboardSidebar({ userEmail, onLogout, isLoggingOut }: Dashboar
           <div className="w-10 h-10 bg-gradient-to-tr from-gray-900 to-gray-700 dark:from-white dark:to-gray-200 rounded-xl flex items-center justify-center shadow-lg transform transition-transform group-hover:scale-105">
             <GraduationCap className="w-6 h-6 text-white dark:text-gray-900" />
           </div>
-          <span className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">FYP Finder</span>
+          <span className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">FYPMate</span>
         </Link>
       </div>
 

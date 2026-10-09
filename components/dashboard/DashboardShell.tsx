@@ -246,7 +246,7 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
                     <div className="w-8 h-8 bg-gradient-to-tr from-gray-900 to-gray-700 dark:from-white dark:to-gray-200 rounded-xl flex items-center justify-center shrink-0 shadow-md">
                       <GraduationCap className="w-4 h-4 text-white dark:text-gray-900" />
                     </div>
-                    <span className="font-bold tracking-tight text-gray-900 dark:text-white text-base truncate">FYP Finder</span>
+                    <span className="font-bold tracking-tight text-gray-900 dark:text-white text-base truncate">FYPMate</span>
                   </Link>
                 )}
 

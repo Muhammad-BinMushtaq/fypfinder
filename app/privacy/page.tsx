@@ -1,9 +1,12 @@
-// app/privacy/page.tsx
+import type { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata = {
-  title: "Privacy Policy | FYP Finder",
-  description: "Privacy Policy for FYP Finder - Learn how we collect, use, and protect your data.",
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  description: "Privacy Policy for FYPMate - Learn how we collect, use, and safeguard student data.",
+  alternates: {
+    canonical: "/privacy",
+  },
 };
 
 export default function PrivacyPage() {
@@ -14,10 +17,10 @@ export default function PrivacyPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-neutral-200 to-neutral-400 rounded-xl flex items-center justify-center text-xl shadow-lg text-neutral-900">
-                🎓
+              <div className="w-10 h-10 bg-gradient-to-br from-neutral-200 to-neutral-400 rounded-xl flex items-center justify-center text-xl shadow-lg text-neutral-900 font-bold">
+                M
               </div>
-              <span className="text-xl font-bold text-white">FYP Finder</span>
+              <span className="text-xl font-bold text-white tracking-tight">FYPMate</span>
             </Link>
             <Link
               href="/"
@@ -45,10 +48,10 @@ export default function PrivacyPage() {
               <section>
                 <h2 className="text-xl font-semibold text-white mb-3">1. Introduction</h2>
                 <p className="leading-relaxed">
-                  FYP Finder ("we," "our," or "us") is committed to protecting your privacy. 
+                  FYPMate ("we," "our," or "us") is committed to protecting your privacy. 
                   This Privacy Policy explains how we collect, use, disclose, and safeguard your 
-                  information when you use our platform designed to help PAF-IAST university 
-                  students find Final Year Project (FYP) partners.
+                  information when you use our platform designed to help university 
+                  students find Final Year Project (FYP) partners and validate ideas.
                 </p>
               </section>
 
@@ -167,7 +170,7 @@ export default function PrivacyPage() {
               <section>
                 <h2 className="text-xl font-semibold text-white mb-3">9. Age Requirement</h2>
                 <p className="leading-relaxed">
-                  FYP Finder is designed for university students. By using this platform, you confirm 
+                  FYPMate is designed for university students. By using this platform, you confirm 
                   that you are at least 18 years of age or the age of majority in your jurisdiction.
                 </p>
               </section>
@@ -190,7 +193,7 @@ export default function PrivacyPage() {
                 </p>
                 <div className="bg-white/5 rounded-xl p-4 border border-white/10">
                   <p className="text-white font-medium">Muhammad bin Mushtaq</p>
-                  <p className="text-gray-400 text-sm">FYP Finder Developer</p>
+                  <p className="text-gray-400 text-sm">FYPMate Lead Developer</p>
                   <div className="flex items-center gap-4 mt-3">
                     <a
                       href="https://github.com/Muhammad-BinMushtaq/fypfinder"
@@ -231,7 +234,7 @@ export default function PrivacyPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-sm text-gray-500">
-              © 2026 FYP Finder. Built for academic purposes.
+              © 2026 FYPMate. All rights reserved.
             </p>
             <p className="text-xs text-gray-600">
               Built with Next.js, TypeScript, Prisma & Supabase

@@ -1,0 +1,40 @@
+# FYPMate — Comprehensive Platform Guide & LLM Reference
+
+Platform: FYPMate
+Website: https://fypmate.com
+Category: Educational Technology / Academic AI Collaboration Platform
+Target Audience: University undergraduate students, final year computer science, software engineering, AI, and engineering majors, academic advisors, and FYP project coordinators.
+
+## 1. What is FYPMate?
+FYPMate (located at https://fypmate.com) is a student collaboration and AI feasibility validation platform. It solves the two most common failure points in university Final Year Projects (FYP):
+1. Team Disconnect: Students struggling to find peers with complementary skill sets, aligned availability, and shared industry goals.
+2. Proposal Rejection: Projects failing initial defense committees due to lack of novelty, vague scope, or unrealistic hardware and timeline expectations.
+
+## 2. Key Modules & Tools
+
+### A. AI FYP Idea Validator (https://fypmate.com/idea-validator)
+An open-access and authenticated evaluation engine that benchmarks student project concepts using large language models and academic rubric criteria:
+- Novelty Analysis: Evaluates whether the project is an incremental duplicate or a novel innovation compared to historical FYP submissions.
+- Technical Difficulty: Categorizes implementation complexity into beginner, intermediate, or advanced tiers.
+- Defense Timeline: Formulates a realistic 2-semester development timeline with Midterm (Semester 7) and Final (Semester 8) defense milestones.
+- Multi-Criteria Rubric Scorecard: Scores across 5 dimensions out of 100 points.
+- Proposal Readiness Export: Generates downloadable academic validation reports formatted for submission to university project committees.
+
+### B. Student Teammate Discovery (https://fypmate.com/dashboard/discovery)
+A verified peer directory allowing students to:
+- Filter classmates by technical skills, programming languages, and framework experience.
+- View availability states (Available, Busy, Away).
+- Connect with peers targeting specific industries (AI/ML, Web, Mobile, Embedded Systems, Healthcare, Cybersecurity).
+- Send direct group collaboration invitations.
+
+## 3. Technology Stack & Verification
+- Frontend: Next.js 15, React 19, Tailwind CSS.
+- Authentication: University Single Sign-On (Microsoft Azure AD) & Supabase Auth.
+- Database: PostgreSQL with Prisma ORM.
+- AI Engine: Groq Llama-3-70b-versatile with multi-rubric structured extraction.
+
+## 4. Primary Web Pages
+- https://fypmate.com — Main portal and feature showcase.
+- https://fypmate.com/idea-validator — Free interactive AI FYP validator.
+- https://fypmate.com/login — University student sign-in.
+- https://fypmate.com/privacy — Student data privacy policy and protection measures.

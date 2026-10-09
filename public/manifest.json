@@ -1,7 +1,7 @@
 {
-  "name": "FYP Finder",
-  "short_name": "FYP Finder",
-  "description": "Find your perfect FYP partner at PAF-IAST",
+  "name": "FYPMate - AI FYP Idea Validator & Partner Platform",
+  "short_name": "FYPMate",
+  "description": "Find your perfect FYP partner and validate final year project ideas with AI",
   "start_url": "/dashboard/discovery",
   "display": "standalone",
   "background_color": "#1f2937",

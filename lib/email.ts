@@ -29,4 +29,4 @@ export function getMaileroo(): MailerooClient {
 export const EMAIL_FROM_ADDRESS = process.env.EMAIL_FROM_ADDRESS || "shamsimema@gmail.com"
 
 /** Default sender display name. */
-export const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME || "FYP Finder"
+export const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME || "FYPMate"

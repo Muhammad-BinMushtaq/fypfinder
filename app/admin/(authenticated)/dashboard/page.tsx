@@ -28,7 +28,7 @@ export default function AdminDashboardPage() {
             {admin?.name || "Administrator"}
           </h1>
           <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-            Platform performance and management overview for FYP Finder.
+            Platform performance and management overview for FYPMate.
           </p>
         </div>
 

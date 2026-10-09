@@ -167,7 +167,7 @@ export function StudentActions({ student, onClose }: StudentActionsProps) {
                     </div>
                     <div>
                       <p className="text-xs font-bold text-emerald-900 dark:text-emerald-200">Unsuspend Account</p>
-                      <p className="text-[11px] text-emerald-700/80 dark:text-emerald-400/80">Reactivate access to FYP Finder</p>
+                      <p className="text-[11px] text-emerald-700/80 dark:text-emerald-400/80">Reactivate access to FYPMate</p>
                     </div>
                   </div>
                 </button>

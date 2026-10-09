@@ -1,8 +1,17 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { MicrosoftAuthButton } from "@/components/auth/LoginForm";
 import { getAuthenticatedRedirectPath, getCurrentUser } from "@/lib/auth";
+
+export const metadata: Metadata = {
+  title: "Sign In",
+  description: "Sign in to FYPMate to find university project teammates and validate FYP ideas.",
+  alternates: {
+    canonical: "/login",
+  },
+};
 
 export default async function LoginPage() {
   let redirectPath: string | null = null;
@@ -44,7 +53,7 @@ export default async function LoginPage() {
               </svg>
             </div>
           </Link>
-          <h1 className="text-4xl font-semibold tracking-tight text-zinc-100">FYP Partner Finder</h1>
+          <h1 className="text-4xl font-semibold tracking-tight text-zinc-100">FYPMate</h1>
           <p className="mt-2 text-sm text-zinc-400">Find your perfect FYP partner</p>
         </div>
 

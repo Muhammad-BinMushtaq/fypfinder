@@ -66,7 +66,7 @@ export function InstallButton() {
     <button
       onClick={handleInstallClick}
       className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-lg transition-colors"
-      title="Install FYP Finder"
+      title="Install FYPMate"
     >
       <Download className="w-3.5 h-3.5" />
       <span className="hidden sm:inline">Install App</span>

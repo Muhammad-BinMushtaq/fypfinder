@@ -214,7 +214,7 @@ export default function FeedbackPage() {
               Share Your Feedback
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
-              Help us make FYP Finder faster, smoother, and more useful. Every submission goes directly to our moderation and development team.
+              Help us make FYPMate faster, smoother, and more useful. Every submission goes directly to our moderation and development team.
             </p>
           </div>
         </div>

@@ -20,36 +20,74 @@ export const viewport: Viewport = {
   interactiveWidget: "resizes-content",
 };
 
-// PWA Metadata configuration
+// PWA & SEO Metadata configuration
 export const metadata: Metadata = {
-  title: "FYP Finder - Find Your Perfect Project Partner",
-  description: "Connect with Paf-iast students for your Final Year Project. Find partners, form groups, and collaborate.",
+  metadataBase: new URL("https://fypmate.com"),
+  title: {
+    default: "FYPMate | AI FYP Idea Validator & Student Teammate Platform",
+    template: "%s | FYPMate",
+  },
+  description:
+    "FYPMate is the university platform to find the right Final Year Project teammates and benchmark project proposals with AI feasibility & defense rubric scoring.",
+  applicationName: "FYPMate",
+  authors: [{ name: "Muhammad bin Mushtaq" }],
+  generator: "Next.js",
+  keywords: [
+    "FYPMate",
+    "FYP partner finder",
+    "final year project teammates",
+    "FYP idea validator",
+    "project feasibility assessment",
+    "university FYP groups",
+    "PAF-IAST FYP",
+    "student project collaboration",
+    "AI FYP assessment",
+    "FYP defense preparation",
+  ],
   manifest: "/manifest.json",
+  alternates: {
+    canonical: "/",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "FYP Finder",
+    title: "FYPMate",
   },
   formatDetection: {
     telephone: false,
   },
   openGraph: {
     type: "website",
-    siteName: "FYP Finder",
-    title: "FYP Finder - Find Your Perfect Project Partner",
-    description: "Connect with Paf-iast students for your Final Year Project",
+    locale: "en_US",
+    url: "https://fypmate.com",
+    siteName: "FYPMate",
+    title: "FYPMate | AI FYP Idea Validator & Student Teammate Platform",
+    description:
+      "Find ideal university project partners and validate your Final Year Project proposals with AI rubric scoring and defense timelines.",
   },
   twitter: {
-    card: "summary",
-    title: "FYP Finder",
-    description: "Find your perfect FYP partner at Paf-iast",
+    card: "summary_large_image",
+    title: "FYPMate | Find Teammates & Validate FYP Ideas",
+    description:
+      "Connect with university peers and benchmark your FYP proposals with AI.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
   other: {
     "mobile-web-app-capable": "yes",
     "apple-mobile-web-app-capable": "yes",
-    "application-name": "FYP Finder",
-    "apple-mobile-web-app-title": "FYP Finder",
-    "msapplication-TileColor": "#4f46e5",
+    "application-name": "FYPMate",
+    "apple-mobile-web-app-title": "FYPMate",
+    "msapplication-TileColor": "#0f172a",
   },
 };
 

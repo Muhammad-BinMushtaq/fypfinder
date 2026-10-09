@@ -1,4 +1,4 @@
-# PWA Icons for FYP Finder
+# PWA Icons for FYPMate
 
 This folder should contain PNG icons for the PWA. The app uses a 🎓 graduation cap as its logo.
 

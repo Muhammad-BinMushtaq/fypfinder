@@ -146,7 +146,7 @@ export default function AdminSettingsPage() {
 
             <div className="flex items-center justify-between py-3">
               <span className="text-slate-500 dark:text-slate-400">Application Name</span>
-              <span className="font-semibold text-slate-900 dark:text-white">FYP Finder Admin Suite</span>
+              <span className="font-semibold text-slate-900 dark:text-white">FYPMate Admin Suite</span>
             </div>
 
             <div className="flex items-center justify-between py-3">

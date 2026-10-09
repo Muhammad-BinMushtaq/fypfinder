@@ -152,7 +152,7 @@ export function InstallPromptBanner() {
           {/* Content */}
           <div className="flex-1 min-w-0 pr-6">
             <h3 className="font-semibold text-gray-900 dark:text-white text-sm">
-              Install FYP Finder
+              Install FYPMate
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
               Get quick access and notifications on your device

@@ -198,7 +198,7 @@ Return a JSON object with exactly these keys:
 }
 
 export function buildPdfIdeaExtractionSystemPrompt(): string {
-  return `You are an academic FYP proposal extraction engine for FYP Finder.
+  return `You are an academic FYP proposal extraction engine for FYPMate.
 
 Extract structured final year project idea data from PDF text.
 

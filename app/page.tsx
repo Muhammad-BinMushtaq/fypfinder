@@ -30,8 +30,85 @@ export default async function HomePage({
     redirect(redirectPath);
   }
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://fypmate.com/#website",
+        "url": "https://fypmate.com",
+        "name": "FYPMate",
+        "description": "AI-powered FYP Idea Validator and Student Teammate Discovery Platform",
+        "publisher": {
+          "@type": "Organization",
+          "name": "FYPMate",
+          "url": "https://fypmate.com"
+        }
+      },
+      {
+        "@type": "WebApplication",
+        "@id": "https://fypmate.com/#webapp",
+        "name": "FYPMate",
+        "url": "https://fypmate.com",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "All",
+        "browserRequirements": "Requires JavaScript. Requires HTML5.",
+        "description": "Connect with university students for Final Year Projects (FYP) and validate research proposals with an AI-powered evaluation engine.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://fypmate.com/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is FYPMate?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "FYPMate is an AI-powered academic platform helping university students find the ideal Final Year Project (FYP) teammates, discover peer collaborators by technical skill, and validate project feasibility."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does the AI FYP Idea Validator work?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The AI FYP Idea Validator evaluates project titles and descriptions across novelty, technical difficulty, timeline feasibility, team fit, and hardware requirements, providing instant rubric-based scores and benchmark comparisons."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Who can use FYPMate?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "FYPMate is designed for university undergraduate and graduate engineering, computer science, and software students looking for project partners, research collaborators, and automated proposal evaluations."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is FYPMate free to use?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, FYPMate is completely free for university students to find project partners and validate their academic project ideas."
+            }
+          }
+        ]
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-white dark:bg-slate-900 relative">
+      {/* Schema.org Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* Subtle Grid Background - stays behind all content */}
       <div className="fixed inset-0 bg-[linear-gradient(to_right,#e5e5e5_1px,transparent_1px),linear-gradient(to_bottom,#e5e5e5_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:64px_64px] opacity-40 dark:opacity-100" style={{ zIndex: -1 }} />
 
@@ -48,7 +125,7 @@ export default async function HomePage({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14v7" />
                 </svg>
               </div>
-              <span className="text-lg font-semibold text-gray-900 dark:text-white tracking-tight">FYP Finder</span>
+              <span className="text-lg font-semibold text-gray-900 dark:text-white tracking-tight">FYPMate</span>
             </div>
 
             {/* CTA + Theme Toggle */}
@@ -405,7 +482,7 @@ export default async function HomePage({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
                   </svg>
                 </div>
-                <span className="text-lg font-semibold text-gray-900 dark:text-white">FYP Finder</span>
+                <span className="text-lg font-semibold text-gray-900 dark:text-white">FYPMate</span>
               </div>
               <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
                 A platform to help university students find the perfect teammates for Final Year Projects.
@@ -479,7 +556,7 @@ export default async function HomePage({
           {/* Bottom */}
           <div className="pt-8 mt-8 border-t border-gray-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-sm text-gray-400 dark:text-gray-500">
-              © 2026 FYP Finder. Built for academic purposes.
+              © 2026 FYPMate. Built for academic purposes.
             </p>
             <div className="flex items-center gap-4">
               <Link href="/privacy" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors">

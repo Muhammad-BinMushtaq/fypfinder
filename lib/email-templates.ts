@@ -44,9 +44,9 @@ const SECTION_LABELS: Record<MissingSection, string> = {
 export function getProfileReminderTemplate(): { subject: string; html: string } {
   const profileUrl = process.env.NEXT_PUBLIC_APP_URL
     ? `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/profile`
-    : "https://fypfinder.com/dashboard/profile"
+    : "https://fypmate.com/dashboard/profile"
 
-  const subject = "Complete Your FYP Finder Profile"
+  const subject = "Complete Your FYPMate Profile"
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -64,7 +64,7 @@ export function getProfileReminderTemplate(): { subject: string; html: string } 
           <tr>
             <td style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); padding: 32px 40px; text-align: center;">
               <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">
-                FYP Finder
+                FYPMate
               </h1>
               <p style="margin: 8px 0 0; color: #c7d2fe; font-size: 14px;">
                 Find your perfect FYP partner
@@ -83,7 +83,7 @@ export function getProfileReminderTemplate(): { subject: string; html: string } 
               </p>
 
               <p style="color: #334155; font-size: 15px; line-height: 1.7; margin: 0 0 24px 0;">
-                We noticed that <strong>{{missing_count}}</strong> section(s) of your FYP Finder profile are still incomplete.
+                We noticed that <strong>{{missing_count}}</strong> section(s) of your FYPMate profile are still incomplete.
                 Completing your profile helps potential FYP partners find and connect with you more easily.
               </p>
 
@@ -120,7 +120,7 @@ export function getProfileReminderTemplate(): { subject: string; html: string } 
           <tr>
             <td style="background-color: #f8fafc; padding: 24px 40px; border-top: 1px solid #e2e8f0;">
               <p style="margin: 0 0 4px; color: #94a3b8; font-size: 12px; text-align: center;">
-                This email was sent by FYP Finder because your profile is not yet complete.
+                This email was sent by FYPMate because your profile is not yet complete.
               </p>
               <p style="margin: 0; color: #94a3b8; font-size: 12px; text-align: center;">
                 If you believe this was sent in error, you can safely ignore this email.

@@ -1,34 +1,42 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e1b4b"/>
+    </linearGradient>
+  </defs>
   <!-- Background -->
-  <rect width="512" height="512" rx="80" fill="#111827"/>
+  <rect width="512" height="512" rx="104" fill="url(#bgGrad)"/>
+  <rect width="510" height="510" x="1" y="1" rx="103" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
   
   <!-- Graduation Cap -->
-  <g transform="translate(256, 220)">
+  <g transform="translate(256, 210)">
     <!-- Cap top (mortarboard) -->
-    <polygon points="0,-80 140,0 0,40 -140,0" fill="#ffffff"/>
+    <polygon points="0,-85 145,-5 0,38 -145,-5" fill="#ffffff"/>
     
     <!-- Cap base -->
-    <ellipse cx="0" cy="40" rx="100" ry="25" fill="#e5e7eb"/>
+    <ellipse cx="0" cy="38" rx="100" ry="24" fill="#cbd5e1"/>
     
     <!-- Tassel button -->
-    <circle cx="0" cy="-80" r="15" fill="#fbbf24"/>
+    <circle cx="0" cy="-85" r="14" fill="#f59e0b"/>
     
     <!-- Tassel cord -->
-    <path d="M0,-65 Q40,-40 50,20 Q55,60 45,100" 
-          stroke="#fbbf24" 
-          stroke-width="8" 
+    <path d="M0,-72 Q42,-45 52,18 Q57,58 48,96" 
+          stroke="#f59e0b" 
+          stroke-width="7" 
           fill="none" 
           stroke-linecap="round"/>
     
     <!-- Tassel end -->
-    <path d="M40,95 L50,140 L45,100 L55,95 Z" fill="#fbbf24"/>
+    <path d="M43,92 L53,135 L47,97 L57,92 Z" fill="#f59e0b"/>
   </g>
   
-  <!-- FYP Text -->
-  <text x="256" y="420" 
-        font-family="Arial, sans-serif" 
-        font-size="80" 
-        font-weight="bold" 
+  <!-- Brand Text -->
+  <text x="256" y="415" 
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+        font-size="64" 
+        font-weight="800" 
+        letter-spacing="1"
         fill="#ffffff" 
-        text-anchor="middle">FYP</text>
+        text-anchor="middle">FYPMate</text>
 </svg>

@@ -1,4 +1,4 @@
-// FYP Finder Service Worker
+// FYPMate Service Worker
 // Version: 1.1.1
 // Purpose: PWA support + Push Notifications + Offline Support
 
@@ -208,7 +208,7 @@ self.addEventListener('push', (event) => {
   console.log('[SW] Push received');
   
   let data = {
-    title: 'FYP Finder',
+    title: 'FYPMate',
     body: 'You have a new notification',
     icon: '/icons/icon-192x192.png',
     badge: '/icons/icon-96x96.png',

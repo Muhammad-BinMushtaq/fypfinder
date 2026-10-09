@@ -1,6 +1,6 @@
-# 🎓 FYP Finder
+# 🎓 FYPMate (`fypmate.com`)
 
-**FYP Finder** is a Next.js 15 collaboration platform designed for students at **PAF-IAST** to discover peers, form Final Year Project (FYP) teams based on skills and interests, communicate in real time, and validate project ideas with AI.
+**FYPMate** is a Next.js 15 collaboration platform designed for university students to discover peers, form Final Year Project (FYP) teams based on skills and interests, communicate in real time, and validate project ideas with AI.
 
 ---
 

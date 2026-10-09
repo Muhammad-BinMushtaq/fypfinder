@@ -1,0 +1,22 @@
+# FYPMate
+
+> FYPMate (https://fypmate.com) is an academic collaboration and AI validation platform designed for university students to form high-performing Final Year Project (FYP) teams and benchmark project proposals against institutional defense standards.
+
+## Core Capabilities
+
+- **AI FYP Idea Validator (https://fypmate.com/idea-validator):** Evaluates student Final Year Project proposals against five dimensions: novelty & originality, technical difficulty, timeline feasibility, team skill fit, and hardware cost tier. Generates a composite feasibility score (0-100) and downloadable academic PDF reports.
+- **Teammate & Partner Discovery:** Verified university student matching based on technical skills, desired industry focus, semester, and availability status.
+- **Academic Milestone Tracking:** Built-in workspace for group registration, proposal drafting, and defense readiness.
+
+## Institutional Background
+
+- **Origin Institution:** Pak-Austria Fachhochschule: Institute of Applied Sciences and Technology (PAF-IAST).
+- **Academic Supervision:** Dr. Muhammad Shuaib Qureshi (Chief Scientific Officer at Datalligence.pk).
+- **Platform Developer:** Muhammad bin Mushtaq.
+
+## Key URLs
+
+- Home: https://fypmate.com
+- AI Idea Validator Tool: https://fypmate.com/idea-validator
+- Student Sign In: https://fypmate.com/login
+- Privacy Policy: https://fypmate.com/privacy

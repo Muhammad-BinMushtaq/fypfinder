@@ -48,7 +48,7 @@ export default function AdminLoginClient() {
               Administrator Portal
             </h1>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              FYP Finder Management Console
+              FYPMate Management Console
             </p>
           </div>
         </div>

@@ -73,7 +73,7 @@ export function AdminSidebar({ isMobileOpen, onMobileClose }: AdminSidebarProps)
           </div>
           <div>
             <span className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">
-              FYP Finder
+              FYPMate
             </span>
             <span className="ml-1.5 inline-block rounded-md bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600 dark:text-slate-400">
               Admin
