@@ -1,198 +1,91 @@
 // lib/feedback-categories.ts
 
-export interface FeedbackCategoryGroup {
-  group: string;
-  items: {
-    id: string;
-    label: string;
-    description: string;
-  }[];
+export interface FeedbackCategory {
+  id: string;
+  label: string;
+  description: string;
+  iconName: "Bug" | "Lightbulb" | "Users" | "Sparkles" | "Palette" | "MessageSquare";
+  color: {
+    bg: string;
+    text: string;
+    border: string;
+    badge: string;
+  };
 }
 
-export const FEEDBACK_CATEGORIES: FeedbackCategoryGroup[] = [
+export const FEEDBACK_CATEGORIES: FeedbackCategory[] = [
   {
-    group: "Bugs & Issues",
-    items: [
-      {
-        id: "chat_sync",
-        label: "Chat & Realtime Sync",
-        description: "Messages delayed or not showing in real time",
-      },
-      {
-        id: "push_notifications",
-        label: "Push Notifications",
-        description: "Notification counter or permission banners glitching",
-      },
-      {
-        id: "partner_requests",
-        label: "Partner Request Bug",
-        description: "Issues sending, receiving, or accepting requests",
-      },
-      {
-        id: "fyp_validation_error",
-        label: "FYP Validation Error",
-        description: "AI evaluation stuck or failing during analysis",
-      },
-      {
-        id: "profile_upload",
-        label: "Profile Picture / Upload",
-        description: "Avatar upload fails or displays improperly",
-      },
-      {
-        id: "project_embeds",
-        label: "Project Embeds",
-        description: "GitHub repository cards, PDF or Demo link issues",
-      },
-      {
-        id: "auth_session",
-        label: "Login / Session Issue",
-        description: "Unexpected logouts or session expiry problems",
-      },
-      {
-        id: "dark_mode_glitch",
-        label: "Dark Mode / Visual Glitch",
-        description: "Text contrast, color overriding or styling glitches",
-      },
-      {
-        id: "mobile_keyboard",
-        label: "Mobile Keyboard Issue",
-        description: "Keyboard overlaps inputs or jumps screen positions",
-      },
-      {
-        id: "performance_lag",
-        label: "Slow Performance / Lag",
-        description: "Pages take too long to load or feel sluggish",
-      },
-    ],
+    id: "bug_issue",
+    label: "Bug or Issue Report",
+    description: "Something is broken, glitched, or not working as expected",
+    iconName: "Bug",
+    color: {
+      bg: "bg-rose-50 dark:bg-rose-950/40",
+      text: "text-rose-600 dark:text-rose-400",
+      border: "border-rose-200 dark:border-rose-900/60",
+      badge: "bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300",
+    },
   },
   {
-    group: "Partner Discovery & Team",
-    items: [
-      {
-        id: "filter_accuracy",
-        label: "Filter Accuracy",
-        description: "Department, semester, or skill filters mismatching",
-      },
-      {
-        id: "profile_data",
-        label: "Student Profile Data",
-        description: "Incorrect semester or academic details shown",
-      },
-      {
-        id: "group_formation",
-        label: "Group Formation Confusion",
-        description: "Confusing FYP team creation or member invites",
-      },
-      {
-        id: "inactive_profiles",
-        label: "Inactive Profiles",
-        description: "Inactive or duplicate accounts cluttering discovery",
-      },
-      {
-        id: "search_improvements",
-        label: "Search Improvements",
-        description: "Need better keyword, tech-stack or name search",
-      },
-    ],
+    id: "feature_request",
+    label: "Feature Request",
+    description: "Suggest a new tool, capability, or workflow improvement",
+    iconName: "Lightbulb",
+    color: {
+      bg: "bg-amber-50 dark:bg-amber-950/40",
+      text: "text-amber-600 dark:text-amber-400",
+      border: "border-amber-200 dark:border-amber-900/60",
+      badge: "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300",
+    },
   },
   {
-    group: "FYP Ideas & AI Validator",
-    items: [
-      {
-        id: "ai_quality",
-        label: "AI Feedback Quality",
-        description: "Scores or feasibility feedback needs better accuracy",
-      },
-      {
-        id: "idea_form",
-        label: "Idea Submission Form",
-        description: "Form fields need more flexibility or clearer guidelines",
-      },
-      {
-        id: "past_catalog",
-        label: "Past FYP Catalog",
-        description: "Missing past projects or archive search accuracy",
-      },
-      {
-        id: "export_roadmap",
-        label: "Export / Roadmap PDF",
-        description: "Want downloadable PDF or clean roadmap exports",
-      },
-      {
-        id: "supervisor_matching",
-        label: "Supervisor Matching",
-        description: "Want faculty advisor recommendations for ideas",
-      },
-    ],
+    id: "partner_matching",
+    label: "Partner Finding & Teammates",
+    description: "Feedback on partner filters, profiles, or FYP team matching",
+    iconName: "Users",
+    color: {
+      bg: "bg-blue-50 dark:bg-blue-950/40",
+      text: "text-blue-600 dark:text-blue-400",
+      border: "border-blue-200 dark:border-blue-900/60",
+      badge: "bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300",
+    },
   },
   {
-    group: "Feature Requests & Enhancements",
-    items: [
-      {
-        id: "voice_notes",
-        label: "Audio / Voice Notes",
-        description: "Want audio voice clips in peer messaging",
-      },
-      {
-        id: "file_attachments",
-        label: "File & Code Attachments",
-        description: "Ability to share code snippets or ZIP documents in chat",
-      },
-      {
-        id: "task_management",
-        label: "Group Task Management",
-        description: "Kanban board or milestone tracker improvements",
-      },
-      {
-        id: "alumni_mentorship",
-        label: "Alumni & Seniors Mentorship",
-        description: "Direct connection to seniors who completed similar FYPs",
-      },
-      {
-        id: "meeting_scheduler",
-        label: "Meeting Scheduler",
-        description: "Built-in Google Meet or sync meeting calendar",
-      },
-      {
-        id: "email_digest",
-        label: "Email Digest",
-        description: "Weekly email summary of requests and new partners",
-      },
-    ],
+    id: "fyp_validation",
+    label: "FYP Ideas & AI Validator",
+    description: "Feedback on AI validation scores, proposals, or past catalogs",
+    iconName: "Sparkles",
+    color: {
+      bg: "bg-purple-50 dark:bg-purple-950/40",
+      text: "text-purple-600 dark:text-purple-400",
+      border: "border-purple-200 dark:border-purple-900/60",
+      badge: "bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300",
+    },
   },
   {
-    group: "UI/UX & General Experience",
-    items: [
-      {
-        id: "navigation_ux",
-        label: "Navigation & Usability",
-        description: "Certain views or links felt confusing or hard to find",
-      },
-      {
-        id: "form_clarity",
-        label: "Form Clarity & Instructions",
-        description: "Input fields could use clearer tooltips or examples",
-      },
-      {
-        id: "safety_moderation",
-        label: "Spam & Safety Report",
-        description: "Report inappropriate behavior or suspicious profile",
-      },
-      {
-        id: "compliment",
-        label: "Appreciation & Compliments",
-        description: "Sharing love and kudos with the FYP Finder team!",
-      },
-      {
-        id: "other",
-        label: "Other (Custom Topic)",
-        description: "Anything else not covered in the list above",
-      },
-    ],
+    id: "ui_ux_design",
+    label: "UI / UX & Mobile Usability",
+    description: "Visual styling, mobile keyboard, layout, or navigation feedback",
+    iconName: "Palette",
+    color: {
+      bg: "bg-emerald-50 dark:bg-emerald-950/40",
+      text: "text-emerald-600 dark:text-emerald-400",
+      border: "border-emerald-200 dark:border-emerald-900/60",
+      badge: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300",
+    },
+  },
+  {
+    id: "other_general",
+    label: "Other / General Feedback",
+    description: "Questions, custom thoughts, appreciation, or other feedback",
+    iconName: "MessageSquare",
+    color: {
+      bg: "bg-slate-100 dark:bg-slate-800/60",
+      text: "text-slate-700 dark:text-slate-300",
+      border: "border-slate-200 dark:border-slate-700",
+      badge: "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300",
+    },
   },
 ];
 
-// Flat array of all valid category labels
-export const ALL_CATEGORY_LABELS = FEEDBACK_CATEGORIES.flatMap((g) =>
-  g.items.map((i) => i.label)
-);
+export const ALL_CATEGORY_LABELS = FEEDBACK_CATEGORIES.map((c) => c.label);

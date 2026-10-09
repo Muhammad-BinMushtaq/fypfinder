@@ -147,6 +147,17 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
         staleTime: 5 * 60 * 1000,
       });
 
+      queryClient.prefetchQuery({
+        queryKey: ["my-feedback"],
+        queryFn: async () => {
+          const res = await fetch("/api/feedback/my-feedback");
+          if (!res.ok) return null;
+          const json = await res.json();
+          return json.data || null;
+        },
+        staleTime: 60 * 1000,
+      });
+
       // Eagerly prefetch profile, settings, and feedback pages
       router.prefetch("/dashboard/profile");
       router.prefetch("/dashboard/settings");

@@ -1,7 +1,8 @@
 // app/dashboard/feedback/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import {
   MessageSquareHeart,
@@ -15,8 +16,14 @@ import {
   HelpCircle,
   ShieldCheck,
   ChevronDown,
+  Check,
+  Bug,
+  Lightbulb,
+  Users,
+  Palette,
+  MessageSquare,
 } from "lucide-react";
-import { FEEDBACK_CATEGORIES, ALL_CATEGORY_LABELS } from "@/lib/feedback-categories";
+import { FEEDBACK_CATEGORIES, type FeedbackCategory } from "@/lib/feedback-categories";
 
 interface FeedbackItem {
   id: string;
@@ -36,56 +43,68 @@ interface MyFeedbackResponse {
   canSubmitNew: boolean;
 }
 
+// Icon mapper for categories
+function CategoryIcon({ name, className }: { name: FeedbackCategory["iconName"]; className?: string }) {
+  switch (name) {
+    case "Bug":
+      return <Bug className={className} />;
+    case "Lightbulb":
+      return <Lightbulb className={className} />;
+    case "Users":
+      return <Users className={className} />;
+    case "Sparkles":
+      return <Sparkles className={className} />;
+    case "Palette":
+      return <Palette className={className} />;
+    case "MessageSquare":
+    default:
+      return <MessageSquare className={className} />;
+  }
+}
+
 export default function FeedbackPage() {
-  const [data, setData] = useState<MyFeedbackResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
+
+  const { data, isLoading } = useQuery<MyFeedbackResponse>({
+    queryKey: ["my-feedback"],
+    queryFn: async () => {
+      const res = await fetch("/api/feedback/my-feedback", {
+        headers: { "Cache-Control": "no-cache" },
+      });
+      if (!res.ok) throw new Error("Failed to load feedback");
+      const json = await res.json();
+      return json.data;
+    },
+    staleTime: 60 * 1000,
+  });
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showNewForm, setShowNewForm] = useState(false);
 
   // Form states
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<FeedbackCategory | null>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [customTitle, setCustomTitle] = useState("");
   const [description, setDescription] = useState("");
 
-  const fetchFeedback = async () => {
-    try {
-      setIsLoading(true);
-      const res = await fetch("/api/feedback/my-feedback", {
-        headers: { "Cache-Control": "no-cache" },
-      });
-      if (res.ok) {
-        const json = await res.json();
-        setData(json.data);
-        if (!json.data.activeTicket && !json.data.latestResolvedTicket) {
-          setShowNewForm(true);
-        } else if (!json.data.activeTicket) {
-          setShowNewForm(false);
-        }
-      } else {
-        toast.error("Failed to load feedback status");
-      }
-    } catch {
-      toast.error("Network error loading feedback");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // Close dropdown when clicking outside
   useEffect(() => {
-    fetchFeedback();
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!selectedCategory) {
-      toast.warning("Please select a feedback category");
-      return;
-    }
-
-    const isOther = selectedCategory.toLowerCase().includes("other");
-    if (isOther && (!customTitle || customTitle.trim().length < 3)) {
-      toast.warning("Please enter a custom topic title (minimum 3 characters)");
+      toast.warning("Please choose a category");
       return;
     }
 
@@ -100,8 +119,8 @@ export default function FeedbackPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          category: selectedCategory,
-          customTitle: isOther ? customTitle.trim() : null,
+          category: selectedCategory.label,
+          customTitle: customTitle.trim() || null,
           description: description.trim(),
         }),
       });
@@ -110,11 +129,12 @@ export default function FeedbackPage() {
 
       if (res.ok) {
         toast.success("Feedback submitted! Our team has been notified.");
-        setSelectedCategory("");
+        setSelectedCategory(null);
         setCustomTitle("");
         setDescription("");
         setShowNewForm(false);
-        await fetchFeedback();
+        // Instant React Query cache invalidation
+        await queryClient.invalidateQueries({ queryKey: ["my-feedback"] });
       } else {
         toast.error(result.message || "Failed to submit feedback");
       }
@@ -165,23 +185,12 @@ export default function FeedbackPage() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] text-center p-6">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600 mb-3" />
-        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-          Loading feedback status...
-        </p>
-      </div>
-    );
-  }
-
   const activeTicket = data?.activeTicket;
   const latestResolved = data?.latestResolvedTicket;
 
   return (
-    <div className="w-full max-w-2xl mx-auto space-y-6 pb-12">
-      {/* Header section */}
+    <div className="w-full max-w-2xl mx-auto space-y-5 pb-12">
+      {/* Header section (Always visible immediately) */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xs">
         <div className="flex items-start gap-3.5">
           <div className="p-2.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl shrink-0">
@@ -192,14 +201,23 @@ export default function FeedbackPage() {
               Share Your Feedback
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
-              Help us make FYP Finder faster, smoother, and more useful for everyone. Every suggestion goes directly to our engineering and moderation team.
+              Help us make FYP Finder faster, smoother, and more useful. Every submission goes directly to our moderation and development team.
             </p>
           </div>
         </div>
       </div>
 
+      {/* Subtle inline skeleton on very first cold fetch only (no full page blocking) */}
+      {isLoading && !data && (
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-xs space-y-4 animate-pulse">
+          <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-1/3"></div>
+          <div className="h-10 bg-slate-100 dark:bg-slate-800/60 rounded-xl"></div>
+          <div className="h-28 bg-slate-100 dark:bg-slate-800/60 rounded-xl"></div>
+        </div>
+      )}
+
       {/* STATE A: ACTIVE TICKET IN PROGRESS (Blocks new submission) */}
-      {activeTicket && (
+      {!isLoading && activeTicket && (
         <div className="bg-white dark:bg-slate-900 border border-amber-200/80 dark:border-amber-900/50 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
@@ -218,7 +236,7 @@ export default function FeedbackPage() {
             {getStatusBadge(activeTicket.status)}
           </div>
 
-          <div className="space-y-1.5">
+          <div className="space-y-1">
             <h2 className="text-base font-bold text-slate-900 dark:text-white">
               {activeTicket.customTitle || activeTicket.category}
             </h2>
@@ -233,7 +251,7 @@ export default function FeedbackPage() {
             {activeTicket.description}
           </div>
 
-          {/* Admin response if given interim */}
+          {/* Admin response note if given */}
           {activeTicket.adminResponse && (
             <div className="p-4 rounded-xl bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-900/40 space-y-1.5">
               <div className="flex items-center gap-2 text-xs font-bold text-blue-900 dark:text-blue-300">
@@ -257,7 +275,7 @@ export default function FeedbackPage() {
       )}
 
       {/* STATE B: LATEST RESOLVED TICKET (Display closed feedback + admin reply + Unlock button) */}
-      {!activeTicket && latestResolved && !showNewForm && (
+      {!isLoading && !activeTicket && latestResolved && !showNewForm && (
         <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
@@ -276,7 +294,7 @@ export default function FeedbackPage() {
             {getStatusBadge(latestResolved.status)}
           </div>
 
-          <div className="space-y-1.5">
+          <div className="space-y-1">
             <h2 className="text-base font-bold text-slate-900 dark:text-white">
               {latestResolved.customTitle || latestResolved.category}
             </h2>
@@ -315,7 +333,7 @@ export default function FeedbackPage() {
           <div className="pt-2 flex justify-end">
             <button
               onClick={() => setShowNewForm(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-xs transition-colors active:scale-98 cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-xs transition-colors active:scale-98 cursor-pointer"
             >
               <PlusCircle className="w-4 h-4" />
               Submit New Feedback
@@ -324,15 +342,15 @@ export default function FeedbackPage() {
         </div>
       )}
 
-      {/* STATE C: FRESH SUBMISSION FORM (When allowed) */}
-      {(!activeTicket && (showNewForm || !latestResolved)) && (
+      {/* STATE C: FRESH SUBMISSION FORM (When allowed or requested) */}
+      {!isLoading && !activeTicket && (showNewForm || !latestResolved) && (
         <form
           onSubmit={handleSubmit}
           className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xs space-y-5"
         >
           <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
             <h2 className="text-base font-bold text-slate-900 dark:text-white">
-              Create New Submission
+              Create Feedback Submission
             </h2>
             {latestResolved && (
               <button
@@ -345,60 +363,115 @@ export default function FeedbackPage() {
             )}
           </div>
 
-          {/* Category Dropdown */}
-          <div className="space-y-1.5">
-            <label
-              htmlFor="category-select"
-              className="block text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200"
-            >
-              Category Selection <span className="text-red-500">*</span>
+          {/* Modern Custom Dropdown Selector */}
+          <div className="space-y-2" ref={dropdownRef}>
+            <label className="block text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200">
+              Reason / Category <span className="text-red-500">*</span>
             </label>
+
+            {/* Custom Dropdown Trigger */}
             <div className="relative">
-              <select
-                id="category-select"
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full appearance-none rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/70 px-3.5 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white focus:border-blue-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 pr-10 cursor-pointer"
-                required
+              <button
+                type="button"
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl border text-left transition-all cursor-pointer ${
+                  selectedCategory
+                    ? "bg-white dark:bg-slate-800/90 border-blue-500/80 dark:border-blue-500/80 shadow-xs ring-2 ring-blue-500/10"
+                    : "bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600"
+                }`}
               >
-                <option value="" disabled>
-                  -- Select a reason or category ({ALL_CATEGORY_LABELS.length} topics) --
-                </option>
-                {FEEDBACK_CATEGORIES.map((catGroup) => (
-                  <optgroup key={catGroup.group} label={catGroup.group}>
-                    {catGroup.items.map((item) => (
-                      <option key={item.id} value={item.label}>
-                        {item.label} — {item.description}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
-              <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                {selectedCategory ? (
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`p-2 rounded-lg shrink-0 ${selectedCategory.color.bg} ${selectedCategory.color.text}`}>
+                      <CategoryIcon name={selectedCategory.iconName} className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">
+                        {selectedCategory.label}
+                      </p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                        {selectedCategory.description}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3 text-slate-400 dark:text-slate-500 text-xs sm:text-sm">
+                    <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-400">
+                      <HelpCircle className="w-4 h-4" />
+                    </div>
+                    <span>Select category (Bug, Feature, Partner, AI, UX, Other)...</span>
+                  </div>
+                )}
+
+                <ChevronDown
+                  className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200 ${
+                    isDropdownOpen ? "rotate-180 text-blue-600 dark:text-blue-400" : ""
+                  }`}
+                />
+              </button>
+
+              {/* Modern Floating Menu */}
+              {isDropdownOpen && (
+                <div className="absolute left-0 right-0 top-full mt-2 z-50 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl overflow-hidden p-1.5 space-y-1 animate-in fade-in zoom-in-95 duration-150">
+                  {FEEDBACK_CATEGORIES.map((cat) => {
+                    const isSelected = selectedCategory?.id === cat.id;
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedCategory(cat);
+                          setIsDropdownOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl transition-all text-left cursor-pointer ${
+                          isSelected
+                            ? "bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/60"
+                            : "hover:bg-slate-50 dark:hover:bg-slate-800/70 border border-transparent"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className={`p-2 rounded-lg shrink-0 ${cat.color.bg} ${cat.color.text}`}>
+                            <CategoryIcon name={cat.iconName} className="w-4 h-4" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white truncate">
+                              {cat.label}
+                            </p>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                              {cat.description}
+                            </p>
+                          </div>
+                        </div>
+
+                        {isSelected && (
+                          <Check className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 ml-2" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Conditional Custom Topic for "Other" */}
-          {selectedCategory.toLowerCase().includes("other") && (
-            <div className="space-y-1.5 animate-in fade-in duration-150">
-              <label
-                htmlFor="custom-title"
-                className="block text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200"
-              >
-                Custom Topic Title <span className="text-red-500">*</span>
-              </label>
-              <input
-                id="custom-title"
-                type="text"
-                value={customTitle}
-                onChange={(e) => setCustomTitle(e.target.value)}
-                placeholder="e.g., Suggestion for team code sharing"
-                maxLength={80}
-                required
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/70 px-3.5 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-blue-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-              />
-            </div>
-          )}
+          {/* Short Topic / Summary Title (Clean single line) */}
+          <div className="space-y-1.5">
+            <label
+              htmlFor="custom-title"
+              className="block text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200"
+            >
+              Short Topic / Summary <span className="text-slate-400 font-normal">(Optional)</span>
+            </label>
+            <input
+              id="custom-title"
+              type="text"
+              value={customTitle}
+              onChange={(e) => setCustomTitle(e.target.value)}
+              placeholder="e.g., Chat message delay on mobile, Voice notes feature request"
+              maxLength={80}
+              className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/70 px-3.5 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-blue-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            />
+          </div>
 
           {/* Description Textarea */}
           <div className="space-y-1.5">
@@ -418,13 +491,13 @@ export default function FeedbackPage() {
               rows={5}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe what happened, the screen you were on, or how you would like this feature to work..."
+              placeholder="Please explain what happened, what you expected, or your suggestion in detail..."
               maxLength={2500}
               required
               className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/70 px-3.5 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-blue-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 resize-none"
             />
             <p className="text-[11px] text-slate-400">
-              Please be as descriptive as possible. Minimum 15 characters.
+              Minimum 15 characters.
             </p>
           </div>
 
@@ -432,8 +505,8 @@ export default function FeedbackPage() {
           <div className="pt-2 flex items-center justify-end gap-3">
             <button
               type="submit"
-              disabled={isSubmitting}
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 rounded-xl shadow-xs transition-all active:scale-98 cursor-pointer"
+              disabled={isSubmitting || !selectedCategory}
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed rounded-xl shadow-xs transition-all active:scale-98 cursor-pointer"
             >
               {isSubmitting ? (
                 <>
