@@ -50,6 +50,7 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
     pathname === "/dashboard/settings" ||
     pathname.startsWith("/dashboard/requests") ||
     pathname === "/dashboard/messages" ||
+    pathname.startsWith("/dashboard/feedback") ||
     pathname.startsWith("/dashboard/discovery/profile");
 
   const getSubPageTitle = () => {
@@ -57,6 +58,7 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
     if (pathname === "/dashboard/settings") return "Settings";
     if (pathname.startsWith("/dashboard/requests")) return "Requests";
     if (pathname === "/dashboard/messages") return "Messages";
+    if (pathname.startsWith("/dashboard/feedback")) return "Feedback";
     if (pathname.startsWith("/dashboard/discovery/profile")) return "Profile";
     return "Back";
   };
@@ -145,9 +147,10 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
         staleTime: 5 * 60 * 1000,
       });
 
-      // Eagerly prefetch profile and settings pages
+      // Eagerly prefetch profile, settings, and feedback pages
       router.prefetch("/dashboard/profile");
       router.prefetch("/dashboard/settings");
+      router.prefetch("/dashboard/feedback");
     }, 1200);
 
     return () => clearTimeout(timer);
@@ -239,7 +242,17 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
                 )}
 
                 {/* Right utility actions (Option A: Requests, Messages, Profile Avatar Dropdown) */}
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                  {/* Feedback Link (Text Button) */}
+                  <Link
+                    href="/dashboard/feedback"
+                    prefetch={true}
+                    title="Give Feedback"
+                    className="px-2.5 py-1 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-800/80 dark:hover:bg-slate-700/80 rounded-full border border-slate-200/80 dark:border-slate-700/80 transition-all active:scale-95 shrink-0"
+                  >
+                    Feedback
+                  </Link>
+
                   {/* Requests Link */}
                   <Link
                     href="/dashboard/requests"
@@ -288,6 +301,14 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
                 {/* Optional: Breadcrumbs or Page Title could go here */}
               </div>
               <div className="flex items-center gap-3">
+                <Link
+                  href="/dashboard/feedback"
+                  prefetch={true}
+                  title="Give Feedback"
+                  className="px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-800/80 dark:hover:bg-slate-700/80 rounded-full border border-slate-200/80 dark:border-slate-700/80 transition-all active:scale-95 shrink-0"
+                >
+                  Feedback
+                </Link>
                 <InstallButton />
                 <div className="h-4 w-px bg-gray-200 dark:bg-white/10"></div>
                 <Link

@@ -62,6 +62,14 @@ enum ValidationRecommendation {
   NOT_RECOMMENDED
 }
 
+enum FeedbackStatus {
+  PENDING
+  IN_PROGRESS
+  IMPLEMENTED
+  RESOLVED
+  REJECTED
+}
+
 // =====================
 // 2️⃣ User (Authentication Only)
 // =====================
@@ -129,6 +137,9 @@ model Student {
 
   // FYP Idea Validations
   ideaValidations FYPIdeaValidation[]
+
+  // Feedback Submissions
+  feedbacks       Feedback[]
 }
 
 // =====================
@@ -404,4 +415,27 @@ model Internship {
   student        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@index([studentId])
+}
+
+// =====================
+// 17️⃣ Feedback
+// =====================
+
+model Feedback {
+  id            String         @id @default(uuid())
+  studentId     String
+  category      String
+  customTitle   String?
+  description   String         @db.Text
+  status        FeedbackStatus @default(PENDING)
+  adminResponse String?        @db.Text
+  respondedAt   DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  student       Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([status])
+  @@index([createdAt])
 }

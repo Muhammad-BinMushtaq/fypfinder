@@ -44,6 +44,7 @@ export function isBottomNavAllowed(pathname: string): boolean {
     pathname.startsWith("/dashboard/requests") ||
     pathname.startsWith("/dashboard/profile") ||
     pathname.startsWith("/dashboard/settings") ||
+    pathname.startsWith("/dashboard/feedback") ||
     pathname.startsWith("/dashboard/discovery/profile")
   ) {
     return false;

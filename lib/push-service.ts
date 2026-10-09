@@ -407,3 +407,89 @@ export async function removeAllSubscriptions(userId: string): Promise<void> {
     logger.error('Error removing push subscriptions:', error);
   }
 }
+
+/**
+ * Send push notification when admin responds to or updates student feedback.
+ * 
+ * @param studentId - The student ID
+ * @param status - Updated feedback status
+ * @param adminResponse - Optional response message from admin
+ */
+export async function notifyFeedbackUpdate(
+  studentId: string,
+  status: string,
+  adminResponse?: string | null
+): Promise<void> {
+  if (!isWebPushConfigured()) {
+    return;
+  }
+
+  try {
+    const student = await prisma.student.findUnique({
+      where: { id: studentId },
+      select: { userId: true },
+    });
+
+    if (!student) {
+      logger.warn(`notifyFeedbackUpdate: Student ${studentId} not found`);
+      return;
+    }
+
+    const subscriptions = await prisma.pushSubscription.findMany({
+      where: { userId: student.userId },
+      select: {
+        id: true,
+        endpoint: true,
+        p256dh: true,
+        auth: true,
+      },
+    });
+
+    if (subscriptions.length === 0) {
+      return;
+    }
+
+    const formattedStatus = status.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c: string) => c.toUpperCase());
+    const body = adminResponse
+      ? `Admin note: "${adminResponse.length > 50 ? adminResponse.substring(0, 50) + '...' : adminResponse}"`
+      : `Your feedback status is now marked as ${formattedStatus}.`;
+
+    const payload: NotificationPayload = {
+      title: `Feedback Update: ${formattedStatus}`,
+      body,
+      icon: '/icons/icon-192x192.png',
+      badge: '/icons/icon-96x96.png',
+      tag: `feedback-update-${studentId}-${Date.now()}`,
+      data: {
+        url: '/dashboard/feedback',
+        type: 'feedback_update',
+        status,
+      },
+      actions: [
+        { action: 'view', title: 'View Feedback' },
+      ],
+    };
+
+    const formattedSubs = subscriptions.map(sub => ({
+      id: sub.id,
+      endpoint: sub.endpoint,
+      keys: {
+        p256dh: sub.p256dh,
+        auth: sub.auth,
+      },
+    }));
+
+    const results = await sendPushNotificationToMany(formattedSubs, payload);
+
+    const expiredIds = results.filter(r => r.shouldDelete).map(r => r.id);
+    if (expiredIds.length > 0) {
+      await prisma.pushSubscription.deleteMany({
+        where: { id: { in: expiredIds } },
+      });
+    }
+
+    logger.info(`Push notification sent for feedback update to student ${studentId}`);
+  } catch (error) {
+    logger.error('Error sending feedback update push notification:', error);
+  }
+}

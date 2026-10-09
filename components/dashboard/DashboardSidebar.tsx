@@ -17,6 +17,7 @@ import {
   ChevronDown,
   GraduationCap,
   ClipboardCheck,
+  MessageSquarePlus,
 } from "lucide-react";
 
 interface NavItem {
@@ -55,6 +56,11 @@ const navItems: NavItem[] = [
     label: "Requests",
     href: "/dashboard/requests",
     icon: <FileText className="w-5 h-5" />,
+  },
+  {
+    label: "Feedback",
+    href: "/dashboard/feedback",
+    icon: <MessageSquarePlus className="w-5 h-5" />,
   },
   {
     label: "FYP Management",

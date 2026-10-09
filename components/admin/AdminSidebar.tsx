@@ -14,6 +14,7 @@ import {
   Settings,
   X,
   Mail,
+  MessageSquareHeart,
 } from "lucide-react"
 import { useAdminSession } from "@/hooks/admin"
 
@@ -29,6 +30,12 @@ const navItems = [
     href: "/admin/students",
     icon: Users,
     description: "Manage students",
+  },
+  {
+    label: "Feedback",
+    href: "/admin/feedback",
+    icon: MessageSquareHeart,
+    description: "Student feedback",
   },
   {
     label: "Messages",
