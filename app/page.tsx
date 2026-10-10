@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { getAuthenticatedRedirectPath, getCurrentUser } from "@/lib/auth";
 import { LandingThemeToggle } from "@/components/landing/LandingThemeToggle";
 import { SupademoButton } from "@/components/landing/SupademoButton";
+import { HeroTaglineCycler } from "@/components/landing/HeroTaglineCycler";
+import { LandingFaq } from "@/components/landing/LandingFaq";
 import { 
   GraduationCap, 
   Sparkles, 
@@ -192,15 +194,11 @@ export default async function HomePage({
             </div>
 
             {/* Responsive Main Tagline */}
-            <div className="space-y-1.5 sm:space-y-2">
+            <div className="space-y-2 sm:space-y-3">
               <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.12]">
                 Find Your FYP Teammate.
               </h1>
-              <p className="text-xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
-                <span className="bg-gradient-to-r from-slate-900 via-slate-600 to-slate-900 dark:from-white dark:via-zinc-400 dark:to-white bg-clip-text text-transparent">
-                  Validate with AI. Ace Defense.
-                </span>
-              </p>
+              <HeroTaglineCycler />
             </div>
 
             {/* Brief Subheading - Under 15 words */}
@@ -671,6 +669,9 @@ export default async function HomePage({
           </div>
         </div>
       </section>
+
+      {/* Frequently Asked Questions */}
+      <LandingFaq />
 
       {/* Ready to Begin Bottom Banner */}
       <section className="py-16 sm:py-24 relative z-10">

@@ -14,69 +14,6 @@ interface ValidatorWizardProps {
 
 const DOMAINS = ["AI/ML", "IoT", "Web", "Mobile", "Cybersecurity", "Other"]
 
-const QUICK_TEMPLATES = [
-  {
-    name: "Smart Agriculture IoT Monitor",
-    domain: "IoT",
-    title: "Smart Agriculture IoT Monitor",
-    problemStatement: "Farmers struggle to monitor soil moisture and weather conditions in real-time, leading to overwatering or crop damage.",
-    ideaDescription: "An IoT-based sensor network that collects soil data and sends alerts to farmers via a mobile app.",
-    coreFeatures: "Real-time dashboards, automated irrigation triggers, SMS alerts.",
-    techStack: ["Arduino", "React Native", "Firebase"],
-    teamSize: "3",
-  },
-  {
-    name: "AI Medical Image Classifier",
-    domain: "AI/ML",
-    title: "AI Medical Image Classifier",
-    problemStatement: "Radiologists have a high workload and sometimes miss early signs of diseases in X-rays.",
-    ideaDescription: "A machine learning tool that analyzes medical scans and highlights potential anomalies as a second opinion.",
-    coreFeatures: "Image upload, automated inference, confidence scores, doctor feedback loop.",
-    techStack: ["Python", "TensorFlow", "Next.js"],
-    teamSize: "2",
-  },
-  {
-    name: "FinTech Mobile Wallet",
-    domain: "Mobile",
-    title: "FinTech Mobile Wallet",
-    problemStatement: "Students need a simple, fee-free way to split bills and send money on campus.",
-    ideaDescription: "A mobile wallet designed for the university ecosystem, allowing instant peer-to-peer transfers.",
-    coreFeatures: "QR code payments, bill splitting, transaction history.",
-    techStack: ["Flutter", "Node.js", "PostgreSQL"],
-    teamSize: "3",
-  },
-  {
-    name: "Cybersecurity Threat Detector",
-    domain: "Cybersecurity",
-    title: "Cybersecurity Threat Detector",
-    problemStatement: "Small businesses cannot afford expensive intrusion detection systems.",
-    ideaDescription: "A lightweight, open-source network monitor that detects common attack patterns.",
-    coreFeatures: "Packet sniffing, anomaly alerts, daily security reports.",
-    techStack: ["Python", "Wireshark API", "React"],
-    teamSize: "2",
-  },
-  {
-    name: "E-Learning Platform",
-    domain: "Web",
-    title: "E-Learning Platform",
-    problemStatement: "Students lack a centralized place to find peer-tutoring and shared notes.",
-    ideaDescription: "A web platform connecting students for tutoring and resource sharing.",
-    coreFeatures: "Tutor matching, video calls, note uploads, rating system.",
-    techStack: ["Next.js", "WebRTC", "Supabase"],
-    teamSize: "3",
-  },
-  {
-    name: "Healthcare Management System",
-    domain: "Web",
-    title: "Healthcare Management System",
-    problemStatement: "Small clinics rely on paper records, making patient history hard to track.",
-    ideaDescription: "A simple electronic health record (EHR) system tailored for small clinics.",
-    coreFeatures: "Patient profiles, appointment scheduling, prescription tracking.",
-    techStack: ["React", "Express", "MongoDB"],
-    teamSize: "3",
-  },
-]
-
 const STEPS = [
   { id: 1, label: "Scope & Domain" },
   { id: 2, label: "Problem & Solution" },
@@ -95,7 +32,6 @@ export function ValidatorWizard({ onSubmit, isPending, mode, remainingToday, ini
   const [techInput, setTechInput] = useState("")
   const [teamSize, setTeamSize] = useState(initialValues?.teamSize ? String(initialValues.teamSize) : "")
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [showAllTemplates, setShowAllTemplates] = useState(false)
 
   useEffect(() => {
     if (initialValues?.title) {
@@ -143,18 +79,6 @@ export function ValidatorWizard({ onSubmit, isPending, mode, remainingToday, ini
     setTechStack(techStack.filter(x => x !== t))
   }
 
-  const applyTemplate = (t: typeof QUICK_TEMPLATES[0]) => {
-    setDomain(t.domain)
-    setTitle(t.title)
-    setProblemStatement(t.problemStatement)
-    setIdeaDescription(t.ideaDescription)
-    setCoreFeatures(t.coreFeatures)
-    setTechStack(t.techStack)
-    setTeamSize(t.teamSize)
-    setErrors({})
-    setStep(4)
-  }
-
   const handleSubmit = () => {
     if (!validateStep(4)) return
     
@@ -177,39 +101,6 @@ export function ValidatorWizard({ onSubmit, isPending, mode, remainingToday, ini
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      {/* Quick Templates Drawer */}
-      <div className="rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/40 p-3 sm:p-3.5">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[11px] font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-            Starter Templates
-          </span>
-          <span className="text-xs text-gray-400 dark:text-gray-500">
-            Pre-fill fields to test
-          </span>
-        </div>
-        <div className="flex flex-wrap items-center gap-1.5">
-          {(showAllTemplates ? QUICK_TEMPLATES : QUICK_TEMPLATES.slice(0, 2)).map((t) => (
-            <button
-              key={t.name}
-              type="button"
-              onClick={() => applyTemplate(t)}
-              className="rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 transition hover:border-gray-900 dark:hover:border-white hover:text-gray-900 dark:hover:text-white"
-            >
-              {t.name}
-            </button>
-          ))}
-          {QUICK_TEMPLATES.length > 2 && (
-            <button
-              type="button"
-              onClick={() => setShowAllTemplates(!showAllTemplates)}
-              className="rounded-lg border border-dashed border-gray-300 dark:border-slate-600 px-2.5 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-400 transition"
-            >
-              {showAllTemplates ? "Show less" : `+${QUICK_TEMPLATES.length - 2} more`}
-            </button>
-          )}
-        </div>
-      </div>
-
       {/* Main Form Card */}
       <div className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-sm">
         {/* Minimalist Stepper Header */}
