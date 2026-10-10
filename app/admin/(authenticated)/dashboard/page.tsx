@@ -3,6 +3,7 @@
 
 import { useAdminSession } from "@/hooks/admin"
 import { StatsCards, RecentActivity } from "@/components/admin/StatsCards"
+import { AIMonitoringCard } from "@/components/admin/AIMonitoringCard"
 import { Shield, Calendar, Clock, CheckCircle2 } from "lucide-react"
 
 export default function AdminDashboardPage() {
@@ -59,6 +60,11 @@ export default function AdminDashboardPage() {
           </h2>
         </div>
         <StatsCards />
+      </section>
+
+      {/* AI Provider Telemetry & Monitoring */}
+      <section className="space-y-3">
+        <AIMonitoringCard />
       </section>
 
       {/* Quick Actions & System Info */}

@@ -18,6 +18,7 @@
  */
 
 import { logger } from "@/lib/logger"
+import { recordAITelemetry } from "./telemetry.service"
 
 export interface GroqChatResult {
   content: string
@@ -259,6 +260,8 @@ export async function groqChatWithFallback(
   maxTokens: number,
   options?: {
     validateResponse?: (content: string) => void
+    studentId?: string | null
+    operation?: "idea_validation" | "pdf_extraction" | "other"
   }
 ): Promise<GroqChatResult> {
   const groqKeys = getGroqKeys()
@@ -303,16 +306,43 @@ export async function groqChatWithFallback(
         // Validate payload conforms to schema before accepting
         options?.validateResponse?.(content)
 
+        const latencyMs = Date.now() - startTime
+        recordAITelemetry({
+          studentId: options?.studentId,
+          operation: options?.operation ?? "idea_validation",
+          provider: "Groq",
+          modelId: model,
+          keyAlias: `GROQ_KEY_${keyIdx + 1}`,
+          status: "SUCCESS",
+          isFallback: keyIdx > 0 || model !== groqModels[0],
+          fallbackFrom: keyIdx > 0 ? "Groq (prior key/model)" : null,
+          totalTokens: tokensUsed,
+          latencyMs,
+        })
+
         return {
           content,
           tokensUsed,
           modelUsed: `Groq (${model})`,
-          latencyMs: Date.now() - startTime,
+          latencyMs,
         }
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err)
         errors.push(`Groq[Key${keyIdx + 1} - ${model}]: ${msg}`)
         logger.warn(`Groq key ${keyIdx + 1} failed for ${model}: ${msg}`)
+
+        recordAITelemetry({
+          studentId: options?.studentId,
+          operation: options?.operation ?? "idea_validation",
+          provider: "Groq",
+          modelId: model,
+          keyAlias: `GROQ_KEY_${keyIdx + 1}`,
+          status: msg.includes("429") ? "RATE_LIMITED" : "FAILED",
+          isFallback: true,
+          totalTokens: 0,
+          latencyMs: Date.now() - startTime,
+          errorMessage: msg,
+        })
       }
     }
   }
@@ -335,16 +365,44 @@ export async function groqChatWithFallback(
 
         options?.validateResponse?.(content)
 
+        const latencyMs = Date.now() - startTime
+        recordAITelemetry({
+          studentId: options?.studentId,
+          operation: options?.operation ?? "idea_validation",
+          provider: "Google",
+          modelId: model,
+          keyAlias: "GEMINI_KEY",
+          status: "SUCCESS",
+          isFallback: true,
+          fallbackFrom: "Groq (all keys exhausted)",
+          totalTokens: tokensUsed,
+          latencyMs,
+        })
+
         return {
           content,
           tokensUsed,
           modelUsed: `Google (${model})`,
-          latencyMs: Date.now() - startTime,
+          latencyMs,
         }
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err)
         errors.push(`Gemini[${model}]: ${msg}`)
         logger.warn(`Gemini fallback failed for ${model}: ${msg}`)
+
+        recordAITelemetry({
+          studentId: options?.studentId,
+          operation: options?.operation ?? "idea_validation",
+          provider: "Google",
+          modelId: model,
+          keyAlias: "GEMINI_KEY",
+          status: msg.includes("429") ? "RATE_LIMITED" : "FAILED",
+          isFallback: true,
+          fallbackFrom: "Groq",
+          totalTokens: 0,
+          latencyMs: Date.now() - startTime,
+          errorMessage: msg,
+        })
       }
     }
   }
@@ -369,7 +427,8 @@ export async function groqChatWithFallback(
       "thinkingmachines/inkling-small:free",
       "thinkingmachines/inkling:free",
     ]
-    for (const key of openRouterKeys) {
+    for (let keyIdx = 0; keyIdx < openRouterKeys.length; keyIdx++) {
+      const key = openRouterKeys[keyIdx]
       for (const model of openRouterModels) {
         const startTime = Date.now()
         try {
@@ -383,16 +442,43 @@ export async function groqChatWithFallback(
 
           options?.validateResponse?.(content)
 
+          const latencyMs = Date.now() - startTime
+          recordAITelemetry({
+            studentId: options?.studentId,
+            operation: options?.operation ?? "idea_validation",
+            provider: "OpenRouter",
+            modelId: model,
+            keyAlias: `OPENROUTER_KEY_${keyIdx + 1}`,
+            status: "SUCCESS",
+            isFallback: true,
+            fallbackFrom: "Gemini",
+            totalTokens: tokensUsed,
+            latencyMs,
+          })
+
           return {
             content,
             tokensUsed,
             modelUsed: `OpenRouter (${model})`,
-            latencyMs: Date.now() - startTime,
+            latencyMs,
           }
         } catch (err) {
           const msg = err instanceof Error ? err.message : String(err)
           errors.push(`OpenRouter[${model}]: ${msg}`)
           logger.warn(`OpenRouter fallback failed for ${model}: ${msg}`)
+
+          recordAITelemetry({
+            studentId: options?.studentId,
+            operation: options?.operation ?? "idea_validation",
+            provider: "OpenRouter",
+            modelId: model,
+            keyAlias: `OPENROUTER_KEY_${keyIdx + 1}`,
+            status: msg.includes("429") ? "RATE_LIMITED" : "FAILED",
+            isFallback: true,
+            totalTokens: 0,
+            latencyMs: Date.now() - startTime,
+            errorMessage: msg,
+          })
         }
       }
     }
@@ -414,16 +500,43 @@ export async function groqChatWithFallback(
 
       options?.validateResponse?.(content)
 
+      const latencyMs = Date.now() - startTime
+      recordAITelemetry({
+        studentId: options?.studentId,
+        operation: options?.operation ?? "idea_validation",
+        provider: "Mistral",
+        modelId: "mistral-small-latest",
+        keyAlias: "MISTRAL_KEY",
+        status: "SUCCESS",
+        isFallback: true,
+        fallbackFrom: "OpenRouter",
+        totalTokens: tokensUsed,
+        latencyMs,
+      })
+
       return {
         content,
         tokensUsed,
         modelUsed: "Mistral (mistral-small-latest)",
-        latencyMs: Date.now() - startTime,
+        latencyMs,
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       errors.push(`Mistral: ${msg}`)
       logger.warn(`Mistral fallback failed: ${msg}`)
+
+      recordAITelemetry({
+        studentId: options?.studentId,
+        operation: options?.operation ?? "idea_validation",
+        provider: "Mistral",
+        modelId: "mistral-small-latest",
+        keyAlias: "MISTRAL_KEY",
+        status: msg.includes("429") ? "RATE_LIMITED" : "FAILED",
+        isFallback: true,
+        totalTokens: 0,
+        latencyMs: Date.now() - startTime,
+        errorMessage: msg,
+      })
     }
   }
 

@@ -439,3 +439,29 @@ model Feedback {
   @@index([status])
   @@index([createdAt])
 }
+
+// =====================
+// 18️⃣ AI Request Telemetry Log
+// =====================
+
+model AIRequestLog {
+  id               String   @id @default(uuid())
+  studentId        String?
+  operation        String   // "idea_validation" | "pdf_extraction"
+  provider         String   // "Groq", "Google", "OpenRouter", "Mistral"
+  modelId          String   // e.g. "qwen/qwen3.8-27b", "gemini-3.5-flash-lite"
+  keyAlias         String   // e.g. "GROQ_KEY_1", "GEMINI_KEY_1" (Masked, zero raw secrets)
+  status           String   // "SUCCESS", "RATE_LIMITED", "TIMEOUT", "SCHEMA_ERROR", "FAILED"
+  isFallback       Boolean  @default(false)
+  fallbackFrom     String?  // Previous provider that failed
+  promptTokens     Int      @default(0)
+  completionTokens Int      @default(0)
+  totalTokens      Int      @default(0)
+  latencyMs        Int
+  errorMessage     String?  @db.Text
+  createdAt        DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([provider, status])
+  @@index([operation])
+}

@@ -35,6 +35,7 @@ export async function extractIdeaFromPdfText(
       validateResponse: (content) => {
         parseExtractedIdea(content)
       },
+      operation: "pdf_extraction",
     }
   )
 

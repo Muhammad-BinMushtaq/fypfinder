@@ -77,7 +77,7 @@ export async function validateIdea(
 
     let reportResult;
     try {
-      reportResult = await generateValidationReport(input)
+      reportResult = await generateValidationReport(input, studentId)
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Unknown error"
       logger.error("Student idea validation failed:", error)
@@ -153,7 +153,7 @@ export function toStudentFacingValidationResult(
   return studentFacingResult
 }
 
-async function generateValidationReport(input: IdeaInput) {
+async function generateValidationReport(input: IdeaInput, studentId?: string | null) {
   const similarIdeas = await findSimilarPastIdeas(input, 3)
   const systemPrompt = buildValidatorSystemPrompt()
   const userPrompt = buildValidatorUserPrompt(
@@ -171,6 +171,8 @@ async function generateValidationReport(input: IdeaInput) {
     validateResponse: (content) => {
       parseValidationReport(content)
     },
+    studentId: studentId ?? null,
+    operation: "idea_validation",
   })
 
   const report = parseValidationReport(result.content)
