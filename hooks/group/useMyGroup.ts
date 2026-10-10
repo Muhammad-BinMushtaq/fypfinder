@@ -15,6 +15,7 @@ interface GroupMember {
   semester: number;
   profilePicture: string | null;
   showGroupOnProfile: boolean;
+  joinedAt?: string;
 }
 
 interface MyGroup {
@@ -174,6 +175,24 @@ export function useLeaveGroup() {
     },
     onError: (error: Error) => {
       toast.error(error.message || "Failed to leave group");
+    },
+  });
+}
+
+// 🆕 Hook for leader removing a member
+export function useRemoveMember() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (targetStudentId: string) => removeGroupMemberApi(targetStudentId),
+    onSuccess: () => {
+      toast.success("Member removed from FYP group");
+      queryClient.invalidateQueries({ queryKey: groupKeys.myGroup() });
+      queryClient.invalidateQueries({ queryKey: ["student"] });
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to remove member");
     },
   });
 }

@@ -173,7 +173,6 @@ export async function getPublicProfile(studentId: string) {
   const student = await prisma.student.findUnique({
     where: { id: studentId },
     include: {
-      user: { select: { email: true } },
       skills: true,
       projects: true,
       internships: {
@@ -249,7 +248,7 @@ export async function getPublicProfile(studentId: string) {
   return {
     id: student.id,
     name: student.name,
-    email: student.user.email,
+    email: null,
     department: student.department,
     semester: student.currentSemester,
     isGraduated: student.isGraduated,
@@ -328,6 +327,13 @@ export async function addSkill(
   data: { name: string; description?: string; level: ExperienceLevel }
 ) {
   const student = await getStudentOrThrow(userId)
+
+  const skillCount = await prisma.skill.count({
+    where: { studentId: student.id },
+  })
+  if (skillCount >= 30) {
+    throw new Error("Maximum skill limit reached (30 skills max).")
+  }
 
   const normalizedName = data.name.trim().toLowerCase()
 

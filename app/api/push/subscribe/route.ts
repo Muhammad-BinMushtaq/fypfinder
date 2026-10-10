@@ -47,6 +47,47 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 🛡️ Validate subscription endpoint to prevent Blind SSRF attacks
+    let parsedEndpointUrl: URL;
+    try {
+      parsedEndpointUrl = new URL(endpoint);
+    } catch {
+      return NextResponse.json(
+        { error: 'Invalid subscription endpoint URL' },
+        { status: 400 }
+      );
+    }
+
+    if (parsedEndpointUrl.protocol !== 'https:') {
+      return NextResponse.json(
+        { error: 'Push service endpoint must use secure HTTPS protocol' },
+        { status: 400 }
+      );
+    }
+
+    // Allowlist of verified browser push gateway providers:
+    // - Google FCM: fcm.googleapis.com, android.googleapis.com
+    // - Mozilla: *.push.services.mozilla.com
+    // - Apple: *.push.apple.com
+    // - Microsoft: *.notify.windows.com
+    const hostname = parsedEndpointUrl.hostname.toLowerCase();
+    const isAllowedPushGateway =
+      hostname === 'fcm.googleapis.com' ||
+      hostname === 'android.googleapis.com' ||
+      hostname.endsWith('.push.apple.com') ||
+      hostname.endsWith('.push.services.mozilla.com') ||
+      hostname.endsWith('.notify.windows.com') ||
+      hostname === 'updates.push.services.mozilla.com' ||
+      hostname === 'push.services.mozilla.com';
+
+    if (!isAllowedPushGateway) {
+      logger.warn(`Rejected untrusted push gateway host: ${hostname} from user ${user.id}`);
+      return NextResponse.json(
+        { error: 'Invalid or unsupported push notification gateway provider' },
+        { status: 400 }
+      );
+    }
+
     // Upsert subscription (update if endpoint exists, create if not)
     const result = await prisma.pushSubscription.upsert({
       where: {

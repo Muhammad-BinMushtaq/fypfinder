@@ -4,11 +4,28 @@ import { requireRole } from "@/lib/auth"
 import { UserRole, AvailabilityStatus } from "@/lib/generated/prisma/enums"
 import { updateMyProfile } from "@/modules/student/student.service"
 import { profileUpdateSchema, firstIssue } from "@/lib/validation/profile"
+import { profileUpdateRateLimiter } from "@/lib/rate-limit"
 import prisma from "@/lib/db"
 
 export async function PATCH(req: Request) {
     try {
         const user = await requireRole(UserRole.STUDENT)
+
+        const rateLimit = await profileUpdateRateLimiter.checkAsync(`student:${user.id}`)
+        if (!rateLimit.allowed) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: `Too many profile updates. Please try again in ${rateLimit.retryAfter || 60} seconds.`,
+                },
+                {
+                    status: 429,
+                    headers: rateLimit.retryAfter
+                        ? { "Retry-After": String(rateLimit.retryAfter) }
+                        : undefined,
+                }
+            )
+        }
 
         const body = await req.json()
 

@@ -28,19 +28,31 @@ export async function createSupabaseServerClient() {
   )
 }
 
+import logger from './logger'
+
 /**
  * Create Supabase Admin Client
  * ----------------------------
  * Uses SERVICE_ROLE_KEY for admin operations like deleting users.
  * ⚠️ NEVER expose this on the client side!
  * 
- * Required env variable: SECRET_SUPABASE_SERVICE_ROLE_KEY
+ * Supported env variables: SUPABASE_SECRET_KEY, SUPABASE_SERVICE_ROLE_KEY, SECRET_SUPABASE_SERVICE_ROLE_KEY
  */
 export function createSupabaseAdminClient() {
-  const serviceKey = process.env.SECRET_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
+  const serviceKey =
+    process.env.SUPABASE_SECRET_KEY ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.SECRET_SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.NEXT_PRIVATE_SUPABASE_SERVICE_ROLE_KEY
+
+  if (!serviceKey) {
+    logger.error("Supabase Admin Client initialization failed: No service role/secret key configured.")
+    throw new Error("Supabase service role key is not configured in environment variables.")
+  }
+
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    serviceKey!,
+    serviceKey,
     {
       auth: {
         autoRefreshToken: false,

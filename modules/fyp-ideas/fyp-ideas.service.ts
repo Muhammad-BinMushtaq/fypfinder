@@ -73,7 +73,67 @@ export async function validateIdea(
       return cached
     }
 
-    await enforceStudentRateLimit(studentId)
+    if (existing && existing.status === "PENDING") {
+      const threeMinutesAgo = new Date(Date.now() - 3 * 60 * 1000)
+      if (existing.createdAt >= threeMinutesAgo) {
+        throw new Error("A validation is already in progress for this idea. Please wait a moment.")
+      }
+    }
+
+    // Atomically check daily limit and reserve pending slot using advisory lock
+    const pendingValidation = await prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`fyp_validation_${studentId}`}))`
+
+      const startOfDay = new Date()
+      startOfDay.setHours(0, 0, 0, 0)
+      const threeMinutesAgo = new Date(Date.now() - 3 * 60 * 1000)
+
+      const activeCount = await tx.fYPIdeaValidation.count({
+        where: {
+          studentId,
+          createdAt: { gte: startOfDay },
+          OR: [
+            { status: "COMPLETED" },
+            { status: "PENDING", createdAt: { gte: threeMinutesAgo } },
+          ],
+        },
+      })
+
+      if (activeCount >= MAX_VALIDATIONS_PER_DAY) {
+        throw new Error(
+          `Daily limit reached. You can validate up to ${MAX_VALIDATIONS_PER_DAY} ideas per day.`
+        )
+      }
+
+      if (existing) {
+        return tx.fYPIdeaValidation.update({
+          where: { id: existing.id },
+          data: {
+            title: input.title,
+            problemStatement: input.problemStatement,
+            ideaDescription: input.ideaDescription,
+            coreFeatures: input.coreFeatures,
+            teamSize: input.teamSize,
+            status: "PENDING",
+            errorMessage: null,
+            createdAt: new Date(),
+          },
+        })
+      }
+
+      return tx.fYPIdeaValidation.create({
+        data: {
+          studentId,
+          inputHash,
+          title: input.title,
+          problemStatement: input.problemStatement,
+          ideaDescription: input.ideaDescription,
+          coreFeatures: input.coreFeatures,
+          teamSize: input.teamSize,
+          status: "PENDING",
+        },
+      })
+    })
 
     let reportResult;
     try {
@@ -81,18 +141,28 @@ export async function validateIdea(
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Unknown error"
       logger.error("Student idea validation failed:", error)
+
+      // Failure refund: mark status as FAILED so quota is released
+      try {
+        await prisma.fYPIdeaValidation.update({
+          where: { id: pendingValidation.id },
+          data: {
+            status: "FAILED",
+            errorMessage,
+          },
+        })
+      } catch (dbError) {
+        logger.error("Failed to update validation status to FAILED:", dbError)
+      }
+
       throw new Error(`Validation failed: ${errorMessage}`)
     }
 
     const recommendation = mapRecommendation(reportResult.report.recommendation)
-    
-    const dataToSave = {
-        title: input.title,
-        problemStatement: input.problemStatement,
-        ideaDescription: input.ideaDescription,
-        coreFeatures: input.coreFeatures,
-        teamSize: input.teamSize,
-        inputHash,
+
+    const completed = await prisma.fYPIdeaValidation.update({
+      where: { id: pendingValidation.id },
+      data: {
         panelEvaluation: Prisma.DbNull,
         finalResult: JSON.parse(JSON.stringify(reportResult.report)),
         detailedRoadmap: JSON.parse(JSON.stringify(reportResult.report.roadmap)),
@@ -102,18 +172,15 @@ export async function validateIdea(
         originalityScore: reportResult.report.originalityScore,
         usefulnessScore: reportResult.report.usefulnessScore,
         recommendation,
-        status: "COMPLETED" as const,
+        status: "COMPLETED",
         modelUsed: reportResult.modelUsed,
         tokensUsed: reportResult.tokensUsed,
         latencyMs: reportResult.latencyMs,
         errorMessage: null,
-    }
+      },
+    })
 
-    const updated = existing
-      ? await prisma.fYPIdeaValidation.update({ where: { id: existing.id }, data: dataToSave })
-      : await prisma.fYPIdeaValidation.create({ data: { studentId, ...dataToSave } })
-
-    return formatStoredValidation(updated, "student")
+    return formatStoredValidation(completed, "student")
   }
 
   const guestResult = await generateValidationReport(input)
@@ -198,12 +265,16 @@ async function enforceStudentRateLimit(studentId: string): Promise<void> {
 async function getStudentValidationCountToday(studentId: string): Promise<number> {
   const startOfDay = new Date()
   startOfDay.setHours(0, 0, 0, 0)
+  const threeMinutesAgo = new Date(Date.now() - 3 * 60 * 1000)
 
   return prisma.fYPIdeaValidation.count({
     where: {
       studentId,
-      status: "COMPLETED",
       createdAt: { gte: startOfDay },
+      OR: [
+        { status: "COMPLETED" },
+        { status: "PENDING", createdAt: { gte: threeMinutesAgo } },
+      ],
     },
   })
 }

@@ -6,25 +6,23 @@ import { NextResponse } from "next/server"
 import { createSupabaseServerClient } from "@/lib/supabase"
 import prisma from "@/lib/db"
 import { UserRole, UserStatus } from "@/lib/generated/prisma/enums"
-import { authRateLimiter, getClientIdentifier } from "@/lib/rate-limit"
+import { adminLoginRateLimiter, getClientIdentifier } from "@/lib/rate-limit"
 
 export async function POST(req: Request) {
     try {
-        const rateLimit = authRateLimiter.check(getClientIdentifier(req.headers))
-        if (!rateLimit.allowed) {
+        const clientIp = getClientIdentifier(req.headers)
+
+        let body: any
+        try {
+            body = await req.json()
+        } catch {
             return NextResponse.json(
-                { success: false, message: "Too many login attempts. Please try again later." },
-                {
-                    status: 429,
-                    headers: rateLimit.retryAfter
-                        ? { "Retry-After": String(rateLimit.retryAfter) }
-                        : undefined,
-                }
+                { success: false, message: "Invalid JSON body" },
+                { status: 400 }
             )
         }
 
-        const body = await req.json()
-        const { email, password } = body
+        const { email, password } = body || {}
 
         if (!email || !password) {
             return NextResponse.json(
@@ -37,6 +35,21 @@ export async function POST(req: Request) {
             return NextResponse.json(
                 { success: false, message: "Invalid input types" },
                 { status: 400 }
+            )
+        }
+
+        const normalizedEmail = email.toLowerCase().trim()
+        const rateLimitKey = `${clientIp}:${normalizedEmail}`
+        const rateLimit = await adminLoginRateLimiter.checkAsync(rateLimitKey)
+        if (!rateLimit.allowed) {
+            return NextResponse.json(
+                { success: false, message: "Too many login attempts. Please try again later." },
+                {
+                    status: 429,
+                    headers: rateLimit.retryAfter
+                        ? { "Retry-After": String(rateLimit.retryAfter) }
+                        : undefined,
+                }
             )
         }
 

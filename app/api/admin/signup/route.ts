@@ -50,9 +50,24 @@ export async function POST(req: Request) {
             )
         }
 
-        if (password.length < 6) {
+        if (password.length < 12) {
             return NextResponse.json(
-                { success: false, message: "Password must be at least 6 characters" },
+                { success: false, message: "Admin password must be at least 12 characters long" },
+                { status: 400 }
+            )
+        }
+
+        const hasUpper = /[A-Z]/.test(password)
+        const hasLower = /[a-z]/.test(password)
+        const hasDigit = /[0-9]/.test(password)
+        const hasSpecial = /[^A-Za-z0-9]/.test(password)
+
+        if (!hasUpper || !hasLower || !hasDigit || !hasSpecial) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "Admin password must include at least one uppercase letter, one lowercase letter, one number, and one special character",
+                },
                 { status: 400 }
             )
         }

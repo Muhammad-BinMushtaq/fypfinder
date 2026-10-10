@@ -60,7 +60,7 @@ export interface PublicInternship {
 export interface PublicStudentProfile {
   id: string;
   name: string;
-  email: string;
+  email?: string | null;
   department: string;
   semester: number;
   isGraduated?: boolean;

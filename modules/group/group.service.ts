@@ -43,13 +43,14 @@ export async function getMyGroup(studentId: string) {
         description: group.description,
         isLocked: group.isLocked,
         createdAt: group.createdAt,
-        members: group.members.map((m: { student: { id: string; name: string; department: string; currentSemester: number; profilePicture: string | null; showGroupOnProfile: boolean } }) => ({
+        members: group.members.map((m: { joinedAt: Date; student: { id: string; name: string; department: string; currentSemester: number; profilePicture: string | null; showGroupOnProfile: boolean } }) => ({
             id: m.student.id,
             name: m.student.name,
             department: m.student.department,
             semester: m.student.currentSemester,
             profilePicture: m.student.profilePicture,
             showGroupOnProfile: m.student.showGroupOnProfile,
+            joinedAt: m.joinedAt,
         })),
     }
 }
@@ -138,11 +139,29 @@ export async function removeGroupMember(
 
     // 3️⃣ Verify target is in same group
     const targetMembership = group.members.find(
-        (m: { id: string; studentId: string }) => m.studentId === targetStudentId
+        (m: { id: string; studentId: string; joinedAt?: Date }) => m.studentId === targetStudentId
     )
 
     if (!targetMembership) {
         throw new Error("Target student is not part of your group")
+    }
+
+    // 4️⃣ Authorization: Leader vs Member permissions
+    // Sort members by joinedAt to identify founding leader
+    const sortedMembers = [...group.members].sort(
+        (a: any, b: any) => new Date(a.joinedAt).getTime() - new Date(b.joinedAt).getTime()
+    )
+    const leaderStudentId = sortedMembers[0]?.studentId
+
+    const isSelfLeave = requesterStudentId === targetStudentId
+    const isLeader = requesterStudentId === leaderStudentId
+
+    if (!isSelfLeave && !isLeader) {
+        throw new Error("Only the group leader can remove other members from the group")
+    }
+
+    if (!isSelfLeave && targetStudentId === leaderStudentId) {
+        throw new Error("The group leader cannot be removed by other members")
     }
 
     // 5️⃣ Remove member
@@ -152,7 +171,7 @@ export async function removeGroupMember(
         },
     })
 
-    // 6️⃣ Cleanup: if group is now empty, delete it
+    // 6️⃣ Cleanup: if group is now empty or has <= 1 member, unlock or delete
     if (group.members.length <= 1) {
         await prisma.fYPGroup.delete({
             where: { id: group.id }

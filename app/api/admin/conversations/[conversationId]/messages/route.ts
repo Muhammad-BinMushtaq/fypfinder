@@ -13,7 +13,7 @@ export async function GET(
 ) {
   try {
     // 🔐 Admin only
-    await requireRole(UserRole.ADMIN)
+    const user = await requireRole(UserRole.ADMIN)
 
     const { conversationId } = await params
     const { searchParams } = new URL(req.url)
@@ -37,6 +37,11 @@ export async function GET(
     const total = await prisma.message.count({
       where: { conversationId },
     })
+
+    // 🛡️ Record audit log for administrative conversation inspection
+    logger.warn(
+      `[AUDIT LOG] Administrator ${user.email} (${user.id}) accessed student conversation ${conversationId} (${total} total messages) from IP ${req.headers.get("x-real-ip") || "unknown"}`
+    )
 
     // Get paginated messages with sender info
     const messages = await prisma.message.findMany({

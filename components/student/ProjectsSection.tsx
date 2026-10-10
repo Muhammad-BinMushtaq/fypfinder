@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useMyProfile } from "@/hooks/student/useMyProfile";
-import { Plus, Pencil, Trash2, Github, ExternalLink, Loader2, ChevronDown, ChevronUp, X } from "lucide-react";
+import { Plus, Pencil, Trash2, Github, ExternalLink, Loader2, ChevronDown, ChevronUp, X, Star, GitFork, Sparkles } from "lucide-react";
 import type { Project } from "@/services/student.service";
 import { ProjectEmbedCard } from "./ProjectEmbedCard";
 import { toast } from "react-toastify";
@@ -19,6 +19,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [showAllProjects, setShowAllProjects] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isFetchingGithub, setIsFetchingGithub] = useState(false);
   
   const PROJECTS_LIMIT = 2;
   const visibleProjects = showAllProjects ? projects : projects.slice(0, PROJECTS_LIMIT);
@@ -28,6 +29,9 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
     description: "",
     githubLink: "",
     liveLink: "",
+    embedType: "" as string | null | undefined,
+    embedUrl: "" as string | null | undefined,
+    mediaMetadata: null as any,
   });
 
   useEffect(() => {
@@ -61,8 +65,17 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
   }, [showModal]);
 
   const resetForm = () => {
-    setFormData({ name: "", description: "", githubLink: "", liveLink: "" });
+    setFormData({
+      name: "",
+      description: "",
+      githubLink: "",
+      liveLink: "",
+      embedType: null,
+      embedUrl: null,
+      mediaMetadata: null,
+    });
     setEditingProject(null);
+    setIsFetchingGithub(false);
     setShowModal(false);
   };
 
@@ -73,8 +86,52 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
       description: project.description || "",
       githubLink: project.githubLink || "",
       liveLink: project.liveLink || "",
+      embedType: project.embedType,
+      embedUrl: project.embedUrl,
+      mediaMetadata: project.mediaMetadata,
     });
     setShowModal(true);
+  };
+
+  const handleFetchGithubMeta = async () => {
+    const rawUrl = formData.githubLink.trim();
+    if (!rawUrl) {
+      toast.error("Please enter a GitHub repository URL first");
+      return;
+    }
+
+    if (!rawUrl.includes("github.com/")) {
+      toast.error("Please enter a valid GitHub repository URL (e.g. https://github.com/owner/repo)");
+      return;
+    }
+
+    setIsFetchingGithub(true);
+    try {
+      const res = await fetch(`/api/student/github-meta?url=${encodeURIComponent(rawUrl)}`);
+      const json = await res.json();
+
+      if (!res.ok || !json.success) {
+        throw new Error(json.message || "Failed to fetch repository metadata");
+      }
+
+      const meta = json.data;
+      const repoNameFromUrl = rawUrl.split("/").filter(Boolean).pop()?.replace(/\.git$/, "") || "";
+
+      setFormData((prev) => ({
+        ...prev,
+        name: prev.name.trim() ? prev.name : repoNameFromUrl,
+        description: prev.description.trim() ? prev.description : (meta.description || prev.description),
+        embedType: "GITHUB",
+        embedUrl: rawUrl,
+        mediaMetadata: meta,
+      }));
+
+      toast.success("GitHub repository details fetched successfully!");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to fetch GitHub info");
+    } finally {
+      setIsFetchingGithub(false);
+    }
   };
 
   const handleDelete = async (projectId: string) => {
@@ -95,15 +152,21 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
       return;
     }
 
+    const payload = {
+      ...formData,
+      embedType: formData.githubLink.trim() ? "GITHUB" : formData.embedType || null,
+      embedUrl: formData.githubLink.trim() ? formData.githubLink.trim() : formData.embedUrl || null,
+    };
+
     try {
       if (editingProject) {
         await updateProjectAsync({
           projectId: editingProject.id,
-          data: formData,
+          data: payload,
         });
         toast.success("Project updated successfully!");
       } else {
-        await addProjectAsync(formData);
+        await addProjectAsync(payload);
         toast.success("Project added successfully!");
       }
       resetForm();
@@ -283,9 +346,31 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
 
                 <div className="space-y-3.5">
                   <div className="space-y-1.5">
-                    <label className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white flex items-center gap-1.5">
-                      <Github className="w-4 h-4" /> Source Code URL
-                    </label>
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white flex items-center gap-1.5">
+                        <Github className="w-4 h-4" /> Source Code URL
+                      </label>
+                      {formData.githubLink.trim().includes("github.com/") && (
+                        <button
+                          type="button"
+                          onClick={handleFetchGithubMeta}
+                          disabled={isFetchingGithub}
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 hover:underline disabled:opacity-50"
+                        >
+                          {isFetchingGithub ? (
+                            <>
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                              <span>Fetching...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="w-3 h-3 text-amber-500" />
+                              <span>Fetch Repo Info</span>
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
                     <input
                       type="url"
                       value={formData.githubLink}
@@ -293,6 +378,46 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                       placeholder="https://github.com/..."
                       className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-base sm:text-sm outline-none focus:border-slate-400 dark:focus:border-slate-500 transition-colors"
                     />
+
+                    {/* Fetched GitHub Metadata Preview */}
+                    {formData.mediaMetadata && (
+                      <div className="p-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700 space-y-1.5 animate-in fade-in duration-150">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 truncate pr-2">
+                            <Github className="w-3.5 h-3.5 shrink-0" />
+                            <span className="truncate">{formData.githubLink.replace(/https?:\/\/github\.com\//, "")}</span>
+                          </span>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-medium shrink-0">
+                            Verified Repo
+                          </span>
+                        </div>
+                        {formData.mediaMetadata.description && (
+                          <p className="text-[11px] text-slate-600 dark:text-slate-400 line-clamp-2">
+                            {formData.mediaMetadata.description}
+                          </p>
+                        )}
+                        <div className="flex items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400 pt-0.5 flex-wrap">
+                          {formData.mediaMetadata.language && (
+                            <span className="flex items-center gap-1 font-medium">
+                              <span className="w-2 h-2 rounded-full bg-blue-500" />
+                              {formData.mediaMetadata.language}
+                            </span>
+                          )}
+                          {formData.mediaMetadata.stars !== undefined && (
+                            <span className="flex items-center gap-1">
+                              <Star className="w-3 h-3 text-amber-500" />
+                              {formData.mediaMetadata.stars} stars
+                            </span>
+                          )}
+                          {formData.mediaMetadata.forks !== undefined && (
+                            <span className="flex items-center gap-1">
+                              <GitFork className="w-3 h-3" />
+                              {formData.mediaMetadata.forks} forks
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white flex items-center gap-1.5">

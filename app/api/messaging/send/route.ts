@@ -11,11 +11,16 @@ export async function POST(request: NextRequest) {
   try {
     const user = await requireRole(UserRole.STUDENT)
 
-    const rateLimit = messageRateLimiter.check(`student:${user.id}`)
+    const rateLimit = await messageRateLimiter.checkAsync(`student:${user.id}`)
     if (!rateLimit.allowed) {
       return NextResponse.json(
         { success: false, message: "Too many messages sent. Please slow down.", retryAfter: rateLimit.retryAfter },
-        { status: 429 }
+        {
+          status: 429,
+          headers: rateLimit.retryAfter
+            ? { "Retry-After": String(rateLimit.retryAfter) }
+            : undefined,
+        }
       )
     }
 

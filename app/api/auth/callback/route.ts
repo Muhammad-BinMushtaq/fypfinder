@@ -6,31 +6,60 @@ import { UserRole, UserStatus } from "@/lib/generated/prisma/enums"
 import logger from "@/lib/logger"
 import { getAuthenticatedRedirectPath } from "@/lib/auth"
 
+function isAllowedHost(host: string): boolean {
+    const cleanHost = host.toLowerCase().trim()
+    // Production domain
+    if (cleanHost === "fypmate.com" || cleanHost === "www.fypmate.com") {
+        return true
+    }
+    // Vercel deployment preview / production domains
+    if (cleanHost.endsWith(".vercel.app")) {
+        return true
+    }
+    // Configured environment URL host
+    if (process.env.NEXT_PUBLIC_APP_URL) {
+        try {
+            const configuredHost = new URL(process.env.NEXT_PUBLIC_APP_URL).host.toLowerCase()
+            if (cleanHost === configuredHost) return true
+        } catch {
+            // Ignore malformed env URL
+        }
+    }
+    // Local development hosts
+    if (process.env.NODE_ENV === "development") {
+        const hostnameOnly = cleanHost.split(":")[0]
+        if (hostnameOnly === "localhost" || hostnameOnly === "127.0.0.1") {
+            return true
+        }
+    }
+    return false
+}
+
 function getRedirectOrigin(req: Request) {
-    // 1. In local development, always use the request URL origin
+    // 1. In local development, use the request URL origin
     if (process.env.NODE_ENV === "development") {
         return new URL(req.url).origin
     }
 
-    // 2. On Vercel and reverse proxies, inspect x-forwarded-host and x-forwarded-proto
+    // 2. On Vercel and reverse proxies, inspect x-forwarded-host only if it is an allowed host
     const forwardedHost = req.headers.get("x-forwarded-host")
     const forwardedProto = req.headers.get("x-forwarded-proto") || "https"
-    if (forwardedHost) {
+    if (forwardedHost && isAllowedHost(forwardedHost)) {
         return `${forwardedProto}://${forwardedHost}`
     }
 
-    // 3. Fall back to NEXT_PUBLIC_APP_URL if defined
+    // 3. Fall back to NEXT_PUBLIC_APP_URL if defined and valid
     const envUrl = process.env.NEXT_PUBLIC_APP_URL
     if (envUrl) {
         try {
             return new URL(envUrl).origin
         } catch {
-            // Fall through to request origin
+            // Fall through to default origin
         }
     }
 
-    // 4. Default to incoming request origin
-    return new URL(req.url).origin
+    // 4. Default to canonical production origin
+    return "https://fypmate.com"
 }
 
 /**

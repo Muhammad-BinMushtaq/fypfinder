@@ -4,6 +4,9 @@ import prisma from "@/lib/db"
 import { RequestType, RequestStatus } from "@/lib/generated/prisma/enums"
 import { notifyMessageRequest, notifyPartnerRequest, notifyRequestAccepted } from "@/lib/push-service"
 
+export const MAX_PENDING_PARTNER_REQUESTS = 5
+export const MAX_PENDING_MESSAGE_REQUESTS = 10
+export const MAX_REQUEST_REASON_LENGTH = 500
 
 // Message Request
 
@@ -12,12 +15,21 @@ export async function sendMessageRequest(
     toStudentId: string,
     reason: string
 ) {
-    // 1️⃣ Prevent self-request
+    // 1️⃣ Validate reason length
+    const trimmedReason = (reason || "").trim()
+    if (!trimmedReason) {
+        throw new Error("Reason is required")
+    }
+    if (trimmedReason.length > MAX_REQUEST_REASON_LENGTH) {
+        throw new Error(`Reason cannot exceed ${MAX_REQUEST_REASON_LENGTH} characters`)
+    }
+
+    // 2️⃣ Prevent self-request
     if (fromStudentId === toStudentId) {
         throw new Error("You cannot send a request to yourself")
     }
 
-    // 2️⃣ Ensure receiver exists
+    // 3️⃣ Ensure receiver exists
     const receiver = await prisma.student.findUnique({
         where: { id: toStudentId },
         select: { id: true },
@@ -27,34 +39,52 @@ export async function sendMessageRequest(
         throw new Error("Target student does not exist")
     }
 
-    // 3️⃣ Prevent duplicate active request
-    const existingRequest = await prisma.request.findFirst({
-        where: {
-            fromStudentId,
-            toStudentId,
-            type: RequestType.MESSAGE,
-            status: RequestStatus.PENDING,
-        },
-    })
+    // 4️⃣ Execute atomic cap check and creation inside transaction
+    const request = await prisma.$transaction(async (tx) => {
+        // Advisory transaction lock serialized per sender
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('msg_req_' || ${fromStudentId}::text))`
 
-    if (existingRequest) {
-        throw new Error("A pending message request already exists")
-    }
-
-    // 4️⃣ Create request
-    const request = await prisma.request.create({
-        data: {
-            fromStudentId,
-            toStudentId,
-            type: RequestType.MESSAGE,
-            status: RequestStatus.PENDING,
-            reason: reason,
-        },
-        include: {
-            fromStudent: {
-                select: { name: true },
+        // Check active pending count cap
+        const pendingCount = await tx.request.count({
+            where: {
+                fromStudentId,
+                type: RequestType.MESSAGE,
+                status: RequestStatus.PENDING,
             },
-        },
+        })
+
+        if (pendingCount >= MAX_PENDING_MESSAGE_REQUESTS) {
+            throw new Error(`You have reached the maximum limit of ${MAX_PENDING_MESSAGE_REQUESTS} pending message requests. Please wait for students to reply before sending more.`)
+        }
+
+        // Prevent duplicate active request
+        const existingRequest = await tx.request.findFirst({
+            where: {
+                fromStudentId,
+                toStudentId,
+                type: RequestType.MESSAGE,
+                status: RequestStatus.PENDING,
+            },
+        })
+
+        if (existingRequest) {
+            throw new Error("A pending message request already exists")
+        }
+
+        return tx.request.create({
+            data: {
+                fromStudentId,
+                toStudentId,
+                type: RequestType.MESSAGE,
+                status: RequestStatus.PENDING,
+                reason: trimmedReason,
+            },
+            include: {
+                fromStudent: {
+                    select: { name: true },
+                },
+            },
+        })
     })
 
     // 5️⃣ Send push notification (async, don't block response)
@@ -62,7 +92,7 @@ export async function sendMessageRequest(
         toStudentId,
         request.fromStudent.name,
         request.id,
-        reason
+        trimmedReason
     ).catch(err => console.error('Push notification error:', err))
 
     return request
@@ -224,7 +254,10 @@ export async function sendPartnerRequest(
     toStudentId: string,
     reason?: string,
 ) {
-
+    const trimmedReason = (reason || "").trim()
+    if (trimmedReason.length > MAX_REQUEST_REASON_LENGTH) {
+        throw new Error(`Reason cannot exceed ${MAX_REQUEST_REASON_LENGTH} characters`)
+    }
 
     // 1️⃣ Prevent self-request
     if (fromStudentId === toStudentId) {
@@ -304,31 +337,50 @@ export async function sendPartnerRequest(
         }
     }
 
-    // 7️⃣ Prevent duplicate pending partner request (either direction)
-    const existingRequest = await prisma.request.findFirst({
-        where: {
-            type: RequestType.PARTNER,
-            status: RequestStatus.PENDING,
-            OR: [
-                { fromStudentId, toStudentId },
-                { fromStudentId: toStudentId, toStudentId: fromStudentId }, // Check reverse direction too
-            ],
-        },
-    })
+    // 7️⃣ Enforce atomic cap and duplicate check inside transaction
+    const request = await prisma.$transaction(async (tx) => {
+        // Advisory transaction lock serialized per sender
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('partner_req_' || ${fromStudentId}::text))`
 
-    if (existingRequest) {
-        throw new Error("A pending partner request already exists between you and this student")
-    }
+        // Check active pending count cap
+        const pendingCount = await tx.request.count({
+            where: {
+                fromStudentId,
+                type: RequestType.PARTNER,
+                status: RequestStatus.PENDING,
+            },
+        })
 
-    // 8️⃣ Create partner request
-    const request = await prisma.request.create({
-        data: {
-            fromStudentId,
-            toStudentId,
-            type: RequestType.PARTNER,
-            status: RequestStatus.PENDING,
-            reason: reason || "",
-        },
+        if (pendingCount >= MAX_PENDING_PARTNER_REQUESTS) {
+            throw new Error(`You have reached the maximum limit of ${MAX_PENDING_PARTNER_REQUESTS} pending partner requests. Please wait for students to reply before sending more.`)
+        }
+
+        // Prevent duplicate pending partner request (either direction)
+        const existingRequest = await tx.request.findFirst({
+            where: {
+                type: RequestType.PARTNER,
+                status: RequestStatus.PENDING,
+                OR: [
+                    { fromStudentId, toStudentId },
+                    { fromStudentId: toStudentId, toStudentId: fromStudentId },
+                ],
+            },
+        })
+
+        if (existingRequest) {
+            throw new Error("A pending partner request already exists between you and this student")
+        }
+
+        // 8️⃣ Create partner request
+        return tx.request.create({
+            data: {
+                fromStudentId,
+                toStudentId,
+                type: RequestType.PARTNER,
+                status: RequestStatus.PENDING,
+                reason: trimmedReason,
+            },
+        })
     })
 
     // 9️⃣ Send push notification (async, don't block response)
@@ -336,7 +388,7 @@ export async function sendPartnerRequest(
         toStudentId,
         sender.name,
         request.id,
-        reason || ""
+        trimmedReason
     ).catch(err => console.error('Push notification error:', err))
 
     return request

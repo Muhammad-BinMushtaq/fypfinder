@@ -5,17 +5,22 @@ import { requireRole } from "@/lib/auth"
 import { UserRole } from "@/lib/generated/prisma/enums"
 import logger from "@/lib/logger"
 import { editMessage } from "@/modules/messaging/messaging.service"
-import { messageRateLimiter } from "@/lib/rate-limit"
+import { messageEditRateLimiter } from "@/lib/rate-limit"
 
 export async function PATCH(request: NextRequest) {
   try {
     const user = await requireRole(UserRole.STUDENT)
 
-    const rateLimit = messageRateLimiter.check(`student:${user.id}`)
+    const rateLimit = await messageEditRateLimiter.checkAsync(`student:${user.id}`)
     if (!rateLimit.allowed) {
       return NextResponse.json(
         { success: false, message: "Too many edit requests. Please slow down.", retryAfter: rateLimit.retryAfter },
-        { status: 429 }
+        {
+          status: 429,
+          headers: rateLimit.retryAfter
+            ? { "Retry-After": String(rateLimit.retryAfter) }
+            : undefined,
+        }
       )
     }
 
