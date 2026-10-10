@@ -275,7 +275,13 @@ export async function groqChatWithFallback(
   // ---------------------------------------------------------
   // TIER 1: Groq Key Pool (Try each active key across high-speed models)
   // ---------------------------------------------------------
-  const groqModels = ["qwen/qwen3.8-27b", "openai/gpt-oss-120b", "openai/gpt-oss-20b"]
+  const groqModels = [
+    "qwen/qwen3.8-27b",
+    "openai/gpt-oss-120b",
+    "openai/gpt-oss-20b",
+    "canopylabs/orpheus-v1-english",
+    "canopylabs/orpheus-arabic-saudi",
+  ]
 
   for (let keyIdx = 0; keyIdx < groqKeys.length; keyIdx++) {
     const key = groqKeys[keyIdx]
@@ -344,12 +350,24 @@ export async function groqChatWithFallback(
   }
 
   // ---------------------------------------------------------
-  // TIER 3: OpenRouter Free Pool
+  // TIER 3: OpenRouter Free Pool (Comprehensive Free Model Cascade)
   // ---------------------------------------------------------
   if (openRouterKeys.length > 0) {
     const openRouterModels = [
       "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
       "dots-studio/dots-3-note-preview:free",
+      "nvidia/nemotron-3.5-lightning:free",
+      "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "nvidia/nemotron-3-super-120b-a12b:free",
+      "cohere/north-mini-code:free",
+      "google/gemma-4-31b-it:free",
+      "google/gemma-4-26b-a4b-it:free",
+      "liquid/lfm-2.5-2.6b:free",
+      "poolside/laguna-s-2.1:free",
+      "poolside/laguna-xs-2.1:free",
+      "apodex/apodex-1.1-mini:free",
+      "thinkingmachines/inkling-small:free",
+      "thinkingmachines/inkling:free",
     ]
     for (const key of openRouterKeys) {
       for (const model of openRouterModels) {
