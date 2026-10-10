@@ -68,7 +68,8 @@ export default function FYPManagementPage() {
   }
 
   // Find current user in members list
-  const currentMember = group?.members.find((m) => m.id === profile?.id);
+  const currentUserId = group?.currentStudentId || profile?.id;
+  const currentMember = group?.members.find((m) => m.id === currentUserId || (profile && m.id === profile.id));
   const showGroupOnProfile = currentMember?.showGroupOnProfile ?? true;
 
   // Group leadership determination (earliest joinedAt is leader)
@@ -79,7 +80,7 @@ export default function FYPManagementPage() {
       })
     : [];
   const leaderId = sortedMembers[0]?.id;
-  const isCurrentUserLeader = leaderId === profile?.id;
+  const isCurrentUserLeader = leaderId === currentUserId || (!!profile?.id && leaderId === profile.id);
 
   // Edit actions
   const handleStartEdit = () => {
@@ -108,8 +109,8 @@ export default function FYPManagementPage() {
   };
 
   const handleConfirmLeave = () => {
-    if (!profile?.id) return;
-    leaveGroup.mutate(profile.id, {
+    const targetId = currentMember?.id || currentUserId || profile?.id || "self";
+    leaveGroup.mutate(targetId, {
       onSuccess: () => {
         setShowLeaveModal(false);
       },
@@ -151,19 +152,40 @@ export default function FYPManagementPage() {
           </div>
         </div>
 
-        {/* Status Badge */}
-        <div className="self-start sm:self-center">
+        {/* Status Badge & Actions */}
+        <div className="flex flex-wrap items-center gap-2.5 self-start sm:self-center">
           {isInGroup && group ? (
-            <span
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${
-                isGroupLocked
-                  ? "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700"
-                  : "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/50"
-              }`}
-            >
-              {isGroupLocked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
-              {isGroupLocked ? "Group Finalized & Locked" : `Open Team (${group.members.length}/3)`}
-            </span>
+            <>
+              <span
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${
+                  isGroupLocked
+                    ? "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700"
+                    : "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/50"
+                }`}
+              >
+                {isGroupLocked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
+                {isGroupLocked ? "Group Finalized & Locked" : `Open Team (${group.members.length}/3)`}
+              </span>
+
+              {!isGroupLocked ? (
+                <button
+                  type="button"
+                  onClick={() => setShowLeaveModal(true)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/30 border border-red-200/80 dark:border-red-900/50 transition-colors shadow-xs"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  Leave Group
+                </button>
+              ) : (
+                <span
+                  title="Group is locked and finalized. Members cannot leave without supervisor or administrator unlock."
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 cursor-not-allowed"
+                >
+                  <Lock className="w-3 h-3" />
+                  Locked
+                </span>
+              )}
+            </>
           ) : (
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700/80">
               <Users className="w-3.5 h-3.5 text-slate-400" />
@@ -303,13 +325,23 @@ export default function FYPManagementPage() {
                     </div>
                   </div>
                   {!isGroupLocked && (
-                    <Link
-                      href="/dashboard/discovery"
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-lg transition-colors"
-                    >
-                      <Search className="w-3.5 h-3.5" />
-                      Invite Partner
-                    </Link>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowLeaveModal(true)}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 px-3 py-1.5 bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-950/60 border border-red-200/60 dark:border-red-900/40 rounded-lg transition-colors"
+                      >
+                        <LogOut className="w-3.5 h-3.5" />
+                        Leave Group
+                      </button>
+                      <Link
+                        href="/dashboard/discovery"
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                      >
+                        <Search className="w-3.5 h-3.5" />
+                        Invite Partner
+                      </Link>
+                    </div>
                   )}
                 </div>
 
@@ -336,7 +368,7 @@ export default function FYPManagementPage() {
                             <span className="font-semibold text-sm text-slate-900 dark:text-white truncate">
                               {member.name}
                             </span>
-                            {member.id === profile?.id && (
+                            {(member.id === currentUserId || (!!profile?.id && member.id === profile.id)) && (
                               <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
                                 You
                               </span>
@@ -369,7 +401,7 @@ export default function FYPManagementPage() {
 
                         {!isGroupLocked && (
                           <>
-                            {member.id === profile?.id ? (
+                            {(member.id === currentUserId || (!!profile?.id && member.id === profile.id)) ? (
                               <button
                                 type="button"
                                 onClick={() => setShowLeaveModal(true)}
@@ -383,7 +415,7 @@ export default function FYPManagementPage() {
                               <button
                                 type="button"
                                 onClick={() => setMemberToRemove(member)}
-                                className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium text-slate-500 hover:text-red-600 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-400 dark:hover:bg-red-950/30 transition-colors border border-slate-200/60 dark:border-slate-700/60"
+                                className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium text-slate-500 hover:text-red-600 hover:bg-red-50 dark:text-slate-400 dark:hover:red-400 dark:hover:bg-red-950/30 transition-colors border border-slate-200/60 dark:border-slate-700/60"
                                 title="Remove member from group"
                               >
                                 <UserMinus className="w-3 h-3" />
@@ -438,10 +470,11 @@ export default function FYPManagementPage() {
                     <>
                       {/* Leave Group Button */}
                       <button
+                        type="button"
                         onClick={() => setShowLeaveModal(true)}
                         className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-red-200 hover:bg-red-50 text-red-700 dark:border-red-900/50 dark:hover:bg-red-950/20 dark:text-red-400 text-xs font-semibold transition-colors"
                       >
-                        <AlertTriangle className="w-4 h-4 text-red-500" />
+                        <LogOut className="w-4 h-4 text-red-500" />
                         Leave FYP Group
                       </button>
 

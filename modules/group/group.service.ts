@@ -43,6 +43,7 @@ export async function getMyGroup(studentId: string) {
         description: group.description,
         isLocked: group.isLocked,
         createdAt: group.createdAt,
+        currentStudentId: studentId,
         members: group.members.map((m: { joinedAt: Date; student: { id: string; name: string; department: string; currentSemester: number; profilePicture: string | null; showGroupOnProfile: boolean } }) => ({
             id: m.student.id,
             name: m.student.name,

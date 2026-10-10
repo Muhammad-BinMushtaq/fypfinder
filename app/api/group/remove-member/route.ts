@@ -10,19 +10,8 @@ export async function POST(req: Request) {
     // 🔐 Auth + role
     const user = await requireRole(UserRole.STUDENT)
 
-    const body = await req.json()
-    const { targetStudentId } = body
-
-    if (!targetStudentId) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "targetStudentId is required",
-        },
-        { status: 400 }
-      )
-    }
-
+    const body = await req.json().catch(() => ({}))
+    const { targetStudentId } = body || {}
     // 🔍 Get student ID from user ID
     const student = await prisma.student.findUnique({
       where: { userId: user.id },
@@ -39,7 +28,10 @@ export async function POST(req: Request) {
       )
     }
 
-    const result = await removeGroupMember(student.id, targetStudentId)
+    // If targetStudentId is omitted or "self", default to self-removal (leaving group)
+    const targetId = (!targetStudentId || targetStudentId === "self") ? student.id : targetStudentId
+
+    const result = await removeGroupMember(student.id, targetId)
 
     return NextResponse.json(
       {

@@ -24,6 +24,7 @@ interface MyGroup {
   description: string | null;
   isLocked: boolean;
   createdAt: string;
+  currentStudentId?: string;
   members: GroupMember[];
 }
 
