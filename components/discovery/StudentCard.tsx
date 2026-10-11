@@ -72,16 +72,19 @@ export function StudentCard({
     router.prefetch(`/dashboard/discovery/profile/${student.id}`);
   }, [router, student.id]);
 
-  // Lock scroll when modal is open
+  // Lock scroll and hide mobile bottom nav when modal is open
   useEffect(() => {
     const isAnyModalOpen = showMessageModal || showPartnerModal;
     if (isAnyModalOpen) {
       document.body.style.overflow = "hidden";
+      document.body.classList.add("modal-open");
     } else {
       document.body.style.overflow = "unset";
+      document.body.classList.remove("modal-open");
     }
     return () => {
       document.body.style.overflow = "unset";
+      document.body.classList.remove("modal-open");
     };
   }, [showMessageModal, showPartnerModal]);
 

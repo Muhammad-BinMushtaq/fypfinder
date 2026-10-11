@@ -49,8 +49,10 @@ export function WelcomeModal({
     if (!isOpen) return;
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    document.body.classList.add("modal-open");
     return () => {
       document.body.style.overflow = originalOverflow;
+      document.body.classList.remove("modal-open");
     };
   }, [isOpen]);
 
@@ -159,7 +161,7 @@ export function WelcomeModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-xs p-3 sm:p-4 animate-in fade-in duration-150 overscroll-none">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/65 backdrop-blur-xs p-3 sm:p-4 animate-in fade-in duration-150 overscroll-none">
       {/* Fixed-dimension frame: Perfectly locked and identical size across all steps */}
       <div 
         className="w-full max-w-lg md:max-w-xl h-[540px] max-h-[86vh] flex flex-col bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden"

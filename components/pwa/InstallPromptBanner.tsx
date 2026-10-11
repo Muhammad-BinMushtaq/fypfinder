@@ -29,7 +29,15 @@ const STORAGE_KEY = 'fypfinder-install-dismissed';
 const LAST_SHOWN_KEY = 'fypfinder-install-last-shown';
 const COOLDOWN_DAYS = 7; // Don't show again for 7 days after "Not Now"
 
-export function InstallPromptBanner() {
+interface InstallPromptBannerProps {
+  hasBottomNav?: boolean;
+  standalone?: boolean;
+}
+
+export function InstallPromptBanner({
+  hasBottomNav = false,
+  standalone = true,
+}: InstallPromptBannerProps) {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
@@ -128,9 +136,15 @@ export function InstallPromptBanner() {
     return null;
   }
 
+  const positionClasses = standalone
+    ? hasBottomNav
+      ? "fixed bottom-[calc(5.75rem+env(safe-area-inset-bottom,0px))] lg:bottom-6 left-3 right-3 sm:left-auto sm:right-6 sm:max-w-sm z-[60]"
+      : "fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))] lg:bottom-6 left-3 right-3 sm:left-auto sm:right-6 sm:max-w-sm z-[60]"
+    : "w-full pointer-events-auto";
+
   return (
-    <div className="fixed bottom-20 lg:bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-sm z-50 animate-in slide-in-from-bottom-4 duration-300">
-      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-gray-200 dark:border-slate-700 p-4 relative">
+    <div className={`${positionClasses} animate-in slide-in-from-bottom-4 duration-300`}>
+      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200/80 dark:border-slate-700/80 p-4 relative">
         {/* Permanent dismiss button */}
         <button
           onClick={handlePermanentDismiss}

@@ -354,17 +354,29 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
           {/* Content Area */}
           <div
             className={`flex-1 lg:rounded-b-3xl relative z-10 flex flex-col min-h-0 ${
-              isChatOpen ? "p-0 h-full overflow-hidden" : "p-4 lg:p-6"
+              isChatOpen
+                ? "p-0 h-full overflow-hidden"
+                : shouldShowBottomNav
+                ? "p-4 pb-28 lg:p-6"
+                : "p-4 pb-12 lg:p-6"
             }`}
           >
             {children}
           </div>
           
+          {/* PWA & System Banners - Cleanly positioned above mobile bottom nav */}
           {!isChatOpen && (
-            <>
-              <PushPermissionBanner />
-              <InstallPromptBanner />
-            </>
+            <aside
+              aria-label="App Notifications"
+              className={`fixed ${
+                shouldShowBottomNav
+                  ? "bottom-[calc(5.75rem+env(safe-area-inset-bottom,0px))]"
+                  : "bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))]"
+              } left-3 right-3 sm:left-auto sm:right-6 sm:max-w-sm z-[60] flex flex-col gap-3 pointer-events-none transition-all duration-200`}
+            >
+              <PushPermissionBanner standalone={false} />
+              <InstallPromptBanner standalone={false} />
+            </aside>
           )}
         </div>
       </main>

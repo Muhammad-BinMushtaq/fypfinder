@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Calendar, Trash, X } from "lucide-react";
 import type { FYPTask } from "@/services/workspace.service";
 
@@ -41,6 +41,15 @@ export function TaskDetailModal({
     task?.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : ""
   );
 
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    document.body.classList.add("modal-open");
+    return () => {
+      document.body.style.overflow = "unset";
+      document.body.classList.remove("modal-open");
+    };
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isReadOnly) {
@@ -60,7 +69,7 @@ export function TaskDetailModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
       <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">
         <div className="flex items-center justify-between border-b border-gray-100 p-5 dark:border-slate-800">
           <div>

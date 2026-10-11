@@ -4,16 +4,23 @@ import { redirect } from "next/navigation";
 import { getAuthenticatedRedirectPath, getCurrentUser } from "@/lib/auth";
 import { LandingThemeToggle } from "@/components/landing/LandingThemeToggle";
 import { SupademoButton } from "@/components/landing/SupademoButton";
-import { HeroTaglineCycler } from "@/components/landing/HeroTaglineCycler";
 import { LandingFaq } from "@/components/landing/LandingFaq";
+import { DiscoveryMockup } from "@/components/landing/DiscoveryMockup";
+import { MessagingMockup } from "@/components/landing/MessagingMockup";
+import { ValidatorMockup } from "@/components/landing/ValidatorMockup";
+import { WorkspaceMockup } from "@/components/landing/WorkspaceMockup";
 import { 
   GraduationCap, 
-  Sparkles, 
   Users, 
   Brain, 
+  MessageSquare, 
+  FolderKanban, 
+  Sparkles, 
   ArrowRight, 
   CheckCircle2, 
-  Lock
+  ShieldCheck, 
+  Lock,
+  ChevronRight
 } from "lucide-react";
 
 export default async function HomePage({
@@ -69,50 +76,12 @@ export default async function HomePage({
           "price": "0",
           "priceCurrency": "USD"
         }
-      },
-      {
-        "@type": "FAQPage",
-        "@id": "https://fypmate.com/#faq",
-        "mainEntity": [
-          {
-            "@type": "Question",
-            "name": "What is FYPMate?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "FYPMate is an AI-powered academic platform helping university students find ideal Final Year Project (FYP) teammates, discover peer collaborators by technical skill, and validate proposal feasibility."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "How does the AI FYP Idea Validator work?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "The AI FYP Idea Validator evaluates project titles and descriptions across novelty, technical difficulty, timeline feasibility, team fit, and hardware constraints, providing instant rubric-based scores and benchmark comparisons."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Who can use FYPMate?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "FYPMate is designed for university engineering, computer science, and software students looking for project partners, research collaborators, and automated proposal evaluations."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Is FYPMate free to use?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Yes, FYPMate is free for university students to find project partners and validate their academic project ideas."
-            }
-          }
-        ]
       }
     ]
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 text-slate-800 dark:text-zinc-100 transition-colors relative selection:bg-slate-900 selection:text-white dark:selection:bg-white dark:selection:text-slate-950">
+    <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 text-slate-900 dark:text-zinc-100 transition-colors relative selection:bg-slate-900 selection:text-white dark:selection:bg-white dark:selection:text-slate-950">
       {/* Schema.org Structured Data */}
       <script
         type="application/ld+json"
@@ -121,12 +90,14 @@ export default async function HomePage({
 
       {/* Subtle Background Grid Pattern */}
       <div 
-        className="fixed inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:64px_64px] opacity-40 dark:opacity-40 pointer-events-none" 
+        className="fixed inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:64px_64px] opacity-40 pointer-events-none" 
         style={{ zIndex: 0 }} 
       />
 
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/85 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 transition-colors">
+      {/* ========================================= */}
+      {/* 1. MINIMALIST NAVIGATION HEADER           */}
+      {/* ========================================= */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/85 dark:bg-slate-950/85 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 transition-colors">
         <div className="max-w-6xl mx-auto px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -139,30 +110,33 @@ export default async function HomePage({
               </span>
             </Link>
 
-            {/* Middle Nav Links */}
+            {/* Middle Navigation Links */}
             <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600 dark:text-zinc-300">
+              <a href="#discovery" className="hover:text-slate-900 dark:hover:text-white transition-colors">
+                Find Partners
+              </a>
               <Link 
                 href="/idea-validator" 
                 className="hover:text-slate-900 dark:hover:text-white transition-colors flex items-center gap-1.5"
               >
-                <span>Idea Validator</span>
-                <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/40">
+                <span>AI Validator</span>
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/40">
                   AI
                 </span>
               </Link>
-              <a href="#features" className="hover:text-slate-900 dark:hover:text-white transition-colors">
-                Platform
+              <a href="#messaging" className="hover:text-slate-900 dark:hover:text-white transition-colors">
+                Collaboration
+              </a>
+              <a href="#workspace" className="hover:text-slate-900 dark:hover:text-white transition-colors">
+                Workspace
               </a>
               <a href="#how-it-works" className="hover:text-slate-900 dark:hover:text-white transition-colors">
-                How It Works
+                Workflow
               </a>
-              <Link href="/about" className="hover:text-slate-900 dark:hover:text-white transition-colors">
-                About Us
-              </Link>
             </div>
 
             {/* Actions + Theme Toggle */}
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-2.5 sm:gap-3">
               <LandingThemeToggle />
               <Link
                 href="/login"
@@ -181,32 +155,34 @@ export default async function HomePage({
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative pt-28 pb-14 sm:pt-36 sm:pb-20 z-10">
+      {/* ========================================= */}
+      {/* 2. VALUE PROPOSITION HERO SECTION         */}
+      {/* ========================================= */}
+      <section className="relative pt-28 pb-12 sm:pt-36 sm:pb-16 z-10">
         <div className="max-w-5xl mx-auto px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center space-y-5">
             {/* Minimal Campus Pill */}
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-full shadow-2xs">
               <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
               <span className="text-xs font-semibold text-slate-700 dark:text-zinc-300">
-                PAF-IAST Pilot • AI FYP Platform
+                PAF-IAST Pilot • University Final Year Project Platform
               </span>
             </div>
 
-            {/* Responsive Main Tagline */}
-            <div className="space-y-2 sm:space-y-3">
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.12]">
-                Find Your FYP Teammate.
-              </h1>
-              <HeroTaglineCycler />
-            </div>
+            {/* Main Clear Headline */}
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.12]">
+              Assemble Your FYP Team.
+              <span className="block text-slate-600 dark:text-zinc-400 font-bold mt-1">
+                Validate Ideas Before Defense.
+              </span>
+            </h1>
 
-            {/* Brief Subheading - Under 15 words */}
-            <p className="text-sm sm:text-base text-slate-600 dark:text-zinc-400 max-w-lg mx-auto leading-relaxed pt-1">
-              Find verified FYP teammates and validate your project proposal with AI before committee defense.
+            {/* Sub-headline */}
+            <p className="text-sm sm:text-base text-slate-600 dark:text-zinc-400 max-w-xl mx-auto leading-relaxed pt-1">
+              Match with verified university peers by tech stack and availability, and benchmark proposal feasibility against past academic FYP archives with AI.
             </p>
 
-            {/* CTA Buttons */}
+            {/* CTA Action Hub */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-3">
               <Link
                 href="/login"
@@ -233,9 +209,12 @@ export default async function HomePage({
             </div>
           </div>
 
-          {/* Product Showcase Window Mockup */}
+          {/* ========================================= */}
+          {/* 3. PRODUCT SHOWCASE VIDEO WINDOW          */}
+          {/* ========================================= */}
           <div className="mt-12 max-w-4xl mx-auto">
             <div className="rounded-2xl sm:rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white/70 dark:bg-slate-900/60 p-2 sm:p-3 shadow-xl backdrop-blur-md">
+              {/* Window Chrome Header */}
               <div className="flex items-center justify-between px-3 py-1.5 mb-1.5">
                 <div className="flex items-center gap-1.5">
                   <div className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700" />
@@ -243,14 +222,22 @@ export default async function HomePage({
                   <div className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700" />
                 </div>
                 <div className="px-3 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-[10px] font-semibold text-slate-500 dark:text-zinc-400 border border-slate-200/60 dark:border-slate-700/60">
-                  fypmate.com • Platform Demo
+                  fypmate.com • Walkthrough Demo
                 </div>
                 <div className="w-8" />
               </div>
+
+              {/* Ambient Video Frame: Autoplaying, Looping, Muted, and Unclickable */}
               <div className="relative aspect-video rounded-xl sm:rounded-2xl overflow-hidden bg-black shadow-inner">
+                {/* Transparent glass overlay to guarantee zero accidental clicks/popups */}
+                <div 
+                  className="absolute inset-0 z-10 bg-transparent pointer-events-auto cursor-default" 
+                  aria-hidden="true" 
+                />
+
                 <iframe 
                   className="absolute inset-0 w-full h-full block"
-                  src="https://www.youtube.com/embed/l5DJNJ_SBSU?si=AEzaXHlTThwBI7r3&autoplay=0&rel=0" 
+                  src="https://www.youtube.com/embed/l5DJNJ_SBSU?autoplay=1&mute=1&controls=0&loop=1&playlist=l5DJNJ_SBSU&modestbranding=1&rel=0&playsinline=1" 
                   title="FYPMate Platform Walkthrough Video"
                   frameBorder={0} 
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
@@ -263,7 +250,9 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* Credibility & Metrics Strip */}
+      {/* ========================================= */}
+      {/* 4. CREDIBILITY & METRICS STRIP            */}
+      {/* ========================================= */}
       <section className="relative z-10 py-8 border-y border-slate-200/80 dark:border-slate-800/80 bg-white/50 dark:bg-slate-900/40 backdrop-blur-xs">
         <div className="max-w-5xl mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 text-center">
@@ -287,376 +276,239 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* Core Platform Features: The Side-by-Side Split Table */}
-      <section id="features" className="py-16 sm:py-24 relative z-10">
-        <div className="max-w-5xl mx-auto px-6 lg:px-8 space-y-10">
-          <div className="text-center max-w-xl mx-auto space-y-1.5">
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-              The Two FYP Engines
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400">
-              Everything needed to assemble a balanced team and benchmark project feasibility.
-            </p>
-          </div>
-
-          {/* Unified Split Table */}
-          <div className="rounded-2xl sm:rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/70 shadow-xs overflow-hidden grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200/80 dark:divide-slate-800">
-            {/* Side A: Teammate Discovery */}
-            <div className="p-6 sm:p-8 flex flex-col justify-between space-y-6 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
+      {/* ========================================= */}
+      {/* 5. ALTERNATING REALISTIC FEATURE MOCKUPS   */}
+      {/* ========================================= */}
+      <div className="relative z-10 divide-y divide-slate-200/80 dark:divide-slate-800/80">
+        
+        {/* SHOWCASE 1: TEAMMATE DISCOVERY & STUDENT PROFILES */}
+        <section id="discovery" className="py-16 sm:py-24">
+          <div className="max-w-6xl mx-auto px-6 lg:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+              {/* Text Left */}
               <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-zinc-200 flex items-center justify-center shrink-0">
-                    <Users className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-slate-900 dark:text-white text-base sm:text-lg">Teammate Discovery</h3>
-                    <p className="text-xs text-slate-500 dark:text-zinc-400">Match by verified tech stack & availability</p>
-                  </div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  <Users className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                  <span>Teammate Discovery</span>
                 </div>
+                <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+                  Find Compatible Partners by Verified Tech Stack
+                </h2>
+                <p className="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed">
+                  Search through departmental classmates with verified skillsets, semester status, and live availability. Stop building accidental teams that fall apart mid-semester.
+                </p>
 
-                <ul className="space-y-2.5 text-xs text-slate-600 dark:text-zinc-300 pt-1">
+                <ul className="space-y-2.5 text-xs sm:text-sm text-slate-600 dark:text-zinc-300 pt-2">
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>Verified departmental student profiles</span>
+                    <span>Filter peers by technical stack, frameworks, and tools</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>Filter by tech stack and availability</span>
+                    <span>Live availability indicator avoids already-grouped classmates</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>Direct chat and formal partner requests</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>Locked team rosters under university rules</span>
+                    <span>View GitHub repositories, previous work, and experience</span>
                   </li>
                 </ul>
+
+                <div className="pt-2">
+                  <Link
+                    href="/login"
+                    className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                  >
+                    <span>Browse Discovery Directory</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </div>
               </div>
 
-              <Link
-                href="/login"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-900 dark:text-white hover:text-slate-600 dark:hover:text-zinc-300 transition-colors pt-3 border-t border-slate-100 dark:border-slate-800/80"
-              >
-                <span>Browse Student Discovery</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
+              {/* Mockup Right */}
+              <div>
+                <DiscoveryMockup />
+              </div>
             </div>
+          </div>
+        </section>
 
-            {/* Side B: AI Proposal Feasibility */}
-            <div className="p-6 sm:p-8 flex flex-col justify-between space-y-6 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-zinc-200 flex items-center justify-center shrink-0">
-                    <Brain className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-slate-900 dark:text-white text-base sm:text-lg">AI Proposal Feasibility</h3>
-                    <p className="text-xs text-slate-500 dark:text-zinc-400">Benchmark defense standards before submission</p>
-                  </div>
+        {/* SHOWCASE 2: REAL-TIME MESSAGING & COLLABORATION REQUESTS */}
+        <section id="messaging" className="py-16 sm:py-24 bg-slate-50/50 dark:bg-slate-900/20">
+          <div className="max-w-6xl mx-auto px-6 lg:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+              {/* Mockup Left */}
+              <div className="order-2 lg:order-1">
+                <MessagingMockup />
+              </div>
+
+              {/* Text Right */}
+              <div className="space-y-4 order-1 lg:order-2">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  <MessageSquare className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span>Real-Time Collaboration</span>
                 </div>
+                <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+                  Discuss Project Scope Before Formal Commitment
+                </h2>
+                <p className="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed">
+                  Send structured message requests to classmates. Once approved, collaborate in real time to discuss project visions, expected division of labor, and advisor preferences.
+                </p>
 
-                <ul className="space-y-2.5 text-xs text-slate-600 dark:text-zinc-300 pt-1">
+                <ul className="space-y-2.5 text-xs sm:text-sm text-slate-600 dark:text-zinc-300 pt-2">
                   <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-amber-500 shrink-0" />
-                    <span>0–100 institutional defense rubric scoring</span>
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Permissioned messaging prevents spam and random inquiries</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-amber-500 shrink-0" />
-                    <span>Novelty and historical duplicate detection</span>
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Direct partner invitations once mutual agreement is reached</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-amber-500 shrink-0" />
-                    <span>2-semester defense milestone timeline</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-amber-500 shrink-0" />
-                    <span>Technical difficulty and hardware tier analysis</span>
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Seamless transition directly into the FYP team workspace</span>
                   </li>
                 </ul>
-              </div>
 
-              <Link
-                href="/idea-validator"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-900 dark:text-white hover:text-slate-600 dark:hover:text-zinc-300 transition-colors pt-3 border-t border-slate-100 dark:border-slate-800/80"
-              >
-                <span>Test AI Validator</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Student Directory Preview Section */}
-      <section className="py-16 sm:py-24 relative z-10 border-t border-slate-200/80 dark:border-slate-800/80">
-        <div className="max-w-5xl mx-auto px-6 lg:px-8 space-y-10">
-          <div className="text-center max-w-xl mx-auto space-y-1.5">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Students Looking for Partners
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400">
-              Sign in with your university account to explore full profiles and connect in real-time.
-            </p>
-          </div>
-
-          {/* Preview Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
-            {/* Card 1 */}
-            <div className="bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-xs">
-              <div className="p-4 border-b border-slate-100 dark:border-slate-800">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-full flex items-center justify-center font-bold text-xs shrink-0">
-                    AK
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-slate-900 dark:text-white text-sm">Ahmed Khan</h3>
-                    <p className="text-[11px] text-slate-500 dark:text-zinc-400">BSCS • Semester 7</p>
-                    <div className="flex items-center gap-1 mt-0.5">
-                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
-                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">Available</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="relative p-4">
-                <div className="absolute inset-0 backdrop-blur-xs bg-white/70 dark:bg-slate-900/70 z-10 flex items-center justify-center">
-                  <Link 
-                    href="/login" 
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-semibold rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shadow-xs"
+                <div className="pt-2">
+                  <Link
+                    href="/login"
+                    className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
                   >
-                    <Lock className="w-3.5 h-3.5" />
-                    <span>Login to View</span>
+                    <span>Connect with University Peers</span>
+                    <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>
-                <div className="space-y-2 opacity-30 select-none">
-                  <div className="flex flex-wrap gap-1">
-                    <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] rounded-md">Next.js</span>
-                    <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] rounded-md">Node.js</span>
-                    <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] rounded-md">PostgreSQL</span>
-                  </div>
-                  <p className="text-xs text-slate-500 truncate">Full-stack developer focusing on distributed web apps</p>
-                </div>
               </div>
             </div>
+          </div>
+        </section>
 
-            {/* Card 2 */}
-            <div className="bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-xs">
-              <div className="p-4 border-b border-slate-100 dark:border-slate-800">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-xs shrink-0">
-                    SM
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-slate-900 dark:text-white text-sm">Sara Malik</h3>
-                    <p className="text-[11px] text-slate-500 dark:text-zinc-400">BSAI • Semester 7</p>
-                    <div className="flex items-center gap-1 mt-0.5">
-                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
-                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">Available</span>
-                    </div>
-                  </div>
+        {/* SHOWCASE 3: AI PROPOSAL FEASIBILITY & DUPLICATE CHECK */}
+        <section id="validator" className="py-16 sm:py-24">
+          <div className="max-w-6xl mx-auto px-6 lg:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+              {/* Text Left */}
+              <div className="space-y-4">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  <Brain className="w-3.5 h-3.5 text-amber-500" />
+                  <span>AI Proposal Feasibility</span>
                 </div>
-              </div>
-              <div className="relative p-4">
-                <div className="absolute inset-0 backdrop-blur-xs bg-white/70 dark:bg-slate-900/70 z-10 flex items-center justify-center">
-                  <Link 
-                    href="/login" 
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-semibold rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shadow-xs"
+                <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+                  Benchmark Proposal Defense Scores with AI
+                </h2>
+                <p className="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed">
+                  Evaluate your project proposal against 5 institutional rubric dimensions. Cross-reference past university FYP archives to identify duplicate ideas before the committee defense.
+                </p>
+
+                <ul className="space-y-2.5 text-xs sm:text-sm text-slate-600 dark:text-zinc-300 pt-2">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>0–100 rubric scoring across novelty, difficulty, and timeline</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Archive duplicate check prevents redundant project proposals</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Clear recommendations for literature review and hardware scope</span>
+                  </li>
+                </ul>
+
+                <div className="pt-2">
+                  <Link
+                    href="/idea-validator"
+                    className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 transition-colors"
                   >
-                    <Lock className="w-3.5 h-3.5" />
-                    <span>Login to View</span>
+                    <span>Run Free AI Proposal Evaluation</span>
+                    <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>
-                <div className="space-y-2 opacity-30 select-none">
-                  <div className="flex flex-wrap gap-1">
-                    <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] rounded-md">PyTorch</span>
-                    <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] rounded-md">Computer Vision</span>
-                    <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] rounded-md">Python</span>
-                  </div>
-                  <p className="text-xs text-slate-500 truncate">AI enthusiast interested in healthcare imaging</p>
-                </div>
+              </div>
+
+              {/* Mockup Right */}
+              <div>
+                <ValidatorMockup />
               </div>
             </div>
+          </div>
+        </section>
 
-            {/* Card 3 */}
-            <div className="bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-xs">
-              <div className="p-4 border-b border-slate-100 dark:border-slate-800">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-slate-700 text-white rounded-full flex items-center justify-center font-bold text-xs shrink-0">
-                    ZT
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-slate-900 dark:text-white text-sm">Zain Tariq</h3>
-                    <p className="text-[11px] text-slate-500 dark:text-zinc-400">BSE • Semester 7</p>
-                    <div className="flex items-center gap-1 mt-0.5">
-                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
-                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">Available</span>
-                    </div>
-                  </div>
-                </div>
+        {/* SHOWCASE 4: TEAM WORKSPACE & GROUP LOCK */}
+        <section id="workspace" className="py-16 sm:py-24 bg-slate-50/50 dark:bg-slate-900/20">
+          <div className="max-w-6xl mx-auto px-6 lg:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+              {/* Mockup Left */}
+              <div className="order-2 lg:order-1">
+                <WorkspaceMockup />
               </div>
-              <div className="relative p-4">
-                <div className="absolute inset-0 backdrop-blur-xs bg-white/70 dark:bg-slate-900/70 z-10 flex items-center justify-center">
-                  <Link 
-                    href="/login" 
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-semibold rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shadow-xs"
+
+              {/* Text Right */}
+              <div className="space-y-4 order-1 lg:order-2">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  <FolderKanban className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                  <span>Team Workspace</span>
+                </div>
+                <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+                  Lock Team Rosters & Execute Milestones
+                </h2>
+                <p className="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed">
+                  Finalize your official 2–3 member group to lock rosters under academic rules. Manage deliverables, literature reviews, and implementation tasks in one unified space.
+                </p>
+
+                <ul className="space-y-2.5 text-xs sm:text-sm text-slate-600 dark:text-zinc-300 pt-2">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Official roster locking compliant with university policy</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Milestone task boards with assigned student roles</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Centralized repository, live demo links, and documentation</span>
+                  </li>
+                </ul>
+
+                <div className="pt-2">
+                  <Link
+                    href="/login"
+                    className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
                   >
-                    <Lock className="w-3.5 h-3.5" />
-                    <span>Login to View</span>
+                    <span>Launch FYP Workspace</span>
+                    <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>
-                <div className="space-y-2 opacity-30 select-none">
-                  <div className="flex flex-wrap gap-1">
-                    <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] rounded-md">Embedded C</span>
-                    <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] rounded-md">ESP32</span>
-                    <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] rounded-md">IoT</span>
-                  </div>
-                  <p className="text-xs text-slate-500 truncate">Hardware specialist building smart telemetry systems</p>
-                </div>
               </div>
             </div>
           </div>
+        </section>
 
-          <div className="text-center pt-1">
-            <Link
-              href="/login"
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-slate-700 dark:text-zinc-200 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors shadow-2xs"
-            >
-              <span>View All Students in Discovery</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-        </div>
-      </section>
+      </div>
 
-      {/* Historical FYP Inspiration Section */}
-      <section className="py-16 sm:py-24 relative z-10 bg-slate-100/60 dark:bg-slate-900/30 border-y border-slate-200/80 dark:border-slate-800/80">
-        <div className="max-w-5xl mx-auto px-6 lg:px-8 space-y-10">
-          <div className="text-center max-w-xl mx-auto space-y-1.5">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              FYP Ideas & Inspiration
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400">
-              Browse approved project directions to benchmark originality and avoid duplicate concepts.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
-            {/* FYP 1 */}
-            <div className="bg-white dark:bg-slate-900/80 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 space-y-3 shadow-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-2 py-0.5 rounded-md">
-                  Computer Vision
-                </span>
-                <span className="text-[10px] text-slate-400">Semester 8</span>
-              </div>
-              <div>
-                <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-1">Smart Attendance Verification</h3>
-                <p className="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed">
-                  Real-time edge facial recognition attendance pipeline with automated logging and LMS synchronization.
-                </p>
-              </div>
-              <div className="pt-2.5 border-t border-slate-100 dark:border-slate-800 text-[10px] text-slate-400">
-                Department of Computer Science • PAF-IAST
-              </div>
-            </div>
-
-            {/* FYP 2 */}
-            <div className="bg-white dark:bg-slate-900/80 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 space-y-3 shadow-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-md">
-                  Mobile & AR
-                </span>
-                <span className="text-[10px] text-slate-400">Semester 8</span>
-              </div>
-              <div>
-                <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-1">AR Campus Navigation</h3>
-                <p className="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed">
-                  Indoor positioning system utilizing augmented reality beacons for multi-floor campus building navigation.
-                </p>
-              </div>
-              <div className="pt-2.5 border-t border-slate-100 dark:border-slate-800 text-[10px] text-slate-400">
-                Department of Software Engineering • PAF-IAST
-              </div>
-            </div>
-
-            {/* FYP 3 */}
-            <div className="bg-white dark:bg-slate-900/80 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 space-y-3 shadow-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-semibold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/40 px-2 py-0.5 rounded-md">
-                  NLP & LLM
-                </span>
-                <span className="text-[10px] text-slate-400">Semester 8</span>
-              </div>
-              <div>
-                <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-1">Adaptive Exam Generator</h3>
-                <p className="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed">
-                  AI-powered balanced question paper formulation using Bloom’s taxonomy difficulty scoring and anti-leakage checks.
-                </p>
-              </div>
-              <div className="pt-2.5 border-t border-slate-100 dark:border-slate-800 text-[10px] text-slate-400">
-                Department of Artificial Intelligence • PAF-IAST
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Interactive AI Idea Validator Showcase Banner */}
-      <section className="py-16 sm:py-24 relative z-10">
-        <div className="max-w-5xl mx-auto px-6 lg:px-8">
-          <div className="rounded-2xl sm:rounded-3xl border border-amber-200 dark:border-amber-900/40 bg-gradient-to-br from-amber-50/80 via-white to-orange-50/60 dark:from-slate-900 dark:via-slate-900 dark:to-amber-950/30 p-6 sm:p-10 shadow-xs">
-            <div className="max-w-2xl space-y-3.5">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white dark:bg-slate-800 border border-amber-200/90 dark:border-amber-900/40 text-[11px] font-semibold uppercase tracking-wider text-amber-800 dark:text-amber-300">
-                <Sparkles className="w-3 h-3 text-amber-500" />
-                <span>AI Feasibility Benchmark</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                Check if your FYP idea is defense-ready before committing to it
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-zinc-300 leading-relaxed">
-                Paste your project title and concept summary. Our AI engine evaluates novelty, implementation risks, timeline feasibility, and hardware complexity with an instant score.
-              </p>
-              <div className="pt-1.5 flex flex-col sm:flex-row gap-2.5">
-                <Link
-                  href="/idea-validator"
-                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white dark:text-slate-900 bg-slate-900 dark:bg-white rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shadow-xs"
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-amber-400 dark:text-amber-600" />
-                  <span>Try Free AI Analysis</span>
-                </Link>
-                <Link
-                  href="/login"
-                  className="inline-flex items-center justify-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-zinc-200 border border-slate-300 dark:border-slate-700 rounded-xl hover:bg-white/80 dark:hover:bg-slate-800 transition-colors"
-                >
-                  Sign In for Full PDF Reports
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section id="how-it-works" className="py-16 sm:py-24 relative z-10 bg-slate-100/60 dark:bg-slate-900/30 border-y border-slate-200/80 dark:border-slate-800/80">
+      {/* ========================================= */}
+      {/* 6. HOW IT WORKS WORKFLOW SECTION          */}
+      {/* ========================================= */}
+      <section id="how-it-works" className="py-16 sm:py-24 relative z-10 border-t border-slate-200/80 dark:border-slate-800/80">
         <div className="max-w-5xl mx-auto px-6 lg:px-8 space-y-12">
           <div className="text-center max-w-xl mx-auto space-y-1.5">
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               How It Works
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400">
-              Six simple steps from idea inception to locked FYP group
+              Six simple steps from idea formulation to official FYP group locking
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {[
-              { step: 1, title: "Create Your Profile", desc: "Sign in with your university account and showcase your programming skills, frameworks, and domain interests." },
-              { step: 2, title: "Discover Classmates", desc: "Filter peers by technical stack, target industry, and current availability status across university departments." },
-              { step: 3, title: "Send Message Request", desc: "Send an introductory message request to prospective teammates to align on project vision." },
-              { step: 4, title: "Chat in Real Time", desc: "Discuss project concepts, technical scope, and division of labor once your messaging request is accepted." },
-              { step: 5, title: "Send Partner Request", desc: "Send a formal partner invitation to officially assemble your 2–3 member FYP team roster." },
-              { step: 6, title: "Lock Team & Launch Workspace", desc: "Finalize your group to unlock the collaborative FYP Workspace with milestones and Kanban boards." },
+              { step: 1, title: "University SSO Sign In", desc: "Log in with your university account to verify your student identity and department." },
+              { step: 2, title: "Profile & Tech Stack", desc: "Highlight your verified programming languages, tools, frameworks, and project interests." },
+              { step: 3, title: "Search Classmates", desc: "Filter peers by technical stack, semester status, and live availability across departments." },
+              { step: 4, title: "Send Message Request", desc: "Exchange introductory messages with potential teammates to align on project vision." },
+              { step: 5, title: "Assemble Official Group", desc: "Send formal partner invitations to assemble your 2–3 member FYP team roster." },
+              { step: 6, title: "AI Feasibility Benchmark", desc: "Validate proposal novelty, rubric defense score, and past FYP overlap with AI." },
             ].map((item) => (
               <div key={item.step} className="p-5 rounded-2xl bg-white dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 shadow-2xs space-y-2.5">
                 <div className="w-8 h-8 bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-lg flex items-center justify-center text-xs font-bold shadow-xs">
@@ -670,17 +522,21 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* Frequently Asked Questions */}
+      {/* ========================================= */}
+      {/* 7. FREQUENTLY ASKED QUESTIONS             */}
+      {/* ========================================= */}
       <LandingFaq />
 
-      {/* Ready to Begin Bottom Banner */}
-      <section className="py-16 sm:py-24 relative z-10">
+      {/* ========================================= */}
+      {/* 8. READY TO BEGIN BOTTOM BANNER           */}
+      {/* ========================================= */}
+      <section className="py-16 sm:py-24 relative z-10 border-t border-slate-200/80 dark:border-slate-800/80">
         <div className="max-w-3xl mx-auto px-6 lg:px-8 text-center space-y-5">
           <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
             Ready to Build Your Final Year Project?
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 dark:text-zinc-400 max-w-lg mx-auto leading-relaxed">
-            Join ambitious university students collaborating on FYPMate, benchmark your ideas, and assemble your dream team today.
+            Join ambitious university students collaborating on FYPMate, benchmark your ideas against past archives, and assemble your dream team.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 pt-1">
             <Link
@@ -701,7 +557,9 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* Footer */}
+      {/* ========================================= */}
+      {/* 9. MINIMALIST INSTITUTIONAL FOOTER        */}
+      {/* ========================================= */}
       <footer className="border-t border-slate-200 dark:border-slate-800 py-10 bg-white dark:bg-slate-950 relative z-10">
         <div className="max-w-5xl mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">

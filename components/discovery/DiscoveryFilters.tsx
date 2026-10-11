@@ -402,7 +402,7 @@ export function DiscoveryFilters({
                 />
                 
                 {/* Dropdown */}
-                <div className="absolute z-50 mt-2 w-72 sm:w-80 bg-white dark:bg-slate-700 border border-slate-200/50 dark:border-white/5 rounded-2xl shadow-xl max-h-64 overflow-hidden">
+                <div className="absolute z-[60] mt-2 w-72 sm:w-80 bg-white dark:bg-slate-700 border border-slate-200/50 dark:border-white/5 rounded-2xl shadow-xl max-h-64 overflow-hidden">
                   {/* Search */}
                   <div className="p-3 border-b border-gray-100 dark:border-slate-600 bg-gray-50 dark:bg-slate-800">
                     <input

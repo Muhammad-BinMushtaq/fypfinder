@@ -18,7 +18,15 @@ import { useState, useEffect } from 'react';
 import { Bell, X } from 'lucide-react';
 import { usePushSubscription } from '@/hooks/pwa';
 
-export function PushPermissionBanner() {
+interface PushPermissionBannerProps {
+  hasBottomNav?: boolean;
+  standalone?: boolean;
+}
+
+export function PushPermissionBanner({
+  hasBottomNav = false,
+  standalone = true,
+}: PushPermissionBannerProps) {
   const { 
     isSupported, 
     isLoading: pushLoading, 
@@ -63,9 +71,15 @@ export function PushPermissionBanner() {
     return null;
   }
 
+  const positionClasses = standalone
+    ? hasBottomNav
+      ? "fixed bottom-[calc(5.75rem+env(safe-area-inset-bottom,0px))] lg:bottom-6 left-3 right-3 sm:left-auto sm:right-6 sm:max-w-sm z-[60]"
+      : "fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))] lg:bottom-6 left-3 right-3 sm:left-auto sm:right-6 sm:max-w-sm z-[60]"
+    : "w-full pointer-events-auto";
+
   return (
-    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md z-50 animate-in slide-in-from-bottom-4 duration-300">
-      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-gray-200 dark:border-slate-700 p-4">
+    <div className={`${positionClasses} animate-in slide-in-from-bottom-4 duration-300`}>
+      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200/80 dark:border-slate-700/80 p-4 relative">
         <button
           onClick={handleDismiss}
           className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
