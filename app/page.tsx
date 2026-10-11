@@ -2,8 +2,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getAuthenticatedRedirectPath, getCurrentUser } from "@/lib/auth";
-import { LandingThemeToggle } from "@/components/landing/LandingThemeToggle";
-import { SupademoButton } from "@/components/landing/SupademoButton";
+import { LandingNav } from "@/components/landing/LandingNav";
 import { LandingFaq } from "@/components/landing/LandingFaq";
 import { DiscoveryMockup } from "@/components/landing/DiscoveryMockup";
 import { MessagingMockup } from "@/components/landing/MessagingMockup";
@@ -94,62 +93,9 @@ export default async function HomePage({
       />
 
       {/* ========================================= */}
-      {/* 1. MINIMALIST NAVIGATION HEADER           */}
+      {/* 1. NAVIGATION HEADER WITH MOBILE TOGGLE   */}
       {/* ========================================= */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/85 dark:bg-slate-950/85 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 transition-colors">
-        <div className="max-w-6xl mx-auto px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-9 h-9 bg-slate-900 text-white dark:bg-white dark:text-slate-950 rounded-xl flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
-                <GraduationCap className="w-5 h-5" />
-              </div>
-              <span className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-                FYP<span className="font-semibold text-slate-500 dark:text-zinc-400">Mate</span>
-              </span>
-            </Link>
-
-            {/* Middle Navigation Links */}
-            <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600 dark:text-zinc-300">
-              <a href="#discovery" className="hover:text-slate-900 dark:hover:text-white transition-colors">
-                Find Partners
-              </a>
-              <Link 
-                href="/idea-validator" 
-                className="hover:text-slate-900 dark:hover:text-white transition-colors flex items-center gap-1.5"
-              >
-                <span>Idea Validator</span>
-              </Link>
-              <a href="#requests" className="hover:text-slate-900 dark:hover:text-white transition-colors">
-                Requests
-              </a>
-              <a href="#workspace" className="hover:text-slate-900 dark:hover:text-white transition-colors">
-                Workspace
-              </a>
-              <a href="#how-it-works" className="hover:text-slate-900 dark:hover:text-white transition-colors">
-                How It Works
-              </a>
-            </div>
-
-            {/* Actions + Theme Toggle */}
-            <div className="flex items-center gap-2.5 sm:gap-3">
-              <LandingThemeToggle />
-              <Link
-                href="/login"
-                className="hidden sm:inline-flex text-xs sm:text-sm font-semibold text-slate-700 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white px-2.5 py-1.5 transition-colors"
-              >
-                Sign In
-              </Link>
-              <Link
-                href="/login"
-                className="px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-white dark:text-slate-950 bg-slate-900 dark:bg-white rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shadow-xs"
-              >
-                Get Started
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <LandingNav />
 
       {/* ========================================= */}
       {/* 2. VALUE PROPOSITION HERO SECTION         */}
@@ -165,20 +111,18 @@ export default async function HomePage({
               </span>
             </div>
 
-            {/* Main Clear Headline */}
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.12]">
-              Find your FYP partner.
-              <span className="block text-slate-600 dark:text-zinc-400 font-bold mt-1">
-                Validate your FYP ideas.
-              </span>
+            {/* Main Clear Headline - Exactly matching color and symmetrical desktop boundaries */}
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.15] text-center">
+              <span className="block">Find Your FYP Partner</span>
+              <span className="block mt-1 sm:mt-2">Validate FYP Ideas</span>
             </h1>
 
-            {/* Sub-headline */}
-            <p className="text-sm sm:text-base text-slate-600 dark:text-zinc-400 max-w-xl mx-auto leading-relaxed pt-1">
+            {/* Sub-headline - Larger font size for effortless mobile readability */}
+            <p className="text-base sm:text-lg text-slate-700 dark:text-slate-300 max-w-xl mx-auto leading-relaxed pt-1">
               Search for classmates by department and availability, and check your project proposal against past university FYPs to avoid duplicate submissions.
             </p>
 
-            {/* CTA Action Hub */}
+            {/* CTA Action Hub - Two clear high-conversion actions */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-3">
               <Link
                 href="/login"
@@ -200,8 +144,6 @@ export default async function HomePage({
                 <FileText className="w-4 h-4 text-slate-600 dark:text-slate-400" />
                 <span>Test Idea Validator</span>
               </Link>
-
-              <SupademoButton />
             </div>
           </div>
 
@@ -247,26 +189,33 @@ export default async function HomePage({
       </section>
 
       {/* ========================================= */}
-      {/* 4. CREDIBILITY & METRICS STRIP            */}
+      {/* 4. INSTITUTIONAL TRUST & CAMPUS STRIP    */}
       {/* ========================================= */}
       <section className="relative z-10 py-8 border-y border-slate-200/80 dark:border-slate-800/80 bg-white/50 dark:bg-slate-900/40 backdrop-blur-xs">
         <div className="max-w-5xl mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-5 text-center md:text-left">
             <div className="space-y-0.5">
-              <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">2–3 Students</p>
-              <p className="text-xs text-slate-500 dark:text-zinc-400">Team Size Standard</p>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                Institutional Academic Standard
+              </p>
+              <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                Built for University Final Year Project & Capstone Groups
+              </p>
             </div>
-            <div className="space-y-0.5">
-              <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">5 Dimensions</p>
-              <p className="text-xs text-slate-500 dark:text-zinc-400">AI Defense Rubric</p>
-            </div>
-            <div className="space-y-0.5">
-              <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">100% Free</p>
-              <p className="text-xs text-slate-500 dark:text-zinc-400">For University Students</p>
-            </div>
-            <div className="space-y-0.5">
-              <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">PAF-IAST</p>
-              <p className="text-xs text-slate-500 dark:text-zinc-400">Founding Campus</p>
+
+            <div className="flex flex-wrap items-center justify-center md:justify-end gap-2 text-xs font-medium text-slate-600 dark:text-zinc-300">
+              <span className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700">
+                PAF-IAST Pilot Campus
+              </span>
+              <span className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700">
+                Computer Science & IT
+              </span>
+              <span className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700">
+                Software Engineering
+              </span>
+              <span className="px-3 py-1.5 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-950 font-semibold shadow-2xs">
+                100% Free for Students
+              </span>
             </div>
           </div>
         </div>
@@ -288,13 +237,14 @@ export default async function HomePage({
                   <span>Teammate Discovery</span>
                 </div>
                 <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
-                  Find Compatible FYP Partners in Your Department
+                  Find Your FYP Partner
                 </h2>
-                <p className="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed">
-                  Browse students by department, semester, and live availability. Avoid last-minute, mismatched groups that struggle mid-semester.
+                <p className="text-sm sm:text-base text-slate-600 dark:text-zinc-400 leading-relaxed">
+                  Search for classmates by department, semester, and availability to build your project team.
                 </p>
 
-                <ul className="space-y-2.5 text-xs sm:text-sm text-slate-600 dark:text-zinc-300 pt-2">
+                {/* Bullets hidden on mobile to keep interface clean & scannable */}
+                <ul className="hidden sm:block space-y-2.5 text-xs sm:text-sm text-slate-600 dark:text-zinc-300 pt-2">
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
                     <span>Filter classmates by department and current semester</span>
@@ -328,8 +278,8 @@ export default async function HomePage({
           </div>
         </section>
 
-        {/* SHOWCASE 2: COLLABORATION REQUESTS */}
-        <section id="requests" className="py-16 sm:py-24 bg-slate-50/50 dark:bg-slate-900/20">
+        {/* SHOWCASE 2: COLLABORATION & DIRECT CHAT */}
+        <section id="collaboration" className="py-16 sm:py-24 bg-slate-50/50 dark:bg-slate-900/20">
           <div className="max-w-6xl mx-auto px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
               {/* Mockup Left */}
@@ -341,16 +291,17 @@ export default async function HomePage({
               <div className="space-y-4 order-1 lg:order-2">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300">
                   <Users className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
-                  <span>Partner & Message Requests</span>
+                  <span>Connect & Chat</span>
                 </div>
                 <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
-                  Send Requests Before Committing to a Team
+                  Connect & Chat with Teammates
                 </h2>
-                <p className="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed">
-                  Send a partner invite or message request with a short note. Review incoming requests from peers and accept when you are ready to collaborate.
+                <p className="text-sm sm:text-base text-slate-600 dark:text-zinc-400 leading-relaxed">
+                  Send partner invites with a short note. Once accepted, discuss project ideas and divide responsibilities in direct chat.
                 </p>
 
-                <ul className="space-y-2.5 text-xs sm:text-sm text-slate-600 dark:text-zinc-300 pt-2">
+                {/* Bullets hidden on mobile to keep interface clean & scannable */}
+                <ul className="hidden sm:block space-y-2.5 text-xs sm:text-sm text-slate-600 dark:text-zinc-300 pt-2">
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
                     <span>Send personal notes explaining your project idea</span>
@@ -390,20 +341,21 @@ export default async function HomePage({
                   <span>FYP Idea Validator</span>
                 </div>
                 <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
-                  Check Your FYP Idea Before Supervisor Defense
+                  Check Your Idea Before Submitting
                 </h2>
-                <p className="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed">
-                  Test your project idea across clarity, technical feasibility, and 2-semester defense timeline. Check against past university FYPs to avoid duplicate submissions.
+                <p className="text-sm sm:text-base text-slate-600 dark:text-zinc-400 leading-relaxed">
+                  Get an instant defense score and check for duplicate concepts against past university projects.
                 </p>
 
-                <ul className="space-y-2.5 text-xs sm:text-sm text-slate-600 dark:text-zinc-300 pt-2">
+                {/* Bullets hidden on mobile to keep interface clean & scannable */}
+                <ul className="hidden sm:block space-y-2.5 text-xs sm:text-sm text-slate-600 dark:text-zinc-300 pt-2">
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
                     <span>Clear scoring on problem clarity, technical depth, and feasibility</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>Archive duplicate check against past university projects</span>
+                    <span>Archive duplicate check against 40+ past university FYPs</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
@@ -430,7 +382,7 @@ export default async function HomePage({
           </div>
         </section>
 
-        {/* SHOWCASE 4: TEAM WORKSPACE & GROUP LOCK */}
+        {/* SHOWCASE 4: TEAM WORKSPACE */}
         <section id="workspace" className="py-16 sm:py-24 bg-slate-50/50 dark:bg-slate-900/20">
           <div className="max-w-6xl mx-auto px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
@@ -446,13 +398,14 @@ export default async function HomePage({
                   <span>Team Workspace</span>
                 </div>
                 <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
-                  Lock Team Rosters & Track Milestones
+                  Form Your Team & Manage Projects
                 </h2>
-                <p className="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed">
-                  Finalize your 2–3 student group to lock your team roster under university guidelines. Keep track of proposal submissions, prototypes, and defense deliverables in one dashboard.
+                <p className="text-sm sm:text-base text-slate-600 dark:text-zinc-400 leading-relaxed">
+                  Finalize your 2–3 student group and keep deliverables organized in one workspace.
                 </p>
 
-                <ul className="space-y-2.5 text-xs sm:text-sm text-slate-600 dark:text-zinc-300 pt-2">
+                {/* Bullets hidden on mobile to keep interface clean & scannable */}
+                <ul className="hidden sm:block space-y-2.5 text-xs sm:text-sm text-slate-600 dark:text-zinc-300 pt-2">
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
                     <span>Official roster locking compliant with university policy</span>
