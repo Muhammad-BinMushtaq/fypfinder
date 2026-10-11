@@ -12,10 +12,9 @@ import { WorkspaceMockup } from "@/components/landing/WorkspaceMockup";
 import { 
   GraduationCap, 
   Users, 
-  Brain, 
+  FileText, 
   MessageSquare, 
   FolderKanban, 
-  Sparkles, 
   ArrowRight, 
   CheckCircle2, 
   ShieldCheck, 
@@ -119,19 +118,16 @@ export default async function HomePage({
                 href="/idea-validator" 
                 className="hover:text-slate-900 dark:hover:text-white transition-colors flex items-center gap-1.5"
               >
-                <span>AI Validator</span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/40">
-                  AI
-                </span>
+                <span>Idea Validator</span>
               </Link>
-              <a href="#messaging" className="hover:text-slate-900 dark:hover:text-white transition-colors">
-                Collaboration
+              <a href="#requests" className="hover:text-slate-900 dark:hover:text-white transition-colors">
+                Requests
               </a>
               <a href="#workspace" className="hover:text-slate-900 dark:hover:text-white transition-colors">
                 Workspace
               </a>
               <a href="#how-it-works" className="hover:text-slate-900 dark:hover:text-white transition-colors">
-                Workflow
+                How It Works
               </a>
             </div>
 
@@ -171,15 +167,15 @@ export default async function HomePage({
 
             {/* Main Clear Headline */}
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.12]">
-              Assemble Your FYP Team.
+              Find your FYP partner.
               <span className="block text-slate-600 dark:text-zinc-400 font-bold mt-1">
-                Validate Ideas Before Defense.
+                Validate your FYP ideas.
               </span>
             </h1>
 
             {/* Sub-headline */}
             <p className="text-sm sm:text-base text-slate-600 dark:text-zinc-400 max-w-xl mx-auto leading-relaxed pt-1">
-              Match with verified university peers by tech stack and availability, and benchmark proposal feasibility against past academic FYP archives with AI.
+              Search for classmates by department and availability, and check your project proposal against past university FYPs to avoid duplicate submissions.
             </p>
 
             {/* CTA Action Hub */}
@@ -201,8 +197,8 @@ export default async function HomePage({
                 href="/idea-validator"
                 className="w-full sm:w-auto px-5 py-3 text-xs sm:text-sm font-semibold text-slate-900 dark:text-white bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors flex items-center justify-center gap-2 shadow-2xs active:scale-[0.99]"
               >
-                <Sparkles className="w-4 h-4 text-amber-500" />
-                <span>Test AI Idea Validator</span>
+                <FileText className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                <span>Test Idea Validator</span>
               </Link>
 
               <SupademoButton />
@@ -288,35 +284,35 @@ export default async function HomePage({
               {/* Text Left */}
               <div className="space-y-4">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300">
-                  <Users className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                  <Users className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
                   <span>Teammate Discovery</span>
                 </div>
                 <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
-                  Find Compatible Partners by Verified Tech Stack
+                  Find Compatible FYP Partners in Your Department
                 </h2>
                 <p className="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed">
-                  Search through departmental classmates with verified skillsets, semester status, and live availability. Stop building accidental teams that fall apart mid-semester.
+                  Browse students by department, semester, and live availability. Avoid last-minute, mismatched groups that struggle mid-semester.
                 </p>
 
                 <ul className="space-y-2.5 text-xs sm:text-sm text-slate-600 dark:text-zinc-300 pt-2">
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>Filter peers by technical stack, frameworks, and tools</span>
+                    <span>Filter classmates by department and current semester</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>Live availability indicator avoids already-grouped classmates</span>
+                    <span>Live availability indicators show who is actively looking for teammates</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>View GitHub repositories, previous work, and experience</span>
+                    <span>Check student profiles, GitHub repositories, and past projects</span>
                   </li>
                 </ul>
 
                 <div className="pt-2">
                   <Link
                     href="/login"
-                    className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                    className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-900 dark:text-white hover:underline transition-colors"
                   >
                     <span>Browse Discovery Directory</span>
                     <ArrowRight className="w-4 h-4" />
@@ -332,8 +328,8 @@ export default async function HomePage({
           </div>
         </section>
 
-        {/* SHOWCASE 2: REAL-TIME MESSAGING & COLLABORATION REQUESTS */}
-        <section id="messaging" className="py-16 sm:py-24 bg-slate-50/50 dark:bg-slate-900/20">
+        {/* SHOWCASE 2: COLLABORATION REQUESTS */}
+        <section id="requests" className="py-16 sm:py-24 bg-slate-50/50 dark:bg-slate-900/20">
           <div className="max-w-6xl mx-auto px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
               {/* Mockup Left */}
@@ -344,37 +340,37 @@ export default async function HomePage({
               {/* Text Right */}
               <div className="space-y-4 order-1 lg:order-2">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300">
-                  <MessageSquare className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                  <span>Real-Time Collaboration</span>
+                  <Users className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
+                  <span>Partner & Message Requests</span>
                 </div>
                 <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
-                  Discuss Project Scope Before Formal Commitment
+                  Send Requests Before Committing to a Team
                 </h2>
                 <p className="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed">
-                  Send structured message requests to classmates. Once approved, collaborate in real time to discuss project visions, expected division of labor, and advisor preferences.
+                  Send a partner invite or message request with a short note. Review incoming requests from peers and accept when you are ready to collaborate.
                 </p>
 
                 <ul className="space-y-2.5 text-xs sm:text-sm text-slate-600 dark:text-zinc-300 pt-2">
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>Permissioned messaging prevents spam and random inquiries</span>
+                    <span>Send personal notes explaining your project idea</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>Direct partner invitations once mutual agreement is reached</span>
+                    <span>Accept or decline incoming partner invites with one click</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>Seamless transition directly into the FYP team workspace</span>
+                    <span>Chat directly with peers once your request is accepted</span>
                   </li>
                 </ul>
 
                 <div className="pt-2">
                   <Link
                     href="/login"
-                    className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                    className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-900 dark:text-white hover:underline transition-colors"
                   >
-                    <span>Connect with University Peers</span>
+                    <span>Connect with Classmates</span>
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>
@@ -383,44 +379,44 @@ export default async function HomePage({
           </div>
         </section>
 
-        {/* SHOWCASE 3: AI PROPOSAL FEASIBILITY & DUPLICATE CHECK */}
+        {/* SHOWCASE 3: FYP IDEA VALIDATOR */}
         <section id="validator" className="py-16 sm:py-24">
           <div className="max-w-6xl mx-auto px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
               {/* Text Left */}
               <div className="space-y-4">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300">
-                  <Brain className="w-3.5 h-3.5 text-amber-500" />
-                  <span>AI Proposal Feasibility</span>
+                  <FileText className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
+                  <span>FYP Idea Validator</span>
                 </div>
                 <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
-                  Benchmark Proposal Defense Scores with AI
+                  Check Your FYP Idea Before Supervisor Defense
                 </h2>
                 <p className="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed">
-                  Evaluate your project proposal against 5 institutional rubric dimensions. Cross-reference past university FYP archives to identify duplicate ideas before the committee defense.
+                  Test your project idea across clarity, technical feasibility, and 2-semester defense timeline. Check against past university FYPs to avoid duplicate submissions.
                 </p>
 
                 <ul className="space-y-2.5 text-xs sm:text-sm text-slate-600 dark:text-zinc-300 pt-2">
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>0–100 rubric scoring across novelty, difficulty, and timeline</span>
+                    <span>Clear scoring on problem clarity, technical depth, and feasibility</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>Archive duplicate check prevents redundant project proposals</span>
+                    <span>Archive duplicate check against past university projects</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>Clear recommendations for literature review and hardware scope</span>
+                    <span>Actionable recommendations to refine your project proposal</span>
                   </li>
                 </ul>
 
                 <div className="pt-2">
                   <Link
                     href="/idea-validator"
-                    className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 transition-colors"
+                    className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-900 dark:text-white hover:underline transition-colors"
                   >
-                    <span>Run Free AI Proposal Evaluation</span>
+                    <span>Test Your Idea Free</span>
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>
@@ -446,14 +442,14 @@ export default async function HomePage({
               {/* Text Right */}
               <div className="space-y-4 order-1 lg:order-2">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300">
-                  <FolderKanban className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                  <FolderKanban className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
                   <span>Team Workspace</span>
                 </div>
                 <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
-                  Lock Team Rosters & Execute Milestones
+                  Lock Team Rosters & Track Milestones
                 </h2>
                 <p className="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed">
-                  Finalize your official 2–3 member group to lock rosters under academic rules. Manage deliverables, literature reviews, and implementation tasks in one unified space.
+                  Finalize your 2–3 student group to lock your team roster under university guidelines. Keep track of proposal submissions, prototypes, and defense deliverables in one dashboard.
                 </p>
 
                 <ul className="space-y-2.5 text-xs sm:text-sm text-slate-600 dark:text-zinc-300 pt-2">
@@ -463,18 +459,18 @@ export default async function HomePage({
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>Milestone task boards with assigned student roles</span>
+                    <span>Simple milestone tracker for each semester defense</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>Centralized repository, live demo links, and documentation</span>
+                    <span>Keep code repositories, links, and documents in one shared place</span>
                   </li>
                 </ul>
 
                 <div className="pt-2">
                   <Link
                     href="/login"
-                    className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                    className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-900 dark:text-white hover:underline transition-colors"
                   >
                     <span>Launch FYP Workspace</span>
                     <ArrowRight className="w-4 h-4" />
@@ -508,7 +504,7 @@ export default async function HomePage({
               { step: 3, title: "Search Classmates", desc: "Filter peers by technical stack, semester status, and live availability across departments." },
               { step: 4, title: "Send Message Request", desc: "Exchange introductory messages with potential teammates to align on project vision." },
               { step: 5, title: "Assemble Official Group", desc: "Send formal partner invitations to assemble your 2–3 member FYP team roster." },
-              { step: 6, title: "AI Feasibility Benchmark", desc: "Validate proposal novelty, rubric defense score, and past FYP overlap with AI." },
+              { step: 6, title: "Check Idea & Avoid Duplicates", desc: "Validate proposal feasibility and verify against past university FYPs to avoid duplicates." },
             ].map((item) => (
               <div key={item.step} className="p-5 rounded-2xl bg-white dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 shadow-2xs space-y-2.5">
                 <div className="w-8 h-8 bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-lg flex items-center justify-center text-xs font-bold shadow-xs">
@@ -550,8 +546,8 @@ export default async function HomePage({
               href="/idea-validator"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 text-xs sm:text-sm font-semibold text-slate-800 dark:text-zinc-200 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors shadow-2xs"
             >
-              <Sparkles className="w-4 h-4 text-amber-500" />
-              <span>Test AI Idea Validator</span>
+              <FileText className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+              <span>Test Idea Validator</span>
             </Link>
           </div>
         </div>

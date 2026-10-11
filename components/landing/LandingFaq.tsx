@@ -12,12 +12,12 @@ const FAQS: FaqItem[] = [
   {
     question: "What is FYPMate?",
     answer:
-      "FYPMate is an academic collaboration and AI validation platform tailored for university students. It helps you discover high-compatibility project teammates, collaborate in real-time, and benchmark your Final Year Project proposals against rigorous academic criteria.",
+      "FYPMate helps university students find FYP partners and check their ideas before submitting. You can discover classmates by department and availability, send partner requests, and test your project proposal against past university FYPs to avoid duplicates.",
   },
   {
-    question: "How does the AI FYP Idea Validator work?",
+    question: "How does the FYP Idea Validator work?",
     answer:
-      "The validator evaluates your project title, problem statement, core features, and tech stack across key dimensions: feasibility, academic novelty, market readiness, and committee risk factors. It generates actionable feedback and sample defense questions within seconds.",
+      "The validator evaluates your project title, problem statement, and features across feasibility, originality, and defense timeline. It compares your idea with past university FYPs to ensure it is not a duplicate.",
   },
   {
     question: "Who can use FYPMate?",
