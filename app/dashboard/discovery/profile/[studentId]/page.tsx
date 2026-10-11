@@ -23,6 +23,7 @@ import { useMyProfile } from "@/hooks/student/useMyProfile";
 import { useMyGroup } from "@/hooks/group/useMyGroup";
 import { PublicProfileView } from "@/components/student/PublicProfileView";
 import Link from "next/link";
+import { HelpCircle } from "lucide-react";
 
 export default function PublicProfilePage() {
   // Get studentId from URL params
@@ -46,8 +47,8 @@ export default function PublicProfilePage() {
       <div className="min-h-screen bg-transparent text-slate-900 dark:text-slate-100">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
           <div className="text-center py-16">
-            <div className="w-20 h-20 mx-auto mb-6 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
-              <span className="text-4xl">❓</span>
+            <div className="w-16 h-16 mx-auto mb-6 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-500">
+              <HelpCircle className="w-8 h-8" />
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-3">
               Invalid Profile URL

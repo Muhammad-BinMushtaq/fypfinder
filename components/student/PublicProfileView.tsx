@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft,
   Github,
@@ -14,12 +15,15 @@ import {
   ChevronDown,
   ChevronUp,
   GraduationCap,
+  FolderGit2,
+  Users,
 } from "lucide-react";
 import type { PublicStudentProfile } from "@/services/studentPublic.service";
 import { SendRequestButtons } from "@/components/request/SendRequestButtons";
 import { getDepartmentLabel } from "@/lib/departments";
 import { getIndustryLabel } from "@/lib/industries";
 import { PrimaryRoleBadges } from "./PrimaryRoleBadges";
+import { ProjectEmbedCard } from "./ProjectEmbedCard";
 
 interface PublicProfileViewProps {
   profile: PublicStudentProfile;
@@ -48,6 +52,26 @@ export function PublicProfileView({
   const visibleSkills = showAllSkills ? profile.skills : profile.skills.slice(0, SKILLS_LIMIT);
   const visibleProjects = showAllProjects ? profile.projects : profile.projects.slice(0, PROJECTS_LIMIT);
   const visibleInternships = showAllInternships ? profile.internships : profile.internships?.slice(0, INTERNSHIPS_LIMIT);
+
+  const githubUsername = useMemo(() => {
+    if (!profile.githubUrl) return null;
+    const match = profile.githubUrl.match(/(?:github\.com\/|^@?)([a-zA-Z0-9_.-]+)/i);
+    return match ? match[1] : null;
+  }, [profile.githubUrl]);
+
+  const { data: githubProfile, isLoading: isGithubLoading } = useQuery({
+    queryKey: ["github-user-profile", githubUsername],
+    queryFn: async () => {
+      if (!githubUsername) return null;
+      const res = await fetch(`/api/student/github-meta?type=user&username=${encodeURIComponent(githubUsername)}`);
+      if (!res.ok) return null;
+      const json = await res.json();
+      return json.success ? json.data : null;
+    },
+    enabled: !!githubUsername,
+    staleTime: 60 * 60 * 1000,
+    retry: false,
+  });
 
   const getInitials = (name: string) =>
     name
@@ -482,7 +506,124 @@ export function PublicProfileView({
             )}
           </section>
 
-          {/* 4. Featured Portfolio Projects */}
+          {/* 4. GitHub Developer Profile (if provided) */}
+          {profile.githubUrl && (
+            <section className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-7 shadow-sm space-y-4">
+              <div className="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-900 dark:text-white">
+                    <Github className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+                      GitHub Developer Profile
+                    </h2>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      Public developer information & repository stats
+                    </p>
+                  </div>
+                </div>
+
+                <a
+                  href={profile.githubUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-800 dark:hover:bg-slate-700/80 border border-slate-200/60 dark:border-slate-700/60 transition-all shadow-xs"
+                >
+                  <span>View GitHub</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
+
+              {isGithubLoading ? (
+                <div className="p-4 rounded-2xl bg-slate-50/60 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-800 flex items-center gap-4 animate-pulse">
+                  <div className="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 shrink-0" />
+                  <div className="space-y-2 flex-1">
+                    <div className="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded" />
+                    <div className="h-3 w-48 bg-slate-200 dark:bg-slate-700 rounded" />
+                  </div>
+                </div>
+              ) : githubProfile ? (
+                <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/60 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-start sm:items-center gap-3.5 min-w-0">
+                    {githubProfile.avatarUrl ? (
+                      <img
+                        src={githubProfile.avatarUrl}
+                        alt={githubProfile.username}
+                        className="w-12 h-12 rounded-full object-cover border border-slate-200 dark:border-slate-700 shrink-0 shadow-2xs"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center shrink-0">
+                        <Github className="w-6 h-6 text-slate-700 dark:text-slate-300" />
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-bold text-slate-900 dark:text-white truncate">
+                          {githubProfile.name || githubProfile.username}
+                        </span>
+                        <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                          @{githubProfile.username}
+                        </span>
+                      </div>
+                      {githubProfile.bio && (
+                        <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 line-clamp-2 leading-relaxed">
+                          {githubProfile.bio}
+                        </p>
+                      )}
+                      {(githubProfile.location || githubProfile.company) && (
+                        <div className="flex items-center gap-3 mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+                          {githubProfile.company && <span>{githubProfile.company}</span>}
+                          {githubProfile.location && <span>{githubProfile.location}</span>}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 self-start sm:self-auto shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-200/60 dark:border-slate-800">
+                    <div className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/70 flex items-center gap-1.5 shadow-2xs">
+                      <FolderGit2 className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
+                      <span className="text-xs font-bold text-slate-900 dark:text-white">
+                        {githubProfile.publicRepos ?? 0}
+                      </span>
+                      <span className="text-[11px] text-slate-400">Repos</span>
+                    </div>
+                    <div className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/70 flex items-center gap-1.5 shadow-2xs">
+                      <Users className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
+                      <span className="text-xs font-bold text-slate-900 dark:text-white">
+                        {githubProfile.followers ?? 0}
+                      </span>
+                      <span className="text-[11px] text-slate-400">Followers</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-4 rounded-2xl bg-slate-50/60 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-800 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <Github className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+                    <div>
+                      <p className="text-xs font-semibold text-slate-900 dark:text-white">
+                        @{githubUsername}
+                      </p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                        View public profile on GitHub
+                      </p>
+                    </div>
+                  </div>
+                  <a
+                    href={profile.githubUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                  >
+                    Open Profile →
+                  </a>
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* 5. Featured Portfolio Projects */}
           <section className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-7 shadow-sm space-y-4">
             <div className="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800/80 pb-3">
               <div>
@@ -518,6 +659,13 @@ export function PublicProfileView({
                             {project.description}
                           </p>
                         )}
+
+                        {/* Repository Embed & Badges */}
+                        <ProjectEmbedCard
+                          embedType={project.embedType || (project.githubLink ? "GITHUB" : null)}
+                          embedUrl={project.embedUrl || project.githubLink}
+                          mediaMetadata={project.mediaMetadata}
+                        />
                       </div>
 
                       {/* Action Links */}

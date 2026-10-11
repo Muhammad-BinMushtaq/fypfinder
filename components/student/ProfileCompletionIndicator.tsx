@@ -15,7 +15,6 @@ interface CompletionItem {
 }
 
 export function ProfileCompletionIndicator({ profile }: ProfileCompletionIndicatorProps) {
-  // Calculate completion based on profile fields
   const completionItems: CompletionItem[] = [
     {
       label: "Profile picture",
@@ -58,95 +57,85 @@ export function ProfileCompletionIndicator({ profile }: ProfileCompletionIndicat
   const completedWeight = completionItems
     .filter((item) => item.completed)
     .reduce((sum, item) => sum + item.weight, 0);
-  
+
   const percentage = Math.round((completedWeight / totalWeight) * 100);
   const completedCount = completionItems.filter((item) => item.completed).length;
   const totalCount = completionItems.length;
 
-  // Get status color and message
   const getStatusConfig = () => {
     if (percentage === 100) {
       return {
         color: "text-emerald-600 dark:text-emerald-400",
         bgColor: "bg-emerald-500",
-        bgLight: "bg-emerald-100 dark:bg-emerald-900/30",
-        message: "Profile complete!",
+        message: "Profile complete",
       };
     }
     if (percentage >= 70) {
       return {
-        color: "text-blue-600 dark:text-blue-400",
-        bgColor: "bg-blue-500",
-        bgLight: "bg-blue-100 dark:bg-blue-900/30",
-        message: "Almost there!",
+        color: "text-slate-900 dark:text-white",
+        bgColor: "bg-slate-900 dark:bg-white",
+        message: "Almost complete",
       };
     }
     if (percentage >= 40) {
       return {
-        color: "text-amber-600 dark:text-amber-400",
-        bgColor: "bg-amber-500",
-        bgLight: "bg-amber-100 dark:bg-amber-900/30",
-        message: "Good progress",
+        color: "text-slate-700 dark:text-slate-300",
+        bgColor: "bg-slate-700 dark:bg-slate-300",
+        message: "In progress",
       };
     }
     return {
-      color: "text-gray-600 dark:text-gray-400",
-      bgColor: "bg-gray-400 dark:bg-gray-500",
-      bgLight: "bg-gray-100 dark:bg-gray-800",
-      message: "Let's get started",
+      color: "text-slate-500 dark:text-slate-400",
+      bgColor: "bg-slate-400 dark:bg-slate-500",
+      message: "Getting started",
     };
   };
 
   const status = getStatusConfig();
 
-  // Don't show if profile is 100% complete
   if (percentage === 100) {
     return null;
   }
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 p-5 shadow-sm">
-      {/* Header */}
+    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="font-semibold text-gray-900 dark:text-white">Complete Your Profile</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{status.message}</p>
+          <h3 className="font-semibold text-slate-900 dark:text-white text-sm">Profile Completion</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400">{status.message}</p>
         </div>
-        <div className={`text-2xl font-bold ${status.color}`}>{percentage}%</div>
+        <div className={`text-base font-bold ${status.color}`}>{percentage}%</div>
       </div>
 
-      {/* Progress bar */}
-      <div className="relative h-2 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden mb-4">
+      <div className="relative h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mb-4">
         <div
           className={`absolute left-0 top-0 h-full ${status.bgColor} rounded-full transition-all duration-500`}
           style={{ width: `${percentage}%` }}
         />
       </div>
 
-      {/* Completion checklist */}
       <div className="space-y-2">
         {completionItems.map((item, index) => (
           <div
             key={index}
-            className={`flex items-center gap-2.5 text-sm ${
+            className={`flex items-center gap-2.5 text-xs ${
               item.completed
-                ? "text-gray-400 dark:text-gray-500"
-                : "text-gray-700 dark:text-gray-300"
+                ? "text-slate-400 dark:text-slate-500"
+                : "text-slate-700 dark:text-slate-300"
             }`}
           >
             {item.completed ? (
-              <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+              <CheckCircle className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
             ) : (
-              <Circle className="w-4 h-4 text-gray-300 dark:text-gray-600 flex-shrink-0" />
+              <Circle className="w-3.5 h-3.5 text-slate-300 dark:text-slate-600 flex-shrink-0" />
             )}
-            <span className={item.completed ? "line-through" : ""}>{item.label}</span>
+            <span className={item.completed ? "line-through opacity-80" : ""}>{item.label}</span>
           </div>
         ))}
       </div>
 
-      {/* Summary */}
-      <div className="mt-4 pt-4 border-t border-gray-100 dark:border-slate-700">
-        <p className="text-xs text-gray-500 dark:text-gray-400">
+      <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+        <p className="text-[11px] text-slate-400 dark:text-slate-500">
           {completedCount} of {totalCount} items completed
         </p>
       </div>

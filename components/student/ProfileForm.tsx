@@ -459,17 +459,58 @@ function ContactLinksCard({ profile }: { profile: StudentProfile }) {
   const { updateProfileAsync } = useMyProfile();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isFetchingGithub, setIsFetchingGithub] = useState(false);
+  const [githubPreview, setGithubPreview] = useState<{
+    username: string;
+    name?: string | null;
+    avatarUrl?: string;
+    bio?: string | null;
+    publicRepos?: number;
+    followers?: number;
+    profileUrl?: string;
+  } | null>(null);
   const [formData, setFormData] = useState({
     phone: profile.phone || "",
     linkedinUrl: profile.linkedinUrl || "",
     githubUrl: profile.githubUrl || "",
   });
 
+  const handleFetchGithubProfile = async () => {
+    const raw = formData.githubUrl.trim();
+    if (!raw) {
+      toast.error("Please enter a GitHub username or URL first");
+      return;
+    }
+
+    setIsFetchingGithub(true);
+    try {
+      const res = await fetch(`/api/student/github-meta?type=user&url=${encodeURIComponent(raw)}`);
+      const json = await res.json();
+
+      if (!res.ok || !json.success) {
+        throw new Error(json.message || "Failed to fetch GitHub profile");
+      }
+
+      const meta = json.data;
+      setFormData((prev) => ({
+        ...prev,
+        githubUrl: meta.profileUrl || `https://github.com/${meta.username}`,
+      }));
+      setGithubPreview(meta);
+      toast.success(`GitHub profile verified: @${meta.username}`);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to fetch GitHub profile");
+    } finally {
+      setIsFetchingGithub(false);
+    }
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
       await updateProfileAsync(formData);
       setIsEditing(false);
+      setGithubPreview(null);
       toast.success("Profile updated successfully!");
     } catch (e: any) {
       toast.error(e.message || "Failed to update profile");
@@ -485,6 +526,7 @@ function ContactLinksCard({ profile }: { profile: StudentProfile }) {
       linkedinUrl: profile.linkedinUrl || "",
       githubUrl: profile.githubUrl || "",
     });
+    setGithubPreview(null);
     setIsEditing(false);
   };
 
@@ -619,16 +661,69 @@ function ContactLinksCard({ profile }: { profile: StudentProfile }) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-              GitHub URL
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                GitHub Profile
+              </label>
+              <button
+                type="button"
+                onClick={handleFetchGithubProfile}
+                disabled={isFetchingGithub || !formData.githubUrl.trim()}
+                className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white disabled:opacity-40 transition-colors cursor-pointer"
+              >
+                {isFetchingGithub ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : (
+                  <Github className="w-3 h-3" />
+                )}
+                {isFetchingGithub ? "Fetching..." : "Fetch Info"}
+              </button>
+            </div>
             <input
-              type="url"
+              type="text"
               value={formData.githubUrl}
-              onChange={(e) => setFormData({ ...formData, githubUrl: e.target.value })}
-              placeholder="https://github.com/username"
+              onChange={(e) => {
+                setFormData({ ...formData, githubUrl: e.target.value });
+                if (githubPreview) setGithubPreview(null);
+              }}
+              placeholder="e.g. username or https://github.com/username"
               className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:ring-2 focus:ring-slate-900 dark:focus:ring-white focus:border-transparent transition-all"
             />
+
+            {githubPreview && (
+              <div className="mt-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/70 flex items-center gap-3">
+                {githubPreview.avatarUrl && (
+                  <img
+                    src={githubPreview.avatarUrl}
+                    alt={githubPreview.username}
+                    className="w-8 h-8 rounded-full object-cover border border-slate-200 dark:border-slate-700 shrink-0"
+                  />
+                )}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                      {githubPreview.name || githubPreview.username}
+                    </span>
+                    <span className="text-[11px] text-slate-400 truncate">
+                      @{githubPreview.username}
+                    </span>
+                  </div>
+                  {githubPreview.bio && (
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                      {githubPreview.bio}
+                    </p>
+                  )}
+                  <div className="flex items-center gap-2 mt-0.5 text-[10px] text-slate-500 dark:text-slate-400">
+                    <span>{githubPreview.publicRepos ?? 0} repos</span>
+                    <span>•</span>
+                    <span>{githubPreview.followers ?? 0} followers</span>
+                  </div>
+                </div>
+                <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800 shrink-0">
+                  Verified
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
