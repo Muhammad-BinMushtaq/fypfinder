@@ -155,46 +155,36 @@ export function InternshipsSection({ internships, onUpdate }: InternshipsSection
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2.5 mb-1.5">
-                        <div className="w-8 h-8 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center flex-shrink-0">
-                          <Building2 className="w-4 h-4 text-slate-400" />
-                        </div>
-                        <h3 className="font-semibold text-slate-900 dark:text-white text-base truncate">
-                          {internship.position}
+                      <div className="flex items-center gap-2 mb-1">
+                        <Building2 className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                        <h3 className="font-semibold text-slate-900 dark:text-white text-sm truncate">
+                          {internship.companyName}
                         </h3>
                       </div>
-                      
-                      <div className="pl-10.5 sm:pl-11">
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-sm mb-3">
-                          <p className="font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                            <Building2 className="w-3.5 h-3.5 text-slate-400 sm:hidden" />
-                            {internship.companyName}
-                          </p>
-                          <span className="hidden sm:inline text-slate-300 dark:text-slate-600">•</span>
-                          <p className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5 text-xs sm:text-sm">
-                            <Calendar className="w-3.5 h-3.5" />
-                            {internship.duration}
-                          </p>
-                        </div>
-                        
-                        {internship.description && (
-                          <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-3">
-                            {internship.description}
-                          </p>
-                        )}
-                        
-                        {internship.certificateLink && (
-                          <a
-                            href={internship.certificateLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline"
-                          >
-                            <ExternalLink className="w-3.5 h-3.5" />
-                            View Certificate
-                          </a>
-                        )}
+                      <div className="flex items-center gap-2 mb-1">
+                        <Briefcase className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                        <p className="text-slate-700 dark:text-slate-300 text-sm font-medium">{internship.position}</p>
                       </div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Calendar className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                        <p className="text-slate-500 dark:text-slate-400 text-xs">{internship.duration}</p>
+                      </div>
+                      {internship.description && (
+                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-2.5">
+                          {internship.description}
+                        </p>
+                      )}
+                      {internship.certificateLink && (
+                        <a
+                          href={internship.certificateLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          View Certificate
+                        </a>
+                      )}
                     </div>
 
                     <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 -mr-2 -mt-2 flex-shrink-0">

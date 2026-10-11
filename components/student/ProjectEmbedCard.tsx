@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Github, FileText, Play, Star, GitFork, X, ExternalLink } from "lucide-react";
 
 interface ProjectEmbedCardProps {
@@ -13,6 +14,26 @@ interface ProjectEmbedCardProps {
 export function ProjectEmbedCard({ embedType, embedUrl, mediaMetadata }: ProjectEmbedCardProps) {
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  const isGithubEmbed =
+    (embedType === "GITHUB" || (embedUrl ? embedUrl.includes("github.com/") : false));
+
+  // Fallback query to auto-fetch repo badges if not cached in DB
+  const { data: fetchedMeta } = useQuery({
+    queryKey: ["project-github-meta", embedUrl],
+    queryFn: async () => {
+      if (!embedUrl) return null;
+      const res = await fetch(`/api/student/github-meta?url=${encodeURIComponent(embedUrl)}`);
+      if (!res.ok) return null;
+      const json = await res.json();
+      return json.success ? json.data : null;
+    },
+    enabled: !mediaMetadata && !!embedUrl && isGithubEmbed,
+    staleTime: 60 * 60 * 1000,
+    retry: false,
+  });
+
+  const metadata = mediaMetadata || fetchedMeta;
 
   useEffect(() => {
     setMounted(true);
@@ -68,30 +89,30 @@ export function ProjectEmbedCard({ embedType, embedUrl, mediaMetadata }: Project
               <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
 
-            {mediaMetadata?.description && (
+            {metadata?.description && (
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
-                {mediaMetadata.description}
+                {metadata.description}
               </p>
             )}
 
             {/* Badges: Language, Stars, Forks */}
             <div className="flex flex-wrap items-center gap-2 mt-2 text-[11px] font-medium text-slate-600 dark:text-slate-400">
-              {mediaMetadata?.language && (
+              {metadata?.language && (
                 <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 text-slate-700 dark:text-slate-300">
                   <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
-                  {mediaMetadata.language}
+                  {metadata.language}
                 </span>
               )}
-              {mediaMetadata?.stars !== undefined && (
+              {metadata?.stars !== undefined && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 text-slate-700 dark:text-slate-300">
                   <Star className="w-3 h-3 text-amber-500 fill-amber-500/20" />
-                  {mediaMetadata.stars}
+                  {metadata.stars}
                 </span>
               )}
-              {mediaMetadata?.forks !== undefined && (
+              {metadata?.forks !== undefined && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 text-slate-700 dark:text-slate-300">
                   <GitFork className="w-3 h-3 text-slate-500" />
-                  {mediaMetadata.forks}
+                  {metadata.forks}
                 </span>
               )}
             </div>

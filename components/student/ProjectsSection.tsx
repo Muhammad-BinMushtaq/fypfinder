@@ -152,10 +152,27 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
       return;
     }
 
+    const cleanGithub = formData.githubLink.trim();
+    let resolvedMetadata = formData.mediaMetadata;
+
+    // If GitHub link is present but metadata not fetched yet, attempt quick fetch so metadata is persisted
+    if (cleanGithub && cleanGithub.includes("github.com/") && !resolvedMetadata) {
+      try {
+        const res = await fetch(`/api/student/github-meta?url=${encodeURIComponent(cleanGithub)}`);
+        const json = await res.json();
+        if (json.success && json.data) {
+          resolvedMetadata = json.data;
+        }
+      } catch {
+        // Continue saving even if auto-metadata fetch fails
+      }
+    }
+
     const payload = {
       ...formData,
-      embedType: formData.githubLink.trim() ? "GITHUB" : formData.embedType || null,
-      embedUrl: formData.githubLink.trim() ? formData.githubLink.trim() : formData.embedUrl || null,
+      embedType: cleanGithub ? "GITHUB" : formData.embedType || null,
+      embedUrl: cleanGithub ? cleanGithub : formData.embedUrl || null,
+      mediaMetadata: resolvedMetadata,
     };
 
     try {

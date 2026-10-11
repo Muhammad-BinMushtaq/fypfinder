@@ -51,7 +51,12 @@ export async function GET(req: Request) {
           .trim();
       }
 
-      if (!username || !GITHUB_PARAM_REGEX.test(username)) {
+      if (
+        !username ||
+        !GITHUB_PARAM_REGEX.test(username) ||
+        username.toLowerCase() === "https" ||
+        username.toLowerCase() === "http"
+      ) {
         return NextResponse.json(
           { success: false, message: "Invalid GitHub username format" },
           { status: 400 }

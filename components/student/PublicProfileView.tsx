@@ -10,6 +10,7 @@ import {
   ExternalLink,
   Mail,
   Building2,
+  Briefcase,
   Calendar,
   Award,
   ChevronDown,
@@ -55,8 +56,21 @@ export function PublicProfileView({
 
   const githubUsername = useMemo(() => {
     if (!profile.githubUrl) return null;
-    const match = profile.githubUrl.match(/(?:github\.com\/|^@?)([a-zA-Z0-9_.-]+)/i);
-    return match ? match[1] : null;
+    const raw = profile.githubUrl.trim();
+    // 1. Try matching full github.com URL: github.com/<username>
+    const urlMatch = raw.match(/(?:https?:\/\/)?(?:www\.)?github\.com\/([a-zA-Z0-9_.-]+)/i);
+    if (urlMatch && urlMatch[1]) {
+      const candidate = urlMatch[1].replace(/\/$/, "");
+      if (candidate.toLowerCase() !== "https" && candidate.toLowerCase() !== "http") {
+        return candidate;
+      }
+    }
+    // 2. Try clean username / @username
+    const clean = raw.replace(/^@/, "").replace(/\/$/, "");
+    if (/^[a-zA-Z0-9_.-]+$/.test(clean) && clean.toLowerCase() !== "https" && clean.toLowerCase() !== "http") {
+      return clean;
+    }
+    return null;
   }, [profile.githubUrl]);
 
   const { data: githubProfile, isLoading: isGithubLoading } = useQuery({
@@ -740,38 +754,42 @@ export function PublicProfileView({
                 {visibleInternships?.map((internship) => (
                   <div
                     key={internship.id}
-                    className="p-4 rounded-2xl bg-slate-50/60 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-800 space-y-2"
+                    className="p-4 sm:p-5 rounded-2xl bg-slate-50/60 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-800"
                   >
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                      <div>
-                        <h4 className="text-base font-bold text-slate-900 dark:text-white">
-                          {internship.position}
-                        </h4>
-                        <p className="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300">
-                          {internship.companyName}
-                        </p>
+                    <div className="flex items-start gap-3.5">
+                      <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center border border-slate-200/70 dark:border-slate-700/80 shadow-2xs shrink-0">
+                        <Building2 className="w-5 h-5 text-slate-600 dark:text-slate-300" />
                       </div>
-                      <span className="inline-flex items-center gap-1 text-xs text-slate-400 dark:text-slate-500 font-medium">
-                        <Calendar className="w-3.5 h-3.5" /> {internship.duration}
-                      </span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                          <h4 className="text-base font-bold text-slate-900 dark:text-white truncate">
+                            {internship.companyName}
+                          </h4>
+                          <span className="inline-flex items-center gap-1 text-xs text-slate-400 dark:text-slate-500 font-medium shrink-0">
+                            <Calendar className="w-3.5 h-3.5" /> {internship.duration}
+                          </span>
+                        </div>
+                        <p className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5 mt-0.5">
+                          <Briefcase className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          {internship.position}
+                        </p>
+                        {internship.description && (
+                          <p className="mt-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                            {internship.description}
+                          </p>
+                        )}
+                        {internship.certificateLink && (
+                          <a
+                            href={internship.certificateLink}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="mt-2.5 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                          >
+                            <Award className="w-3.5 h-3.5" /> View Certificate
+                          </a>
+                        )}
+                      </div>
                     </div>
-
-                    {internship.description && (
-                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed pt-1">
-                        {internship.description}
-                      </p>
-                    )}
-
-                    {internship.certificateLink && (
-                      <a
-                        href={internship.certificateLink}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline pt-1"
-                      >
-                        <Award className="w-3.5 h-3.5" /> View Certificate
-                      </a>
-                    )}
                   </div>
                 ))}
 
