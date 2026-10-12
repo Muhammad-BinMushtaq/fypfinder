@@ -21,6 +21,10 @@ import {
   ChevronRight
 } from "lucide-react";
 
+const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "l0cdg6pq";
+const VIDEO_SRC = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/video/upload/q_auto,f_auto/fypmate_intro.mp4`;
+const VIDEO_POSTER = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/video/upload/so_0,q_auto,f_auto/fypmate_intro.jpg`;
+
 export default async function HomePage({
   searchParams,
 }: {
@@ -165,23 +169,28 @@ export default async function HomePage({
                 <div className="w-8" />
               </div>
 
-              {/* Ambient Video Frame: Autoplaying, Looping, Muted, and Unclickable */}
-              <div className="relative aspect-video rounded-xl sm:rounded-2xl overflow-hidden bg-black shadow-inner">
+              {/* Ambient Video Frame: Autoplaying, Looping, Muted from Cloudinary */}
+              <div className="relative aspect-video rounded-xl sm:rounded-2xl overflow-hidden bg-slate-950 shadow-inner">
                 {/* Transparent glass overlay to guarantee zero accidental clicks/popups */}
                 <div 
                   className="absolute inset-0 z-10 bg-transparent pointer-events-auto cursor-default" 
                   aria-hidden="true" 
                 />
 
-                <iframe 
-                  className="absolute inset-0 w-full h-full block"
-                  src="https://www.youtube.com/embed/l5DJNJ_SBSU?autoplay=1&mute=1&controls=0&loop=1&playlist=l5DJNJ_SBSU&modestbranding=1&rel=0&playsinline=1" 
-                  title="FYPMate Platform Walkthrough Video"
-                  frameBorder={0} 
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                  referrerPolicy="strict-origin-when-cross-origin" 
-                  allowFullScreen
-                />
+                <video 
+                  className="absolute inset-0 w-full h-full object-cover block"
+                  src={VIDEO_SRC}
+                  poster={VIDEO_POSTER}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="auto"
+                  aria-label="FYPMate Platform Walkthrough Video"
+                >
+                  <source src={VIDEO_SRC} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
               </div>
             </div>
           </div>
