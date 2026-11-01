@@ -210,7 +210,7 @@ export function buildOnboardingReminderEmail(params: {
         department: params.department,
         semester: params.semester,
       })
-    : `⚡ ${firstName}, finish setting up your FYPMate account (takes 30 seconds)`
+    : `${firstName}, finish setting up your FYPMate account`
 
   const introHtml = params.customIntro?.trim()
     ? `<p style="color: #334155; font-size: 15px; line-height: 1.7; margin: 0 0 20px 0;">${escapeHtml(
@@ -350,7 +350,7 @@ export function buildProfileReminderEmail(params: {
 
     <div style="background-color: #eef2ff; border-radius: 12px; padding: 14px 18px; margin: 0 0 24px 0;">
       <p style="margin: 0; color: #3730a3; font-size: 13px; line-height: 1.6;">
-        <strong>💡 Already formed your group offline?</strong> You can switch your status to <strong>&ldquo;Not Looking (Team Formed)&rdquo;</strong> on your profile in 1 click so you don&rsquo;t receive extra partner requests.
+        <strong>Already formed your group offline?</strong> You can switch your status to <strong>&ldquo;Not Looking (Team Formed)&rdquo;</strong> on your profile in 1 click so you don&rsquo;t receive extra partner requests.
       </p>
     </div>
 
@@ -364,7 +364,7 @@ export function buildProfileReminderEmail(params: {
       headerTitle: "FYPMate",
       headerSubtitle: "Complete your academic portfolio & availability status",
       bodyHtml,
-      isPromotional: true,
+      isPromotional: false,
     }),
   }
 }
@@ -461,7 +461,7 @@ export function buildAnnouncementEmail(params: {
       headerTitle: "FYPMate",
       headerSubtitle: "New tools & updates for PAF-IAST students",
       bodyHtml,
-      isPromotional: true,
+      isPromotional: false,
     }),
   }
 }
@@ -536,7 +536,7 @@ export function buildGeneralNotificationEmail(params: {
       headerTitle: "FYPMate Notification",
       headerSubtitle: "Important notice for your FYP account",
       bodyHtml,
-      isPromotional: true,
+      isPromotional: false,
     }),
   }
 }
@@ -558,7 +558,7 @@ export function buildPartnerRequestEmail(params: {
   const appUrl = getAppBaseUrl()
   const toFirstName = params.toName.trim().split(/\s+/)[0] || params.toName
 
-  const subject = `🎓 ${params.fromName} sent you an FYP Partner Request on FYPMate`
+  const subject = `${params.fromName} sent you an FYP Partner Request on FYPMate`
 
   const reasonHtml = params.reason?.trim()
     ? `<div style="background-color: #f8fafc; border-left: 4px solid #4f46e5; border-radius: 10px; padding: 16px 20px; margin: 20px 0;">
@@ -621,7 +621,7 @@ export function buildMessageRequestEmail(params: {
   const appUrl = getAppBaseUrl()
   const toFirstName = params.toName.trim().split(/\s+/)[0] || params.toName
 
-  const subject = `💬 ${params.fromName} wants to connect with you on FYPMate`
+  const subject = `${params.fromName} wants to connect with you on FYPMate`
 
   const bodyHtml = `
     <h2 style="margin: 0 0 10px 0; color: #0f172a; font-size: 20px; font-weight: 700;">
@@ -650,7 +650,7 @@ export function buildMessageRequestEmail(params: {
   return {
     subject,
     html: wrapEmailLayout({
-      badgeText: "Transactional • Message Request",
+      badgeText: "Message Request",
       headerTitle: "FYPMate",
       headerSubtitle: "New connection request from a PAF-IAST peer",
       bodyHtml,
@@ -672,8 +672,8 @@ export function buildRequestAcceptedEmail(params: {
   const isPartner = params.requestType === "PARTNER"
 
   const subject = isPartner
-    ? `🎉 ${params.accepterName} accepted your FYP Partner Request!`
-    : `✅ ${params.accepterName} accepted your Message Request on FYPMate`
+    ? `${params.accepterName} accepted your FYP Partner Request`
+    : `${params.accepterName} accepted your Message Request on FYPMate`
 
   const bodyHtml = isPartner
     ? `
@@ -701,9 +701,7 @@ export function buildRequestAcceptedEmail(params: {
   return {
     subject,
     html: wrapEmailLayout({
-      badgeText: isPartner
-        ? "Transactional • Team Formed"
-        : "Transactional • Connection Accepted",
+      badgeText: isPartner ? "Team Formed" : "Connection Accepted",
       headerTitle: "FYPMate",
       headerSubtitle: isPartner
         ? "Your FYP team has been updated"
@@ -729,7 +727,7 @@ export function buildFeedbackUpdateEmail(params: {
     .toLowerCase()
     .replace(/\b\w/g, (c) => c.toUpperCase())
 
-  const subject = `📋 Update on your FYPMate Feedback (${formattedStatus})`
+  const subject = `Update on your FYPMate Feedback (${formattedStatus})`
 
   const responseBox = params.adminResponse?.trim()
     ? `<div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #10b981; border-radius: 10px; padding: 16px 20px; margin: 20px 0;">
@@ -758,7 +756,7 @@ export function buildFeedbackUpdateEmail(params: {
   return {
     subject,
     html: wrapEmailLayout({
-      badgeText: "Transactional • Support Update",
+      badgeText: "Support Update",
       headerTitle: "FYPMate Support",
       headerSubtitle: `Ticket Status: ${formattedStatus}`,
       bodyHtml,
@@ -779,7 +777,7 @@ export function buildWelcomeEmail(params: {
   const firstName =
     params.studentName.trim().split(/\s+/)[0] || params.studentName
 
-  const subject = `Welcome to FYPMate, ${firstName}! 🎓`
+  const subject = `Welcome to FYPMate, ${firstName}`
 
   const bodyHtml = `
     <h2 style="margin: 0 0 10px 0; color: #0f172a; font-size: 22px; font-weight: 800;">

@@ -25,9 +25,9 @@ export const RESEND_RATE_LIMIT_DELAY_MS = 650 // ~1.5 req/sec (safely below 2 re
 /** Default verified domain for FYPMate sender identities. */
 export const EMAIL_DOMAIN = process.env.EMAIL_DOMAIN || "fypmate.com"
 
-/** Default fallback sender email address. */
+/** Default fallback sender email address (noreply@fypmate.com has highest Outlook inbox delivery). */
 export const EMAIL_FROM_ADDRESS =
-  process.env.EMAIL_FROM_ADDRESS || `notifications@${EMAIL_DOMAIN}`
+  process.env.EMAIL_FROM_ADDRESS || `noreply@${EMAIL_DOMAIN}`
 
 /** Default sender display name. */
 export const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME || "FYPMate"
@@ -78,41 +78,22 @@ export interface EmailQuotaStats {
 }
 
 /**
- * Returns the smart RFC 5322 From header string on @fypmate.com based on email category & template:
- * - Welcome Email        -> "FYPMate <welcome@fypmate.com>"
- * - Feedback / Support   -> "FYPMate Support <support@fypmate.com>"
- * - Transactional Alerts -> "FYPMate Alerts <notifications@fypmate.com>"
- * - Account Reminders    -> "FYPMate <noreply@fypmate.com>"
- * - Admin Broadcasts     -> "FYPMate Team <updates@fypmate.com>"
+ * Returns the RFC 5322 From header string using noreply@fypmate.com for reliable Outlook/University inbox delivery.
  */
 export function getFormattedSender(
   category: EmailCategory = "TRANSACTIONAL",
-  templateKey: string = "transactional"
+  _templateKey: string = "transactional"
 ): string {
-  // Allow optional explicit env overrides if desired
   if (category === "TRANSACTIONAL" && process.env.EMAIL_FROM_TRANSACTIONAL) {
     return process.env.EMAIL_FROM_TRANSACTIONAL
   }
   if (category === "PROMOTIONAL" && process.env.EMAIL_FROM_PROMOTIONAL) {
     return process.env.EMAIL_FROM_PROMOTIONAL
   }
-
-  const key = templateKey.toLowerCase()
-
-  if (key.includes("welcome")) {
-    return `${EMAIL_FROM_NAME} <welcome@${EMAIL_DOMAIN}>`
+  if (process.env.EMAIL_FROM) {
+    return process.env.EMAIL_FROM
   }
-  if (key.includes("feedback") || key.includes("support")) {
-    return `${EMAIL_FROM_NAME} Support <support@${EMAIL_DOMAIN}>`
-  }
-  if (key.includes("onboarding") || key.includes("profile")) {
-    return `${EMAIL_FROM_NAME} <noreply@${EMAIL_DOMAIN}>`
-  }
-  if (category === "PROMOTIONAL") {
-    return `${EMAIL_FROM_NAME} Team <updates@${EMAIL_DOMAIN}>`
-  }
-
-  return `${EMAIL_FROM_NAME} Alerts <notifications@${EMAIL_DOMAIN}>`
+  return `${EMAIL_FROM_NAME} <${EMAIL_FROM_ADDRESS}>`
 }
 
 /**

@@ -198,7 +198,7 @@ export function buildCampaignEmailForStudent(
       semester: student.currentSemester,
       subject:
         filters.subject?.trim() ||
-        "🚀 New Update on FYPMate — Check Out the Latest Tools",
+        "New Update on FYPMate — Check Out the Latest Tools",
       heading:
         filters.heading?.trim() ||
         "Make Your Final Year Project Journey Easier on FYPMate",
@@ -212,7 +212,7 @@ export function buildCampaignEmailForStudent(
     })
     return {
       ...res,
-      category: filters.emailCategory || "PROMOTIONAL",
+      category: filters.emailCategory || "TRANSACTIONAL",
     }
   }
 
@@ -235,7 +235,7 @@ export function buildCampaignEmailForStudent(
     })
     return {
       ...res,
-      category: filters.emailCategory || "PROMOTIONAL",
+      category: filters.emailCategory || "TRANSACTIONAL",
     }
   }
 
@@ -251,7 +251,7 @@ export function buildCampaignEmailForStudent(
   })
   return {
     ...res,
-    category: filters.emailCategory || "PROMOTIONAL",
+    category: filters.emailCategory || "TRANSACTIONAL",
   }
 }
 
@@ -268,6 +268,7 @@ export async function queryTargetedEmailStudents(
     onboardingIncompleteCount: number
     incompleteUnder50Count: number
     noPushCount: number
+    recentlyEmailedCount?: number
   }
 }> {
   const where: any = {
@@ -418,6 +419,7 @@ export async function queryTargetedEmailStudents(
   let onboardingIncompleteCount = 0
   let incompleteUnder50Count = 0
   let noPushCount = 0
+  let recentlyEmailedCount = 0
 
   const mapped: EmailRecipientStudent[] = []
 
@@ -432,6 +434,7 @@ export async function queryTargetedEmailStudents(
     if (!row.onboardingCompleted) onboardingIncompleteCount++
     if (completenessPercent < 50) incompleteUnder50Count++
     if (!hasPushEnabled) noPushCount++
+    if (recentlyEmailed) recentlyEmailedCount++
 
     // 1. Push notification filter (Quota saver)
     if (filters.pushFilter === "NO_PUSH" && hasPushEnabled) continue
@@ -441,64 +444,46 @@ export async function queryTargetedEmailStudents(
     if (filters.excludeRecentlyEmailed && recentlyEmailed) continue
 
     // 3. Explicit completion status filter
-    if (
-      completionStatus === "ONBOARDING_INCOMPLETE" ||
-      campaignType === "ONBOARDING_INCOMPLETE"
-    ) {
-      if (row.onboardingCompleted && completionStatus === "ONBOARDING_INCOMPLETE") {
-        continue
-      }
-      if (
-        campaignType === "ONBOARDING_INCOMPLETE" &&
-        completionStatus === "ALL" &&
-        row.onboardingCompleted &&
-        completenessPercent >= 50
-      ) {
-        continue
-      }
+    if (completionStatus === "ONBOARDING_INCOMPLETE") {
+      if (row.onboardingCompleted) continue
     } else if (completionStatus === "INCOMPLETE_UNDER_50") {
       if (completenessPercent >= 50) continue
     } else if (completionStatus === "INCOMPLETE_UNDER_80") {
       if (completenessPercent >= 80) continue
-    }
-
-    // 4. Missing sections filter
-    if (
-      campaignType === "PROFILE_COMPLETION" &&
-      completionStatus !== "ONBOARDING_INCOMPLETE" &&
-      completionStatus !== "INCOMPLETE_UNDER_50" &&
-      completionStatus !== "INCOMPLETE_UNDER_80"
-    ) {
+    } else if (completionStatus === "MISSING_CHECKED") {
       if (requiredMissingChecks.length > 0) {
-        const matchedMissing = allMissing.filter((m) =>
+        const hasAnyCheckedMissing = allMissing.some((m) =>
           requiredMissingChecks.includes(m)
         )
-        if (matchedMissing.length === 0) continue
-
-        mapped.push({
-          id: row.id,
-          name: row.name,
-          email: row.user.email,
-          department: row.department,
-          currentSemester: row.currentSemester,
-          availability: row.availability,
-          seekingStatus: row.seekingStatus,
-          hasGroup: Boolean(row.groupMember),
-          onboardingCompleted: row.onboardingCompleted,
-          completenessPercent,
-          hasPushEnabled,
-          recentlyEmailed,
-          missingSections: matchedMissing,
-        })
+        if (!hasAnyCheckedMissing) continue
+      } else if (allMissing.length === 0) {
         continue
-      } else if (!filters.selectAll) {
-        if (allMissing.length === 0) continue
       }
-    } else if (requiredMissingChecks.length > 0) {
-      const hasAnyCheckedMissing = allMissing.some((m) =>
+    }
+
+    // 4. Specific missing section checkboxes (if checked regardless of completionStatus)
+    if (requiredMissingChecks.length > 0) {
+      const matchedMissing = allMissing.filter((m) =>
         requiredMissingChecks.includes(m)
       )
-      if (!hasAnyCheckedMissing) continue
+      if (matchedMissing.length === 0) continue
+
+      mapped.push({
+        id: row.id,
+        name: row.name,
+        email: row.user.email,
+        department: row.department,
+        currentSemester: row.currentSemester,
+        availability: row.availability,
+        seekingStatus: row.seekingStatus,
+        hasGroup: Boolean(row.groupMember),
+        onboardingCompleted: row.onboardingCompleted,
+        completenessPercent,
+        hasPushEnabled,
+        recentlyEmailed,
+        missingSections: matchedMissing,
+      })
+      continue
     }
 
     mapped.push({
@@ -531,6 +516,7 @@ export async function queryTargetedEmailStudents(
       onboardingIncompleteCount,
       incompleteUnder50Count,
       noPushCount,
+      recentlyEmailedCount,
     },
   }
 }
@@ -556,6 +542,7 @@ export async function previewAdminEmailCampaign(
     onboardingIncompleteCount: number
     incompleteUnder50Count: number
     noPushCount: number
+    recentlyEmailedCount?: number
   }
 }> {
   if (filters.triggerConfigUpdate) {

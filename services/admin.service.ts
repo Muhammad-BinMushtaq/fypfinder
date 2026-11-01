@@ -579,6 +579,7 @@ export interface EmailPreviewResponse {
     onboardingIncompleteCount: number
     incompleteUnder50Count: number
     noPushCount: number
+    recentlyEmailedCount?: number
   }
 }
 
