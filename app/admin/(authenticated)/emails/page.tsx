@@ -54,11 +54,11 @@ const QUICK_PRESETS: QuickPreset[] = [
     completionStatus: "INCOMPLETE_UNDER_80",
     semesters: [],
     seekingStatus: "ALL",
-    subject: "{{first_name}}, complete your FYPMate profile to get matched faster",
+    subject: "{{name}} — Please complete your FYPMate profile",
     heading: "",
     bodyText:
       "Your FYPMate profile is missing key details. Classmates in your department rely on your skills, project links, and role preferences to send partner requests.",
-    ctaText: "Update My Profile",
+    ctaText: "Update Profile",
     ctaUrl: "/dashboard/profile",
   },
   {
@@ -68,11 +68,11 @@ const QUICK_PRESETS: QuickPreset[] = [
     completionStatus: "ONBOARDING_INCOMPLETE",
     semesters: [],
     seekingStatus: "ALL",
-    subject: "{{first_name}}, finish setting up your FYPMate account",
+    subject: "{{name}} — Complete your FYPMate account setup",
     heading: "",
     bodyText:
-      "You signed in to FYPMate with your PAF-IAST account, but your initial 3-step student profile setup is still incomplete.",
-    ctaText: "Finish Account Setup",
+      "You signed in to FYPMate with your PAF-IAST account, but your initial profile setup is still incomplete.",
+    ctaText: "Complete Setup",
     ctaUrl: "/dashboard/discovery",
   },
   {
@@ -82,11 +82,11 @@ const QUICK_PRESETS: QuickPreset[] = [
     completionStatus: "ALL",
     semesters: [7],
     seekingStatus: "LOOKING_FOR_TEAM",
-    subject: "Semester 7 FYP Check: Have you already formed your group?",
+    subject: "Semester 7 FYP Check: Confirm your group status on FYPMate",
     heading: "Please Confirm Your Current FYP Group Status",
     bodyText:
-      "Hi {{first_name}},\n\nYour profile in {{department}} (Semester {{semester}}) is currently marked as 'Looking for a Team'.\n\nIf you have already formed your FYP group offline with classmates, please update your availability status to 'Not Looking (Team Formed)' on your profile so students still searching only contact available peers.",
-    ctaText: "Update My Availability",
+      "Your profile in {{department}} (Semester {{semester}}) is currently marked as 'Looking for a Team'.\n\nIf you have already formed your FYP group offline with classmates, please update your status to 'Not Looking' on your profile so students still searching only contact available peers.",
+    ctaText: "Update Availability",
     ctaUrl: "/dashboard/profile",
   },
   {
@@ -100,7 +100,7 @@ const QUICK_PRESETS: QuickPreset[] = [
     heading: "Test Your FYP Idea Before Your Proposal Defense",
     bodyText:
       "You can now evaluate your Final Year Project idea using the AI Idea Validator on FYPMate. Check similarity against archived PAF-IAST projects, review a 100-point rubric breakdown, and practice expected defense questions.",
-    ctaText: "Open FYP Idea Validator",
+    ctaText: "Open Idea Validator",
     ctaUrl: "/dashboard/fyp-ideas",
   },
 ]
@@ -1023,7 +1023,7 @@ export default function AdminEmailsPage() {
                   Message Content
                 </label>
                 <span className="text-[11px] text-slate-400">
-                  Variables: {"{{first_name}}"}, {"{{department}}"}, {"{{semester}}"}
+                  Variables: {"{{name}}"}, {"{{department}}"}, {"{{semester}}"}
                 </span>
               </div>
               <textarea

@@ -229,7 +229,7 @@ export function buildCampaignEmailForStudent(
         "Please Review & Update Your FYP Availability Status",
       bodyText:
         filters.bodyText?.trim() ||
-        "Hi {{first_name}},\n\nPlease take 30 seconds to verify your current FYP group status on FYPMate. If you have already formed your FYP group offline in Semester {{semester}}, please switch your status to 'Not Looking (Team Formed)' on your profile so classmates looking for partners only contact available students.",
+        "Please take a moment to verify your current FYP group status on FYPMate. If you have already formed your FYP group offline in Semester {{semester}}, please switch your status to 'Not Looking' on your profile so classmates looking for partners only contact available students.",
       ctaText: filters.ctaText || "Update My Status",
       ctaUrl: filters.ctaUrl || "/dashboard/profile",
     })

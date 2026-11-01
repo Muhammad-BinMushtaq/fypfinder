@@ -25,9 +25,25 @@ export const RESEND_RATE_LIMIT_DELAY_MS = 650 // ~1.5 req/sec (safely below 2 re
 /** Default verified domain for FYPMate sender identities. */
 export const EMAIL_DOMAIN = process.env.EMAIL_DOMAIN || "fypmate.com"
 
+/**
+ * Ensures the sender address uses the verified domain (fypmate.com) and ignores
+ * any legacy @gmail.com / @yahoo.com / @outlook.com SMTP env values.
+ */
+function resolveVerifiedAddress(rawAddress?: string): string {
+  const fallback = `noreply@${EMAIL_DOMAIN}`
+  if (!rawAddress || !rawAddress.trim()) return fallback
+  const trimmed = rawAddress.trim()
+  // Ignore unverified consumer domains like gmail.com that may remain in .env from legacy SMTP
+  if (/@(gmail|yahoo|hotmail|outlook)\.com\b/i.test(trimmed)) {
+    return fallback
+  }
+  return trimmed
+}
+
 /** Default fallback sender email address (noreply@fypmate.com has highest Outlook inbox delivery). */
-export const EMAIL_FROM_ADDRESS =
-  process.env.EMAIL_FROM_ADDRESS || `noreply@${EMAIL_DOMAIN}`
+export const EMAIL_FROM_ADDRESS = resolveVerifiedAddress(
+  process.env.EMAIL_FROM_ADDRESS
+)
 
 /** Default sender display name. */
 export const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME || "FYPMate"
@@ -78,21 +94,12 @@ export interface EmailQuotaStats {
 }
 
 /**
- * Returns the RFC 5322 From header string using noreply@fypmate.com for reliable Outlook/University inbox delivery.
+ * Returns the RFC 5322 From header string: "FYPMate <noreply@fypmate.com>"
  */
 export function getFormattedSender(
-  category: EmailCategory = "TRANSACTIONAL",
+  _category: EmailCategory = "TRANSACTIONAL",
   _templateKey: string = "transactional"
 ): string {
-  if (category === "TRANSACTIONAL" && process.env.EMAIL_FROM_TRANSACTIONAL) {
-    return process.env.EMAIL_FROM_TRANSACTIONAL
-  }
-  if (category === "PROMOTIONAL" && process.env.EMAIL_FROM_PROMOTIONAL) {
-    return process.env.EMAIL_FROM_PROMOTIONAL
-  }
-  if (process.env.EMAIL_FROM) {
-    return process.env.EMAIL_FROM
-  }
   return `${EMAIL_FROM_NAME} <${EMAIL_FROM_ADDRESS}>`
 }
 
