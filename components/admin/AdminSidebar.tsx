@@ -14,6 +14,7 @@ import {
   X,
   MessageSquareHeart,
   ChevronRight,
+  Mail,
 } from "lucide-react"
 import { useAdminSession } from "@/hooks/admin"
 
@@ -35,6 +36,12 @@ const navItems = [
     href: "/admin/feedback",
     icon: MessageSquareHeart,
     description: "Tickets & responses",
+  },
+  {
+    label: "Emails",
+    href: "/admin/emails",
+    icon: Mail,
+    description: "Resend campaigns & notifications",
   },
   {
     label: "Messages",

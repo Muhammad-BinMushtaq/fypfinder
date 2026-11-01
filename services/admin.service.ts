@@ -235,15 +235,15 @@ export async function getAllStudents(
   filters: StudentFilters = {}
 ): Promise<PaginatedResponse<StudentListItem>> {
   const params = new URLSearchParams()
-  
+
   // API uses limit/offset, convert from page/pageSize
   const pageSize = filters.pageSize || 10
   const page = filters.page || 1
   const offset = (page - 1) * pageSize
-  
+
   params.set("limit", String(pageSize))
   params.set("offset", String(offset))
-  
+
   if (filters.search) params.set("name", filters.search)
   if (filters.status && filters.status !== "ALL") params.set("status", filters.status)
   if (filters.department) params.set("department", filters.department)
@@ -262,7 +262,7 @@ export async function getAllStudents(
   const apiData = json.data
   const students = apiData?.items || []
   const pagination = apiData?.pagination || { total: 0, limit: pageSize, offset: 0 }
-  
+
   return {
     data: students.map((student: any) => ({
       id: student.id,
@@ -274,6 +274,7 @@ export async function getAllStudents(
       status: student.user?.status || "ACTIVE",
       createdAt: student.createdAt,
       profilePicture: student.profilePicture || null,
+      currentSemester: student.currentSemester,
     })),
     total: pagination.total,
     page,
@@ -339,8 +340,6 @@ export async function unsuspendStudent(studentId: string): Promise<void> {
     throw new Error(data.message || "Failed to unsuspend student")
   }
 }
-
-
 
 // ============ CONVERSATIONS (READ-ONLY) ============
 
@@ -435,9 +434,72 @@ export async function getAdminReports(period: "week" | "month" = "week"): Promis
   return data.data
 }
 
-// ============ EMAIL NOTIFICATIONS ============
+// ============ EMAIL NOTIFICATIONS & QUOTA MANAGEMENT (RESEND) ============
+
+export type EmailCampaignType =
+  | "ONBOARDING_INCOMPLETE"
+  | "PROFILE_COMPLETION"
+  | "ANNOUNCEMENT"
+  | "GENERAL_NOTIFICATION"
+
+export type EmailCategory = "TRANSACTIONAL" | "PROMOTIONAL"
+
+export type CompletionStatusFilter =
+  | "ALL"
+  | "ONBOARDING_INCOMPLETE"
+  | "INCOMPLETE_UNDER_50"
+  | "INCOMPLETE_UNDER_80"
+  | "MISSING_CHECKED"
+
+export type PushSubscriptionFilter = "ALL" | "NO_PUSH" | "HAS_PUSH"
+
+export type TransactionalTriggerKey =
+  | "partnerRequest"
+  | "messageRequest"
+  | "requestAccepted"
+  | "feedbackUpdate"
+  | "welcomeEmail"
+
+export interface EmailTriggerConfig {
+  deliveryMode: "SMART_FALLBACK" | "ALWAYS_SEND"
+  partnerRequest: boolean
+  messageRequest: boolean
+  requestAccepted: boolean
+  feedbackUpdate: boolean
+  welcomeEmail: boolean
+  dailyTransactionalReserve: number
+}
+
+export interface EmailLogEntry {
+  id: string
+  recipientEmail: string
+  studentId: string | null
+  category: EmailCategory
+  templateKey: string
+  subject: string
+  status: "SENT" | "FAILED"
+  errorMessage: string | null
+  createdAt: string
+}
+
+export interface EmailQuotaStats {
+  dailyLimit: number
+  monthlyLimit: number
+  sentTodayTotal: number
+  sentTodayTransactional: number
+  sentTodayPromotional: number
+  remainingToday: number
+  sentMonthTotal: number
+  sentMonthTransactional: number
+  sentMonthPromotional: number
+  remainingMonth: number
+  recentLogs: EmailLogEntry[]
+}
 
 export interface EmailFilters {
+  campaignType?: EmailCampaignType
+  emailCategory?: EmailCategory
+  completionStatus?: CompletionStatusFilter
   noSkills: boolean
   noProjects: boolean
   noInternships: boolean
@@ -449,20 +511,75 @@ export interface EmailFilters {
   noLinkedinUrl: boolean
   noGithubUrl: boolean
   selectAll: boolean
+
+  // Audience filters
+  semesters?: number[]
+  department?: string
+  departments?: string[]
+  availability?: "AVAILABLE" | "BUSY" | "AWAY" | "ALL"
+  hasGroup?: "true" | "false" | "ALL"
+  seekingStatus?:
+    | "LOOKING_FOR_TEAM"
+    | "HAS_TEAM_LOOKING_FOR_MEMBERS"
+    | "NOT_LOOKING"
+    | "ALL"
+  pushFilter?: PushSubscriptionFilter
+  excludeRecentlyEmailed?: boolean
+  cooldownDays?: number
+  search?: string
+
+  // Recipient selection & batch cap
   studentIds?: string[]
   limit?: number
+
+  // Custom email content
+  subject?: string
+  heading?: string
+  bodyText?: string
+  highlightTitle?: string
+  highlightText?: string
+  ctaText?: string
+  ctaUrl?: string
+
+  // Test email target & transactional preview
+  testEmail?: string
+  transactionalPreviewKey?: TransactionalTriggerKey
+  triggerConfigUpdate?: Partial<EmailTriggerConfig>
 }
 
 export interface EmailPreviewStudent {
   id: string
   name: string
   email: string
+  department: string
+  currentSemester: number
+  availability: string
+  seekingStatus: string
+  hasGroup: boolean
+  onboardingCompleted: boolean
+  completenessPercent: boolean | number
+  hasPushEnabled: boolean
+  recentlyEmailed: boolean
   missingSections: string[]
 }
 
 export interface EmailPreviewResponse {
   total: number
   students: EmailPreviewStudent[]
+  sampleSubject: string
+  sampleHtml: string
+  sampleCategory: EmailCategory
+  isResendConfigured: boolean
+  senderAddress: string
+  quotaStats: EmailQuotaStats
+  triggerConfig: EmailTriggerConfig
+  departmentBreakdown: Array<{ department: string; count: number }>
+  summaryCounts: {
+    totalActive: number
+    onboardingIncompleteCount: number
+    incompleteUnder50Count: number
+    noPushCount: number
+  }
 }
 
 export interface EmailSendResult {
@@ -470,9 +587,12 @@ export interface EmailSendResult {
   totalSent: number
   totalFailed: number
   errors: string[]
+  quotaRemainingToday?: number
 }
 
-export async function previewEmailRecipients(filters: EmailFilters): Promise<EmailPreviewResponse> {
+export async function previewEmailRecipients(
+  filters: EmailFilters
+): Promise<EmailPreviewResponse> {
   const response = await fetch("/api/admin/email/preview", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -488,7 +608,9 @@ export async function previewEmailRecipients(filters: EmailFilters): Promise<Ema
   return data.data
 }
 
-export async function sendEmails(filters: EmailFilters): Promise<EmailSendResult> {
+export async function sendEmails(
+  filters: EmailFilters
+): Promise<EmailSendResult> {
   const response = await fetch("/api/admin/email/send", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

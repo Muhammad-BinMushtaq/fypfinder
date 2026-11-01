@@ -5,6 +5,8 @@ import { validateStudentID } from "@/modules/auth/auth.service"
 import { UserRole, UserStatus } from "@/lib/generated/prisma/enums"
 import logger from "@/lib/logger"
 import { getAuthenticatedRedirectPath } from "@/lib/auth"
+import { isEmailConfigured, sendSingleEmail, getEmailTriggerConfig } from "@/lib/email"
+import { buildWelcomeEmail } from "@/lib/email-templates"
 
 function isAllowedHost(host: string): boolean {
     const cleanHost = host.toLowerCase().trim()
@@ -242,6 +244,7 @@ export async function GET(req: Request) {
         }
 
         const { currentSemester, department } = validation
+        const studentName = user.user_metadata?.full_name || user.user_metadata?.name || "Student"
 
         // Create user and student in a transaction
         await prisma.$transaction(async (tx) => {
@@ -258,12 +261,33 @@ export async function GET(req: Request) {
             await tx.student.create({
                 data: {
                     userId: user.id,
-                    name: user.user_metadata?.full_name || user.user_metadata?.name || "Student",
+                    name: studentName,
                     department: department,
                     currentSemester: currentSemester,
                 },
             })
         })
+
+        // Send Welcome Email asynchronously via Resend (non-blocking) if enabled in Admin Trigger Config
+        if (isEmailConfigured()) {
+            getEmailTriggerConfig()
+                .then((cfg) => {
+                    if (!cfg.welcomeEmail) return
+                    const { subject, html } = buildWelcomeEmail({
+                        studentName,
+                        department,
+                        semester: currentSemester,
+                    })
+                    return sendSingleEmail({
+                        to: email,
+                        subject,
+                        html,
+                        category: "TRANSACTIONAL",
+                        templateKey: "welcomeEmail",
+                    })
+                })
+                .catch((err) => logger.error("Failed to send welcome email:", err))
+        }
 
         // Redirect to dashboard profile
         return NextResponse.redirect(`${origin}/dashboard/profile`)

@@ -1,16 +1,15 @@
 // lib/push-service.ts
 /**
- * Push Notification Service
- * -------------------------
- * Handles the business logic for sending push notifications.
- * Integrates with the messaging and request systems.
- * 
- * Features:
- * - Send notification for new messages
- * - Send notification for message requests
- * - Send notification for partner requests
- * - Check if user is active in conversation (skip push if so)
- * - Clean up expired subscriptions
+ * Push & Transactional Email Notification Service
+ * -----------------------------------------------
+ * Handles the business logic for sending Web Push notifications and
+ * automatic transactional emails (via Resend).
+ *
+ * Respects the Admin's EmailTriggerConfig:
+ *  - SMART_FALLBACK (default): Sends free Web Push first; only sends a Resend
+ *    email if the student has NO active Web Push subscriptions (saving the 100/day Free Tier quota!).
+ *  - ALWAYS_SEND: Sends both Web Push and Resend email on enabled triggers.
+ *  - Per-trigger toggles: partnerRequest, messageRequest, requestAccepted, feedbackUpdate.
  */
 
 import prisma from './db';
@@ -19,16 +18,22 @@ import {
   isWebPushConfigured,
   type NotificationPayload,
 } from './web-push';
+import {
+  isEmailConfigured,
+  sendSingleEmail,
+  getEmailTriggerConfig,
+} from './email';
+import {
+  buildMessageRequestEmail,
+  buildPartnerRequestEmail,
+  buildRequestAcceptedEmail,
+  buildFeedbackUpdateEmail,
+} from './email-templates';
 import logger from './logger';
 
 /**
  * Send push notification when a new message is received.
- * Does NOT send if user might be viewing the conversation (tab is active).
- * 
- * @param conversationId - The conversation ID
- * @param senderId - The student ID who sent the message
- * @param senderName - Name of the sender
- * @param messagePreview - First few characters of the message
+ * Does NOT send email per chat message to avoid inbox spam and quota burn.
  */
 export async function notifyNewMessage(
   conversationId: string,
@@ -41,7 +46,6 @@ export async function notifyNewMessage(
   }
 
   try {
-    // Get the conversation to find the recipient
     const conversation = await prisma.conversation.findUnique({
       where: { id: conversationId },
       select: {
@@ -61,16 +65,10 @@ export async function notifyNewMessage(
       return;
     }
 
-    // Determine recipient (the one who is NOT the sender)
-    const recipientStudentId = conversation.studentAId === senderId
-      ? conversation.studentBId
-      : conversation.studentAId;
-    
     const recipientUserId = conversation.studentAId === senderId
       ? conversation.studentB.userId
       : conversation.studentA.userId;
 
-    // Get recipient's push subscriptions
     const subscriptions = await prisma.pushSubscription.findMany({
       where: { userId: recipientUserId },
       select: {
@@ -86,11 +84,10 @@ export async function notifyNewMessage(
       return;
     }
 
-    // Prepare notification payload - clean minimalist design
     const payload: NotificationPayload = {
       title: senderName,
-      body: messagePreview.length > 100 
-        ? messagePreview.substring(0, 100) + '...' 
+      body: messagePreview.length > 100
+        ? messagePreview.substring(0, 100) + '...'
         : messagePreview,
       icon: '/icons/icon-192x192.png',
       badge: '/icons/icon-96x96.png',
@@ -107,7 +104,6 @@ export async function notifyNewMessage(
       ],
     };
 
-    // Send to all subscriptions
     const formattedSubs = subscriptions.map(sub => ({
       id: sub.id,
       endpoint: sub.endpoint,
@@ -119,7 +115,6 @@ export async function notifyNewMessage(
 
     const results = await sendPushNotificationToMany(formattedSubs, payload);
 
-    // Clean up expired subscriptions
     const expiredIds = results
       .filter(r => r.shouldDelete)
       .map(r => r.id);
@@ -131,7 +126,6 @@ export async function notifyNewMessage(
       logger.info(`Cleaned up ${expiredIds.length} expired push subscriptions`);
     }
 
-    // Update lastUsedAt for successful sends
     const successIds = results
       .filter(r => r.success)
       .map(r => r.id);
@@ -150,12 +144,7 @@ export async function notifyNewMessage(
 }
 
 /**
- * Send push notification when a message request is received.
- * 
- * @param toStudentId - The student receiving the request
- * @param fromStudentName - Name of the requester
- * @param requestId - The request ID
- * @param reason - Request reason/message
+ * Send Web Push + Automatic Transactional Email when a message request is received.
  */
 export async function notifyMessageRequest(
   toStudentId: string,
@@ -163,15 +152,24 @@ export async function notifyMessageRequest(
   requestId: string,
   reason: string
 ): Promise<void> {
-  if (!isWebPushConfigured()) {
+  if (!isWebPushConfigured() && !isEmailConfigured()) {
     return;
   }
 
   try {
-    // Get the recipient's userId
     const student = await prisma.student.findUnique({
       where: { id: toStudentId },
-      select: { userId: true },
+      select: {
+        id: true,
+        name: true,
+        userId: true,
+        user: {
+          select: {
+            email: true,
+            status: true,
+          },
+        },
+      },
     });
 
     if (!student) {
@@ -179,70 +177,92 @@ export async function notifyMessageRequest(
       return;
     }
 
-    // Get push subscriptions
-    const subscriptions = await prisma.pushSubscription.findMany({
-      where: { userId: student.userId },
-      select: {
-        id: true,
-        endpoint: true,
-        p256dh: true,
-        auth: true,
-      },
-    });
+    let pushDelivered = false
 
-    if (subscriptions.length === 0) {
-      return;
-    }
-
-    const payload: NotificationPayload = {
-      title: 'Message Request',
-      body: `${fromStudentName} wants to connect${reason ? ` - "${reason.substring(0, 40)}${reason.length > 40 ? '...' : ''}"` : ''}`,
-      icon: '/icons/icon-192x192.png',
-      badge: '/icons/icon-96x96.png',
-      tag: `request-message-${requestId}`,
-      data: {
-        url: '/dashboard/requests/messages',
-        type: 'message_request',
-        requestId,
-        senderName: fromStudentName,
-      },
-      actions: [
-        { action: 'view', title: 'View' },
-      ],
-    };
-
-    const formattedSubs = subscriptions.map(sub => ({
-      id: sub.id,
-      endpoint: sub.endpoint,
-      keys: {
-        p256dh: sub.p256dh,
-        auth: sub.auth,
-      },
-    }));
-
-    const results = await sendPushNotificationToMany(formattedSubs, payload);
-
-    // Clean up expired subscriptions
-    const expiredIds = results.filter(r => r.shouldDelete).map(r => r.id);
-    if (expiredIds.length > 0) {
-      await prisma.pushSubscription.deleteMany({
-        where: { id: { in: expiredIds } },
+    // 1. Try Web Push first (100% free & instant)
+    if (isWebPushConfigured()) {
+      const subscriptions = await prisma.pushSubscription.findMany({
+        where: { userId: student.userId },
+        select: {
+          id: true,
+          endpoint: true,
+          p256dh: true,
+          auth: true,
+        },
       });
+
+      if (subscriptions.length > 0) {
+        const payload: NotificationPayload = {
+          title: 'Message Request',
+          body: `${fromStudentName} wants to connect${reason ? ` - "${reason.substring(0, 40)}${reason.length > 40 ? '...' : ''}"` : ''}`,
+          icon: '/icons/icon-192x192.png',
+          badge: '/icons/icon-96x96.png',
+          tag: `request-message-${requestId}`,
+          data: {
+            url: '/dashboard/requests/received',
+            type: 'message_request',
+            requestId,
+            senderName: fromStudentName,
+          },
+          actions: [
+            { action: 'view', title: 'View' },
+          ],
+        };
+
+        const formattedSubs = subscriptions.map(sub => ({
+          id: sub.id,
+          endpoint: sub.endpoint,
+          keys: {
+            p256dh: sub.p256dh,
+            auth: sub.auth,
+          },
+        }));
+
+        const results = await sendPushNotificationToMany(formattedSubs, payload);
+        pushDelivered = results.some(r => r.success);
+
+        const expiredIds = results.filter(r => r.shouldDelete).map(r => r.id);
+        if (expiredIds.length > 0) {
+          await prisma.pushSubscription.deleteMany({
+            where: { id: { in: expiredIds } },
+          });
+        }
+      }
     }
 
-    logger.info(`Push notification sent for message request ${requestId}`);
+    // 2. Dispatch Automatic Transactional Email via Resend according to Admin Trigger Config
+    if (isEmailConfigured() && student.user?.email && student.user.status === 'ACTIVE') {
+      const triggerConfig = await getEmailTriggerConfig();
+      const shouldSendEmail =
+        triggerConfig.messageRequest &&
+        (triggerConfig.deliveryMode === 'ALWAYS_SEND' || !pushDelivered);
+
+      if (shouldSendEmail) {
+        const { subject, html } = buildMessageRequestEmail({
+          toName: student.name,
+          fromName: fromStudentName,
+          reason,
+        });
+
+        sendSingleEmail({
+          to: student.user.email,
+          subject,
+          html,
+          studentId: student.id,
+          category: 'TRANSACTIONAL',
+          templateKey: 'messageRequest',
+        }).catch((err) =>
+          logger.error('Failed to send message request email:', err)
+        );
+      }
+    }
   } catch (error) {
-    logger.error('Error sending message request push notification:', error);
+    logger.error('Error sending message request notification:', error);
   }
 }
 
 /**
- * Send push notification when a partner request is received.
- * 
- * @param toStudentId - The student receiving the request
- * @param fromStudentName - Name of the requester
- * @param requestId - The request ID
- * @param reason - Request reason/message
+ * Send Web Push + Automatic Transactional Email when a partner request is received.
  */
 export async function notifyPartnerRequest(
   toStudentId: string,
@@ -250,15 +270,26 @@ export async function notifyPartnerRequest(
   requestId: string,
   reason: string
 ): Promise<void> {
-  if (!isWebPushConfigured()) {
+  if (!isWebPushConfigured() && !isEmailConfigured()) {
     return;
   }
 
   try {
-    // Get the recipient's userId
     const student = await prisma.student.findUnique({
       where: { id: toStudentId },
-      select: { userId: true },
+      select: {
+        id: true,
+        name: true,
+        department: true,
+        currentSemester: true,
+        userId: true,
+        user: {
+          select: {
+            email: true,
+            status: true,
+          },
+        },
+      },
     });
 
     if (!student) {
@@ -266,129 +297,193 @@ export async function notifyPartnerRequest(
       return;
     }
 
-    // Get push subscriptions
-    const subscriptions = await prisma.pushSubscription.findMany({
-      where: { userId: student.userId },
-      select: {
-        id: true,
-        endpoint: true,
-        p256dh: true,
-        auth: true,
-      },
-    });
+    let pushDelivered = false;
 
-    if (subscriptions.length === 0) {
-      return;
-    }
-
-    const payload: NotificationPayload = {
-      title: 'Partner Request',
-      body: `${fromStudentName} wants to join your FYP${reason ? ` - "${reason.substring(0, 40)}${reason.length > 40 ? '...' : ''}"` : ''}`,
-      icon: '/icons/icon-192x192.png',
-      badge: '/icons/icon-96x96.png',
-      tag: `request-partner-${requestId}`,
-      data: {
-        url: '/dashboard/requests',
-        type: 'partner_request',
-        requestId,
-        senderName: fromStudentName,
-      },
-      actions: [
-        { action: 'view', title: 'View' },
-      ],
-    };
-
-    const formattedSubs = subscriptions.map(sub => ({
-      id: sub.id,
-      endpoint: sub.endpoint,
-      keys: {
-        p256dh: sub.p256dh,
-        auth: sub.auth,
-      },
-    }));
-
-    const results = await sendPushNotificationToMany(formattedSubs, payload);
-
-    // Clean up expired subscriptions
-    const expiredIds = results.filter(r => r.shouldDelete).map(r => r.id);
-    if (expiredIds.length > 0) {
-      await prisma.pushSubscription.deleteMany({
-        where: { id: { in: expiredIds } },
+    // 1. Try Web Push first
+    if (isWebPushConfigured()) {
+      const subscriptions = await prisma.pushSubscription.findMany({
+        where: { userId: student.userId },
+        select: {
+          id: true,
+          endpoint: true,
+          p256dh: true,
+          auth: true,
+        },
       });
+
+      if (subscriptions.length > 0) {
+        const payload: NotificationPayload = {
+          title: 'Partner Request',
+          body: `${fromStudentName} wants to join your FYP${reason ? ` - "${reason.substring(0, 40)}${reason.length > 40 ? '...' : ''}"` : ''}`,
+          icon: '/icons/icon-192x192.png',
+          badge: '/icons/icon-96x96.png',
+          tag: `request-partner-${requestId}`,
+          data: {
+            url: '/dashboard/requests/received',
+            type: 'partner_request',
+            requestId,
+            senderName: fromStudentName,
+          },
+          actions: [
+            { action: 'view', title: 'View' },
+          ],
+        };
+
+        const formattedSubs = subscriptions.map(sub => ({
+          id: sub.id,
+          endpoint: sub.endpoint,
+          keys: {
+            p256dh: sub.p256dh,
+            auth: sub.auth,
+          },
+        }));
+
+        const results = await sendPushNotificationToMany(formattedSubs, payload);
+        pushDelivered = results.some(r => r.success);
+
+        const expiredIds = results.filter(r => r.shouldDelete).map(r => r.id);
+        if (expiredIds.length > 0) {
+          await prisma.pushSubscription.deleteMany({
+            where: { id: { in: expiredIds } },
+          });
+        }
+      }
     }
 
-    logger.info(`Push notification sent for partner request ${requestId}`);
+    // 2. Dispatch Automatic Transactional Email via Resend according to Admin Trigger Config
+    if (isEmailConfigured() && student.user?.email && student.user.status === 'ACTIVE') {
+      const triggerConfig = await getEmailTriggerConfig();
+      const shouldSendEmail =
+        triggerConfig.partnerRequest &&
+        (triggerConfig.deliveryMode === 'ALWAYS_SEND' || !pushDelivered);
+
+      if (shouldSendEmail) {
+        const { subject, html } = buildPartnerRequestEmail({
+          toName: student.name,
+          fromName: fromStudentName,
+          fromSemester: student.currentSemester,
+          reason,
+        });
+
+        sendSingleEmail({
+          to: student.user.email,
+          subject,
+          html,
+          studentId: student.id,
+          category: 'TRANSACTIONAL',
+          templateKey: 'partnerRequest',
+        }).catch((err) =>
+          logger.error('Failed to send partner request email:', err)
+        );
+      }
+    }
   } catch (error) {
-    logger.error('Error sending partner request push notification:', error);
+    logger.error('Error sending partner request notification:', error);
   }
 }
 
 /**
- * Send push notification when a request is accepted.
- * 
- * @param toStudentId - The student who sent the original request (now being notified)
- * @param type - 'MESSAGE' or 'PARTNER'
- * @param accepterName - Name of the person who accepted
+ * Send Web Push + Automatic Transactional Email when a request is accepted.
  */
 export async function notifyRequestAccepted(
   toStudentId: string,
   type: 'MESSAGE' | 'PARTNER',
   accepterName: string
 ): Promise<void> {
-  if (!isWebPushConfigured()) {
+  if (!isWebPushConfigured() && !isEmailConfigured()) {
     return;
   }
 
   try {
     const student = await prisma.student.findUnique({
       where: { id: toStudentId },
-      select: { userId: true },
+      select: {
+        id: true,
+        name: true,
+        userId: true,
+        user: {
+          select: {
+            email: true,
+            status: true,
+          },
+        },
+      },
     });
 
     if (!student) {
       return;
     }
 
-    const subscriptions = await prisma.pushSubscription.findMany({
-      where: { userId: student.userId },
-      select: {
-        id: true,
-        endpoint: true,
-        p256dh: true,
-        auth: true,
-      },
-    });
+    let pushDelivered = false;
 
-    if (subscriptions.length === 0) {
-      return;
+    // 1. Try Web Push first
+    if (isWebPushConfigured()) {
+      const subscriptions = await prisma.pushSubscription.findMany({
+        where: { userId: student.userId },
+        select: {
+          id: true,
+          endpoint: true,
+          p256dh: true,
+          auth: true,
+        },
+      });
+
+      if (subscriptions.length > 0) {
+        const isMessage = type === 'MESSAGE';
+        const payload: NotificationPayload = {
+          title: isMessage ? 'Request Accepted' : 'Partner Request Accepted',
+          body: isMessage
+            ? `${accepterName} accepted. You can now chat.`
+            : `${accepterName} accepted your request. Welcome to the team.`,
+          icon: '/icons/icon-192x192.png',
+          badge: '/icons/icon-96x96.png',
+          tag: `request-accepted-${type.toLowerCase()}`,
+          data: {
+            url: isMessage ? '/dashboard/messages' : '/dashboard/fyp',
+            type: isMessage ? 'message_request' : 'partner_request',
+          },
+        };
+
+        const formattedSubs = subscriptions.map(sub => ({
+          id: sub.id,
+          endpoint: sub.endpoint,
+          keys: {
+            p256dh: sub.p256dh,
+            auth: sub.auth,
+          },
+        }));
+
+        const results = await sendPushNotificationToMany(formattedSubs, payload);
+        pushDelivered = results.some(r => r.success);
+      }
     }
 
-    const isMessage = type === 'MESSAGE';
-    const payload: NotificationPayload = {
-      title: isMessage ? 'Request Accepted' : 'Partner Request Accepted',
-      body: isMessage 
-        ? `${accepterName} accepted. You can now chat.`
-        : `${accepterName} accepted your request. Welcome to the team.`,
-      icon: '/icons/icon-192x192.png',
-      badge: '/icons/icon-96x96.png',
-      tag: `request-accepted-${type.toLowerCase()}`,
-      data: {
-        url: isMessage ? '/dashboard/messages' : '/dashboard/fyp',
-        type: isMessage ? 'message_request' : 'partner_request',
-      },
-    };
+    // 2. Dispatch Automatic Transactional Email via Resend according to Admin Trigger Config
+    if (isEmailConfigured() && student.user?.email && student.user.status === 'ACTIVE') {
+      const triggerConfig = await getEmailTriggerConfig();
+      const shouldSendEmail =
+        triggerConfig.requestAccepted &&
+        (triggerConfig.deliveryMode === 'ALWAYS_SEND' || !pushDelivered);
 
-    const formattedSubs = subscriptions.map(sub => ({
-      id: sub.id,
-      endpoint: sub.endpoint,
-      keys: {
-        p256dh: sub.p256dh,
-        auth: sub.auth,
-      },
-    }));
+      if (shouldSendEmail) {
+        const { subject, html } = buildRequestAcceptedEmail({
+          toName: student.name,
+          accepterName,
+          requestType: type,
+        });
 
-    await sendPushNotificationToMany(formattedSubs, payload);
-    logger.info(`Push notification sent for ${type} request accepted`);
+        sendSingleEmail({
+          to: student.user.email,
+          subject,
+          html,
+          studentId: student.id,
+          category: 'TRANSACTIONAL',
+          templateKey: 'requestAccepted',
+        }).catch((err) =>
+          logger.error('Failed to send request accepted email:', err)
+        );
+      }
+    }
   } catch (error) {
     logger.error('Error sending request accepted notification:', error);
   }
@@ -409,25 +504,31 @@ export async function removeAllSubscriptions(userId: string): Promise<void> {
 }
 
 /**
- * Send push notification when admin responds to or updates student feedback.
- * 
- * @param studentId - The student ID
- * @param status - Updated feedback status
- * @param adminResponse - Optional response message from admin
+ * Send Web Push + Automatic Transactional Email when admin responds to or updates student feedback.
  */
 export async function notifyFeedbackUpdate(
   studentId: string,
   status: string,
   adminResponse?: string | null
 ): Promise<void> {
-  if (!isWebPushConfigured()) {
+  if (!isWebPushConfigured() && !isEmailConfigured()) {
     return;
   }
 
   try {
     const student = await prisma.student.findUnique({
       where: { id: studentId },
-      select: { userId: true },
+      select: {
+        id: true,
+        name: true,
+        userId: true,
+        user: {
+          select: {
+            email: true,
+            status: true,
+          },
+        },
+      },
     });
 
     if (!student) {
@@ -435,61 +536,90 @@ export async function notifyFeedbackUpdate(
       return;
     }
 
-    const subscriptions = await prisma.pushSubscription.findMany({
-      where: { userId: student.userId },
-      select: {
-        id: true,
-        endpoint: true,
-        p256dh: true,
-        auth: true,
-      },
-    });
+    let pushDelivered = false;
 
-    if (subscriptions.length === 0) {
-      return;
-    }
-
-    const formattedStatus = status.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c: string) => c.toUpperCase());
-    const body = adminResponse
-      ? `Admin note: "${adminResponse.length > 50 ? adminResponse.substring(0, 50) + '...' : adminResponse}"`
-      : `Your feedback status is now marked as ${formattedStatus}.`;
-
-    const payload: NotificationPayload = {
-      title: `Feedback Update: ${formattedStatus}`,
-      body,
-      icon: '/icons/icon-192x192.png',
-      badge: '/icons/icon-96x96.png',
-      tag: `feedback-update-${studentId}-${Date.now()}`,
-      data: {
-        url: '/dashboard/feedback',
-        type: 'feedback_update',
-        status,
-      },
-      actions: [
-        { action: 'view', title: 'View Feedback' },
-      ],
-    };
-
-    const formattedSubs = subscriptions.map(sub => ({
-      id: sub.id,
-      endpoint: sub.endpoint,
-      keys: {
-        p256dh: sub.p256dh,
-        auth: sub.auth,
-      },
-    }));
-
-    const results = await sendPushNotificationToMany(formattedSubs, payload);
-
-    const expiredIds = results.filter(r => r.shouldDelete).map(r => r.id);
-    if (expiredIds.length > 0) {
-      await prisma.pushSubscription.deleteMany({
-        where: { id: { in: expiredIds } },
+    // 1. Try Web Push first
+    if (isWebPushConfigured()) {
+      const subscriptions = await prisma.pushSubscription.findMany({
+        where: { userId: student.userId },
+        select: {
+          id: true,
+          endpoint: true,
+          p256dh: true,
+          auth: true,
+        },
       });
+
+      if (subscriptions.length > 0) {
+        const formattedStatus = status.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c: string) => c.toUpperCase());
+        const body = adminResponse
+          ? `Admin note: "${adminResponse.length > 50 ? adminResponse.substring(0, 50) + '...' : adminResponse}"`
+          : `Your feedback status is now marked as ${formattedStatus}.`;
+
+        const payload: NotificationPayload = {
+          title: `Feedback Update: ${formattedStatus}`,
+          body,
+          icon: '/icons/icon-192x192.png',
+          badge: '/icons/icon-96x96.png',
+          tag: `feedback-update-${studentId}-${Date.now()}`,
+          data: {
+            url: '/dashboard/feedback',
+            type: 'feedback_update',
+            status,
+          },
+          actions: [
+            { action: 'view', title: 'View Feedback' },
+          ],
+        };
+
+        const formattedSubs = subscriptions.map(sub => ({
+          id: sub.id,
+          endpoint: sub.endpoint,
+          keys: {
+            p256dh: sub.p256dh,
+            auth: sub.auth,
+          },
+        }));
+
+        const results = await sendPushNotificationToMany(formattedSubs, payload);
+        pushDelivered = results.some(r => r.success);
+
+        const expiredIds = results.filter(r => r.shouldDelete).map(r => r.id);
+        if (expiredIds.length > 0) {
+          await prisma.pushSubscription.deleteMany({
+            where: { id: { in: expiredIds } },
+          });
+        }
+      }
     }
 
-    logger.info(`Push notification sent for feedback update to student ${studentId}`);
+    // 2. Dispatch Automatic Transactional Email via Resend according to Admin Trigger Config
+    if (isEmailConfigured() && student.user?.email && student.user.status === 'ACTIVE') {
+      const triggerConfig = await getEmailTriggerConfig();
+      const shouldSendEmail =
+        triggerConfig.feedbackUpdate &&
+        (triggerConfig.deliveryMode === 'ALWAYS_SEND' || !pushDelivered);
+
+      if (shouldSendEmail) {
+        const { subject, html } = buildFeedbackUpdateEmail({
+          toName: student.name,
+          status,
+          adminResponse,
+        });
+
+        sendSingleEmail({
+          to: student.user.email,
+          subject,
+          html,
+          studentId: student.id,
+          category: 'TRANSACTIONAL',
+          templateKey: 'feedbackUpdate',
+        }).catch((err) =>
+          logger.error('Failed to send feedback update email:', err)
+        );
+      }
+    }
   } catch (error) {
-    logger.error('Error sending feedback update push notification:', error);
+    logger.error('Error sending feedback update notification:', error);
   }
 }

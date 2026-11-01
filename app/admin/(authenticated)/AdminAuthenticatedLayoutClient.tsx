@@ -21,6 +21,7 @@ export default function AdminAuthenticatedLayoutClient({
     if (pathname.includes("/dashboard")) return "Dashboard"
     if (pathname.includes("/students")) return "Students"
     if (pathname.includes("/feedback")) return "Feedback"
+    if (pathname.includes("/emails")) return "Emails"
     if (pathname.includes("/messages")) return "Messages"
     if (pathname.includes("/reports")) return "Reports"
     if (pathname.includes("/settings")) return "Settings"
