@@ -2,14 +2,12 @@
 
 import { useState } from "react";
 import {
-  CheckCircle2,
-  Clock,
-  Calendar,
+  Check,
   Plus,
   Trash2,
   Edit2,
-  Check,
   X,
+  ArrowRight,
 } from "lucide-react";
 import {
   useWorkspaceMeta,
@@ -27,51 +25,50 @@ interface DeadlineTimelineProps {
 const PREVIEW_MILESTONES: FYPMilestoneItem[] = [
   {
     id: "m-1",
-    title: "Idea & Supervisor Finalization",
+    title: "Idea & Supervisor",
     dueDate: new Date(Date.now() - 5 * 86400000).toISOString().split("T")[0],
     status: "COMPLETED",
-    note: "Confirm FYP topic and supervisor approval",
+    note: null,
   },
   {
     id: "m-2",
-    title: "Proposal Defense & SRS",
+    title: "Proposal & SRS Defense",
     dueDate: new Date(Date.now() + 14 * 86400000).toISOString().split("T")[0],
     status: "IN_PROGRESS",
-    note: "Submit proposal document and defense slides",
+    note: null,
   },
   {
     id: "m-3",
-    title: "Mid-Semester Evaluation",
+    title: "Mid-Term Evaluation",
     dueDate: new Date(Date.now() + 45 * 86400000).toISOString().split("T")[0],
     status: "UPCOMING",
-    note: "System architecture and 40% prototype demo",
+    note: null,
   },
   {
     id: "m-4",
     title: "Final Defense & Thesis",
     dueDate: new Date(Date.now() + 90 * 86400000).toISOString().split("T")[0],
     status: "UPCOMING",
-    note: "Complete implementation, testing, and final report",
+    note: null,
   },
 ];
 
-function getCountdownLabel(dueDate: string | null, status: MilestoneStatus) {
-  if (status === "COMPLETED") return { text: "Completed", tone: "emerald" };
-  if (!dueDate) return { text: "Click edit to set date", tone: "slate" };
+function formatDateShort(dueDate: string | null, status: MilestoneStatus): string {
+  if (!dueDate) {
+    return status === "COMPLETED" ? "Done" : "Set date";
+  }
+  const formatted = new Date(dueDate).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+  if (status === "COMPLETED") return `${formatted} · Done`;
 
-  const target = new Date(dueDate);
-  const now = new Date();
   const diffDays = Math.ceil(
-    (target.getTime() - now.setHours(0, 0, 0, 0)) / 86400000
+    (new Date(dueDate).getTime() - new Date().setHours(0, 0, 0, 0)) / 86400000
   );
-
-  if (diffDays < 0) {
-    return { text: `${Math.abs(diffDays)}d overdue`, tone: "red" };
-  }
-  if (diffDays === 0) {
-    return { text: "Due today", tone: "amber" };
-  }
-  return { text: `${diffDays}d left`, tone: diffDays <= 7 ? "amber" : "slate" };
+  if (diffDays < 0) return `${formatted} · ${Math.abs(diffDays)}d late`;
+  if (diffDays === 0) return `${formatted} · Today`;
+  return `${formatted} · ${diffDays}d left`;
 }
 
 export function DeadlineTimeline({
@@ -84,13 +81,11 @@ export function DeadlineTimeline({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editDate, setEditDate] = useState("");
-  const [editNote, setEditNote] = useState("");
   const [editStatus, setEditStatus] = useState<MilestoneStatus>("UPCOMING");
 
   const [isAdding, setIsAdding] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newDate, setNewDate] = useState("");
-  const [newNote, setNewNote] = useState("");
 
   const milestones: FYPMilestoneItem[] = previewMode
     ? PREVIEW_MILESTONES
@@ -99,10 +94,6 @@ export function DeadlineTimeline({
   const completedCount = milestones.filter(
     (m) => m.status === "COMPLETED"
   ).length;
-  const progressPercent =
-    milestones.length > 0
-      ? Math.round((completedCount / milestones.length) * 100)
-      : 0;
 
   const handleSaveMilestones = (nextList: FYPMilestoneItem[]) => {
     if (previewMode || !groupId) {
@@ -126,8 +117,7 @@ export function DeadlineTimeline({
   const handleCycleStatus = (item: FYPMilestoneItem) => {
     if (previewMode) return;
     const order: MilestoneStatus[] = ["UPCOMING", "IN_PROGRESS", "COMPLETED"];
-    const nextStatus =
-      order[(order.indexOf(item.status) + 1) % order.length];
+    const nextStatus = order[(order.indexOf(item.status) + 1) % order.length];
     const nextList = milestones.map((m) =>
       m.id === item.id ? { ...m, status: nextStatus } : m
     );
@@ -139,7 +129,6 @@ export function DeadlineTimeline({
     setEditingId(item.id);
     setEditTitle(item.title);
     setEditDate(item.dueDate ? item.dueDate.split("T")[0] : "");
-    setEditNote(item.note || "");
     setEditStatus(item.status);
   };
 
@@ -151,7 +140,6 @@ export function DeadlineTimeline({
             ...m,
             title: editTitle.trim(),
             dueDate: editDate || null,
-            note: editNote.trim() || null,
             status: editStatus,
           }
         : m
@@ -171,296 +159,298 @@ export function DeadlineTimeline({
       title: newTitle.trim(),
       dueDate: newDate || null,
       status: "UPCOMING",
-      note: newNote.trim() || null,
+      note: null,
     };
     handleSaveMilestones([...milestones, newItem]);
     setNewTitle("");
     setNewDate("");
-    setNewNote("");
   };
 
+  const activeEditItem = milestones.find((m) => m.id === editingId);
+
   return (
-    <div className="rounded-2xl border border-slate-200/80 bg-white p-5 sm:p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900/60">
-      {/* Header + Progress Bar */}
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <h3 className="text-base font-bold text-slate-900 dark:text-white">
-              Academic Milestones
-            </h3>
-            <span className="rounded-full bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 text-[11px] font-semibold text-slate-700 dark:text-slate-300">
-              {completedCount}/{milestones.length} Completed ({progressPercent}%)
-            </span>
-          </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Click any milestone badge to cycle status or click Edit on any card to set target defense dates.
-          </p>
+    <div className="rounded-2xl border border-slate-200/80 bg-white px-5 py-4 shadow-xs dark:border-slate-800 dark:bg-slate-900/60">
+      {/* Compact Header */}
+      <div className="flex items-center justify-between gap-2 mb-4">
+        <div className="flex items-center gap-2.5">
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+            Academic Timeline
+          </h3>
+          <span className="text-xs text-slate-400 dark:text-slate-500">
+            {completedCount}/{milestones.length} done
+          </span>
         </div>
 
-        <div className="flex items-center gap-3 self-start sm:self-auto">
-          <div className="hidden sm:block w-28 h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-            <div
-              className="h-full bg-emerald-500 rounded-full transition-all duration-300"
-              style={{ width: `${progressPercent}%` }}
-            />
-          </div>
-
-          {!previewMode && !isAdding && (
-            <button
-              type="button"
-              onClick={() => setIsAdding(true)}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              <span>Add Milestone</span>
-            </button>
-          )}
-        </div>
+        {!previewMode && !isAdding && (
+          <button
+            type="button"
+            onClick={() => {
+              setEditingId(null);
+              setIsAdding(true);
+            }}
+            className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white cursor-pointer"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            <span>Add Stage</span>
+          </button>
+        )}
       </div>
 
-      {/* Add New Milestone Inline Form */}
-      {isAdding && (
-        <div className="mb-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 p-3.5 space-y-3">
-          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-            <input
-              type="text"
-              placeholder="Milestone title (e.g. SRS Submission)"
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-              className="sm:col-span-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-xs text-slate-900 dark:text-white outline-none"
-            />
-            <input
-              type="date"
-              value={newDate}
-              onChange={(e) => setNewDate(e.target.value)}
-              className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-xs text-slate-900 dark:text-white outline-none"
-            />
-          </div>
-          <div className="flex items-center justify-between gap-2">
-            <input
-              type="text"
-              placeholder="Short deliverable note (optional)"
-              value={newNote}
-              onChange={(e) => setNewNote(e.target.value)}
-              className="flex-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-xs text-slate-900 dark:text-white outline-none"
-            />
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={handleAddMilestone}
-                className="rounded-lg bg-slate-900 dark:bg-white px-3 py-1.5 text-xs font-semibold text-white dark:text-slate-900 cursor-pointer"
-              >
-                Save
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsAdding(false)}
-                className="rounded-lg border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 text-xs text-slate-600 dark:text-slate-300 cursor-pointer"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Visual Connected Stepper Cards Grid */}
-      <div className="relative grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {milestones.map((m, index) => {
-          const isEditingThis = editingId === m.id;
-          const countdown = getCountdownLabel(m.dueDate, m.status);
-
-          const cardStyle =
-            m.status === "COMPLETED"
-              ? "border-emerald-200/90 bg-emerald-50/30 dark:border-emerald-900/40 dark:bg-emerald-950/15"
-              : m.status === "IN_PROGRESS"
-              ? "border-amber-200/90 bg-amber-50/40 dark:border-amber-900/50 dark:bg-amber-950/20"
-              : "border-slate-200/80 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-800/30";
+      {/* DESKTOP: Horizontal Connected Arrow Timeline */}
+      <div className="hidden md:flex items-start justify-between w-full pt-1 pb-1">
+        {milestones.map((m, idx) => {
+          const isLast = idx === milestones.length - 1;
+          const isDone = m.status === "COMPLETED";
+          const isCurrent = m.status === "IN_PROGRESS";
 
           return (
-            <div
-              key={m.id}
-              className={`relative flex flex-col justify-between rounded-xl border p-4 transition-all ${cardStyle}`}
-            >
-              {isEditingThis ? (
-                <div className="space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                      Edit Stage {index + 1}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setEditingId(null)}
-                      className="text-slate-400 hover:text-slate-600"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                  <input
-                    type="text"
-                    value={editTitle}
-                    onChange={(e) => setEditTitle(e.target.value)}
-                    placeholder="Milestone title"
-                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-slate-900 dark:text-white outline-none"
-                  />
-                  <input
-                    type="date"
-                    value={editDate}
-                    onChange={(e) => setEditDate(e.target.value)}
-                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white outline-none"
-                  />
-                  <select
-                    value={editStatus}
-                    onChange={(e) =>
-                      setEditStatus(e.target.value as MilestoneStatus)
-                    }
-                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white outline-none"
+            <div key={m.id} className="flex items-start flex-1 min-w-0">
+              {/* Step Node + Labels */}
+              <div className="flex flex-col items-start min-w-0 pr-2">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleCycleStatus(m)}
+                    title="Click to toggle status"
+                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all cursor-pointer ${
+                      isDone
+                        ? "bg-emerald-600 text-white"
+                        : isCurrent
+                        ? "bg-slate-900 text-white ring-4 ring-slate-900/10 dark:bg-white dark:text-slate-900 dark:ring-white/15"
+                        : "border-2 border-slate-300 bg-white text-slate-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-500"
+                    }`}
                   >
-                    <option value="UPCOMING">Upcoming</option>
-                    <option value="IN_PROGRESS">In Progress</option>
-                    <option value="COMPLETED">Completed</option>
-                  </select>
-                  <input
-                    type="text"
-                    value={editNote}
-                    onChange={(e) => setEditNote(e.target.value)}
-                    placeholder="Note / deliverable..."
-                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white outline-none"
-                  />
-                  <div className="flex items-center justify-between pt-1">
-                    {milestones.length > 1 ? (
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(m.id)}
-                        className="inline-flex items-center gap-1 text-[11px] font-medium text-red-600 hover:underline"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                        Delete
-                      </button>
-                    ) : (
-                      <span />
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => saveEdit(m.id)}
-                      className="inline-flex items-center gap-1 rounded-lg bg-slate-900 dark:bg-white px-3 py-1 text-xs font-semibold text-white dark:text-slate-900"
-                    >
-                      <Check className="h-3 w-3" />
-                      Save
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <div>
-                    {/* Top Row: Step Node + Status Pill + Edit Button */}
-                    <div className="flex items-center justify-between gap-2 mb-2.5">
-                      <button
-                        type="button"
-                        onClick={() => handleCycleStatus(m)}
-                        title="Click to cycle status (Upcoming → In Progress → Completed)"
-                        className="inline-flex items-center gap-1.5 cursor-pointer"
-                      >
-                        {m.status === "COMPLETED" ? (
-                          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600 text-white shadow-2xs">
-                            <CheckCircle2 className="h-3.5 w-3.5" />
-                          </span>
-                        ) : m.status === "IN_PROGRESS" ? (
-                          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-500 text-white text-[11px] font-bold shadow-2xs">
-                            {index + 1}
-                          </span>
-                        ) : (
-                          <span className="flex h-6 w-6 items-center justify-center rounded-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 text-[11px] font-bold">
-                            {index + 1}
-                          </span>
-                        )}
+                    {isDone ? <Check className="h-3.5 w-3.5" /> : idx + 1}
+                  </button>
 
-                        <span
-                          className={`rounded-md px-2 py-0.5 text-[10px] font-semibold ${
-                            m.status === "COMPLETED"
-                              ? "bg-emerald-100/80 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
-                              : m.status === "IN_PROGRESS"
-                              ? "bg-amber-100/80 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300"
-                              : "bg-slate-200/70 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
-                          }`}
-                        >
-                          {m.status === "COMPLETED"
-                            ? "Completed"
-                            : m.status === "IN_PROGRESS"
-                            ? "In Progress"
-                            : "Upcoming"}
-                        </span>
-                      </button>
-
-                      {!previewMode && (
-                        <button
-                          type="button"
-                          onClick={() => startEditing(m)}
-                          title="Edit milestone title & date"
-                          className="rounded-lg p-1 text-slate-400 hover:bg-white/80 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
-                        >
-                          <Edit2 className="h-3.5 w-3.5" />
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Title & Note */}
-                    <h4
-                      className={`text-xs sm:text-sm font-bold leading-snug ${
-                        m.status === "COMPLETED"
-                          ? "text-slate-700 dark:text-slate-300"
-                          : "text-slate-900 dark:text-white"
-                      }`}
-                    >
-                      {m.title}
-                    </h4>
-                    {m.note && (
-                      <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2">
-                        {m.note}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Bottom Row: Target Date & Countdown */}
-                  <div className="mt-3.5 pt-2.5 border-t border-slate-200/60 dark:border-slate-800/70 flex items-center justify-between gap-2">
+                  {!previewMode && (
                     <button
                       type="button"
                       onClick={() => startEditing(m)}
-                      className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:underline"
+                      className="text-slate-300 hover:text-slate-600 dark:text-slate-600 dark:hover:text-slate-300 cursor-pointer"
+                      title="Edit stage"
                     >
-                      <Calendar className="h-3 w-3 text-slate-400" />
-                      <span>
-                        {m.dueDate
-                          ? new Date(m.dueDate).toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric",
-                            })
-                          : "Set date"}
-                      </span>
+                      <Edit2 className="h-3 w-3" />
                     </button>
+                  )}
+                </div>
 
-                    <span
-                      className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold ${
-                        countdown.tone === "emerald"
-                          ? "text-emerald-700 dark:text-emerald-400"
-                          : countdown.tone === "red"
-                          ? "bg-red-100/80 text-red-700 dark:bg-red-950/50 dark:text-red-300"
-                          : countdown.tone === "amber"
-                          ? "bg-amber-100/80 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300"
-                          : "text-slate-500 dark:text-slate-400"
-                      }`}
-                    >
-                      <Clock className="h-2.5 w-2.5" />
-                      {countdown.text}
-                    </span>
-                  </div>
-                </>
+                <button
+                  type="button"
+                  onClick={() => startEditing(m)}
+                  className="mt-2 text-left group cursor-pointer max-w-[170px]"
+                >
+                  <p
+                    className={`text-xs font-semibold truncate ${
+                      isDone
+                        ? "text-slate-600 dark:text-slate-300"
+                        : isCurrent
+                        ? "text-slate-900 dark:text-white"
+                        : "text-slate-500 dark:text-slate-400"
+                    }`}
+                  >
+                    {m.title}
+                  </p>
+                  <p
+                    className={`text-[11px] mt-0.5 ${
+                      isDone
+                        ? "text-emerald-600 dark:text-emerald-400 font-medium"
+                        : isCurrent
+                        ? "text-amber-600 dark:text-amber-400 font-medium"
+                        : "text-slate-400 dark:text-slate-500"
+                    }`}
+                  >
+                    {formatDateShort(m.dueDate, m.status)}
+                  </p>
+                </button>
+              </div>
+
+              {/* Connecting Line + Arrow to Next Stage */}
+              {!isLast && (
+                <div className="flex items-center flex-1 px-2 mt-3">
+                  <div
+                    className={`h-0.5 flex-1 rounded-full ${
+                      isDone
+                        ? "bg-emerald-500/70"
+                        : "bg-slate-200 dark:bg-slate-800"
+                    }`}
+                  />
+                  <ArrowRight
+                    className={`h-3.5 w-3.5 -ml-1 shrink-0 ${
+                      isDone
+                        ? "text-emerald-500"
+                        : "text-slate-300 dark:text-slate-700"
+                    }`}
+                  />
+                </div>
               )}
             </div>
           );
         })}
       </div>
+
+      {/* MOBILE: Clean Vertical Connected Timeline */}
+      <div className="md:hidden space-y-0">
+        {milestones.map((m, idx) => {
+          const isLast = idx === milestones.length - 1;
+          const isDone = m.status === "COMPLETED";
+          const isCurrent = m.status === "IN_PROGRESS";
+
+          return (
+            <div key={m.id} className="flex items-stretch gap-3">
+              {/* Left Vertical Line + Circle Node */}
+              <div className="flex flex-col items-center">
+                <button
+                  type="button"
+                  onClick={() => handleCycleStatus(m)}
+                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
+                    isDone
+                      ? "bg-emerald-600 text-white"
+                      : isCurrent
+                      ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
+                      : "border-2 border-slate-300 bg-white text-slate-400 dark:border-slate-700 dark:bg-slate-900"
+                  }`}
+                >
+                  {isDone ? <Check className="h-3 w-3" /> : idx + 1}
+                </button>
+                {!isLast && (
+                  <div
+                    className={`w-0.5 flex-1 my-1 ${
+                      isDone
+                        ? "bg-emerald-500/60"
+                        : "bg-slate-200 dark:bg-slate-800"
+                    }`}
+                  />
+                )}
+              </div>
+
+              {/* Right Content Row */}
+              <div className={`flex-1 flex items-center justify-between gap-2 ${isLast ? "pb-0" : "pb-3.5"}`}>
+                <button
+                  type="button"
+                  onClick={() => startEditing(m)}
+                  className="text-left min-w-0"
+                >
+                  <p
+                    className={`text-xs font-semibold truncate ${
+                      isDone
+                        ? "text-slate-600 dark:text-slate-300"
+                        : "text-slate-900 dark:text-white"
+                    }`}
+                  >
+                    {m.title}
+                  </p>
+                  <p
+                    className={`text-[11px] ${
+                      isDone
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : isCurrent
+                        ? "text-amber-600 dark:text-amber-400"
+                        : "text-slate-400"
+                    }`}
+                  >
+                    {formatDateShort(m.dueDate, m.status)}
+                  </p>
+                </button>
+
+                {!previewMode && (
+                  <button
+                    type="button"
+                    onClick={() => startEditing(m)}
+                    className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 shrink-0"
+                  >
+                    <Edit2 className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Compact Single-Row Inline Editor (Only shown when editing or adding a stage) */}
+      {activeEditItem && (
+        <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center gap-2">
+          <input
+            type="text"
+            value={editTitle}
+            onChange={(e) => setEditTitle(e.target.value)}
+            placeholder="Stage title"
+            className="flex-1 min-w-[160px] rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 text-xs text-slate-900 dark:text-white outline-none"
+          />
+          <input
+            type="date"
+            value={editDate}
+            onChange={(e) => setEditDate(e.target.value)}
+            className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white outline-none"
+          />
+          <select
+            value={editStatus}
+            onChange={(e) => setEditStatus(e.target.value as MilestoneStatus)}
+            className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white outline-none"
+          >
+            <option value="UPCOMING">Upcoming</option>
+            <option value="IN_PROGRESS">In Progress</option>
+            <option value="COMPLETED">Completed</option>
+          </select>
+          <button
+            type="button"
+            onClick={() => saveEdit(activeEditItem.id)}
+            className="rounded-lg bg-slate-900 dark:bg-white px-3 py-1.5 text-xs font-semibold text-white dark:text-slate-900 cursor-pointer"
+          >
+            Save
+          </button>
+          {milestones.length > 1 && (
+            <button
+              type="button"
+              onClick={() => handleDelete(activeEditItem.id)}
+              className="rounded-lg p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 cursor-pointer"
+              title="Delete stage"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setEditingId(null)}
+            className="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
+
+      {isAdding && (
+        <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center gap-2">
+          <input
+            type="text"
+            placeholder="New stage title (e.g. Prototype Demo)"
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+            className="flex-1 min-w-[160px] rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 text-xs text-slate-900 dark:text-white outline-none"
+          />
+          <input
+            type="date"
+            value={newDate}
+            onChange={(e) => setNewDate(e.target.value)}
+            className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white outline-none"
+          />
+          <button
+            type="button"
+            onClick={handleAddMilestone}
+            className="rounded-lg bg-slate-900 dark:bg-white px-3 py-1.5 text-xs font-semibold text-white dark:text-slate-900 cursor-pointer"
+          >
+            Add
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsAdding(false)}
+            className="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
