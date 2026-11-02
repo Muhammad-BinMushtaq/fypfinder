@@ -2,12 +2,17 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { toast } from "react-toastify"
 import { ProposalDownloadButton } from "./ProposalDownloadButton"
 import {
   ArrowLeft,
   Check,
   Copy,
   Lock,
+  FolderKanban,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react"
 import type {
   DetailedScore,
@@ -26,13 +31,13 @@ const RUBRICS: {
   title: string
   maxScore: number
 }[] = [
-  { key: "problemClarityRelevance", title: "Problem Clarity & Practical Relevance", maxScore: 20 },
-  { key: "ideaExplanationUsability", title: "Architecture, Usability & User Flow", maxScore: 20 },
-  { key: "keyFeaturesCompleteness", title: "Core Feature Completeness & Scope", maxScore: 15 },
-  { key: "feasibilityResources", title: "Technical Feasibility & Team Resources", maxScore: 10 },
-  { key: "originalityNovelty", title: "Novelty & Differentiating Value", maxScore: 10 },
-  { key: "impactUsefulness", title: "Industry Relevance & Practical Impact", maxScore: 10 },
-  { key: "improvementPotential", title: "Expansion, Scaling & Growth Potential", maxScore: 15 },
+  { key: "problemClarityRelevance", title: "Problem Clarity & Relevance", maxScore: 20 },
+  { key: "ideaExplanationUsability", title: "Architecture & User Flow", maxScore: 20 },
+  { key: "keyFeaturesCompleteness", title: "Core Feature Scope", maxScore: 15 },
+  { key: "feasibilityResources", title: "Technical Feasibility", maxScore: 10 },
+  { key: "originalityNovelty", title: "Novelty & Differentiation", maxScore: 10 },
+  { key: "impactUsefulness", title: "Practical Impact", maxScore: 10 },
+  { key: "improvementPotential", title: "Scaling Potential", maxScore: 15 },
 ]
 
 export function ValidationResult({
@@ -40,12 +45,15 @@ export function ValidationResult({
   onReset,
   remainingToday,
 }: ValidationResultProps) {
+  const router = useRouter()
   const report = result.report
   const [copiedPitch, setCopiedPitch] = useState(false)
+  const [isApplying, setIsApplying] = useState(false)
+  const [activeDeepDive, setActiveDeepDive] = useState<"rubric" | "defense" | "roadmap" | null>(null)
 
   if (!report) {
     return (
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 text-center shadow-sm">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 text-center shadow-xs">
         <p className="text-sm text-slate-500 dark:text-slate-400">
           Unable to parse validation results. Please re-run the assessment.
         </p>
@@ -67,9 +75,10 @@ export function ValidationResult({
   const originalityLabel = formatOriginality(report.originalityVerdict)
 
   const handleCopyPitch = async () => {
-    if (!report.elevatorPitch) return
+    const textToCopy = report.elevatorPitch || report.plainSummary
+    if (!textToCopy) return
     try {
-      await navigator.clipboard.writeText(report.elevatorPitch)
+      await navigator.clipboard.writeText(textToCopy)
       setCopiedPitch(true)
       setTimeout(() => setCopiedPitch(false), 2000)
     } catch {
@@ -77,664 +86,493 @@ export function ValidationResult({
     }
   }
 
+  const handleApplyToWorkspace = async () => {
+    if (isApplying) return
+    setIsApplying(true)
+    try {
+      const groupRes = await fetch("/api/group/get-my-group")
+      const groupJson = await groupRes.json()
+      const summaryDesc = (report.plainSummary || result.ideaDescription || "").slice(0, 480)
+
+      if (groupJson?.data?.id) {
+        const updateRes = await fetch("/api/group/update-project", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            projectName: cleanTitle.slice(0, 100),
+            description: summaryDesc,
+          }),
+        })
+        if (!updateRes.ok) throw new Error("Could not update project details")
+      } else {
+        const createRes = await fetch("/api/group/invite-search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "CREATE_GROUP",
+            projectName: cleanTitle.slice(0, 100),
+            description: summaryDesc,
+          }),
+        })
+        if (!createRes.ok) throw new Error("Could not initialize workspace")
+      }
+
+      toast.success("Project applied to your FYP Workspace")
+      router.push("/dashboard/fyp")
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to apply project to workspace")
+    } finally {
+      setIsApplying(false)
+    }
+  }
+
+  const scoreTone =
+    report.finalScore >= 75
+      ? "bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900/50"
+      : report.finalScore >= 55
+      ? "bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/50"
+      : "bg-red-50 text-red-800 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900/50"
+
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
-      {/* Top action bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="mx-auto max-w-4xl space-y-5">
+      {/* Top Action Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <button
           onClick={onReset}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition cursor-pointer"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          Validate another concept
+          Validate another idea
         </button>
 
-        {result.status === "completed" && (
-          <ProposalDownloadButton validation={result} />
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          {result.accessMode === "student" && (
+            <button
+              type="button"
+              onClick={handleApplyToWorkspace}
+              disabled={isApplying}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer disabled:opacity-50"
+            >
+              <FolderKanban className="h-3.5 w-3.5" />
+              {isApplying ? "Applying..." : "Use in FYP Workspace"}
+            </button>
+          )}
+          {result.status === "completed" && (
+            <ProposalDownloadButton validation={result} />
+          )}
+        </div>
       </div>
 
-      {/* Quota Progress */}
+      {/* Quota Bar */}
       <ProgressTracker
         accessMode={result.accessMode}
         previewLocked={result.previewLocked}
         remainingToday={remainingToday}
       />
 
-      {/* =========================================================================
-          MAIN ACADEMIC REPORT DOCUMENT CONTAINER (Matches PDF ProposalPrintTemplate)
-          ========================================================================= */}
-      <article className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-12 text-slate-900 dark:text-slate-100 shadow-sm leading-relaxed space-y-10">
-        
-        {/* ================= REPORT HEADER & PROJECT TITLE ================= */}
-        <header className="border-b-2 border-slate-900 dark:border-white pb-6 space-y-5">
-          <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 pb-3 gap-2">
-            <span>AI Evaluation Engine v2.4</span>
-            <span>Ref: {result.id ? result.id.slice(0, 8).toUpperCase() : "VAL-PAF"}</span>
-          </div>
-
-          <div className="space-y-3.5">
-            <div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 block mb-1">
-                Project Title:
-              </span>
-              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
-                {cleanTitle}
-              </h1>
-            </div>
-
-            {result.problemStatement ? (
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
-                  Problem Statement:
-                </span>
-                <p className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed text-justify">
-                  {result.problemStatement}
-                </p>
-              </div>
-            ) : (
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
-                  Identified Problem Context:
-                </span>
-                <p className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed text-justify">
-                  {report.whyItMatters || report.plainSummary}
-                </p>
-              </div>
-            )}
-
-            {result.ideaDescription ? (
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
-                  Proposed Solution:
-                </span>
-                <p className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed text-justify">
-                  {result.ideaDescription}
-                </p>
-              </div>
-            ) : report.elevatorPitch ? (
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
-                  Proposed Solution Overview:
-                </span>
-                <p className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed text-justify">
-                  {report.elevatorPitch}
-                </p>
-              </div>
-            ) : null}
-
-            {result.coreFeatures && (
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
-                  Submitted Core Features:
-                </span>
-                <p className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed text-justify">
-                  {result.coreFeatures}
-                </p>
-              </div>
-            )}
-          </div>
-        </header>
-
-        {/* ================= 02. EVALUATION SCORECARD & MATRIX ================= */}
-        <section className="space-y-4">
-          <div className="border-b border-slate-200 dark:border-slate-800 pb-2 flex flex-col sm:flex-row sm:items-end justify-between gap-2">
-            <div>
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400 block">
-                Section 02
-              </span>
-              <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tight">
-                Executive Evaluation Matrix
-              </h3>
-            </div>
-            <div className="sm:text-right">
-              <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Composite Score: </span>
-              <span className="text-2xl font-black text-slate-900 dark:text-white">{report.finalScore} / 100</span>
-            </div>
-          </div>
-
-          {/* Executive Evaluation Core Metrics - Minimal Editorial Layout */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 py-3.5 border-y border-slate-200 dark:border-slate-800 text-xs">
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block">
-                Recommendation
-              </span>
-              <span className="font-extrabold text-slate-900 dark:text-white mt-1 block">
+      {/* ===================================================================== */}
+      {/* BLOCK 1: EXECUTIVE VERDICT & AT-A-GLANCE SCORECARD                    */}
+      {/* ===================================================================== */}
+      <section className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-7 shadow-xs space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-5">
+          <div className="space-y-1.5">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className={`px-2.5 py-0.5 rounded-md text-xs font-bold border ${scoreTone}`}>
                 {recommendationLabel}
               </span>
-            </div>
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block">
-                Novelty
-              </span>
-              <span className="font-semibold text-slate-800 dark:text-slate-200 mt-1 block">
-                {originalityLabel} ({report.originalityScore}/10)
+              <span className="text-xs text-slate-400">
+                Ref #{result.id ? result.id.slice(0, 6).toUpperCase() : "PAF"}
               </span>
             </div>
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block">
-                Difficulty
-              </span>
-              <span className="font-semibold capitalize text-slate-800 dark:text-slate-200 mt-1 block">
-                {report.difficultyLevel}
-              </span>
-            </div>
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block">
-                Team Fit
-              </span>
-              <span className="font-semibold text-slate-800 dark:text-slate-200 mt-1 block">
-                {report.teamFit}
-              </span>
-            </div>
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block">
-                Hardware
-              </span>
-              <span className="font-semibold text-slate-800 dark:text-slate-200 mt-1 block">
-                {report.hardwareRequirement?.isSoftwareOnly ? "Software Only ($0 Tier)" : "Hardware Required"}
-              </span>
-            </div>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight leading-snug">
+              {cleanTitle}
+            </h1>
           </div>
 
-          {/* Timeline in bullet points */}
-          <div className="pt-2 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 block mb-1.5">
-              Project Timeline & Milestone Targets:
+          <div className="flex items-baseline gap-1 shrink-0 bg-slate-50 dark:bg-slate-800/60 px-4 py-2.5 rounded-xl border border-slate-200/70 dark:border-slate-800">
+            <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
+              {report.finalScore}
             </span>
-            <ul className="space-y-1 pl-4 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
-              <li className="list-disc leading-relaxed">
-                <strong>Estimated Overall Duration:</strong> {report.estimatedTimeline}
-              </li>
-              <li className="list-disc leading-relaxed">
-                <strong>Midterm Defense Milestone:</strong> Core MVP prototype & functional evaluation (Semester 7)
-              </li>
-              <li className="list-disc leading-relaxed">
-                <strong>Final Defense Milestone:</strong> Full system integration, testing & capstone documentation (Semester 8)
-              </li>
-            </ul>
+            <span className="text-xs font-semibold text-slate-400">/ 100</span>
           </div>
+        </div>
 
-          {/* Evaluation Matrix Table */}
-          <div className="pt-2 overflow-x-auto">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 block mb-2">
-              Multi-Criteria Rubric Scorecard:
+        {/* Single Clean Summary + Copy Pitch */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+              Summary & Evaluation Verdict
             </span>
-            <table className="w-full border-collapse text-xs min-w-[500px]">
-              <thead>
-                <tr className="border-b-2 border-slate-300 dark:border-slate-700 text-left text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase">
-                  <th className="py-2 pr-4">Evaluation Dimension</th>
-                  <th className="py-2 px-3 text-center w-24">Max Pts</th>
-                  <th className="py-2 px-3 text-center w-24">Awarded</th>
-                  <th className="py-2 pl-4 w-48">Score Gauge</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-                {RUBRICS.map((rubric) => {
-                  const item = report.scoringBreakdown[rubric.key] as DetailedScore
-                  const score = item ? item.score : 0
-                  const percent = Math.round((score / rubric.maxScore) * 100)
-                  return (
-                    <tr key={rubric.key} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
-                      <td className="py-2.5 pr-4 font-semibold text-slate-800 dark:text-slate-200">
-                        {rubric.title}
-                      </td>
-                      <td className="py-2.5 px-3 text-center text-slate-500 dark:text-slate-400 font-medium">
-                        {rubric.maxScore}
-                      </td>
-                      <td className="py-2.5 px-3 text-center font-bold text-slate-900 dark:text-white">
-                        {score}
-                      </td>
-                      <td className="py-2.5 pl-4">
-                        <div className="flex items-center gap-2">
-                          <div className="h-2 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-slate-800 dark:bg-slate-200 rounded-full"
-                              style={{ width: `${percent}%` }}
-                            />
-                          </div>
-                          <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 w-8 text-right">
-                            {percent}%
-                          </span>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-                <tr className="border-t-2 border-slate-900 dark:border-white font-bold bg-slate-50 dark:bg-slate-800/60">
-                  <td className="py-2.5 pr-4 uppercase text-slate-900 dark:text-white">
-                    Total Calculated Score
-                  </td>
-                  <td className="py-2.5 px-3 text-center text-slate-700 dark:text-slate-300">100</td>
-                  <td className="py-2.5 px-3 text-center text-slate-900 dark:text-white text-sm">
-                    {report.finalScore}
-                  </td>
-                  <td className="py-2.5 pl-4">
-                    <div className="flex items-center gap-2">
-                      <div className="h-2.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-slate-900 dark:bg-white rounded-full"
-                          style={{ width: `${report.finalScore}%` }}
-                        />
-                      </div>
-                      <span className="text-[11px] font-black text-slate-900 dark:text-white w-8 text-right">
-                        {report.finalScore}%
-                      </span>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <button
+              type="button"
+              onClick={handleCopyPitch}
+              className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+            >
+              {copiedPitch ? (
+                <>
+                  <Check className="h-3 w-3 text-emerald-500" />
+                  <span className="text-emerald-600 dark:text-emerald-400">Copied</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="h-3 w-3" />
+                  <span>Copy Summary</span>
+                </>
+              )}
+            </button>
           </div>
+          <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            {report.plainSummary}
+          </p>
+        </div>
 
-          {/* Strategic Summary note */}
-          <div className="pt-2 text-xs sm:text-sm text-slate-700 dark:text-slate-300 space-y-2">
-            <p className="leading-relaxed">
-              <strong className="text-slate-900 dark:text-white">Executive Summary: </strong>
-              {report.plainSummary}
+        {/* Key Metrics Strip */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+          <div className="rounded-xl border border-slate-200/70 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 p-3">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block">
+              Novelty Score
+            </span>
+            <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mt-0.5 block">
+              {report.originalityScore}/10 · {originalityLabel}
+            </span>
+          </div>
+          <div className="rounded-xl border border-slate-200/70 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 p-3">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block">
+              Complexity
+            </span>
+            <span className="text-xs sm:text-sm font-bold capitalize text-slate-900 dark:text-white mt-0.5 block">
+              {report.difficultyLevel}
+            </span>
+          </div>
+          <div className="rounded-xl border border-slate-200/70 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 p-3">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block">
+              Team Fit
+            </span>
+            <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mt-0.5 block">
+              {report.teamFit}
+            </span>
+          </div>
+          <div className="rounded-xl border border-slate-200/70 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 p-3">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block">
+              Timeline
+            </span>
+            <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mt-0.5 block">
+              {report.estimatedTimeline || "2 Semesters"}
+            </span>
+          </div>
+        </div>
+
+        {/* #1 Primary Supervisor Directive Box */}
+        {(report.goldenDirective || report.shouldBuild) && (
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-900 dark:text-white block mb-1">
+              Key Supervisor Recommendation
+            </span>
+            <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              {report.goldenDirective || report.shouldBuild}
             </p>
-            {report.goldenDirective && (
-              <p className="leading-relaxed">
-                <strong className="text-slate-900 dark:text-white">Supervisor Directive: </strong>
-                {report.goldenDirective}
-              </p>
-            )}
-            {report.shouldBuild && (
-              <p className="leading-relaxed">
-                <strong className="text-slate-900 dark:text-white">Viability Assessment: </strong>
-                {report.shouldBuild}
-              </p>
-            )}
           </div>
-        </section>
+        )}
+      </section>
 
-        {/* ================= 03. DETAILED RUBRIC FEEDBACK & ACTION ITEMS ================= */}
-        <section className="space-y-4">
-          <div className="border-b border-slate-200 dark:border-slate-800 pb-2">
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400 block">
-              Section 03
-            </span>
-            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tight">
-              Granular Rubric Feedback & Actions
-            </h3>
+      {/* ===================================================================== */}
+      {/* BLOCK 2: PAST PAF-IAST SUBMISSIONS COMPARISON                         */}
+      {/* ===================================================================== */}
+      <section className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-xs space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <div>
+            <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+              PAF-IAST Past Projects Check
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              {report.originalityReason}
+            </p>
           </div>
+        </div>
 
-          <div className="space-y-4">
-            {RUBRICS.map((rubric, idx) => {
-              const item = report.scoringBreakdown[rubric.key] as DetailedScore
-              if (!item) return null
-              return (
-                <div key={rubric.key} className="space-y-1.5 text-xs sm:text-sm">
-                  <div className="flex items-center justify-between font-bold text-slate-900 dark:text-white">
-                    <span>3.{idx + 1} {rubric.title}</span>
-                    <span className="text-[11px] font-extrabold bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
-                      {item.score}/{item.maxScore}
-                    </span>
-                  </div>
-                  <p className="text-slate-600 dark:text-slate-400 text-xs italic pl-2 border-l-2 border-slate-300 dark:border-slate-700">
-                    {item.summary}
-                  </p>
-                  {item.feedback && item.feedback.length > 0 && (
-                    <ul className="space-y-1 pl-4 text-slate-700 dark:text-slate-300 text-xs sm:text-sm">
-                      {item.feedback.map((point, fIdx) => (
-                        <li key={fIdx} className="list-disc leading-relaxed">
-                          {point.replace(/\*\*/g, "")}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                  {item.action && (
-                    <p className="text-xs font-medium text-slate-900 dark:text-white pl-4 pt-0.5">
-                      <strong>Recommended Action:</strong> {item.action}
-                    </p>
-                  )}
+        {report.similarPastIdeas && report.similarPastIdeas.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+            {report.similarPastIdeas.slice(0, 4).map((past, idx) => (
+              <div
+                key={idx}
+                className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-800/20 p-4 space-y-2"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white leading-snug">
+                    {past.title}
+                  </h3>
+                  <span className="shrink-0 rounded px-2 py-0.5 text-[10px] font-bold bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                    {past.similarityScore}/10 match
+                  </span>
                 </div>
-              )
-            })}
-          </div>
-        </section>
-
-        {/* ================= 04. BENCHMARKED PREVIOUS FYP SUBMISSIONS & NOVELTY ANALYSIS ================= */}
-        <section className="space-y-4">
-          <div className="border-b border-slate-200 dark:border-slate-800 pb-2 flex items-center justify-between">
-            <div>
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400 block">
-                Section 04
-              </span>
-              <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tight">
-                Benchmarked Previous FYP Submissions & Novelty Analysis
-              </h3>
-            </div>
-            <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
-              Novelty: {report.originalityScore} / 10
-            </span>
-          </div>
-
-          <div className="space-y-2 text-xs sm:text-sm">
-            <p className="text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
-              <strong>Novelty Verdict: </strong>{report.originalityReason}
-            </p>
-            {report.pastIdeaComparisonSummary && (
-              <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-                <strong>Benchmarking Summary: </strong>{report.pastIdeaComparisonSummary}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-3 pt-1">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 block">
-              Matching Previous FYP Submissions:
-            </span>
-            {report.similarPastIdeas && report.similarPastIdeas.length > 0 ? (
-              <div className="space-y-3">
-                {report.similarPastIdeas.map((past, idx) => (
-                  <div key={idx} className="border-l-2 border-slate-400 dark:border-slate-600 pl-3 space-y-1 text-xs sm:text-sm">
-                    <div className="flex items-center justify-between">
-                      <strong className="text-slate-900 dark:text-white text-sm">{past.title}</strong>
-                      <span className="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-700 dark:text-slate-300">
-                        Similarity: {past.similarityScore} / 10
-                      </span>
-                    </div>
-                    <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                      Batch: {past.batch} • Group {past.groupNumber} {past.supervisor ? `• Supervisor: ${past.supervisor}` : ""}
-                    </div>
-                    <p className="text-slate-700 dark:text-slate-300 text-xs">
-                      • <strong>Matching Context:</strong> {past.similarityReason}
-                    </p>
-                    <p className="text-slate-900 dark:text-white text-xs font-medium">
-                      • <strong>Key Technical Difference:</strong> {past.keyDifference}
-                    </p>
-                  </div>
-                ))}
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  Batch {past.batch} · Group {past.groupNumber}
+                  {past.supervisor ? ` · ${past.supervisor}` : ""}
+                </p>
+                <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+                  <strong className="text-slate-900 dark:text-white">How to differentiate: </strong>
+                  {past.keyDifference}
+                </p>
               </div>
-            ) : (
-              <p className="text-xs text-slate-500 dark:text-slate-400 italic pl-2">
-                No direct duplicate projects identified in PAF-IAST previous submissions.
-              </p>
-            )}
+            ))}
           </div>
-        </section>
+        ) : (
+          <p className="text-xs text-emerald-700 dark:text-emerald-400 font-medium">
+            No duplicate projects found in PAF-IAST F21/F22 archives.
+          </p>
+        )}
+      </section>
 
-        {/* ================= 05. STRENGTHS & CONCERNS ================= */}
-        <section className="space-y-4">
-          <div className="border-b border-slate-200 dark:border-slate-800 pb-2">
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400 block">
-              Section 05
-            </span>
-            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tight">
-              Strengths & Critical Risk Points
-            </h3>
-          </div>
+      {/* ===================================================================== */}
+      {/* BLOCK 3: PRACTICAL BLUEPRINT (2 CLEAN COLUMNS: BUILD vs FIX)          */}
+      {/* ===================================================================== */}
+      {!result.previewLocked ? (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Left Column: MVP Scope & Tech Stack */}
+            <section className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-xs space-y-4">
+              <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
+                <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                  What to Build (MVP Scope)
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Core deliverables for Midterm & Final Defense
+                </p>
+              </div>
 
-          <div className="grid gap-6 sm:grid-cols-2 text-xs sm:text-sm">
-            <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-2">
-                Key Strengths & Project Advantages:
-              </h4>
-              <ul className="space-y-1.5 pl-4 text-slate-700 dark:text-slate-300">
-                {report.strongPoints.map((pt, idx) => (
-                  <li key={idx} className="list-disc leading-relaxed">
-                    {pt.replace(/\*\*/g, "")}
+              <ul className="space-y-2 text-xs text-slate-700 dark:text-slate-300">
+                {report.mvpRecommendations.slice(0, 5).map((rec, idx) => (
+                  <li key={idx} className="flex items-start gap-2 leading-relaxed">
+                    <span className="mt-1 h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
+                    <span>{rec.replace(/\*\*/g, "")}</span>
                   </li>
                 ))}
               </ul>
-            </div>
 
-            <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-2">
-                Potential Concerns & Technical Pitfalls:
-              </h4>
-              <ul className="space-y-1.5 pl-4 text-slate-700 dark:text-slate-300">
-                {report.concernPoints.map((pt, idx) => (
-                  <li key={idx} className="list-disc leading-relaxed">
-                    {pt.replace(/\*\*/g, "")}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </section>
+              {report.simpleTechDirection && report.simpleTechDirection.length > 0 && (
+                <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2">
+                  <span className="text-xs font-bold text-slate-900 dark:text-white block">
+                    Recommended Tech Stack
+                  </span>
+                  <ul className="space-y-1.5 text-xs text-slate-600 dark:text-slate-400">
+                    {report.simpleTechDirection.slice(0, 4).map((tech, idx) => (
+                      <li key={idx} className="flex items-start gap-2 leading-relaxed">
+                        <span className="mt-1 h-1.5 w-1.5 rounded-full bg-slate-400 shrink-0" />
+                        <span>{tech.replace(/\*\*/g, "")}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </section>
 
-        {/* ================= 06. TARGET STAKEHOLDERS & DIFFERENTIATION ================= */}
-        <section className="space-y-4">
-          <div className="border-b border-slate-200 dark:border-slate-800 pb-2">
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400 block">
-              Section 06
-            </span>
-            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tight">
-              Stakeholders & Differentiation Strategy
-            </h3>
-          </div>
+            {/* Right Column: Risks & What to Fix */}
+            <section className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-xs space-y-4">
+              <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
+                <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                  Weak Points & How to Fix Them
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Address these before your proposal defense
+                </p>
+              </div>
 
-          <div className="space-y-3 text-xs sm:text-sm">
-            <div>
-              <span className="font-bold text-slate-900 dark:text-white block mb-0.5">Primary Target Audience:</span>
-              <p className="text-slate-700 dark:text-slate-300">{report.whoWillUseIt}</p>
-            </div>
-
-            <div>
-              <span className="font-bold text-slate-900 dark:text-white block mb-0.5">Industry Relevance & Practical Value:</span>
-              <p className="text-slate-700 dark:text-slate-300">{report.whyItMatters}</p>
-            </div>
-
-            {report.uniquenessImprovements && report.uniquenessImprovements.length > 0 && (
-              <div>
-                <span className="font-bold text-slate-900 dark:text-white block mb-1">Recommended Differentiation Strategies:</span>
-                <ul className="space-y-1 pl-4 text-slate-700 dark:text-slate-300">
-                  {report.uniquenessImprovements.map((item, idx) => (
-                    <li key={idx} className="list-disc leading-relaxed">
-                      {item.replace(/\*\*/g, "")}
+              <div className="space-y-2.5">
+                <span className="text-xs font-bold text-amber-700 dark:text-amber-400 block">
+                  Key Risks to Watch
+                </span>
+                <ul className="space-y-2 text-xs text-slate-700 dark:text-slate-300">
+                  {report.concernPoints.slice(0, 4).map((pt, idx) => (
+                    <li key={idx} className="flex items-start gap-2 leading-relaxed">
+                      <span className="mt-1 h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0" />
+                      <span>{pt.replace(/\*\*/g, "")}</span>
                     </li>
                   ))}
                 </ul>
               </div>
-            )}
-          </div>
-        </section>
 
-        {/* ================= 07. MVP SCOPE & ACTION PRIORITIES ================= */}
-        <section className="space-y-4">
-          <div className="border-b border-slate-200 dark:border-slate-800 pb-2">
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400 block">
-              Section 07
-            </span>
-            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tight">
-              MVP Boundary & Action Priorities
-            </h3>
+              {report.simpleNextSteps && report.simpleNextSteps.length > 0 && (
+                <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2">
+                  <span className="text-xs font-bold text-slate-900 dark:text-white block">
+                    Next Steps This Week
+                  </span>
+                  <ul className="space-y-1.5 text-xs text-slate-600 dark:text-slate-400">
+                    {report.simpleNextSteps.slice(0, 3).map((step, idx) => (
+                      <li key={idx} className="flex items-start gap-2 leading-relaxed">
+                        <span className="font-bold text-slate-900 dark:text-white">{idx + 1}.</span>
+                        <span>{step.replace(/\*\*/g, "")}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </section>
           </div>
 
-          <div className="space-y-3 text-xs sm:text-sm">
+          {/* ===================================================================== */}
+          {/* BLOCK 4: COLLAPSIBLE DEEP-DIVE (RUBRIC SCORES, DEFENSE Q&A, ROADMAP)  */}
+          {/* ===================================================================== */}
+          <div className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-xs divide-y divide-slate-100 dark:divide-slate-800">
+            {/* 1. Rubric Scorecard Accordion */}
             <div>
-              <h4 className="font-bold text-slate-900 dark:text-white mb-1">Core MVP Deliverables (Midterm Defense Scope):</h4>
-              <ul className="space-y-1 pl-4 text-slate-700 dark:text-slate-300">
-                {report.mvpRecommendations.map((rec, idx) => (
-                  <li key={idx} className="list-disc leading-relaxed">{rec.replace(/\*\*/g, "")}</li>
-                ))}
-              </ul>
+              <button
+                type="button"
+                onClick={() =>
+                  setActiveDeepDive(activeDeepDive === "rubric" ? null : "rubric")
+                }
+                className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition cursor-pointer"
+              >
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                    7-Criteria Rubric Breakdown ({report.finalScore}/100)
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    View individual scores and specific improvement actions per category
+                  </p>
+                </div>
+                {activeDeepDive === "rubric" ? (
+                  <ChevronUp className="h-4 w-4 text-slate-400" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-slate-400" />
+                )}
+              </button>
+
+              {activeDeepDive === "rubric" && (
+                <div className="px-6 pb-6 pt-2 space-y-3">
+                  {RUBRICS.map((rubric) => {
+                    const item = report.scoringBreakdown[rubric.key] as DetailedScore
+                    if (!item) return null
+                    const percent = Math.round((item.score / rubric.maxScore) * 100)
+                    return (
+                      <div
+                        key={rubric.key}
+                        className="rounded-xl border border-slate-200/70 dark:border-slate-800 p-3.5 space-y-1.5"
+                      >
+                        <div className="flex items-center justify-between text-xs font-bold text-slate-900 dark:text-white">
+                          <span>{rubric.title}</span>
+                          <span>
+                            {item.score} / {rubric.maxScore} ({percent}%)
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-600 dark:text-slate-400">
+                          {item.summary}
+                        </p>
+                        {item.action && (
+                          <p className="text-xs font-medium text-slate-900 dark:text-white pt-0.5">
+                            Fix: {item.action}
+                          </p>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </div>
 
-            {report.simpleNextSteps && report.simpleNextSteps.length > 0 && (
+            {/* 2. Defense Questions & Answers Accordion */}
+            {report.defenseQuestions && report.defenseQuestions.length > 0 && (
               <div>
-                <h4 className="font-bold text-slate-900 dark:text-white mb-1">Immediate 7-Day Next Steps:</h4>
-                <ul className="space-y-1 pl-4 text-slate-700 dark:text-slate-300">
-                  {report.simpleNextSteps.map((step, idx) => (
-                    <li key={idx} className="list-disc leading-relaxed">{step.replace(/\*\*/g, "")}</li>
-                  ))}
-                </ul>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setActiveDeepDive(activeDeepDive === "defense" ? null : "defense")
+                  }
+                  className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition cursor-pointer"
+                >
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                      Expected Defense Questions & Answers ({report.defenseQuestions.length})
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      Questions the PAF-IAST evaluation panel is likely to ask your team
+                    </p>
+                  </div>
+                  {activeDeepDive === "defense" ? (
+                    <ChevronUp className="h-4 w-4 text-slate-400" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-slate-400" />
+                  )}
+                </button>
+
+                {activeDeepDive === "defense" && (
+                  <div className="px-6 pb-6 pt-2 space-y-3">
+                    {report.defenseQuestions.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="rounded-xl border border-slate-200/70 dark:border-slate-800 p-3.5 space-y-1"
+                      >
+                        <p className="text-xs font-bold text-slate-900 dark:text-white">
+                          Q{idx + 1}: {item.question}
+                        </p>
+                        <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                          <strong className="text-slate-800 dark:text-slate-200">How to answer: </strong>
+                          {item.suggestedAnswerStrategy}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 3. Phased Roadmap Accordion */}
+            {report.roadmap && report.roadmap.length > 0 && (
+              <div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setActiveDeepDive(activeDeepDive === "roadmap" ? null : "roadmap")
+                  }
+                  className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition cursor-pointer"
+                >
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                      Suggested Semester Roadmap ({report.roadmap.length} Phases)
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      Step-by-step execution plan across your FYP semesters
+                    </p>
+                  </div>
+                  {activeDeepDive === "roadmap" ? (
+                    <ChevronUp className="h-4 w-4 text-slate-400" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-slate-400" />
+                  )}
+                </button>
+
+                {activeDeepDive === "roadmap" && (
+                  <div className="px-6 pb-6 pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {report.roadmap.map((phase, idx) => (
+                      <div
+                        key={idx}
+                        className="rounded-xl border border-slate-200/70 dark:border-slate-800 p-3.5 space-y-1.5"
+                      >
+                        <div className="flex items-center justify-between text-xs font-bold text-slate-900 dark:text-white">
+                          <span>
+                            Phase {idx + 1}: {phase.phase}
+                          </span>
+                          <span className="text-[11px] font-normal text-slate-400">
+                            {phase.duration}
+                          </span>
+                        </div>
+                        <ul className="space-y-1 pl-3.5 text-xs text-slate-600 dark:text-slate-400">
+                          {phase.tasks.slice(0, 3).map((t, tIdx) => (
+                            <li key={tIdx} className="list-disc">
+                              {t.replace(/\*\*/g, "")}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
-        </section>
-
-        {/* ================= 08. TECHNICAL ARCHITECTURE & RISK PROTOCOLS ================= */}
-        {!result.previewLocked ? (
-          <>
-            <section className="space-y-4">
-              <div className="border-b border-slate-200 dark:border-slate-800 pb-2">
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400 block">
-                  Section 08
-                </span>
-                <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tight">
-                  Technical Architecture & Risk Protocols
-                </h3>
-              </div>
-
-              <div className="space-y-3 text-xs sm:text-sm">
-                {report.simpleTechDirection && report.simpleTechDirection.length > 0 && (
-                  <div>
-                    <h4 className="font-bold text-slate-900 dark:text-white mb-1">Recommended Tech Stack & Architecture:</h4>
-                    <ul className="space-y-1 pl-4 text-slate-700 dark:text-slate-300">
-                      {report.simpleTechDirection.map((tech, idx) => (
-                        <li key={idx} className="list-disc leading-relaxed">{tech.replace(/\*\*/g, "")}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {report.riskReductionSteps && report.riskReductionSteps.length > 0 && (
-                  <div>
-                    <h4 className="font-bold text-slate-900 dark:text-white mb-1">Risk Mitigation Protocol:</h4>
-                    <ul className="space-y-1 pl-4 text-slate-700 dark:text-slate-300">
-                      {report.riskReductionSteps.map((risk, idx) => (
-                        <li key={idx} className="list-disc leading-relaxed">{risk.replace(/\*\*/g, "")}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            </section>
-
-            {/* ================= 09. PHASED IMPLEMENTATION TIMELINE ================= */}
-            {report.roadmap && report.roadmap.length > 0 && (
-              <section className="space-y-4">
-                <div className="border-b border-slate-200 dark:border-slate-800 pb-2">
-                  <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400 block">
-                    Section 09
-                  </span>
-                  <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tight">
-                    Phased Implementation Roadmap
-                  </h3>
-                </div>
-
-                <div className="space-y-3 text-xs sm:text-sm">
-                  {report.roadmap.map((phase, idx) => (
-                    <div key={idx} className="space-y-1">
-                      <div className="flex items-center justify-between font-bold text-slate-900 dark:text-white">
-                        <span>Phase {idx + 1}: {phase.phase}</span>
-                        <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Duration: {phase.duration}</span>
-                      </div>
-                      <ul className="space-y-1 pl-4 text-slate-700 dark:text-slate-300">
-                        {phase.tasks.map((task, taskIdx) => (
-                          <li key={taskIdx} className="list-disc leading-relaxed">{task.replace(/\*\*/g, "")}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {/* ================= 10. ELEVATOR PITCH & SUPERVISOR DEFENSE ================= */}
-            <section className="space-y-4">
-              <div className="border-b border-slate-200 dark:border-slate-800 pb-2">
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400 block">
-                  Section 10
-                </span>
-                <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tight">
-                  Pitch, Defense Guidance & Future Enhancements
-                </h3>
-              </div>
-
-              <div className="space-y-3 text-xs sm:text-sm">
-                {report.elevatorPitch && (
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <h4 className="font-bold text-slate-900 dark:text-white">Executive Elevator Pitch:</h4>
-                      <button
-                        type="button"
-                        onClick={handleCopyPitch}
-                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition"
-                      >
-                        {copiedPitch ? (
-                          <>
-                            <Check className="h-3 w-3 text-emerald-500" />
-                            <span className="text-emerald-600 dark:text-emerald-400">Copied!</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="h-3 w-3" />
-                            <span>Copy Script</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                    <p className="text-slate-700 dark:text-slate-300 leading-relaxed text-justify pl-2 border-l-2 border-slate-300 dark:border-slate-700 italic">
-                      "{report.elevatorPitch}"
-                    </p>
-                  </div>
-                )}
-
-                {report.plainLanguageAdvice && report.plainLanguageAdvice.length > 0 && (
-                  <div>
-                    <h4 className="font-bold text-slate-900 dark:text-white mb-1">Supervisor & Panel Defense Advice:</h4>
-                    <ul className="space-y-1 pl-4 text-slate-700 dark:text-slate-300">
-                      {report.plainLanguageAdvice.map((adv, idx) => (
-                        <li key={idx} className="list-disc leading-relaxed">{adv.replace(/\*\*/g, "")}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {report.defenseQuestions && report.defenseQuestions.length > 0 && (
-                  <div>
-                    <h4 className="font-bold text-slate-900 dark:text-white mb-1">
-                      Anticipated Committee Defense Questions & Strategy:
-                    </h4>
-                    <div className="space-y-2.5 pl-2 border-l-2 border-slate-300 dark:border-slate-700">
-                      {report.defenseQuestions.map((item, idx) => (
-                        <div key={idx} className="space-y-0.5">
-                          <p className="font-semibold text-slate-900 dark:text-white">
-                            Q{idx + 1}: {item.question}
-                          </p>
-                          <p className="text-slate-600 dark:text-slate-400 italic text-xs">
-                            Defense Strategy: {item.suggestedAnswerStrategy}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {report.advancedFeatureSuggestions && report.advancedFeatureSuggestions.length > 0 && (
-                  <div>
-                    <h4 className="font-bold text-slate-900 dark:text-white mb-1">Suggested Long-Term Extensions:</h4>
-                    <ul className="space-y-1 pl-4 text-slate-700 dark:text-slate-300">
-                      {report.advancedFeatureSuggestions.map((feat, idx) => (
-                        <li key={idx} className="list-disc leading-relaxed">{feat.replace(/\*\*/g, "")}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            </section>
-          </>
-        ) : (
-          <LockedPreview hiddenSections={result.hiddenSections} />
-        )}
-
-        {/* ================= OFFICIAL ACADEMIC FOOTER ================= */}
-        <footer className="pt-8 border-t-2 border-slate-900 dark:border-white mt-12 text-center text-xs space-y-1">
-          <p className="font-bold uppercase tracking-wider text-slate-900 dark:text-white">
-            Pak-Austria Fachhochschule: Institute of Applied Sciences and Technology (PAF-IAST)
-          </p>
-          <p className="text-slate-500 dark:text-slate-400 text-[11px]">
-            This validation assessment report is generated via the PAF-IAST FYP Evaluation Platform.
-          </p>
-          <p className="text-slate-400 dark:text-slate-500 text-[10px]">
-            Confidential • Prepared for Academic & Capstone Project Review
-          </p>
-        </footer>
-      </article>
+        </>
+      ) : (
+        <LockedPreview hiddenSections={result.hiddenSections} />
+      )}
     </div>
   )
 }
@@ -753,23 +591,20 @@ function ProgressTracker({
     accessMode === "student" && typeof remainingToday === "number"
       ? remainingToday
       : previewLocked
-        ? 0
-        : 1
+      ? 0
+      : 1
   const used = Math.max(0, Math.min(total, total - remaining))
 
   return (
-    <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-850 p-3.5">
-      <div className="flex items-center justify-between text-xs mb-2">
-        <span className="font-medium text-slate-700 dark:text-slate-300">Daily Validation Usage</span>
-        <span className="text-slate-500 dark:text-slate-400">
-          {remaining} of {total} remaining
-        </span>
-      </div>
-      <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${total}, minmax(0, 1fr))` }}>
+    <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 px-4 py-3 flex items-center justify-between gap-4">
+      <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
+        Daily Validations: <strong className="text-slate-900 dark:text-white">{remaining}/{total}</strong> left today
+      </span>
+      <div className="flex items-center gap-1.5 w-32">
         {Array.from({ length: total }).map((_, index) => (
           <div
             key={index}
-            className={`h-1.5 rounded-full ${
+            className={`h-1.5 flex-1 rounded-full ${
               index < used ? "bg-slate-900 dark:bg-white" : "bg-slate-200 dark:bg-slate-800"
             }`}
           />
@@ -781,15 +616,15 @@ function ProgressTracker({
 
 function LockedPreview({ hiddenSections }: { hiddenSections: string[] }) {
   return (
-    <section className="rounded-xl border border-dashed border-slate-300 dark:border-slate-700 p-8 text-center space-y-3">
+    <section className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-8 text-center space-y-3">
       <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
         <Lock className="h-4 w-4" />
       </div>
       <h3 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
-        Sign In to Unlock Full Implementation Roadmap & Defense Protocols
+        Sign In to Unlock Full MVP Blueprint & Defense Strategy
       </h3>
       <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
-        Student authentication provides complete phased schedules, tech architecture, risk mitigations, defense question strategies, and saved history.
+        Sign in with your PAF-IAST student account to view the full MVP scope, tech stack, defense Q&A, and apply this project to your FYP Workspace.
       </p>
       <div className="pt-2 flex justify-center gap-2">
         <Link
@@ -800,7 +635,7 @@ function LockedPreview({ hiddenSections }: { hiddenSections: string[] }) {
         </Link>
         <Link
           href="/login"
-          className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition"
+          className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
         >
           Log In
         </Link>
@@ -819,26 +654,26 @@ function formatRecommendation(rec: string | null | undefined): string {
       return "Approved with Refinements"
     case "NEEDS_MAJOR_REVISION":
     case "Needs Major Revision":
-      return "Major Revision Required"
+      return "Needs Revision"
     case "NOT_RECOMMENDED":
     case "Not Recommended":
       return "Not Recommended"
     default:
-      return rec || "Evaluation Completed"
+      return rec || "Evaluated"
   }
 }
 
 function formatOriginality(verdict: string | null | undefined): string {
   switch (verdict) {
     case "appears_unique":
-      return "Novel & Differentiated"
+      return "Novel"
     case "some_overlap":
-      return "Partial Past Overlap"
+      return "Partial Overlap"
     case "very_similar":
-      return "High Historical Overlap"
+      return "High Overlap"
     case "already_done":
-      return "Duplicate Work"
+      return "Duplicate"
     default:
-      return "Novelty Verified"
+      return "Verified"
   }
 }
