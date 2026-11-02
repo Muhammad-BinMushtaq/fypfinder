@@ -319,12 +319,8 @@ export class WorkspaceService {
     };
     await this.saveWorkspaceMeta(groupId, { taskMeta: nextTaskMeta });
 
-    // Notify assignee if assigned to a teammate
-    if (
-      created.assignedToId &&
-      data.creatorStudentId &&
-      created.assignedToId !== data.creatorStudentId
-    ) {
+    // Notify assignee (including self-assigned tasks for personal email record/testing)
+    if (created.assignedToId) {
       const creatorMember = group.members.find(
         (m) => m.studentId === data.creatorStudentId
       );
@@ -425,11 +421,10 @@ export class WorkspaceService {
       },
     });
 
-    // If assignee changed to a different teammate, send notification
+    // If assignee was set or changed, send notification (including self-assignment)
     if (
       updated.assignedToId &&
-      updated.assignedToId !== previousAssigneeId &&
-      updated.assignedToId !== studentId
+      updated.assignedToId !== previousAssigneeId
     ) {
       const updaterMember = task.group.members.find(
         (m: any) => m.studentId === studentId

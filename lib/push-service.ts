@@ -692,31 +692,25 @@ export async function notifyTaskAssigned(params: {
       }
     }
 
-    if (isEmailConfigured() && student.user?.email && student.user.status === 'ACTIVE') {
-      const triggerConfig = await getEmailTriggerConfig();
-      const shouldSendEmail =
-        triggerConfig.deliveryMode === 'ALWAYS_SEND' || !pushDelivered;
+    if (isEmailConfigured() && student.user?.email) {
+      const { subject, html } = buildTaskAssignedEmail({
+        toName: student.name,
+        assignedByName: params.assignedByName,
+        projectName: params.projectName,
+        taskTitle: params.taskTitle,
+        taskDescription: params.taskDescription,
+        dueDate: params.dueDate,
+        priority: params.priority,
+      });
 
-      if (shouldSendEmail) {
-        const { subject, html } = buildTaskAssignedEmail({
-          toName: student.name,
-          assignedByName: params.assignedByName,
-          projectName: params.projectName,
-          taskTitle: params.taskTitle,
-          taskDescription: params.taskDescription,
-          dueDate: params.dueDate,
-          priority: params.priority,
-        });
-
-        await sendSingleEmail({
-          to: student.user.email,
-          subject,
-          html,
-          studentId: student.id,
-          category: 'TRANSACTIONAL',
-          templateKey: 'taskAssigned',
-        });
-      }
+      await sendSingleEmail({
+        to: student.user.email,
+        subject,
+        html,
+        studentId: student.id,
+        category: 'TRANSACTIONAL',
+        templateKey: 'taskAssigned',
+      });
     }
   } catch (error) {
     logger.error('Error sending task assigned notification:', error);

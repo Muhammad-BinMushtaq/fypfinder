@@ -32,7 +32,6 @@ import {
   AlertTriangle,
   Search,
   Crown,
-  LogOut,
   UserMinus,
   UserPlus,
   ExternalLink,
@@ -42,8 +41,7 @@ import {
   GraduationCap,
   Plus,
   Mail,
-  CheckSquare,
-  Calendar,
+  FolderKanban,
 } from "lucide-react";
 
 export default function FYPManagementPage() {
@@ -62,8 +60,10 @@ export default function FYPManagementPage() {
   const { data: workspaceMeta } = useWorkspaceMeta(group?.id || "", isInGroup);
   const updateWorkspaceMeta = useUpdateWorkspaceMeta(group?.id || "");
 
-  // Clean 3-tab navigation: Tasks (default when in group), Milestones, Team & Settings
-  const [activeTab, setActiveTab] = useState<"tasks" | "milestones" | "team">("tasks");
+  // Clean 2-Tab Navigation:
+  // 1. "workspace" (Visual Editable Milestones + Sticky-Note Task Board together!)
+  // 2. "team" (Team Members, GitHub-Style Collaborator Invite & Email, and Settings)
+  const [activeTab, setActiveTab] = useState<"workspace" | "team">("workspace");
   const [isEditingProject, setIsEditingProject] = useState(false);
 
   // Project & Links edit state
@@ -254,12 +254,12 @@ export default function FYPManagementPage() {
       </div>
 
       {/* ===================================================================== */}
-      {/* ACTIVE GROUP WORKSPACE (Minimalist Linear / GitHub Projects Layout)   */}
+      {/* ACTIVE GROUP WORKSPACE                                                */}
       {/* ===================================================================== */}
       {isInGroup && group ? (
         <div className="space-y-6">
           {/* 1. Compact Project Header & Resource Bar */}
-          <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-5">
+          <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-5 shadow-xs">
             {!isEditingProject ? (
               <div className="space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
@@ -286,7 +286,7 @@ export default function FYPManagementPage() {
                       <button
                         type="button"
                         onClick={() => setActiveTab("team")}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-semibold hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-semibold hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors cursor-pointer"
                       >
                         <UserPlus className="w-3.5 h-3.5" />
                         Add Collaborator
@@ -295,7 +295,7 @@ export default function FYPManagementPage() {
                     <button
                       type="button"
                       onClick={handleStartEditProject}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
                       Edit Project & Links
@@ -338,7 +338,7 @@ export default function FYPManagementPage() {
                     <button
                       type="button"
                       onClick={handleStartEditProject}
-                      className="inline-flex items-center gap-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                      className="inline-flex items-center gap-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
                     >
                       <GitBranch className="w-3.5 h-3.5" />
                       + Add GitHub Repo
@@ -360,7 +360,7 @@ export default function FYPManagementPage() {
                     <button
                       type="button"
                       onClick={handleStartEditProject}
-                      className="inline-flex items-center gap-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                      className="inline-flex items-center gap-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
                     >
                       <FileText className="w-3.5 h-3.5" />
                       + Add Docs / Drive
@@ -382,7 +382,7 @@ export default function FYPManagementPage() {
                     <button
                       type="button"
                       onClick={handleStartEditProject}
-                      className="inline-flex items-center gap-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                      className="inline-flex items-center gap-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
                     >
                       <Globe className="w-3.5 h-3.5" />
                       + Add Demo Link
@@ -537,38 +537,25 @@ export default function FYPManagementPage() {
             )}
           </div>
 
-          {/* 2. Clean Underline Navigation Tabs */}
+          {/* 2. Clean 2-Tab Navigation: Workspace (Milestones + Task Board) & Team/Collaborators */}
           <div className="flex items-center gap-6 border-b border-slate-200 dark:border-slate-800">
             <button
               type="button"
-              onClick={() => setActiveTab("tasks")}
-              className={`inline-flex items-center gap-2 pb-3 text-xs sm:text-sm font-semibold border-b-2 transition-colors ${
-                activeTab === "tasks"
+              onClick={() => setActiveTab("workspace")}
+              className={`inline-flex items-center gap-2 pb-3 text-xs sm:text-sm font-semibold border-b-2 transition-colors cursor-pointer ${
+                activeTab === "workspace"
                   ? "border-slate-900 text-slate-900 dark:border-white dark:text-white"
                   : "border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
               }`}
             >
-              <CheckSquare className="w-4 h-4" />
-              Tasks & Deliverables
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab("milestones")}
-              className={`inline-flex items-center gap-2 pb-3 text-xs sm:text-sm font-semibold border-b-2 transition-colors ${
-                activeTab === "milestones"
-                  ? "border-slate-900 text-slate-900 dark:border-white dark:text-white"
-                  : "border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
-              }`}
-            >
-              <Calendar className="w-4 h-4" />
-              Academic Milestones
+              <FolderKanban className="w-4 h-4" />
+              Workspace (Milestones & Task Board)
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab("team")}
-              className={`inline-flex items-center gap-2 pb-3 text-xs sm:text-sm font-semibold border-b-2 transition-colors ${
+              className={`inline-flex items-center gap-2 pb-3 text-xs sm:text-sm font-semibold border-b-2 transition-colors cursor-pointer ${
                 activeTab === "team"
                   ? "border-slate-900 text-slate-900 dark:border-white dark:text-white"
                   : "border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
@@ -582,25 +569,24 @@ export default function FYPManagementPage() {
             </button>
           </div>
 
-          {/* TAB 1: TASKS & DELIVERABLES */}
-          {activeTab === "tasks" && (
-            <KanbanBoard
-              groupId={group.id}
-              members={group.members.map((m) => ({
-                id: m.id,
-                name: m.name,
-                profilePicture: m.profilePicture,
-              }))}
-              previewMode={false}
-            />
+          {/* TAB 1: WORKSPACE (Visual Editable Milestones + Sticky-Note Task Board) */}
+          {activeTab === "workspace" && (
+            <div className="space-y-6">
+              <DeadlineTimeline groupId={group.id} previewMode={false} />
+
+              <KanbanBoard
+                groupId={group.id}
+                members={group.members.map((m) => ({
+                  id: m.id,
+                  name: m.name,
+                  profilePicture: m.profilePicture,
+                }))}
+                previewMode={false}
+              />
+            </div>
           )}
 
-          {/* TAB 2: ACADEMIC MILESTONES */}
-          {activeTab === "milestones" && (
-            <DeadlineTimeline groupId={group.id} previewMode={false} />
-          )}
-
-          {/* TAB 3: TEAM, COLLABORATORS & SETTINGS */}
+          {/* TAB 2: TEAM, COLLABORATORS & SETTINGS */}
           {activeTab === "team" && (
             <div className="space-y-6">
               {/* Direct Collaborator Invite Box (GitHub-style) */}
@@ -681,7 +667,7 @@ export default function FYPManagementPage() {
                                 type="button"
                                 onClick={() => handleInviteStudent(candidate.id)}
                                 disabled={inviteCollaborator.isPending}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-semibold hover:bg-slate-800 dark:hover:bg-slate-100 disabled:opacity-50"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-semibold hover:bg-slate-800 dark:hover:bg-slate-100 disabled:opacity-50 cursor-pointer"
                               >
                                 <UserPlus className="w-3.5 h-3.5" />
                                 Invite & Email
@@ -805,7 +791,7 @@ export default function FYPManagementPage() {
                               type="button"
                               onClick={() => resendInvite.mutate(inv.requestId)}
                               disabled={resendInvite.isPending}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-[11px] font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50"
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-[11px] font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 cursor-pointer"
                             >
                               <Mail className="w-3 h-3" />
                               Resend Email
@@ -814,7 +800,7 @@ export default function FYPManagementPage() {
                               type="button"
                               onClick={() => cancelInvite.mutate(inv.requestId)}
                               disabled={cancelInvite.isPending}
-                              className="px-2 py-1 rounded-md text-[11px] font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30 disabled:opacity-50"
+                              className="px-2 py-1 rounded-md text-[11px] font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30 disabled:opacity-50 cursor-pointer"
                             >
                               Withdraw
                             </button>
