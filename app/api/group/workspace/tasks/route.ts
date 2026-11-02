@@ -4,11 +4,19 @@ import { UserRole } from "@/lib/generated/prisma/enums";
 import { WorkspaceService } from "@/modules/workspace/workspace.service";
 import prisma from "@/lib/db";
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     const user = await requireRole(UserRole.STUDENT);
-    const student = await prisma.student.findUnique({ where: { userId: user.id }, select: { id: true } });
-    if (!student) return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
+    const student = await prisma.student.findUnique({
+      where: { userId: user.id },
+      select: { id: true },
+    });
+    if (!student) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
 
     const member = await prisma.fYPGroupMember.findUnique({
       where: { studentId: student.id },
@@ -16,21 +24,35 @@ export async function GET(req: NextRequest) {
     });
 
     if (!member) {
-      return NextResponse.json({ success: false, message: "No group found" }, { status: 404 });
+      return NextResponse.json(
+        { success: false, message: "No group found" },
+        { status: 404 }
+      );
     }
 
     const tasks = await WorkspaceService.getGroupTasks(member.groupId);
     return NextResponse.json({ success: true, data: tasks });
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: 500 }
+    );
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
     const user = await requireRole(UserRole.STUDENT);
-    const student = await prisma.student.findUnique({ where: { userId: user.id }, select: { id: true } });
-    if (!student) return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
+    const student = await prisma.student.findUnique({
+      where: { userId: user.id },
+      select: { id: true },
+    });
+    if (!student) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
 
     const member = await prisma.fYPGroupMember.findUnique({
       where: { studentId: student.id },
@@ -38,11 +60,10 @@ export async function POST(req: NextRequest) {
     });
 
     if (!member) {
-      return NextResponse.json({ success: false, message: "No group found" }, { status: 404 });
-    }
-
-    if (!member.group.isLocked) {
-      return NextResponse.json({ success: false, message: "Group must be locked" }, { status: 403 });
+      return NextResponse.json(
+        { success: false, message: "No group found" },
+        { status: 404 }
+      );
     }
 
     const body = await req.json();
@@ -51,10 +72,16 @@ export async function POST(req: NextRequest) {
       description: body.description,
       assignedToId: body.assignedToId,
       dueDate: body.dueDate ? new Date(body.dueDate) : undefined,
+      priority: body.priority,
+      deliverableUrl: body.deliverableUrl,
+      creatorStudentId: student.id,
     });
 
     return NextResponse.json({ success: true, data: task });
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: 500 }
+    );
   }
 }

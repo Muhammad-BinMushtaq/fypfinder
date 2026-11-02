@@ -566,6 +566,64 @@ export function buildWelcomeEmail(params: {
   }
 }
 
+export function buildTaskAssignedEmail(params: {
+  toName: string
+  assignedByName: string
+  projectName: string
+  taskTitle: string
+  taskDescription?: string | null
+  dueDate?: string | null
+  priority?: string | null
+}): { subject: string; html: string } {
+  const appUrl = getAppBaseUrl()
+  const toFullName = params.toName.trim()
+  const assignerFullName = params.assignedByName.trim()
+
+  const subject = `New FYP task assigned: ${params.taskTitle.trim()}`
+
+  const dueStr = params.dueDate
+    ? new Date(params.dueDate).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
+    : "No due date set"
+
+  const bodyHtml = `
+    <p style="margin: 0 0 14px 0; color: #0f172a; font-size: 15px; font-weight: 600;">
+      Hi ${escapeHtml(toFullName)},
+    </p>
+    <p style="margin: 0 0 14px 0; color: #334155; font-size: 14px; line-height: 1.6;">
+      <strong>${escapeHtml(assignerFullName)}</strong> assigned a task to you in your FYP group (<strong>${escapeHtml(
+        params.projectName || "FYP Project"
+      )}</strong>):
+    </p>
+    <div style="margin: 0 0 16px 0; padding: 14px 16px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;">
+      <p style="margin: 0 0 6px 0; color: #0f172a; font-size: 14px; font-weight: 600;">
+        ${escapeHtml(params.taskTitle.trim())}
+      </p>
+      ${
+        params.taskDescription?.trim()
+          ? `<p style="margin: 0 0 8px 0; color: #475569; font-size: 13px; line-height: 1.5;">${escapeHtml(
+              params.taskDescription.trim()
+            )}</p>`
+          : ""
+      }
+      <p style="margin: 0; color: #64748b; font-size: 12px;">
+        Due: <strong>${escapeHtml(dueStr)}</strong>${
+    params.priority ? ` &middot; Priority: <strong>${escapeHtml(params.priority)}</strong>` : ""
+  }
+      </p>
+    </div>
+    ${buildCtaButton("View Task in Workspace", `${appUrl}/dashboard/fyp`)}
+  `
+
+  return {
+    subject,
+    html: wrapEmailLayout({ bodyHtml }),
+  }
+}
+
 export function buildTransactionalPreviewByKey(
   key: TransactionalTriggerKey
 ): { subject: string; html: string } {

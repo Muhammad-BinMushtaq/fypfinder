@@ -2,13 +2,15 @@
 /**
  * My Group Hook
  * -------------
- * React Query hook for fetching user's FYP group.
+ * React Query hooks for fetching & managing user's FYP group, workspace links,
+ * and GitHub-style collaborator invitations.
  */
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
+import type { GroupWorkspaceMeta } from "@/services/workspace.service";
 
-interface GroupMember {
+export interface GroupMember {
   id: string;
   name: string;
   department: string;
@@ -18,44 +20,72 @@ interface GroupMember {
   joinedAt?: string;
 }
 
-interface MyGroup {
+export interface PendingGroupInvite {
+  requestId: string;
+  toStudentId: string;
+  name: string;
+  email: string;
+  department: string;
+  semester: number;
+  profilePicture: string | null;
+  invitedByName: string;
+  createdAt: string;
+}
+
+export interface InviteSearchCandidate {
+  id: string;
+  name: string;
+  email: string;
+  department: string;
+  semester: number;
+  profilePicture: string | null;
+  memberCount: number;
+  isPending: boolean;
+  isFull: boolean;
+  canInvite: boolean;
+}
+
+export interface MyGroup {
   id: string;
   projectName: string | null;
   description: string | null;
   isLocked: boolean;
   createdAt: string;
   currentStudentId?: string;
+  workspaceMeta?: GroupWorkspaceMeta;
+  pendingInvites?: PendingGroupInvite[];
   members: GroupMember[];
 }
 
 async function fetchMyGroup(): Promise<MyGroup | null> {
   const res = await fetch("/api/group/get-my-group");
   const data = await res.json();
-  
+
   if (!res.ok) {
     throw new Error(data.message || "Failed to fetch group");
   }
-  
+
   return data.data;
 }
 
-// 🆕 Update group project details
-async function updateGroupProjectApi(payload: { projectName: string; description?: string }) {
+async function updateGroupProjectApi(payload: {
+  projectName: string;
+  description?: string;
+}) {
   const res = await fetch("/api/group/update-project", {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
   const data = await res.json();
-  
+
   if (!res.ok) {
     throw new Error(data.message || "Failed to update project");
   }
-  
+
   return data.data;
 }
 
-// 🆕 Update visibility preference
 async function updateGroupVisibilityApi(showGroupOnProfile: boolean) {
   const res = await fetch("/api/group/update-visibility", {
     method: "PUT",
@@ -63,15 +93,14 @@ async function updateGroupVisibilityApi(showGroupOnProfile: boolean) {
     body: JSON.stringify({ showGroupOnProfile }),
   });
   const data = await res.json();
-  
+
   if (!res.ok) {
     throw new Error(data.message || "Failed to update visibility");
   }
-  
+
   return data.data;
 }
 
-// 🆕 Remove member / Leave group
 async function removeGroupMemberApi(targetStudentId: string) {
   const res = await fetch("/api/group/remove-member", {
     method: "POST",
@@ -87,7 +116,6 @@ async function removeGroupMemberApi(targetStudentId: string) {
   return data.data;
 }
 
-// 🆕 Lock group
 async function lockGroupApi() {
   const res = await fetch("/api/group/lock", {
     method: "POST",
@@ -102,6 +130,19 @@ async function lockGroupApi() {
   return data.data;
 }
 
+export async function searchCollaboratorsApi(
+  query: string
+): Promise<InviteSearchCandidate[]> {
+  const res = await fetch(
+    `/api/group/invite-search?q=${encodeURIComponent(query)}`
+  );
+  const data = await res.json();
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || "Failed to search students");
+  }
+  return data.data || [];
+}
+
 export const groupKeys = {
   all: ["group"] as const,
   myGroup: () => [...groupKeys.all, "my-group"] as const,
@@ -111,7 +152,7 @@ export function useMyGroup() {
   const query = useQuery({
     queryKey: groupKeys.myGroup(),
     queryFn: fetchMyGroup,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true,
   });
 
@@ -126,14 +167,13 @@ export function useMyGroup() {
   };
 }
 
-// 🆕 Hook for updating group project details
 export function useUpdateGroupProject() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: updateGroupProjectApi,
     onSuccess: () => {
-      toast.success("Project details updated successfully");
+      toast.success("Project details updated");
       queryClient.invalidateQueries({ queryKey: groupKeys.myGroup() });
     },
     onError: (error: Error) => {
@@ -142,7 +182,6 @@ export function useUpdateGroupProject() {
   });
 }
 
-// 🆕 Hook for updating visibility preference
 export function useUpdateGroupVisibility() {
   const queryClient = useQueryClient();
 
@@ -162,12 +201,12 @@ export function useUpdateGroupVisibility() {
   });
 }
 
-// 🆕 Hook for leaving group
 export function useLeaveGroup() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (targetStudentId: string) => removeGroupMemberApi(targetStudentId),
+    mutationFn: (targetStudentId: string) =>
+      removeGroupMemberApi(targetStudentId),
     onSuccess: () => {
       toast.success("You have left the FYP group");
       queryClient.invalidateQueries({ queryKey: groupKeys.myGroup() });
@@ -180,12 +219,12 @@ export function useLeaveGroup() {
   });
 }
 
-// 🆕 Hook for leader removing a member
 export function useRemoveMember() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (targetStudentId: string) => removeGroupMemberApi(targetStudentId),
+    mutationFn: (targetStudentId: string) =>
+      removeGroupMemberApi(targetStudentId),
     onSuccess: () => {
       toast.success("Member removed from FYP group");
       queryClient.invalidateQueries({ queryKey: groupKeys.myGroup() });
@@ -198,14 +237,13 @@ export function useRemoveMember() {
   });
 }
 
-// 🆕 Hook for locking group
 export function useLockGroup() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: lockGroupApi,
     onSuccess: () => {
-      toast.success("FYP group locked and finalized! Workspace is now active.");
+      toast.success("FYP group locked and finalized");
       queryClient.invalidateQueries({ queryKey: groupKeys.myGroup() });
       queryClient.invalidateQueries({ queryKey: ["student"] });
       queryClient.invalidateQueries({ queryKey: ["profile"] });
@@ -216,3 +254,66 @@ export function useLockGroup() {
   });
 }
 
+export function useCreateInitialGroup() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: {
+      projectName: string;
+      description?: string;
+    }) => {
+      const res = await fetch("/api/group/invite-search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "CREATE_GROUP",
+          projectName: payload.projectName,
+          description: payload.description,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to initialize project");
+      }
+      return data.data;
+    },
+    onSuccess: () => {
+      toast.success("FYP project workspace initialized");
+      queryClient.invalidateQueries({ queryKey: groupKeys.myGroup() });
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to initialize project");
+    },
+  });
+}
+
+export function useInviteCollaborator() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: { toStudentId: string; reason?: string }) => {
+      const res = await fetch("/api/group/invite-search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "INVITE",
+          toStudentId: payload.toStudentId,
+          reason: payload.reason,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to send invite");
+      }
+      return data.data;
+    },
+    onSuccess: () => {
+      toast.success("Partner invitation sent");
+      queryClient.invalidateQueries({ queryKey: groupKeys.myGroup() });
+      queryClient.invalidateQueries({ queryKey: ["requests"] });
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to send invite");
+    },
+  });
+}

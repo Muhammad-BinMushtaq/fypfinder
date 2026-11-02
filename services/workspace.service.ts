@@ -1,4 +1,28 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { groupKeys } from "@/hooks/group/useMyGroup";
+
+export type TaskPriority = "LOW" | "MEDIUM" | "HIGH";
+export type MilestoneStatus = "UPCOMING" | "IN_PROGRESS" | "COMPLETED";
+export type SupervisorStatus = "NOT_DECIDED" | "APPROACHED" | "CONFIRMED";
+
+export interface FYPMilestoneItem {
+  id: string;
+  title: string;
+  dueDate: string | null;
+  status: MilestoneStatus;
+  note: string | null;
+}
+
+export interface GroupWorkspaceMeta {
+  groupId: string;
+  repoUrl: string | null;
+  docsUrl: string | null;
+  demoUrl: string | null;
+  supervisorName: string | null;
+  supervisorStatus: SupervisorStatus;
+  domainTrack: string | null;
+  milestones: FYPMilestoneItem[];
+}
 
 export interface FYPTask {
   id: string;
@@ -8,6 +32,9 @@ export interface FYPTask {
   status: "TODO" | "IN_PROGRESS" | "REVIEW" | "DONE";
   assignedToId: string | null;
   dueDate: string | null;
+  priority?: TaskPriority;
+  deliverableUrl?: string | null;
+  createdById?: string | null;
   createdAt: string;
   updatedAt: string;
   assignedTo: {
@@ -35,7 +62,14 @@ export const useGroupTasks = (groupId: string, enabled = true) => {
 export const useCreateTask = (groupId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: { title: string; description?: string; assignedToId?: string; dueDate?: string }) => {
+    mutationFn: async (data: {
+      title: string;
+      description?: string;
+      assignedToId?: string;
+      dueDate?: string;
+      priority?: TaskPriority;
+      deliverableUrl?: string | null;
+    }) => {
       const res = await fetch("/api/group/workspace/tasks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -46,7 +80,9 @@ export const useCreateTask = (groupId: string) => {
       return json.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["workspace", "tasks", groupId] });
+      queryClient.invalidateQueries({
+        queryKey: ["workspace", "tasks", groupId],
+      });
     },
   });
 };
@@ -54,7 +90,16 @@ export const useCreateTask = (groupId: string) => {
 export const useUpdateTask = (groupId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: { taskId: string; title?: string; description?: string; status?: string; assignedToId?: string | null; dueDate?: string | null }) => {
+    mutationFn: async (data: {
+      taskId: string;
+      title?: string;
+      description?: string;
+      status?: string;
+      assignedToId?: string | null;
+      dueDate?: string | null;
+      priority?: TaskPriority;
+      deliverableUrl?: string | null;
+    }) => {
       const res = await fetch(`/api/group/workspace/tasks/${data.taskId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -65,7 +110,9 @@ export const useUpdateTask = (groupId: string) => {
       return json.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["workspace", "tasks", groupId] });
+      queryClient.invalidateQueries({
+        queryKey: ["workspace", "tasks", groupId],
+      });
     },
   });
 };
@@ -74,13 +121,54 @@ export const useDeleteTask = (groupId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (taskId: string) => {
-      const res = await fetch(`/api/group/workspace/tasks/${taskId}`, { method: "DELETE" });
+      const res = await fetch(`/api/group/workspace/tasks/${taskId}`, {
+        method: "DELETE",
+      });
       const json = await res.json();
       if (!json.success) throw new Error(json.message);
       return json.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["workspace", "tasks", groupId] });
+      queryClient.invalidateQueries({
+        queryKey: ["workspace", "tasks", groupId],
+      });
+    },
+  });
+};
+
+export const useWorkspaceMeta = (groupId: string, enabled = true) => {
+  return useQuery<GroupWorkspaceMeta>({
+    queryKey: ["workspace", "meta", groupId],
+    queryFn: async () => {
+      const res = await fetch("/api/group/workspace/meta");
+      const json = await res.json();
+      if (!json.success) throw new Error(json.message);
+      return json.data;
+    },
+    enabled: !!groupId && enabled,
+  });
+};
+
+export const useUpdateWorkspaceMeta = (groupId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (partial: Partial<GroupWorkspaceMeta>) => {
+      const res = await fetch("/api/group/workspace/meta", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(partial),
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.message);
+      return json.data as GroupWorkspaceMeta;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["workspace", "meta", groupId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: groupKeys.myGroup(),
+      });
     },
   });
 };

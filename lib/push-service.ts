@@ -28,6 +28,7 @@ import {
   buildPartnerRequestEmail,
   buildRequestAcceptedEmail,
   buildFeedbackUpdateEmail,
+  buildTaskAssignedEmail,
 } from './email-templates';
 import logger from './logger';
 
@@ -613,5 +614,111 @@ export async function notifyFeedbackUpdate(
     }
   } catch (error) {
     logger.error('Error sending feedback update notification:', error);
+  }
+}
+
+/**
+ * Send Web Push + Automatic Transactional Email when a teammate is assigned a task in the FYP Workspace.
+ */
+export async function notifyTaskAssigned(params: {
+  toStudentId: string;
+  assignedByName: string;
+  projectName: string;
+  taskTitle: string;
+  taskDescription?: string | null;
+  dueDate?: string | null;
+  priority?: string | null;
+}): Promise<void> {
+  if (!isWebPushConfigured() && !isEmailConfigured()) {
+    return;
+  }
+
+  try {
+    const student = await prisma.student.findUnique({
+      where: { id: params.toStudentId },
+      select: {
+        id: true,
+        name: true,
+        userId: true,
+        user: {
+          select: {
+            email: true,
+            status: true,
+          },
+        },
+      },
+    });
+
+    if (!student) return;
+
+    let pushDelivered = false;
+
+    if (isWebPushConfigured()) {
+      const subscriptions = await prisma.pushSubscription.findMany({
+        where: { userId: student.userId },
+        select: {
+          id: true,
+          endpoint: true,
+          p256dh: true,
+          auth: true,
+        },
+      });
+
+      if (subscriptions.length > 0) {
+        const payload: NotificationPayload = {
+          title: 'New FYP Task Assigned',
+          body: `${params.assignedByName} assigned "${params.taskTitle}" to you`,
+          icon: '/icons/icon-192x192.png',
+          badge: '/icons/icon-96x96.png',
+          tag: `task-assigned-${Date.now()}`,
+          data: {
+            url: '/dashboard/fyp',
+            type: 'partner_request',
+          },
+          actions: [{ action: 'view', title: 'Open Workspace' }],
+        };
+
+        const formattedSubs = subscriptions.map(sub => ({
+          id: sub.id,
+          endpoint: sub.endpoint,
+          keys: {
+            p256dh: sub.p256dh,
+            auth: sub.auth,
+          },
+        }));
+
+        const results = await sendPushNotificationToMany(formattedSubs, payload);
+        pushDelivered = results.some(r => r.success);
+      }
+    }
+
+    if (isEmailConfigured() && student.user?.email && student.user.status === 'ACTIVE') {
+      const triggerConfig = await getEmailTriggerConfig();
+      const shouldSendEmail =
+        triggerConfig.deliveryMode === 'ALWAYS_SEND' || !pushDelivered;
+
+      if (shouldSendEmail) {
+        const { subject, html } = buildTaskAssignedEmail({
+          toName: student.name,
+          assignedByName: params.assignedByName,
+          projectName: params.projectName,
+          taskTitle: params.taskTitle,
+          taskDescription: params.taskDescription,
+          dueDate: params.dueDate,
+          priority: params.priority,
+        });
+
+        await sendSingleEmail({
+          to: student.user.email,
+          subject,
+          html,
+          studentId: student.id,
+          category: 'TRANSACTIONAL',
+          templateKey: 'taskAssigned',
+        });
+      }
+    }
+  } catch (error) {
+    logger.error('Error sending task assigned notification:', error);
   }
 }

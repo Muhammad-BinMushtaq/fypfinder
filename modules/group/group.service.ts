@@ -1,10 +1,10 @@
 import prisma from "@/lib/db"
+import { RequestStatus, RequestType, UserStatus } from "@/lib/generated/prisma/enums"
+import { WorkspaceService } from "@/modules/workspace/workspace.service"
 
-
-//   Get the FYP group of a student (if exists)
-
+// Get the FYP group of a student (if exists), enriched with workspace meta and pending invites
 export async function getMyGroup(studentId: string) {
-    // 1️⃣ Find membership
+    // 1. Find membership
     const membership = await prisma.fYPGroupMember.findUnique({
         where: { studentId },
         include: {
@@ -29,14 +29,48 @@ export async function getMyGroup(studentId: string) {
         },
     })
 
-    // 2️⃣ No group case
+    // 2. No group case
     if (!membership) {
         return null
     }
 
     const group = membership.group
+    const memberIds = group.members.map((m) => m.student.id)
 
-    // 3️⃣ Shape clean response
+    // 3. Fetch workspace metadata & pending outgoing partner requests from any member of this group
+    const [workspaceMeta, pendingRequests] = await Promise.all([
+        WorkspaceService.getWorkspaceMeta(group.id),
+        prisma.request.findMany({
+            where: {
+                fromStudentId: { in: memberIds },
+                type: RequestType.PARTNER,
+                status: RequestStatus.PENDING,
+            },
+            orderBy: { createdAt: "desc" },
+            include: {
+                toStudent: {
+                    select: {
+                        id: true,
+                        name: true,
+                        department: true,
+                        currentSemester: true,
+                        profilePicture: true,
+                        user: {
+                            select: { email: true },
+                        },
+                    },
+                },
+                fromStudent: {
+                    select: {
+                        id: true,
+                        name: true,
+                    },
+                },
+            },
+        }),
+    ])
+
+    // 4. Shape clean response
     return {
         id: group.id,
         projectName: group.projectName,
@@ -44,31 +78,216 @@ export async function getMyGroup(studentId: string) {
         isLocked: group.isLocked,
         createdAt: group.createdAt,
         currentStudentId: studentId,
-        members: group.members.map((m: { joinedAt: Date; student: { id: string; name: string; department: string; currentSemester: number; profilePicture: string | null; showGroupOnProfile: boolean } }) => ({
-            id: m.student.id,
-            name: m.student.name,
-            department: m.student.department,
-            semester: m.student.currentSemester,
-            profilePicture: m.student.profilePicture,
-            showGroupOnProfile: m.student.showGroupOnProfile,
-            joinedAt: m.joinedAt,
+        workspaceMeta,
+        pendingInvites: pendingRequests.map((req) => ({
+            requestId: req.id,
+            toStudentId: req.toStudent.id,
+            name: req.toStudent.name,
+            email: req.toStudent.user?.email || "",
+            department: req.toStudent.department,
+            semester: req.toStudent.currentSemester,
+            profilePicture: req.toStudent.profilePicture,
+            invitedByName: req.fromStudent.name,
+            createdAt: req.createdAt,
         })),
+        members: group.members.map(
+            (m: {
+                joinedAt: Date
+                student: {
+                    id: string
+                    name: string
+                    department: string
+                    currentSemester: number
+                    profilePicture: string | null
+                    showGroupOnProfile: boolean
+                }
+            }) => ({
+                id: m.student.id,
+                name: m.student.name,
+                department: m.student.department,
+                semester: m.student.currentSemester,
+                profilePicture: m.student.profilePicture,
+                showGroupOnProfile: m.student.showGroupOnProfile,
+                joinedAt: m.joinedAt,
+            })
+        ),
     }
 }
 
+/**
+ * Initialize a new FYP Project Group with the current student as founding Group Leader.
+ * Allows students to set up their project title, repo link, milestones, and invite collaborators
+ * directly from /dashboard/fyp.
+ */
+export async function createInitialGroup(
+    studentId: string,
+    projectName: string,
+    description?: string
+) {
+    const existingMembership = await prisma.fYPGroupMember.findUnique({
+        where: { studentId },
+    })
 
+    if (existingMembership) {
+        throw new Error("You are already part of an FYP group")
+    }
+
+    const trimmedName = (projectName || "").trim()
+    if (!trimmedName) {
+        throw new Error("Project name is required")
+    }
+    if (trimmedName.length > 100) {
+        throw new Error("Project name must be 100 characters or less")
+    }
+
+    const group = await prisma.$transaction(async (tx) => {
+        const createdGroup = await tx.fYPGroup.create({
+            data: {
+                projectName: trimmedName,
+                description: description?.trim() || null,
+            },
+        })
+
+        await tx.fYPGroupMember.create({
+            data: {
+                groupId: createdGroup.id,
+                studentId,
+            },
+        })
+
+        return createdGroup
+    })
+
+    return getMyGroup(studentId)
+}
 
 /**
- * Lock an existing FYP group
- * Rules:
- * - Group must exist
- * - Group must NOT already be locked
- * - Student must be a member
- * - Group must have valid member count (2 or 3)
+ * GitHub-style collaborator search for inviting teammates directly from /dashboard/fyp.
+ * Searches active, non-graduated students in the same semester by name or email.
  */
+export async function searchStudentsForGroupInvite(
+    requesterStudentId: string,
+    query: string
+) {
+    const requester = await prisma.student.findUnique({
+        where: { id: requesterStudentId },
+        select: {
+            id: true,
+            currentSemester: true,
+            department: true,
+            isGraduated: true,
+            groupMember: {
+                select: {
+                    groupId: true,
+                    group: {
+                        select: {
+                            members: { select: { studentId: true } },
+                        },
+                    },
+                },
+            },
+        },
+    })
+
+    if (!requester) {
+        throw new Error("Student not found")
+    }
+
+    const q = (query || "").trim()
+    const groupMemberIds =
+        requester.groupMember?.group?.members.map((m) => m.studentId) || [
+            requesterStudentId,
+        ]
+
+    const where: any = {
+        id: { notIn: groupMemberIds },
+        currentSemester: requester.currentSemester,
+        isGraduated: false,
+        user: {
+            status: UserStatus.ACTIVE,
+        },
+    }
+
+    if (q.length > 0) {
+        where.OR = [
+            { name: { contains: q, mode: "insensitive" } },
+            { user: { email: { contains: q, mode: "insensitive" } } },
+            { department: { contains: q, mode: "insensitive" } },
+        ]
+    }
+
+    const [candidates, existingPending] = await Promise.all([
+        prisma.student.findMany({
+            where,
+            take: 8,
+            orderBy: { name: "asc" },
+            select: {
+                id: true,
+                name: true,
+                department: true,
+                currentSemester: true,
+                profilePicture: true,
+                seekingStatus: true,
+                user: {
+                    select: { email: true },
+                },
+                groupMember: {
+                    select: {
+                        group: {
+                            select: {
+                                id: true,
+                                isLocked: true,
+                                _count: { select: { members: true } },
+                            },
+                        },
+                    },
+                },
+            },
+        }),
+        prisma.request.findMany({
+            where: {
+                type: RequestType.PARTNER,
+                status: RequestStatus.PENDING,
+                OR: [
+                    { fromStudentId: { in: groupMemberIds } },
+                    { toStudentId: { in: groupMemberIds } },
+                ],
+            },
+            select: {
+                fromStudentId: true,
+                toStudentId: true,
+            },
+        }),
+    ])
+
+    const pendingStudentIds = new Set<string>()
+    for (const r of existingPending) {
+        pendingStudentIds.add(r.fromStudentId)
+        pendingStudentIds.add(r.toStudentId)
+    }
+
+    return candidates.map((c) => {
+        const memberCount = c.groupMember?.group?._count?.members || 0
+        const isGroupLocked = Boolean(c.groupMember?.group?.isLocked)
+        const isFull = isGroupLocked || memberCount >= 3
+        const isPending = pendingStudentIds.has(c.id)
+
+        return {
+            id: c.id,
+            name: c.name,
+            email: c.user?.email || "",
+            department: c.department,
+            semester: c.currentSemester,
+            profilePicture: c.profilePicture,
+            memberCount,
+            isPending,
+            isFull,
+            canInvite: !isFull && !isPending && requester.currentSemester < 8,
+        }
+    })
+}
 
 export async function lockGroup(studentId: string) {
-    // 1️⃣ Find membership + group
     const membership = await prisma.fYPGroupMember.findUnique({
         where: { studentId },
         include: {
@@ -86,18 +305,15 @@ export async function lockGroup(studentId: string) {
 
     const group = membership.group
 
-    // 2️⃣ Group already locked
     if (group.isLocked) {
         throw new Error("Group is already locked")
     }
 
-    // 3️⃣ Validate member count
     const memberCount = group.members.length
     if (memberCount < 2 || memberCount > 3) {
         throw new Error("Group must have 2 or 3 members to be locked")
     }
 
-    // 4️⃣ Lock group
     const lockedGroup = await prisma.fYPGroup.update({
         where: { id: group.id },
         data: {
@@ -115,7 +331,6 @@ export async function removeGroupMember(
     requesterStudentId: string,
     targetStudentId: string
 ) {
-    // 1️⃣ Find requester membership + group
     const requesterMembership = await prisma.fYPGroupMember.findUnique({
         where: { studentId: requesterStudentId },
         include: {
@@ -133,24 +348,22 @@ export async function removeGroupMember(
 
     const group = requesterMembership.group
 
-    // 2️⃣ Locked group check
     if (group.isLocked) {
         throw new Error("Group is locked and cannot be modified")
     }
 
-    // 3️⃣ Verify target is in same group
     const targetMembership = group.members.find(
-        (m: { id: string; studentId: string; joinedAt?: Date }) => m.studentId === targetStudentId
+        (m: { id: string; studentId: string; joinedAt?: Date }) =>
+            m.studentId === targetStudentId
     )
 
     if (!targetMembership) {
         throw new Error("Target student is not part of your group")
     }
 
-    // 4️⃣ Authorization: Leader vs Member permissions
-    // Sort members by joinedAt to identify founding leader
     const sortedMembers = [...group.members].sort(
-        (a: any, b: any) => new Date(a.joinedAt).getTime() - new Date(b.joinedAt).getTime()
+        (a: any, b: any) =>
+            new Date(a.joinedAt).getTime() - new Date(b.joinedAt).getTime()
     )
     const leaderStudentId = sortedMembers[0]?.studentId
 
@@ -158,24 +371,24 @@ export async function removeGroupMember(
     const isLeader = requesterStudentId === leaderStudentId
 
     if (!isSelfLeave && !isLeader) {
-        throw new Error("Only the group leader can remove other members from the group")
+        throw new Error(
+            "Only the group leader can remove other members from the group"
+        )
     }
 
     if (!isSelfLeave && targetStudentId === leaderStudentId) {
         throw new Error("The group leader cannot be removed by other members")
     }
 
-    // 5️⃣ Remove member
     await prisma.fYPGroupMember.delete({
         where: {
             id: targetMembership.id,
         },
     })
 
-    // 6️⃣ Cleanup: if group is now empty or has <= 1 member, unlock or delete
     if (group.members.length <= 1) {
         await prisma.fYPGroup.delete({
-            where: { id: group.id }
+            where: { id: group.id },
         })
     }
 
@@ -185,19 +398,11 @@ export async function removeGroupMember(
     }
 }
 
-
-/**
- * Update FYP Group Project Details
- * Rules:
- * - Student must be a member of the group
- * - Name and description CAN be edited even when locked
- */
 export async function updateGroupProject(
     studentId: string,
     projectName: string,
     description?: string
 ) {
-    // 1️⃣ Find membership + group
     const membership = await prisma.fYPGroupMember.findUnique({
         where: { studentId },
         include: {
@@ -209,7 +414,6 @@ export async function updateGroupProject(
         throw new Error("Student is not part of any group")
     }
 
-    // 2️⃣ Validate project name
     if (!projectName || projectName.trim().length === 0) {
         throw new Error("Project name is required")
     }
@@ -222,7 +426,6 @@ export async function updateGroupProject(
         throw new Error("Description must be 500 characters or less")
     }
 
-    // 3️⃣ Update group
     const updatedGroup = await prisma.fYPGroup.update({
         where: { id: membership.group.id },
         data: {
@@ -239,18 +442,10 @@ export async function updateGroupProject(
     }
 }
 
-
-/**
- * Toggle Group Visibility on Public Profile
- * Rules:
- * - Student must exist
- * - This only affects the student's own visibility preference
- */
 export async function updateGroupVisibility(
     studentId: string,
     showGroupOnProfile: boolean
 ) {
-    // 1️⃣ Verify student exists
     const student = await prisma.student.findUnique({
         where: { id: studentId },
     })
@@ -259,7 +454,6 @@ export async function updateGroupVisibility(
         throw new Error("Student not found")
     }
 
-    // 2️⃣ Update visibility preference
     const updatedStudent = await prisma.student.update({
         where: { id: studentId },
         data: {

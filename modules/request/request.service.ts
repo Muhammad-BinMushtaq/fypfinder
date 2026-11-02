@@ -87,7 +87,7 @@ export async function sendMessageRequest(
         })
     })
 
-    // 5️⃣ Send push notification (async, don't block response)
+    // 5️⃣ Send push notification (awaited for reliable delivery)
     await notifyMessageRequest(
         toStudentId,
         request.fromStudent.name,
@@ -194,7 +194,7 @@ export async function acceptMessageRequest(
         },
     })
 
-    // 6️⃣ Send push notification to original sender (async)
+    // 6️⃣ Send push notification to original sender
     await notifyRequestAccepted(
         request.fromStudentId,
         'MESSAGE',
@@ -383,7 +383,7 @@ export async function sendPartnerRequest(
         })
     })
 
-    // 9️⃣ Send push notification (async, don't block response)
+    // 9️⃣ Send push notification
     await notifyPartnerRequest(
         toStudentId,
         sender.name,
@@ -565,13 +565,36 @@ export async function acceptPartnerRequest(
             throw new Error("Both students are already in the same group")
         }
 
-        // ❌ Both already in different groups → reject
+        // Handle case where both students have groups (e.g. one or both initialized a 1-member project space)
         if (senderGroup && receiverGroup) {
-            throw new Error("Both students already have groups")
+            if (receiverGroup.members.length === 1 && senderGroup.members.length < MAX_PARTNERS) {
+                // Dissolve receiver's 1-member group and join sender's group
+                await tx.fYPGroupMember.delete({ where: { studentId: receiver.id } })
+                await tx.fYPGroup.delete({ where: { id: receiverGroup.id } })
+                groupId = senderGroup.id
+                await tx.fYPGroupMember.create({
+                    data: {
+                        groupId,
+                        studentId: receiver.id,
+                    },
+                })
+            } else if (senderGroup.members.length === 1 && receiverGroup.members.length < MAX_PARTNERS) {
+                // Dissolve sender's 1-member group and join receiver's group
+                await tx.fYPGroupMember.delete({ where: { studentId: sender.id } })
+                await tx.fYPGroup.delete({ where: { id: senderGroup.id } })
+                groupId = receiverGroup.id
+                await tx.fYPGroupMember.create({
+                    data: {
+                        groupId,
+                        studentId: sender.id,
+                    },
+                })
+            } else {
+                throw new Error("Both students already belong to multi-member groups")
+            }
         }
-
         // 🟢 Case 1: Sender has group → add receiver
-        if (senderGroup) {
+        else if (senderGroup) {
             if (senderGroup.members.length >= MAX_PARTNERS) {
                 throw new Error("Sender group is full")
             }
@@ -632,8 +655,6 @@ export async function acceptPartnerRequest(
             })
 
             // 7️⃣ Auto-reject all other PENDING partner requests involving either student
-            // This prevents stale requests from causing race conditions or invalid group merges
-            // after the group is completely full.
             await tx.request.updateMany({
                 where: {
                     id: { not: requestId },
@@ -668,4 +689,3 @@ export async function acceptPartnerRequest(
 
     return result.updatedRequest
 }
-
