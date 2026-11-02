@@ -244,16 +244,14 @@ export async function notifyMessageRequest(
           reason,
         });
 
-        sendSingleEmail({
+        await sendSingleEmail({
           to: student.user.email,
           subject,
           html,
           studentId: student.id,
           category: 'TRANSACTIONAL',
           templateKey: 'messageRequest',
-        }).catch((err) =>
-          logger.error('Failed to send message request email:', err)
-        );
+        });
       }
     }
   } catch (error) {
@@ -365,16 +363,14 @@ export async function notifyPartnerRequest(
           reason,
         });
 
-        sendSingleEmail({
+        await sendSingleEmail({
           to: student.user.email,
           subject,
           html,
           studentId: student.id,
           category: 'TRANSACTIONAL',
           templateKey: 'partnerRequest',
-        }).catch((err) =>
-          logger.error('Failed to send partner request email:', err)
-        );
+        });
       }
     }
   } catch (error) {
@@ -472,16 +468,14 @@ export async function notifyRequestAccepted(
           requestType: type,
         });
 
-        sendSingleEmail({
+        await sendSingleEmail({
           to: student.user.email,
           subject,
           html,
           studentId: student.id,
           category: 'TRANSACTIONAL',
           templateKey: 'requestAccepted',
-        }).catch((err) =>
-          logger.error('Failed to send request accepted email:', err)
-        );
+        });
       }
     }
   } catch (error) {
@@ -607,16 +601,14 @@ export async function notifyFeedbackUpdate(
           adminResponse,
         });
 
-        sendSingleEmail({
+        await sendSingleEmail({
           to: student.user.email,
           subject,
           html,
           studentId: student.id,
           category: 'TRANSACTIONAL',
           templateKey: 'feedbackUpdate',
-        }).catch((err) =>
-          logger.error('Failed to send feedback update email:', err)
-        );
+        });
       }
     }
   } catch (error) {

@@ -268,25 +268,27 @@ export async function GET(req: Request) {
             })
         })
 
-        // Send Welcome Email asynchronously via Resend (non-blocking) if enabled in Admin Trigger Config
+        // Send Welcome Email via Resend if enabled in Admin Trigger Config (awaited for Vercel serverless)
         if (isEmailConfigured()) {
-            getEmailTriggerConfig()
-                .then((cfg) => {
-                    if (!cfg.welcomeEmail) return
+            try {
+                const cfg = await getEmailTriggerConfig()
+                if (cfg.welcomeEmail) {
                     const { subject, html } = buildWelcomeEmail({
                         studentName,
                         department,
                         semester: currentSemester,
                     })
-                    return sendSingleEmail({
+                    await sendSingleEmail({
                         to: email,
                         subject,
                         html,
                         category: "TRANSACTIONAL",
                         templateKey: "welcomeEmail",
                     })
-                })
-                .catch((err) => logger.error("Failed to send welcome email:", err))
+                }
+            } catch (err) {
+                logger.error("Failed to send welcome email:", err)
+            }
         }
 
         // Redirect to dashboard profile

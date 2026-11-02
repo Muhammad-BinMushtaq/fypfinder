@@ -88,7 +88,7 @@ export async function sendMessageRequest(
     })
 
     // 5️⃣ Send push notification (async, don't block response)
-    notifyMessageRequest(
+    await notifyMessageRequest(
         toStudentId,
         request.fromStudent.name,
         request.id,
@@ -195,7 +195,7 @@ export async function acceptMessageRequest(
     })
 
     // 6️⃣ Send push notification to original sender (async)
-    notifyRequestAccepted(
+    await notifyRequestAccepted(
         request.fromStudentId,
         'MESSAGE',
         updatedRequest.toStudent.name
@@ -384,7 +384,7 @@ export async function sendPartnerRequest(
     })
 
     // 9️⃣ Send push notification (async, don't block response)
-    notifyPartnerRequest(
+    await notifyPartnerRequest(
         toStudentId,
         sender.name,
         request.id,
@@ -660,7 +660,7 @@ export async function acceptPartnerRequest(
     })
 
     // 7️⃣ Send push notification to original sender (outside transaction)
-    notifyRequestAccepted(
+    await notifyRequestAccepted(
         result.senderStudentId,
         'PARTNER',
         result.receiverName
