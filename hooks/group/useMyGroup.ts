@@ -305,15 +305,71 @@ export function useInviteCollaborator() {
       if (!res.ok || !data.success) {
         throw new Error(data.message || "Failed to send invite");
       }
-      return data.data;
+      return data;
     },
-    onSuccess: () => {
-      toast.success("Partner invitation sent");
+    onSuccess: (data) => {
+      toast.success(data?.message || "Collaborator invitation & email sent");
       queryClient.invalidateQueries({ queryKey: groupKeys.myGroup() });
       queryClient.invalidateQueries({ queryKey: ["requests"] });
     },
     onError: (error: Error) => {
       toast.error(error.message || "Failed to send invite");
+    },
+  });
+}
+
+export function useResendCollaboratorInvite() {
+  return useMutation({
+    mutationFn: async (requestId: string) => {
+      const res = await fetch("/api/group/invite-search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "RESEND_INVITE",
+          requestId,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to resend email");
+      }
+      return data;
+    },
+    onSuccess: (data) => {
+      toast.success(data?.message || "Invitation email sent");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to resend invitation email");
+    },
+  });
+}
+
+export function useCancelCollaboratorInvite() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (requestId: string) => {
+      const res = await fetch("/api/group/invite-search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "CANCEL_INVITE",
+          requestId,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to withdraw invite");
+      }
+      return data;
+    },
+    onSuccess: (data) => {
+      toast.success(data?.message || "Invitation withdrawn");
+      queryClient.invalidateQueries({ queryKey: groupKeys.myGroup() });
+      queryClient.invalidateQueries({ queryKey: ["requests"] });
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to withdraw invitation");
     },
   });
 }

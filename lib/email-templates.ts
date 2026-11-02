@@ -624,6 +624,58 @@ export function buildTaskAssignedEmail(params: {
   }
 }
 
+export function buildCollaboratorInviteEmail(params: {
+  toName: string
+  inviterName: string
+  inviterDepartment?: string
+  inviterSemester?: number
+  projectName?: string | null
+  note?: string | null
+}): { subject: string; html: string } {
+  const appUrl = getAppBaseUrl()
+  const toFullName = params.toName.trim()
+  const inviterFullName = params.inviterName.trim()
+  const projectTitle = params.projectName?.trim() || "FYP Project Team"
+
+  const subject = `${inviterFullName} invited you to join "${projectTitle}" on FYPMate`
+
+  const noteHtml = params.note?.trim()
+    ? `<p style="margin: 0 0 16px 0; padding: 12px 14px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155; font-size: 13px; line-height: 1.5;">
+        &ldquo;${escapeHtml(params.note.trim())}&rdquo;
+      </p>`
+    : ""
+
+  const bodyHtml = `
+    <p style="margin: 0 0 14px 0; color: #0f172a; font-size: 15px; font-weight: 600;">
+      Hi ${escapeHtml(toFullName)},
+    </p>
+    <p style="margin: 0 0 14px 0; color: #334155; font-size: 14px; line-height: 1.6;">
+      <strong>${escapeHtml(inviterFullName)}</strong>${
+    params.inviterDepartment
+      ? ` (${escapeHtml(params.inviterDepartment)}${
+          params.inviterSemester ? `, Semester ${params.inviterSemester}` : ""
+        })`
+      : ""
+  } has invited you as a collaborator to join their Final Year Project group on FYPMate:
+    </p>
+    <div style="margin: 0 0 14px 0; padding: 12px 14px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;">
+      <p style="margin: 0; color: #0f172a; font-size: 14px; font-weight: 600;">
+        Project: ${escapeHtml(projectTitle)}
+      </p>
+    </div>
+    ${noteHtml}
+    <p style="margin: 0 0 14px 0; color: #64748b; font-size: 13px; line-height: 1.5;">
+      You can accept or decline this team invitation from your received requests page.
+    </p>
+    ${buildCtaButton("Review & Accept Invitation", `${appUrl}/dashboard/requests/received`)}
+  `
+
+  return {
+    subject,
+    html: wrapEmailLayout({ bodyHtml }),
+  }
+}
+
 export function buildTransactionalPreviewByKey(
   key: TransactionalTriggerKey
 ): { subject: string; html: string } {

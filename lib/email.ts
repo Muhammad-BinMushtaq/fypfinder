@@ -246,7 +246,7 @@ export async function getEmailTriggerConfig(): Promise<EmailTriggerConfig> {
     const ok = await ensureEmailTables()
     if (ok) {
       const rows = await prisma.$queryRaw<Array<{ config: any }>>`
-        SELECT "config" FROM "EmailTriggerConfig" WHERE "id" = 'v2_default' LIMIT 1
+        SELECT "config" FROM "EmailTriggerConfig" WHERE "id" = 'v3_default' LIMIT 1
       `
       if (rows.length > 0 && rows[0]?.config) {
         _cachedTriggerConfig = {
@@ -285,7 +285,7 @@ export async function updateEmailTriggerConfig(
       const jsonStr = JSON.stringify(updated)
       await prisma.$executeRaw`
         INSERT INTO "EmailTriggerConfig" ("id", "config", "updatedAt")
-        VALUES ('v2_default', ${jsonStr}::jsonb, NOW())
+        VALUES ('v3_default', ${jsonStr}::jsonb, NOW())
         ON CONFLICT ("id") DO UPDATE SET "config" = ${jsonStr}::jsonb, "updatedAt" = NOW()
       `
     }
