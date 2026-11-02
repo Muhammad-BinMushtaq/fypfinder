@@ -200,7 +200,7 @@ export async function notifyMessageRequest(
           badge: '/icons/icon-96x96.png',
           tag: `request-message-${requestId}`,
           data: {
-            url: '/dashboard/requests/received',
+            url: '/dashboard/requests/messages',
             type: 'message_request',
             requestId,
             senderName: fromStudentName,
@@ -318,7 +318,7 @@ export async function notifyPartnerRequest(
           badge: '/icons/icon-96x96.png',
           tag: `request-partner-${requestId}`,
           data: {
-            url: '/dashboard/requests/received',
+            url: '/dashboard/requests/partner',
             type: 'partner_request',
             requestId,
             senderName: fromStudentName,

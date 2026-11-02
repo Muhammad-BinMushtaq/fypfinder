@@ -425,7 +425,7 @@ export function buildPartnerRequestEmail(params: {
   } sent you an FYP partner request on FYPMate.
     </p>
     ${reasonHtml}
-    ${buildCtaButton("View Request", `${appUrl}/dashboard/requests/received`)}
+    ${buildCtaButton("View Request", `${appUrl}/dashboard/requests/partner`)}
   `
 
   return {
@@ -455,7 +455,7 @@ export function buildMessageRequestEmail(params: {
     <p style="margin: 0 0 16px 0; padding: 12px 14px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155; font-size: 13px; line-height: 1.5;">
       &ldquo;${escapeHtml(params.reason.trim())}&rdquo;
     </p>
-    ${buildCtaButton("View Message Request", `${appUrl}/dashboard/requests/received`)}
+    ${buildCtaButton("View Message Request", `${appUrl}/dashboard/requests/messages`)}
   `
 
   return {
@@ -667,7 +667,7 @@ export function buildCollaboratorInviteEmail(params: {
     <p style="margin: 0 0 14px 0; color: #64748b; font-size: 13px; line-height: 1.5;">
       You can accept or decline this team invitation from your received requests page.
     </p>
-    ${buildCtaButton("Review & Accept Invitation", `${appUrl}/dashboard/requests/received`)}
+    ${buildCtaButton("Review & Accept Invitation", `${appUrl}/dashboard/requests/partner`)}
   `
 
   return {
