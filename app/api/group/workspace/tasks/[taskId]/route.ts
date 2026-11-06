@@ -39,6 +39,7 @@ export async function PATCH(
             : undefined,
         priority: body.priority,
         deliverableUrl: body.deliverableUrl,
+        milestoneId: body.milestoneId,
       }
     );
 

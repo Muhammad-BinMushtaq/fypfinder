@@ -45,7 +45,11 @@ export async function POST(req: NextRequest) {
       include: {
         groupMember: {
           include: {
-            group: true,
+            group: {
+              include: {
+                members: { select: { studentId: true } },
+              },
+            },
           },
         },
       },
@@ -73,6 +77,11 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    // Allowed group member IDs for ownership verification on RESEND_INVITE and CANCEL_INVITE
+    const allowedSenderIds = student.groupMember?.group?.members.map(
+      (m) => m.studentId
+    ) || [student.id];
+
     if (body.action === "RESEND_INVITE") {
       if (!body.requestId) {
         return NextResponse.json(
@@ -95,10 +104,24 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      if (!pendingReq || pendingReq.status !== RequestStatus.PENDING) {
+      if (
+        !pendingReq ||
+        pendingReq.type !== RequestType.PARTNER ||
+        pendingReq.status !== RequestStatus.PENDING
+      ) {
         return NextResponse.json(
           { success: false, message: "Pending invitation not found" },
           { status: 404 }
+        );
+      }
+
+      if (!allowedSenderIds.includes(pendingReq.fromStudentId)) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Unauthorized: You do not belong to the inviting group",
+          },
+          { status: 403 }
         );
       }
 
@@ -109,7 +132,8 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      const projectName = student.groupMember?.group?.projectName || "FYP Project Team";
+      const projectName =
+        student.groupMember?.group?.projectName || "FYP Project Team";
       const { subject, html } = buildCollaboratorInviteEmail({
         toName: pendingReq.toStudent.name,
         inviterName: student.name,
@@ -149,13 +173,24 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      await prisma.request.deleteMany({
+      const deleted = await prisma.request.deleteMany({
         where: {
           id: body.requestId,
+          fromStudentId: { in: allowedSenderIds },
           type: RequestType.PARTNER,
           status: RequestStatus.PENDING,
         },
       });
+
+      if (deleted.count === 0) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Invitation not found or unauthorized to withdraw",
+          },
+          { status: 403 }
+        );
+      }
 
       return NextResponse.json({
         success: true,
@@ -171,7 +206,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const projectName = student.groupMember?.group?.projectName || "FYP Project";
+    const projectName =
+      student.groupMember?.group?.projectName || "FYP Project";
     const reason =
       body.reason?.trim() ||
       `Invited to join "${projectName}" as an FYP collaborator.`;

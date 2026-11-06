@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users, ClipboardCheck, BookOpen } from "lucide-react";
+import { Users, ClipboardCheck, BookOpen, FolderKanban } from "lucide-react";
 
 interface NavItem {
   label: string;
@@ -17,6 +17,11 @@ const navItems: NavItem[] = [
     label: "Find Partners",
     href: "/dashboard/discovery",
     icon: <Users className="w-5 h-5" />,
+  },
+  {
+    label: "FYP Space",
+    href: "/dashboard/fyp",
+    icon: <FolderKanban className="w-5 h-5" />,
   },
   {
     label: "Validate FYP",
@@ -32,13 +37,11 @@ const navItems: NavItem[] = [
 
 /**
  * Returns whether the bottom navigation should be visible for a given pathname.
- * Only shown on Find Partners, Previous FYPs, and Validate FYP.
- * Strictly hidden on Messages, Requests, My Profile, Settings, and active subpages.
+ * Shown on primary student hubs: Find Partners, FYP Space, Validate FYP, and Previous FYPs.
  */
 export function isBottomNavAllowed(pathname: string): boolean {
   if (!pathname) return false;
 
-  // Never show on Messages, Requests, Profile, Settings, or deep subpages
   if (
     pathname.startsWith("/dashboard/messages") ||
     pathname.startsWith("/dashboard/requests") ||
@@ -50,9 +53,9 @@ export function isBottomNavAllowed(pathname: string): boolean {
     return false;
   }
 
-  // Only allowed on primary discovery and FYP hubs
   return (
     pathname === "/dashboard/discovery" ||
+    pathname === "/dashboard/fyp" ||
     pathname === "/dashboard/fyp-ideas" ||
     pathname === "/dashboard/fyp-ideas/validate"
   );
@@ -80,7 +83,6 @@ export function MobileBottomNav() {
     };
 
     const handleFocusOut = () => {
-      // Small timeout to prevent momentary flicker between consecutive input taps
       setTimeout(() => {
         const active = document.activeElement as HTMLElement | null;
         if (
@@ -95,7 +97,6 @@ export function MobileBottomNav() {
       }, 50);
     };
 
-    // Detect virtual keyboard expansion via window.visualViewport height shrinkage
     const handleViewportChange = () => {
       if (window.visualViewport) {
         const heightRatio = window.visualViewport.height / window.innerHeight;
@@ -126,30 +127,24 @@ export function MobileBottomNav() {
     };
   }, []);
 
-  // Do not render if the route does not permit it, or if mobile keyboard / input is active
   if (!isBottomNavAllowed(pathname) || isKeyboardVisible) {
     return null;
   }
 
   const isActive = (href: string) => {
-    if (href === "/dashboard/discovery") {
-      return pathname === "/dashboard/discovery";
-    }
-    if (href === "/dashboard/fyp-ideas/validate") {
-      return pathname === "/dashboard/fyp-ideas/validate";
-    }
-    if (href === "/dashboard/fyp-ideas") {
-      return pathname === "/dashboard/fyp-ideas";
-    }
+    if (href === "/dashboard/discovery") return pathname === "/dashboard/discovery";
+    if (href === "/dashboard/fyp") return pathname === "/dashboard/fyp";
+    if (href === "/dashboard/fyp-ideas/validate") return pathname === "/dashboard/fyp-ideas/validate";
+    if (href === "/dashboard/fyp-ideas") return pathname === "/dashboard/fyp-ideas";
     return pathname === href;
   };
 
   return (
-    <nav 
+    <nav
       data-mobile-bottom-nav="true"
-      className="lg:hidden fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-1.75rem)] max-w-sm z-50 bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl border border-slate-200/70 dark:border-slate-800 shadow-2xl rounded-2xl overflow-hidden pb-[env(safe-area-inset-bottom)] transition-all duration-200"
+      className="lg:hidden fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-1.5rem)] max-w-md z-50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 shadow-2xl rounded-2xl overflow-hidden pb-[env(safe-area-inset-bottom)] transition-all duration-200"
     >
-      <div className="grid grid-cols-3 items-center h-16 px-1">
+      <div className="grid grid-cols-4 items-center h-16 px-1">
         {navItems.map((item) => {
           const active = isActive(item.href);
           return (
@@ -159,22 +154,22 @@ export function MobileBottomNav() {
               prefetch={true}
               className={`relative flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition-all duration-150 active:scale-95 ${
                 active
-                  ? "text-blue-600 dark:text-blue-400 font-semibold"
+                  ? "text-slate-900 dark:text-white font-semibold"
                   : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
               <div
                 className={`p-1 rounded-xl transition-colors ${
-                  active ? "bg-blue-50 dark:bg-blue-950/40" : ""
+                  active ? "bg-slate-100 dark:bg-slate-800" : ""
                 }`}
               >
                 {item.icon}
               </div>
-              <span className="text-[11px] tracking-tight mt-0.5 truncate text-center leading-tight">
+              <span className="text-[10px] sm:text-[11px] tracking-tight mt-0.5 truncate text-center leading-tight">
                 {item.label}
               </span>
               {active && (
-                <div className="absolute bottom-1 w-1 h-1 bg-blue-600 dark:bg-blue-400 rounded-full" />
+                <div className="absolute bottom-1 w-1 h-1 bg-slate-900 dark:bg-white rounded-full" />
               )}
             </Link>
           );

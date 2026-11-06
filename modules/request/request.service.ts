@@ -3,6 +3,7 @@
 import prisma from "@/lib/db"
 import { RequestType, RequestStatus } from "@/lib/generated/prisma/enums"
 import { notifyMessageRequest, notifyPartnerRequest, notifyRequestAccepted } from "@/lib/push-service"
+import { WorkspaceService } from "@/modules/workspace/workspace.service"
 
 export const MAX_PENDING_PARTNER_REQUESTS = 5
 export const MAX_PENDING_MESSAGE_REQUESTS = 10
@@ -355,20 +356,23 @@ export async function sendPartnerRequest(
             throw new Error(`You have reached the maximum limit of ${MAX_PENDING_PARTNER_REQUESTS} pending partner requests. Please wait for students to reply before sending more.`)
         }
 
-        // Prevent duplicate pending partner request (either direction)
+        // Prevent duplicate pending partner request (either direction, including any member of sender's group)
+        const senderGroupMemberIds =
+            sender.groupMember?.group?.members.map((m) => m.studentId) || [fromStudentId]
+
         const existingRequest = await tx.request.findFirst({
             where: {
                 type: RequestType.PARTNER,
                 status: RequestStatus.PENDING,
                 OR: [
-                    { fromStudentId, toStudentId },
-                    { fromStudentId: toStudentId, toStudentId: fromStudentId },
+                    { fromStudentId: { in: senderGroupMemberIds }, toStudentId },
+                    { fromStudentId: toStudentId, toStudentId: { in: senderGroupMemberIds } },
                 ],
             },
         })
 
         if (existingRequest) {
-            throw new Error("A pending partner request already exists between you and this student")
+            throw new Error("A pending partner request already exists between your team and this student")
         }
 
         // 8️⃣ Create partner request
@@ -548,6 +552,7 @@ export async function acceptPartnerRequest(
 
         // 4️⃣ Determine group strategy
         let groupId: string
+        let dissolvedSoloGroupId: string | null = null
 
         const senderGroup = sender.groupMember?.group
         const receiverGroup = receiver.groupMember?.group
@@ -569,6 +574,7 @@ export async function acceptPartnerRequest(
         if (senderGroup && receiverGroup) {
             if (receiverGroup.members.length === 1 && senderGroup.members.length < MAX_PARTNERS) {
                 // Dissolve receiver's 1-member group and join sender's group
+                dissolvedSoloGroupId = receiverGroup.id
                 await tx.fYPGroupMember.delete({ where: { studentId: receiver.id } })
                 await tx.fYPGroup.delete({ where: { id: receiverGroup.id } })
                 groupId = senderGroup.id
@@ -580,6 +586,7 @@ export async function acceptPartnerRequest(
                 })
             } else if (senderGroup.members.length === 1 && receiverGroup.members.length < MAX_PARTNERS) {
                 // Dissolve sender's 1-member group and join receiver's group
+                dissolvedSoloGroupId = senderGroup.id
                 await tx.fYPGroupMember.delete({ where: { studentId: sender.id } })
                 await tx.fYPGroup.delete({ where: { id: senderGroup.id } })
                 groupId = receiverGroup.id
@@ -677,8 +684,12 @@ export async function acceptPartnerRequest(
             data: { status: RequestStatus.ACCEPTED },
         })
 
-        return { updatedRequest, senderStudentId: sender.id, receiverName: receiver.name }
+        return { updatedRequest, senderStudentId: sender.id, receiverName: receiver.name, dissolvedSoloGroupId }
     })
+
+    if (result.dissolvedSoloGroupId) {
+        await WorkspaceService.deleteWorkspaceMeta(result.dissolvedSoloGroupId).catch(() => {})
+    }
 
     // 7️⃣ Send push notification to original sender (outside transaction)
     await notifyRequestAccepted(

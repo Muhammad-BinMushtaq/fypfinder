@@ -1,8 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Calendar, Trash, X, Link2 } from "lucide-react";
-import type { FYPTask, TaskPriority } from "@/services/workspace.service";
+import { Calendar, Trash, X, Link2, Flag } from "lucide-react";
+import type {
+  FYPTask,
+  TaskPriority,
+  FYPMilestoneItem,
+} from "@/services/workspace.service";
 
 interface Member {
   id: string;
@@ -12,33 +16,52 @@ interface Member {
 
 interface TaskDetailModalProps {
   task?: FYPTask;
+  prefill?: {
+    title?: string;
+    description?: string;
+    milestoneId?: string | null;
+  } | null;
   members: Member[];
+  milestones?: FYPMilestoneItem[];
   onClose: () => void;
   onSave: (data: any) => void;
   onDelete?: (taskId: string) => void;
   isSaving: boolean;
   isDeleting?: boolean;
   defaultStatus?: string;
+  defaultMilestoneId?: string | null;
   isReadOnly?: boolean;
 }
 
 export function TaskDetailModal({
   task,
+  prefill,
   members,
+  milestones = [],
   onClose,
   onSave,
   onDelete,
   isSaving,
   isDeleting,
   defaultStatus = "TODO",
+  defaultMilestoneId = null,
   isReadOnly = false,
 }: TaskDetailModalProps) {
-  const [title, setTitle] = useState(task?.title || "");
-  const [description, setDescription] = useState(task?.description || "");
+  const [title, setTitle] = useState(task?.title || prefill?.title || "");
+  const [description, setDescription] = useState(
+    task?.description || prefill?.description || ""
+  );
   const [assignedToId, setAssignedToId] = useState(task?.assignedToId || "");
   const [status, setStatus] = useState(task?.status || defaultStatus);
   const [priority, setPriority] = useState<TaskPriority>(
     task?.priority || "MEDIUM"
+  );
+  const [milestoneId, setMilestoneId] = useState<string>(
+    task?.milestoneId ||
+      prefill?.milestoneId ||
+      (defaultMilestoneId && defaultMilestoneId !== "ALL"
+        ? defaultMilestoneId
+        : "")
   );
   const [deliverableUrl, setDeliverableUrl] = useState(
     task?.deliverableUrl || ""
@@ -71,6 +94,7 @@ export function TaskDetailModal({
       assignedToId: assignedToId || null,
       status,
       priority,
+      milestoneId: milestoneId || null,
       deliverableUrl: deliverableUrl.trim() || null,
       dueDate: dueDate || null,
     });
@@ -78,8 +102,8 @@ export function TaskDetailModal({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 overflow-hidden">
-        <div className="flex items-center justify-between border-b border-slate-200/80 px-5 py-4 dark:border-slate-800">
+      <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 overflow-hidden max-h-[90vh] flex flex-col">
+        <div className="flex items-center justify-between border-b border-slate-200/80 px-5 py-4 dark:border-slate-800 shrink-0">
           <div>
             <h2 className="text-base font-bold text-slate-900 dark:text-white">
               {isReadOnly
@@ -107,7 +131,10 @@ export function TaskDetailModal({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="p-5 space-y-4 overflow-y-auto flex-1"
+        >
           <div>
             <label className="mb-1 block text-xs font-semibold text-slate-700 dark:text-slate-300">
               Task Title <span className="text-red-500">*</span>
@@ -177,7 +204,7 @@ export function TaskDetailModal({
             </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-3">
             <div>
               <label className="mb-1 block text-xs font-semibold text-slate-700 dark:text-slate-300">
                 Priority
@@ -208,6 +235,26 @@ export function TaskDetailModal({
                 <option value="IN_PROGRESS">In Progress</option>
                 <option value="REVIEW">Under Review</option>
                 <option value="DONE">Done</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="mb-1 flex items-center gap-1 text-xs font-semibold text-slate-700 dark:text-slate-300">
+                <Flag className="h-3 w-3 text-slate-400" />
+                <span>Academic Stage</span>
+              </label>
+              <select
+                value={milestoneId}
+                onChange={(e) => setMilestoneId(e.target.value)}
+                disabled={isReadOnly}
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/60 px-3 py-2 text-xs sm:text-sm text-slate-900 dark:text-white outline-none"
+              >
+                <option value="">No specific stage</option>
+                {milestones.map((ms) => (
+                  <option key={ms.id} value={ms.id}>
+                    {ms.title}
+                  </option>
+                ))}
               </select>
             </div>
           </div>

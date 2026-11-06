@@ -67,6 +67,50 @@ export async function PUT(req: NextRequest) {
     }
 
     const body = await req.json();
+
+    // If projectName is provided, atomically update the FYPGroup record in the same request
+    if (body.projectName !== undefined) {
+      const trimmedProjectName = String(body.projectName || "").trim();
+      if (!trimmedProjectName) {
+        return NextResponse.json(
+          { success: false, message: "Project title is required" },
+          { status: 400 }
+        );
+      }
+      if (trimmedProjectName.length > 100) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Project title must be 100 characters or less",
+          },
+          { status: 400 }
+        );
+      }
+
+      const trimmedDesc =
+        body.description !== undefined
+          ? String(body.description || "").trim() || null
+          : undefined;
+
+      if (trimmedDesc && trimmedDesc.length > 500) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Description must be 500 characters or less",
+          },
+          { status: 400 }
+        );
+      }
+
+      await prisma.fYPGroup.update({
+        where: { id: member.groupId },
+        data: {
+          projectName: trimmedProjectName,
+          ...(trimmedDesc !== undefined ? { description: trimmedDesc } : {}),
+        },
+      });
+    }
+
     const updated = await WorkspaceService.saveWorkspaceMeta(member.groupId, {
       ...(body.repoUrl !== undefined
         ? { repoUrl: body.repoUrl?.trim() || null }
@@ -88,6 +132,15 @@ export async function PUT(req: NextRequest) {
         : {}),
       ...(Array.isArray(body.milestones)
         ? { milestones: body.milestones }
+        : {}),
+      ...(Array.isArray(body.customLinks)
+        ? { customLinks: body.customLinks }
+        : {}),
+      ...(body.memberRoles && typeof body.memberRoles === "object"
+        ? { memberRoles: body.memberRoles }
+        : {}),
+      ...(Array.isArray(body.supervisorMeetings)
+        ? { supervisorMeetings: body.supervisorMeetings }
         : {}),
     });
 

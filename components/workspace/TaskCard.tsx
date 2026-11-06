@@ -1,12 +1,14 @@
 "use client";
 
-import { Calendar, Clock, ExternalLink } from "lucide-react";
+import { Calendar, Clock, ExternalLink, Flag } from "lucide-react";
 import type { FYPTask } from "@/services/workspace.service";
 
 interface TaskCardProps {
   task: FYPTask;
+  milestoneTitle?: string | null;
   onClick: () => void;
   onDragStart: (e: React.DragEvent) => void;
+  onStatusChange?: (newStatus: string) => void;
 }
 
 const STICKY_CARD_STYLES = {
@@ -25,7 +27,13 @@ const PRIORITY_STYLES = {
   LOW: "bg-white/60 text-slate-500 border-slate-200/60 dark:bg-slate-850 dark:text-slate-400 dark:border-slate-800",
 };
 
-export function TaskCard({ task, onClick, onDragStart }: TaskCardProps) {
+export function TaskCard({
+  task,
+  milestoneTitle,
+  onClick,
+  onDragStart,
+  onStatusChange,
+}: TaskCardProps) {
   const isOverdue =
     task.dueDate &&
     new Date(task.dueDate) < new Date() &&
@@ -41,14 +49,26 @@ export function TaskCard({ task, onClick, onDragStart }: TaskCardProps) {
         STICKY_CARD_STYLES[task.status] || STICKY_CARD_STYLES.TODO
       }`}
     >
-      <div className="flex items-start justify-between gap-2 mb-2">
-        <span
-          className={`inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
-            PRIORITY_STYLES[priority] || PRIORITY_STYLES.MEDIUM
-          }`}
-        >
-          {priority}
-        </span>
+      <div className="flex items-center justify-between gap-1.5 mb-2 flex-wrap">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span
+            className={`inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide shrink-0 ${
+              PRIORITY_STYLES[priority] || PRIORITY_STYLES.MEDIUM
+            }`}
+          >
+            {priority}
+          </span>
+
+          {milestoneTitle && (
+            <span
+              className="inline-flex items-center gap-1 rounded bg-white/85 dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700 px-1.5 py-0.5 text-[10px] font-medium text-slate-600 dark:text-slate-300 truncate max-w-[130px]"
+              title={`Stage: ${milestoneTitle}`}
+            >
+              <Flag className="h-2.5 w-2.5 shrink-0 text-slate-400" />
+              <span className="truncate">{milestoneTitle}</span>
+            </span>
+          )}
+        </div>
 
         {task.deliverableUrl && (
           <a
@@ -56,11 +76,11 @@ export function TaskCard({ task, onClick, onDragStart }: TaskCardProps) {
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="inline-flex items-center gap-1 rounded bg-white/80 dark:bg-slate-800 px-1.5 py-0.5 text-[10px] font-medium text-indigo-600 hover:bg-indigo-50 dark:text-indigo-400"
+            className="inline-flex items-center gap-1 rounded bg-white/80 dark:bg-slate-800 px-1.5 py-0.5 text-[10px] font-medium text-indigo-600 hover:bg-indigo-50 dark:text-indigo-400 shrink-0"
             title="Open deliverable link"
           >
             <ExternalLink className="h-3 w-3" />
-            <span>Deliverable</span>
+            <span>Link</span>
           </a>
         )}
       </div>
@@ -101,25 +121,46 @@ export function TaskCard({ task, onClick, onDragStart }: TaskCardProps) {
           )}
         </div>
 
-        {task.dueDate && (
-          <div
-            className={`flex items-center gap-1 shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold ${
-              isOverdue
-                ? "bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400"
-                : "bg-white/80 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
-            }`}
-          >
-            {isOverdue ? (
-              <Clock className="h-2.5 w-2.5" />
-            ) : (
-              <Calendar className="h-2.5 w-2.5" />
-            )}
-            {new Date(task.dueDate).toLocaleDateString(undefined, {
-              month: "short",
-              day: "numeric",
-            })}
-          </div>
-        )}
+        <div className="flex items-center gap-1.5 shrink-0">
+          {task.dueDate && (
+            <div
+              className={`flex items-center gap-1 shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold ${
+                isOverdue
+                  ? "bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400"
+                  : "bg-white/80 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+              }`}
+            >
+              {isOverdue ? (
+                <Clock className="h-2.5 w-2.5" />
+              ) : (
+                <Calendar className="h-2.5 w-2.5" />
+              )}
+              {new Date(task.dueDate).toLocaleDateString(undefined, {
+                month: "short",
+                day: "numeric",
+              })}
+            </div>
+          )}
+
+          {/* Touch-friendly 1-tap Status Switcher (essential on mobile where HTML5 drag is unavailable) */}
+          {onStatusChange && (
+            <select
+              value={task.status}
+              onClick={(e) => e.stopPropagation()}
+              onChange={(e) => {
+                e.stopPropagation();
+                onStatusChange(e.target.value);
+              }}
+              aria-label="Change task status"
+              className="rounded-md border border-slate-200/80 dark:border-slate-700 bg-white/90 dark:bg-slate-800 px-1.5 py-0.5 text-[10px] font-semibold text-slate-700 dark:text-slate-200 outline-none cursor-pointer"
+            >
+              <option value="TODO">To Do</option>
+              <option value="IN_PROGRESS">Doing</option>
+              <option value="REVIEW">Review</option>
+              <option value="DONE">Done</option>
+            </select>
+          )}
+        </div>
       </div>
     </div>
   );

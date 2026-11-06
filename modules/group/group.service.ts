@@ -380,16 +380,35 @@ export async function removeGroupMember(
         throw new Error("The group leader cannot be removed by other members")
     }
 
-    await prisma.fYPGroupMember.delete({
-        where: {
-            id: targetMembership.id,
-        },
+    const isDeletingEntireGroup = group.members.length <= 1
+
+    await prisma.$transaction(async (tx) => {
+        // Unassign any tasks in this group that were assigned to the departing member
+        await tx.fYPTask.updateMany({
+            where: {
+                groupId: group.id,
+                assignedToId: targetStudentId,
+            },
+            data: {
+                assignedToId: null,
+            },
+        })
+
+        await tx.fYPGroupMember.delete({
+            where: {
+                id: targetMembership.id,
+            },
+        })
+
+        if (isDeletingEntireGroup) {
+            await tx.fYPGroup.delete({
+                where: { id: group.id },
+            })
+        }
     })
 
-    if (group.members.length <= 1) {
-        await prisma.fYPGroup.delete({
-            where: { id: group.id },
-        })
+    if (isDeletingEntireGroup) {
+        await WorkspaceService.deleteWorkspaceMeta(group.id)
     }
 
     return {

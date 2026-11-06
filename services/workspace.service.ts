@@ -13,6 +13,29 @@ export interface FYPMilestoneItem {
   note: string | null;
 }
 
+export interface CustomResourceLink {
+  id: string;
+  label: string;
+  url: string;
+  category?: "THESIS" | "SLIDES" | "DATASET" | "OTHER";
+}
+
+export interface SupervisorActionItem {
+  id: string;
+  text: string;
+  completed: boolean;
+  linkedTaskId?: string | null;
+}
+
+export interface SupervisorMeetingItem {
+  id: string;
+  date: string;
+  summary: string;
+  actionItems: SupervisorActionItem[];
+  createdByName?: string | null;
+  createdAt: string;
+}
+
 export interface GroupWorkspaceMeta {
   groupId: string;
   repoUrl: string | null;
@@ -22,6 +45,9 @@ export interface GroupWorkspaceMeta {
   supervisorStatus: SupervisorStatus;
   domainTrack: string | null;
   milestones: FYPMilestoneItem[];
+  customLinks?: CustomResourceLink[];
+  memberRoles?: Record<string, string>;
+  supervisorMeetings?: SupervisorMeetingItem[];
 }
 
 export interface FYPTask {
@@ -34,6 +60,7 @@ export interface FYPTask {
   dueDate: string | null;
   priority?: TaskPriority;
   deliverableUrl?: string | null;
+  milestoneId?: string | null;
   createdById?: string | null;
   createdAt: string;
   updatedAt: string;
@@ -56,6 +83,7 @@ export const useGroupTasks = (groupId: string, enabled = true) => {
     queryKey: ["workspace", "tasks", groupId],
     queryFn: fetchTasks,
     enabled: !!groupId && enabled,
+    staleTime: 60 * 1000,
   });
 };
 
@@ -69,6 +97,7 @@ export const useCreateTask = (groupId: string) => {
       dueDate?: string;
       priority?: TaskPriority;
       deliverableUrl?: string | null;
+      milestoneId?: string | null;
     }) => {
       const res = await fetch("/api/group/workspace/tasks", {
         method: "POST",
@@ -77,7 +106,35 @@ export const useCreateTask = (groupId: string) => {
       });
       const json = await res.json();
       if (!json.success) throw new Error(json.message);
-      return json.data;
+      return json.data as FYPTask;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["workspace", "tasks", groupId],
+      });
+    },
+  });
+};
+
+export const useCreateBatchTasks = (groupId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (
+      batchItems: Array<{
+        title: string;
+        description?: string;
+        priority?: TaskPriority;
+        milestoneId?: string | null;
+      }>
+    ) => {
+      const res = await fetch("/api/group/workspace/tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ batchItems }),
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.message);
+      return json.data as FYPTask[];
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -99,6 +156,7 @@ export const useUpdateTask = (groupId: string) => {
       dueDate?: string | null;
       priority?: TaskPriority;
       deliverableUrl?: string | null;
+      milestoneId?: string | null;
     }) => {
       const res = await fetch(`/api/group/workspace/tasks/${data.taskId}`, {
         method: "PATCH",
@@ -107,7 +165,7 @@ export const useUpdateTask = (groupId: string) => {
       });
       const json = await res.json();
       if (!json.success) throw new Error(json.message);
-      return json.data;
+      return json.data as FYPTask;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -136,7 +194,11 @@ export const useDeleteTask = (groupId: string) => {
   });
 };
 
-export const useWorkspaceMeta = (groupId: string, enabled = true) => {
+export const useWorkspaceMeta = (
+  groupId: string,
+  enabled = true,
+  initialData?: GroupWorkspaceMeta
+) => {
   return useQuery<GroupWorkspaceMeta>({
     queryKey: ["workspace", "meta", groupId],
     queryFn: async () => {
@@ -146,13 +208,20 @@ export const useWorkspaceMeta = (groupId: string, enabled = true) => {
       return json.data;
     },
     enabled: !!groupId && enabled,
+    initialData,
+    staleTime: 5 * 60 * 1000,
   });
+};
+
+export type UpdateWorkspaceMetaPayload = Partial<GroupWorkspaceMeta> & {
+  projectName?: string;
+  description?: string | null;
 };
 
 export const useUpdateWorkspaceMeta = (groupId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (partial: Partial<GroupWorkspaceMeta>) => {
+    mutationFn: async (partial: UpdateWorkspaceMetaPayload) => {
       const res = await fetch("/api/group/workspace/meta", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },

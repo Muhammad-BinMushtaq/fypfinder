@@ -67,6 +67,17 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
+
+    // Support batch starter checklist tasks creation
+    if (Array.isArray(body.batchItems)) {
+      const createdList = await WorkspaceService.createBatchTasks(
+        member.groupId,
+        student.id,
+        body.batchItems
+      );
+      return NextResponse.json({ success: true, data: createdList });
+    }
+
     const task = await WorkspaceService.createTask(member.groupId, {
       title: body.title,
       description: body.description,
@@ -74,6 +85,7 @@ export async function POST(req: NextRequest) {
       dueDate: body.dueDate ? new Date(body.dueDate) : undefined,
       priority: body.priority,
       deliverableUrl: body.deliverableUrl,
+      milestoneId: body.milestoneId,
       creatorStudentId: student.id,
     });
 
