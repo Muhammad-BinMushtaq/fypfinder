@@ -11,7 +11,7 @@ import {
 import { btnPrimary, inputCls } from "./workspaceUi";
 
 /** Search same-semester students and invite them (an email is sent automatically). */
-export function CollaboratorSearch({ autoFocus = false }: { autoFocus?: boolean }) {
+export function CollaboratorSearch() {
   const invite = useInviteCollaborator();
   const [query, setQuery] = useState("");
   const [note, setNote] = useState("");
@@ -64,15 +64,14 @@ export function CollaboratorSearch({ autoFocus = false }: { autoFocus?: boolean 
   return (
     <div className="space-y-3">
       <div className="relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+        <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search classmates by name or email"
+          placeholder="Search classmates by name or email..."
           aria-label="Search classmates"
-          autoFocus={autoFocus}
-          className={`${inputCls} pl-9`}
+          className={`${inputCls} pl-10`}
         />
       </div>
       <input
@@ -86,36 +85,42 @@ export function CollaboratorSearch({ autoFocus = false }: { autoFocus?: boolean 
       />
 
       {searching && (
-        <p className="text-sm text-slate-500 dark:text-slate-400">Searching...</p>
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+          Searching students...
+        </p>
       )}
 
       {!searching && query.trim().length >= 2 && results.length === 0 && (
-        <p className="text-sm text-slate-500 dark:text-slate-400">
-          No matching students from your semester.
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+          No matching students found in your semester.
         </p>
       )}
 
       {query.trim().length < 2 && (
-        <p className="text-sm text-slate-500 dark:text-slate-400">
-          Type at least 2 letters.{" "}
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+          Type at least 2 letters to search, or{" "}
           <Link
             href="/dashboard/discovery"
-            className="font-medium text-slate-700 dark:text-slate-200 underline underline-offset-2"
+            className="font-medium text-slate-800 dark:text-slate-200 underline underline-offset-2"
           >
-            Or browse Find Partners
+            browse Find Partners
           </Link>
+          .
         </p>
       )}
 
       {results.length > 0 && (
-        <ul className="divide-y divide-slate-100 dark:divide-slate-800 rounded-xl border border-slate-200 dark:border-slate-800 max-h-72 overflow-y-auto">
+        <ul className="divide-y divide-slate-100 dark:divide-slate-800 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 max-h-64 overflow-y-auto">
           {results.map((c) => (
-            <li key={c.id} className="flex items-center justify-between gap-3 px-3 py-2.5">
+            <li
+              key={c.id}
+              className="flex items-center justify-between gap-3 px-3.5 py-2.5"
+            >
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium text-slate-900 dark:text-white">
                   {c.name}
                 </p>
-                <p className="truncate text-sm text-slate-500 dark:text-slate-400">
+                <p className="truncate text-xs text-slate-500 dark:text-slate-400">
                   {c.department} · Semester {c.semester}
                 </p>
               </div>
@@ -124,12 +129,12 @@ export function CollaboratorSearch({ autoFocus = false }: { autoFocus?: boolean 
                   type="button"
                   onClick={() => handleInvite(c.id)}
                   disabled={invite.isPending}
-                  className={`${btnPrimary} shrink-0`}
+                  className={`${btnPrimary} !h-9 !px-3 text-xs shrink-0`}
                 >
                   Invite
                 </button>
               ) : (
-                <span className="shrink-0 text-sm text-slate-500 dark:text-slate-400">
+                <span className="shrink-0 text-xs font-medium text-slate-500 dark:text-slate-400">
                   {c.isPending ? "Invited" : "Unavailable"}
                 </span>
               )}

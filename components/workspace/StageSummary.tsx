@@ -1,8 +1,9 @@
 "use client";
 
+import { Calendar, ChevronRight } from "lucide-react";
 import { useGroupTasks, type FYPMilestoneItem } from "@/services/workspace.service";
 import { describeStageDue } from "./DeadlineTimeline";
-import { btnGhost } from "./workspaceUi";
+import { btnSecondary, cardSurface } from "./workspaceUi";
 
 interface StageSummaryProps {
   groupId: string;
@@ -11,7 +12,7 @@ interface StageSummaryProps {
 }
 
 /**
- * One compact summary of where the team is: the current stage, its deadline and task progress.
+ * Compact summary card of where the team is: current academic stage, deadline, and linked task progress.
  * The complete list of stages (with editing) opens from "All stages".
  */
 export function StageSummary({
@@ -36,46 +37,66 @@ export function StageSummary({
   const allDone = milestones.every((m) => m.status === "COMPLETED");
 
   return (
-    <section aria-label="Current academic stage" className="space-y-3">
+    <section
+      aria-label="Current academic stage"
+      className={`${cardSurface} p-4 sm:p-5 space-y-3.5`}
+    >
       {/* Stage position: one thin segment per stage */}
-      <div className="flex gap-1" aria-hidden="true">
+      <div className="flex gap-1.5" aria-hidden="true">
         {milestones.map((m, i) => (
           <span
             key={m.id}
-            className={`h-1 flex-1 rounded-full ${
-              m.status === "COMPLETED" || i === idx
+            className={`h-1.5 flex-1 rounded-full transition-colors ${
+              m.status === "COMPLETED"
+                ? "bg-emerald-500"
+                : i === idx
                 ? "bg-slate-900 dark:bg-white"
-                : "bg-slate-200 dark:bg-slate-700"
+                : "bg-slate-100 dark:bg-slate-800"
             }`}
           />
         ))}
       </div>
 
       <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            {allDone ? "All stages complete" : `Current stage · ${idx + 1} of ${milestones.length}`}
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            {allDone
+              ? "All stages complete"
+              : `Current stage · ${idx + 1} of ${milestones.length}`}
           </p>
-          <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+          <h2 className="mt-0.5 text-base font-semibold text-slate-900 dark:text-white leading-snug">
             {stage.title}
           </h2>
           <p
-            className={`mt-0.5 text-sm ${
+            className={`mt-1 inline-flex items-center gap-1.5 text-xs sm:text-sm ${
               due.overdue
                 ? "font-medium text-red-600 dark:text-red-400"
                 : "text-slate-500 dark:text-slate-400"
             }`}
           >
-            {due.text}
+            <Calendar className="h-3.5 w-3.5 shrink-0" />
+            <span>{due.text}</span>
           </p>
         </div>
-        <button type="button" onClick={onOpenStages} className={`${btnGhost} shrink-0`}>
-          All stages
+
+        <button
+          type="button"
+          onClick={onOpenStages}
+          className={`${btnSecondary} shrink-0 !h-9 !px-3 text-xs sm:text-sm`}
+        >
+          <span>All stages</span>
+          <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
         </button>
       </div>
 
       {stageTasks.length > 0 ? (
-        <div>
+        <div className="pt-0.5">
+          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-1.5">
+            <span>Stage task progress</span>
+            <span className="font-medium text-slate-700 dark:text-slate-200">
+              {done} of {stageTasks.length} done ({percent}%)
+            </span>
+          </div>
           <div
             className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800"
             role="progressbar"
@@ -85,17 +106,14 @@ export function StageSummary({
             aria-label="Tasks completed in this stage"
           >
             <div
-              className="h-full rounded-full bg-slate-900 dark:bg-white transition-all"
+              className="h-full rounded-full bg-slate-900 dark:bg-white transition-all duration-300"
               style={{ width: `${percent}%` }}
             />
           </div>
-          <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
-            {done} of {stageTasks.length} tasks done for this stage
-          </p>
         </div>
       ) : (
-        <p className="text-sm text-slate-500 dark:text-slate-400">
-          No tasks are linked to this stage yet. Choose a stage when creating a task.
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+          No tasks linked to this stage yet. Link tasks when creating or editing them.
         </p>
       )}
     </section>

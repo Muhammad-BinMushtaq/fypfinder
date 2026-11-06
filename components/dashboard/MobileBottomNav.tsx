@@ -75,10 +75,12 @@ export function MobileBottomNav() {
         target &&
         (target.tagName === "INPUT" ||
           target.tagName === "TEXTAREA" ||
-          target.tagName === "SELECT" ||
           target.isContentEditable)
       ) {
-        setIsKeyboardVisible(true);
+        const inputType = (target as HTMLInputElement).type;
+        if (inputType !== "checkbox" && inputType !== "radio" && inputType !== "button" && inputType !== "submit") {
+          setIsKeyboardVisible(true);
+        }
       }
     };
 
@@ -89,7 +91,6 @@ export function MobileBottomNav() {
           !active ||
           (active.tagName !== "INPUT" &&
             active.tagName !== "TEXTAREA" &&
-            active.tagName !== "SELECT" &&
             !active.isContentEditable)
         ) {
           setIsKeyboardVisible(false);

@@ -214,9 +214,7 @@ export function DashboardShell({ userEmail, children }: DashboardShellProps) {
         className={`flex-1 min-w-0 w-full lg:pl-[17.5rem] ${
           isChatOpen
             ? "max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:right-0 max-lg:z-40 lg:static lg:z-0 lg:pr-4 lg:py-4 h-[100dvh] overflow-hidden flex flex-col"
-            : shouldShowBottomNav
-            ? "lg:pr-4 lg:py-4 pb-28 lg:pb-4 overflow-x-hidden flex flex-col min-h-screen"
-            : "lg:pr-4 lg:py-4 pb-6 lg:pb-4 overflow-x-hidden flex flex-col min-h-screen"
+            : "lg:pr-4 lg:py-4 overflow-x-hidden flex flex-col min-h-screen"
         }`}
       >
         {/* Floating Desktop Main Container */}

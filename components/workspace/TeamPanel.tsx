@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { UserPlus, MessageSquare } from "lucide-react";
 import { toast } from "react-toastify";
 import {
   useUpdateGroupVisibility,
@@ -24,6 +25,7 @@ import {
   btnGhost,
   btnDangerText,
   inputCls,
+  cardSurface,
 } from "./workspaceUi";
 
 interface TeamPanelProps {
@@ -31,7 +33,7 @@ interface TeamPanelProps {
   meta?: GroupWorkspaceMeta;
   currentUserId?: string;
   profileId?: string;
-  /** Increment to open the "Add member" panel from elsewhere on the page. */
+  /** Increment to open the "Add member" modal from elsewhere on the page. */
   addMemberSignal?: number;
 }
 
@@ -126,35 +128,31 @@ export function TeamPanel({
   };
 
   return (
-    <div className="space-y-8">
-      {/* Members */}
-      <section className="space-y-3">
+    <div className="space-y-4 sm:space-y-5">
+      {/* Members Card */}
+      <section className={`${cardSurface} p-4 sm:p-5 space-y-4`}>
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-base font-semibold text-slate-900 dark:text-white">
-            Members{" "}
-            <span className="font-normal text-slate-500">
-              {group.members.length} of 3
+          <div className="flex items-center gap-2">
+            <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+              Team members
+            </h2>
+            <span className="rounded-full bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-xs font-medium text-slate-600 dark:text-slate-300">
+              {group.members.length}/3
             </span>
-          </h2>
+          </div>
           {canAdd && (
             <button
               type="button"
-              onClick={() => setShowAdd((v) => !v)}
-              aria-expanded={showAdd}
-              className={showAdd ? btnSecondary : btnPrimary}
+              onClick={() => setShowAdd(true)}
+              className={`${btnPrimary} !h-9 !px-3 text-xs sm:text-sm`}
             >
-              {showAdd ? "Close" : "Add member"}
+              <UserPlus className="h-3.5 w-3.5" />
+              <span>Add member</span>
             </button>
           )}
         </div>
 
-        {showAdd && canAdd && (
-          <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-4">
-            <CollaboratorSearch autoFocus />
-          </div>
-        )}
-
-        <ul className="divide-y divide-slate-100 dark:divide-slate-800 rounded-xl border border-slate-200 dark:border-slate-800">
+        <ul className="divide-y divide-slate-100 dark:divide-slate-800/80 rounded-xl border border-slate-200/80 dark:border-slate-800 overflow-hidden">
           {group.members.map((member) => {
             const self = isSelfId(member.id);
             const role = memberRoles[member.id] || "";
@@ -169,56 +167,66 @@ export function TeamPanel({
             return (
               <li
                 key={member.id}
-                className="flex flex-col gap-2 p-3.5 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-3 p-3.5 sm:flex-row sm:items-start sm:justify-between"
               >
-                <div className="flex min-w-0 items-start gap-3">
-                  <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-sm font-medium text-slate-700 dark:text-slate-200">
+                <div className="flex min-w-0 flex-1 items-start gap-3">
+                  <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200">
                     {initials}
                   </span>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-slate-900 dark:text-white">
-                      {member.name}
-                      <span className="ml-2 font-normal text-slate-500 dark:text-slate-400">
-                        {[self ? "You" : null, member.id === leaderId ? "Leader" : null]
-                          .filter(Boolean)
-                          .join(" · ")}
-                      </span>
-                    </p>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                        {member.name}
+                      </p>
+                      {(self || member.id === leaderId) && (
+                        <span className="inline-flex items-center rounded-md bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-[11px] font-medium text-slate-600 dark:text-slate-300">
+                          {[
+                            self ? "You" : null,
+                            member.id === leaderId ? "Leader" : null,
+                          ]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </span>
+                      )}
+                    </div>
+
+                    <p className="mt-0.5 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                       {member.department} · Semester {member.semester}
                     </p>
 
                     {editingRoleId === member.id ? (
-                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <div className="mt-2.5 flex flex-col gap-2 sm:flex-row sm:items-center">
                         <input
                           value={roleDraft}
                           onChange={(e) => setRoleDraft(e.target.value)}
-                          placeholder="e.g. Backend and database"
+                          placeholder="e.g. Backend & Database"
                           aria-label="Responsibility"
                           maxLength={50}
-                          className={`${inputCls} sm:w-60`}
+                          className={`${inputCls} sm:max-w-xs`}
                         />
-                        <button
-                          type="button"
-                          onClick={() => saveRole(member.id)}
-                          disabled={updateMeta.isPending}
-                          className={btnPrimary}
-                        >
-                          Save
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setEditingRoleId(null)}
-                          className={btnSecondary}
-                        >
-                          Cancel
-                        </button>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => saveRole(member.id)}
+                            disabled={updateMeta.isPending}
+                            className={`${btnPrimary} !h-9 !px-3.5 text-xs`}
+                          >
+                            Save
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setEditingRoleId(null)}
+                            className={`${btnSecondary} !h-9 !px-3 text-xs`}
+                          >
+                            Cancel
+                          </button>
+                        </div>
                       </div>
                     ) : (
-                      <p className="mt-0.5 text-sm text-slate-700 dark:text-slate-300">
+                      <div className="mt-1 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
                         {role ? (
-                          <>
-                            Responsible for: {role}
+                          <span>
+                            Role: <strong className="font-medium">{role}</strong>
                             {canEditRole && (
                               <button
                                 type="button"
@@ -226,12 +234,12 @@ export function TeamPanel({
                                   setEditingRoleId(member.id);
                                   setRoleDraft(role);
                                 }}
-                                className="ml-2 text-slate-500 underline underline-offset-2 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+                                className="ml-2 text-xs text-slate-500 underline underline-offset-2 hover:text-slate-900 dark:hover:text-white cursor-pointer"
                               >
                                 Edit
                               </button>
                             )}
-                          </>
+                          </span>
                         ) : (
                           canEditRole && (
                             <button
@@ -240,73 +248,81 @@ export function TeamPanel({
                                 setEditingRoleId(member.id);
                                 setRoleDraft("");
                               }}
-                              className="text-slate-500 underline underline-offset-2 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+                              className="text-xs text-slate-500 underline underline-offset-2 hover:text-slate-900 dark:hover:text-white cursor-pointer"
                             >
-                              Set responsibility
+                              + Set responsibility
                             </button>
                           )
                         )}
-                      </p>
+                      </div>
                     )}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1 sm:shrink-0 -ml-2.5 sm:ml-0 pl-12 sm:pl-0">
-                  {!self && (
-                    <button
-                      type="button"
-                      onClick={() => messageMember(member.id)}
-                      disabled={messagingId === member.id}
-                      className={btnGhost}
-                    >
-                      {messagingId === member.id ? "Opening..." : "Message"}
-                    </button>
-                  )}
-                  {!self && !isLocked && isCurrentUserLeader && (
-                    <button
-                      type="button"
-                      onClick={() => setMemberToRemove(member)}
-                      className={btnDangerText}
-                    >
-                      Remove
-                    </button>
-                  )}
-                </div>
+                {(!self || (!isLocked && isCurrentUserLeader && !self)) && (
+                  <div className="flex items-center gap-1.5 pl-12 sm:pl-0 sm:shrink-0">
+                    {!self && (
+                      <button
+                        type="button"
+                        onClick={() => messageMember(member.id)}
+                        disabled={messagingId === member.id}
+                        className={`${btnSecondary} !h-8 !px-2.5 text-xs`}
+                      >
+                        <MessageSquare className="h-3.5 w-3.5 text-slate-400" />
+                        <span>
+                          {messagingId === member.id ? "Opening..." : "Message"}
+                        </span>
+                      </button>
+                    )}
+                    {!self && !isLocked && isCurrentUserLeader && (
+                      <button
+                        type="button"
+                        onClick={() => setMemberToRemove(member)}
+                        className={`${btnDangerText} !h-8 !px-2.5 text-xs`}
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                )}
               </li>
             );
           })}
         </ul>
       </section>
 
-      {/* Pending invitations */}
+      {/* Pending Invitations Card */}
       {group.pendingInvites && group.pendingInvites.length > 0 && (
-        <section className="space-y-3">
-          <h2 className="text-base font-semibold text-slate-900 dark:text-white">
-            Pending invitations{" "}
-            <span className="font-normal text-slate-500">
+        <section className={`${cardSurface} p-4 sm:p-5 space-y-3`}>
+          <div className="flex items-center gap-2">
+            <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+              Pending invitations
+            </h2>
+            <span className="rounded-full bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-xs font-medium text-slate-600 dark:text-slate-300">
               {group.pendingInvites.length}
             </span>
-          </h2>
-          <ul className="divide-y divide-slate-100 dark:divide-slate-800 rounded-xl border border-slate-200 dark:border-slate-800">
+          </div>
+
+          <ul className="divide-y divide-slate-100 dark:divide-slate-800 rounded-xl border border-slate-200/80 dark:border-slate-800 overflow-hidden">
             {group.pendingInvites.map((inv) => (
               <li
                 key={inv.requestId}
-                className="flex flex-col gap-1 p-3.5 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-2 p-3.5 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-slate-900 dark:text-white">
                     {inv.name}
                   </p>
-                  <p className="truncate text-sm text-slate-500 dark:text-slate-400">
-                    {inv.email} · Waiting for a reply
+                  <p className="truncate text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                    {inv.email} · Waiting for reply
                   </p>
                 </div>
-                <div className="flex items-center gap-1 -ml-2.5 sm:ml-0">
+                <div className="flex items-center gap-1.5 self-start sm:self-auto">
                   <button
                     type="button"
                     onClick={() => resendInvite.mutate(inv.requestId)}
                     disabled={resendInvite.isPending}
-                    className={btnGhost}
+                    className={`${btnSecondary} !h-8 !px-2.5 text-xs`}
                   >
                     Resend email
                   </button>
@@ -314,7 +330,7 @@ export function TeamPanel({
                     type="button"
                     onClick={() => cancelInvite.mutate(inv.requestId)}
                     disabled={cancelInvite.isPending}
-                    className={btnDangerText}
+                    className={`${btnDangerText} !h-8 !px-2.5 text-xs`}
                   >
                     Withdraw
                   </button>
@@ -325,19 +341,20 @@ export function TeamPanel({
         </section>
       )}
 
-      {/* Settings */}
-      <section className="space-y-1">
-        <h2 className="mb-2 text-base font-semibold text-slate-900 dark:text-white">
-          Settings
+      {/* Settings Card */}
+      <section className={`${cardSurface} p-4 sm:p-5 space-y-3`}>
+        <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+          Group settings
         </h2>
-        <div className="divide-y divide-slate-100 dark:divide-slate-800 rounded-xl border border-slate-200 dark:border-slate-800">
+
+        <div className="divide-y divide-slate-100 dark:divide-slate-800 rounded-xl border border-slate-200/80 dark:border-slate-800 overflow-hidden">
           <div className="flex items-center justify-between gap-4 p-3.5">
             <div className="min-w-0">
               <p className="text-sm font-medium text-slate-900 dark:text-white">
-                Show my group on my public profile
+                Show group on my public profile
               </p>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                Shows your project title and teammates in Find Partners.
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                Displays your project title and teammates in Find Partners.
               </p>
             </div>
             <button
@@ -362,14 +379,14 @@ export function TeamPanel({
           </div>
 
           {!isLocked && (
-            <div className="flex flex-col gap-2 p-3.5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-2.5 p-3.5 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
                 <p className="text-sm font-medium text-slate-900 dark:text-white">
-                  Lock the roster
+                  Lock the team roster
                 </p>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                   {group.members.length < 2
-                    ? "Needs at least 2 members."
+                    ? "Requires at least 2 team members."
                     : "Finalizes your 2–3 member team."}
                 </p>
               </div>
@@ -377,7 +394,7 @@ export function TeamPanel({
                 type="button"
                 onClick={() => setShowLock(true)}
                 disabled={group.members.length < 2 || lockGroup.isPending}
-                className={`${btnSecondary} self-start sm:self-auto`}
+                className={`${btnSecondary} self-start sm:self-auto !h-9 text-xs sm:text-sm`}
               >
                 Lock roster
               </button>
@@ -385,21 +402,21 @@ export function TeamPanel({
           )}
 
           {!isLocked && (
-            <div className="flex flex-col gap-2 p-3.5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-2.5 p-3.5 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
                 <p className="text-sm font-medium text-slate-900 dark:text-white">
                   {isSolo ? "Delete this workspace" : "Leave this group"}
                 </p>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                   {isSolo
-                    ? "You are the only member, so the workspace and its tasks will be deleted."
-                    : "Your tasks will become unassigned."}
+                    ? "You are the only member, so this workspace and its tasks will be deleted."
+                    : "Your assigned tasks will become unassigned."}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowLeave(true)}
-                className={`${btnDangerText} self-start sm:self-auto`}
+                className={`${btnDangerText} self-start sm:self-auto -ml-2.5 sm:ml-0`}
               >
                 {isSolo ? "Delete workspace" : "Leave group"}
               </button>
@@ -407,6 +424,26 @@ export function TeamPanel({
           )}
         </div>
       </section>
+
+      {/* Invite Member Sheet */}
+      {showAdd && canAdd && (
+        <Sheet
+          title="Invite a team member"
+          description="Search classmates from your semester. They will receive an email invitation."
+          onClose={() => setShowAdd(false)}
+          footer={
+            <button
+              type="button"
+              onClick={() => setShowAdd(false)}
+              className={btnSecondary}
+            >
+              Done
+            </button>
+          }
+        >
+          <CollaboratorSearch />
+        </Sheet>
+      )}
 
       {showLeave && (
         <Sheet
@@ -431,7 +468,7 @@ export function TeamPanel({
                 type="button"
                 onClick={confirmLeave}
                 disabled={leaveGroup.isPending}
-                className="inline-flex h-11 sm:h-10 items-center justify-center rounded-lg bg-red-600 px-4 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 cursor-pointer"
+                className="inline-flex h-10 items-center justify-center rounded-xl bg-red-600 px-4 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 cursor-pointer"
               >
                 {leaveGroup.isPending
                   ? "Working..."
@@ -442,7 +479,9 @@ export function TeamPanel({
             </>
           }
         >
-          <span />
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+            Please confirm that you want to proceed.
+          </p>
         </Sheet>
       )}
 
@@ -469,14 +508,16 @@ export function TeamPanel({
                   })
                 }
                 disabled={removeMember.isPending}
-                className="inline-flex h-11 sm:h-10 items-center justify-center rounded-lg bg-red-600 px-4 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 cursor-pointer"
+                className="inline-flex h-10 items-center justify-center rounded-xl bg-red-600 px-4 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 cursor-pointer"
               >
                 {removeMember.isPending ? "Removing..." : "Remove"}
               </button>
             </>
           }
         >
-          <span />
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+            {memberToRemove.name} will be notified that they have been removed from the team.
+          </p>
         </Sheet>
       )}
 
@@ -510,7 +551,9 @@ export function TeamPanel({
             </>
           }
         >
-          <span />
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+            Make sure all teammates have joined before locking the roster.
+          </p>
         </Sheet>
       )}
     </div>

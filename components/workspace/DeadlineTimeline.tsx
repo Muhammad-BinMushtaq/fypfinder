@@ -96,7 +96,7 @@ export function describeStageDue(
 }
 
 /**
- * Full list of academic stages. Shown inside a panel opened from the compact stage summary.
+ * Full list of academic stages. Shown inside a Sheet opened from the compact stage summary.
  * Every stage can be edited, re-dated, completed, removed, or used as a task filter.
  */
 export function DeadlineTimeline({
@@ -188,7 +188,12 @@ export function DeadlineTimeline({
   };
 
   const remove = (id: string) => {
-    if (!window.confirm("Remove this stage? Tasks linked to it will keep their other details.")) return;
+    if (
+      !window.confirm(
+        "Remove this stage? Tasks linked to it will keep their other details."
+      )
+    )
+      return;
     if (selectedMilestoneId === id) onSelectMilestone?.("ALL");
     save(milestones.filter((m) => m.id !== id));
   };
@@ -224,61 +229,63 @@ export function DeadlineTimeline({
 
           if (editingId === m.id) {
             return (
-              <li key={m.id} className="space-y-3 py-4">
-                <input
-                  type="text"
-                  value={editTitle}
-                  onChange={(e) => setEditTitle(e.target.value)}
-                  placeholder="Stage name"
-                  aria-label="Stage name"
-                  className={inputCls}
-                />
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <li key={m.id} className="py-3">
+                <div className="space-y-3 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 p-3.5">
                   <input
-                    type="date"
-                    value={editDate}
-                    onChange={(e) => setEditDate(e.target.value)}
-                    aria-label="Stage due date"
+                    type="text"
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    placeholder="Stage name"
+                    aria-label="Stage name"
                     className={inputCls}
                   />
-                  <select
-                    value={editStatus}
-                    onChange={(e) =>
-                      setEditStatus(e.target.value as MilestoneStatus)
-                    }
-                    aria-label="Stage status"
-                    className={inputCls}
-                  >
-                    <option value="UPCOMING">Upcoming</option>
-                    <option value="IN_PROGRESS">In progress</option>
-                    <option value="COMPLETED">Completed</option>
-                  </select>
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => saveEdit(m.id)}
-                    disabled={updateMeta.isPending || !editTitle.trim()}
-                    className={btnPrimary}
-                  >
-                    Save
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setEditingId(null)}
-                    className={btnSecondary}
-                  >
-                    Cancel
-                  </button>
-                  {milestones.length > 1 && (
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <input
+                      type="date"
+                      value={editDate}
+                      onChange={(e) => setEditDate(e.target.value)}
+                      aria-label="Stage due date"
+                      className={inputCls}
+                    />
+                    <select
+                      value={editStatus}
+                      onChange={(e) =>
+                        setEditStatus(e.target.value as MilestoneStatus)
+                      }
+                      aria-label="Stage status"
+                      className={inputCls}
+                    >
+                      <option value="UPCOMING">Upcoming</option>
+                      <option value="IN_PROGRESS">In progress</option>
+                      <option value="COMPLETED">Completed</option>
+                    </select>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => remove(m.id)}
-                      className={`${btnDangerText} ml-auto`}
+                      onClick={() => saveEdit(m.id)}
+                      disabled={updateMeta.isPending || !editTitle.trim()}
+                      className={btnPrimary}
                     >
-                      Remove stage
+                      Save
                     </button>
-                  )}
+                    <button
+                      type="button"
+                      onClick={() => setEditingId(null)}
+                      className={btnSecondary}
+                    >
+                      Cancel
+                    </button>
+                    {milestones.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => remove(m.id)}
+                        className={`${btnDangerText} ml-auto`}
+                      >
+                        Remove stage
+                      </button>
+                    )}
+                  </div>
                 </div>
               </li>
             );
@@ -287,7 +294,7 @@ export function DeadlineTimeline({
           return (
             <li key={m.id} className="flex items-start gap-3 py-3.5">
               <span
-                className={`relative mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-medium ${
+                className={`relative mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
                   isDone
                     ? "bg-emerald-600 text-white"
                     : isCurrent
@@ -301,7 +308,7 @@ export function DeadlineTimeline({
                     aria-label={`Status of ${m.title}`}
                     value={m.status}
                     onChange={(e) => setStatus(m, e.target.value)}
-                    className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                    className="absolute inset-0 h-full w-full cursor-pointer opacity-0 text-base"
                   >
                     <option value="UPCOMING">Upcoming</option>
                     <option value="IN_PROGRESS">In progress</option>
@@ -311,21 +318,23 @@ export function DeadlineTimeline({
               </span>
 
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-slate-900 dark:text-white">
+                <p className="text-sm font-semibold text-slate-900 dark:text-white leading-snug">
                   {m.title}
                 </p>
-                <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
+                <p className="mt-0.5 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                   {STAGE_STATUS_LABEL[m.status]} ·{" "}
                   <span
                     className={
-                      due.overdue ? "font-medium text-red-600 dark:text-red-400" : ""
+                      due.overdue
+                        ? "font-medium text-red-600 dark:text-red-400"
+                        : ""
                     }
                   >
                     {due.text}
                   </span>
                   {s.total > 0 && ` · ${s.done}/${s.total} tasks done`}
                 </p>
-                <div className="mt-1 flex flex-wrap items-center gap-1 -ml-2.5">
+                <div className="mt-1.5 flex flex-wrap items-center gap-1 -ml-2.5">
                   {onSelectMilestone && s.total > 0 && (
                     <button
                       type="button"
@@ -361,7 +370,7 @@ export function DeadlineTimeline({
       {!previewMode && (
         <div className="pt-3">
           {isAdding ? (
-            <div className="space-y-3 rounded-xl border border-slate-200 dark:border-slate-800 p-4">
+            <div className="space-y-3 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 p-3.5">
               <input
                 type="text"
                 placeholder="New stage name (e.g. Prototype demo)"
