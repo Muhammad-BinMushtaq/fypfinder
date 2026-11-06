@@ -1,7 +1,7 @@
 // app/admin/(authenticated)/emails/page.tsx
 "use client"
 
-import { useState, useEffect, useCallback, useMemo } from "react"
+import { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import {
   Send,
   Search,
@@ -14,6 +14,8 @@ import {
   ChevronLeft,
   ChevronRight,
   RefreshCw,
+  Bold,
+  Italic,
 } from "lucide-react"
 import {
   previewEmailRecipients,
@@ -103,6 +105,20 @@ const QUICK_PRESETS: QuickPreset[] = [
     ctaText: "Open Idea Validator",
     ctaUrl: "/dashboard/fyp-ideas",
   },
+  {
+    id: "workspace_announcement",
+    label: "FYP Management Workspace Announcement",
+    campaignType: "ANNOUNCEMENT",
+    completionStatus: "ALL",
+    semesters: [],
+    seekingStatus: "ALL",
+    subject: "Manage your Final Year Project in the new FYPMate Workspace",
+    heading: "Your Complete FYP Management Workspace is Live",
+    bodyText:
+      "You can now plan and track your entire Final Year Project directly inside **FYPMate Workspace**.\n\nTrack academic milestones, assign tasks to teammates with *automated email notifications*, log supervisor meeting feedback, and keep your GitHub repository and SRS links in one place.",
+    ctaText: "Open FYP Workspace",
+    ctaUrl: "/dashboard/fyp",
+  },
 ]
 
 const TRIGGER_ITEMS: Array<{
@@ -191,6 +207,67 @@ export default function AdminEmailsPage() {
   const [isSending, setIsSending] = useState(false)
   const [isSendingTest, setIsSendingTest] = useState(false)
   const [testEmailAddress, setTestEmailAddress] = useState("")
+  const bodyTextareaRef = useRef<HTMLTextAreaElement | null>(null)
+
+  const applyInlineFormat = (marker: "**" | "*") => {
+    const el = bodyTextareaRef.current
+    const currentText = filters.bodyText || ""
+    if (!el) {
+      const placeholder = marker === "**" ? "**bold text**" : "*italic text*"
+      setFilters((prev) => ({
+        ...prev,
+        bodyText: currentText ? `${currentText} ${placeholder}` : placeholder,
+      }))
+      return
+    }
+
+    const start = el.selectionStart ?? currentText.length
+    const end = el.selectionEnd ?? currentText.length
+    const selected = currentText.slice(start, end)
+    const fallbackWord = marker === "**" ? "bold text" : "italic text"
+    const mLen = marker.length
+
+    let nextText: string
+    let nextSelStart: number
+    let nextSelEnd: number
+
+    // If selection is already wrapped with the marker, unwrap it
+    if (
+      start >= mLen &&
+      currentText.slice(start - mLen, start) === marker &&
+      currentText.slice(end, end + mLen) === marker
+    ) {
+      nextText =
+        currentText.slice(0, start - mLen) +
+        selected +
+        currentText.slice(end + mLen)
+      nextSelStart = start - mLen
+      nextSelEnd = end - mLen
+    } else if (
+      selected.startsWith(marker) &&
+      selected.endsWith(marker) &&
+      selected.length > mLen * 2
+    ) {
+      const inner = selected.slice(mLen, selected.length - mLen)
+      nextText =
+        currentText.slice(0, start) + inner + currentText.slice(end)
+      nextSelStart = start
+      nextSelEnd = start + inner.length
+    } else {
+      const content = selected || fallbackWord
+      const replacement = `${marker}${content}${marker}`
+      nextText =
+        currentText.slice(0, start) + replacement + currentText.slice(end)
+      nextSelStart = start + mLen
+      nextSelEnd = start + mLen + content.length
+    }
+
+    setFilters((prev) => ({ ...prev, bodyText: nextText }))
+    requestAnimationFrame(() => {
+      el.focus()
+      el.setSelectionRange(nextSelStart, nextSelEnd)
+    })
+  }
 
   // Trigger preview modal state
   const [selectedTriggerPreview, setSelectedTriggerPreview] =
@@ -1016,25 +1093,104 @@ export default function AdminEmailsPage() {
               </div>
             )}
 
-            {/* Message Body */}
+            {/* Message Body with Bold & Italic Formatting */}
             <div>
-              <div className="mb-1 flex items-center justify-between">
+              <div className="mb-1.5 flex flex-wrap items-center justify-between gap-2">
                 <label className="text-xs font-medium text-slate-600 dark:text-slate-400">
                   Message Content
                 </label>
-                <span className="text-[11px] text-slate-400">
-                  Variables: {"{{name}}"}, {"{{department}}"}, {"{{semester}}"}
-                </span>
+                <div className="flex items-center gap-1.5">
+                  <div className="inline-flex items-center rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-0.5">
+                    <button
+                      type="button"
+                      onClick={() => applyInlineFormat("**")}
+                      title="Bold (**text**) — Ctrl+B"
+                      className="inline-flex h-6 w-6 items-center justify-center rounded text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 cursor-pointer"
+                    >
+                      <Bold className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => applyInlineFormat("*")}
+                      title="Italic (*text*) — Ctrl+I"
+                      className="inline-flex h-6 w-6 items-center justify-center rounded text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 cursor-pointer"
+                    >
+                      <Italic className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  <span className="text-[11px] text-slate-400">
+                    {"{{name}}"}, {"{{department}}"}, {"{{semester}}"}
+                  </span>
+                </div>
               </div>
               <textarea
+                ref={bodyTextareaRef}
                 rows={4}
-                placeholder="Optional custom message paragraph (leave empty for default template text)..."
+                placeholder="Optional custom message paragraph (use **bold** or *italic*, or leave empty for default template text)..."
                 value={filters.bodyText || ""}
                 onChange={(e) =>
                   setFilters((prev) => ({ ...prev, bodyText: e.target.value }))
                 }
+                onKeyDown={(e) => {
+                  if (e.ctrlKey || e.metaKey) {
+                    if (e.key.toLowerCase() === "b") {
+                      e.preventDefault()
+                      applyInlineFormat("**")
+                    } else if (e.key.toLowerCase() === "i") {
+                      e.preventDefault()
+                      applyInlineFormat("*")
+                    }
+                  }
+                }}
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/60 p-3 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
               />
+            </div>
+
+            {/* Bottom Action Button Text & Link (CTA) */}
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
+                  Button Text
+                </label>
+                <input
+                  type="text"
+                  maxLength={80}
+                  placeholder={
+                    filters.campaignType === "ANNOUNCEMENT"
+                      ? "e.g. Open FYP Workspace"
+                      : filters.campaignType === "ONBOARDING_INCOMPLETE"
+                      ? "Complete Account Setup"
+                      : "Update Profile"
+                  }
+                  value={filters.ctaText || ""}
+                  onChange={(e) =>
+                    setFilters((prev) => ({ ...prev, ctaText: e.target.value }))
+                  }
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/60 px-3.5 py-2 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
+                  Button Link / Path
+                </label>
+                <input
+                  type="text"
+                  maxLength={500}
+                  placeholder={
+                    filters.campaignType === "ANNOUNCEMENT"
+                      ? "e.g. /dashboard/fyp"
+                      : filters.campaignType === "ONBOARDING_INCOMPLETE"
+                      ? "/dashboard/discovery"
+                      : "/dashboard/profile"
+                  }
+                  value={filters.ctaUrl || ""}
+                  onChange={(e) =>
+                    setFilters((prev) => ({ ...prev, ctaUrl: e.target.value }))
+                  }
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/60 px-3.5 py-2 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
+                />
+              </div>
             </div>
 
             {/* Test Send Row */}

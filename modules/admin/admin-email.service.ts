@@ -184,6 +184,8 @@ export function buildCampaignEmailForStudent(
       semester: student.currentSemester,
       customSubject: filters.subject,
       customIntro: filters.bodyText,
+      ctaText: filters.ctaText,
+      ctaUrl: filters.ctaUrl,
     })
     return {
       ...res,
@@ -248,6 +250,8 @@ export function buildCampaignEmailForStudent(
     completenessPercent: student.completenessPercent,
     customSubject: filters.subject,
     customIntro: filters.bodyText,
+    ctaText: filters.ctaText,
+    ctaUrl: filters.ctaUrl,
   })
   return {
     ...res,

@@ -56,6 +56,35 @@ function escapeHtml(raw: string): string {
 }
 
 /**
+ * Safely escapes HTML first, then applies lightweight inline formatting:
+ *  - **bold** -> <strong>bold</strong>
+ *  - *italic* -> <em>italic</em>
+ *  - newlines -> <br/>
+ */
+function formatEmailBodyHtml(raw: string): string {
+  const escaped = escapeHtml(raw)
+  return escaped
+    .replace(
+      /\*\*([\s\S]+?)\*\*/g,
+      '<strong style="font-weight: 600; color: #0f172a;">$1</strong>'
+    )
+    .replace(/(?<!\*)\*([^*\n]+?)\*(?!\*)/g, "<em>$1</em>")
+    .replace(/\n/g, "<br/>")
+}
+
+function resolveCtaUrl(ctaUrl: string | undefined, defaultPath: string): string {
+  const appUrl = getAppBaseUrl()
+  const trimmed = ctaUrl?.trim()
+  if (!trimmed) {
+    return `${appUrl}${defaultPath.startsWith("/") ? "" : "/"}${defaultPath}`
+  }
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed
+  }
+  return `${appUrl}${trimmed.startsWith("/") ? "" : "/"}${trimmed}`
+}
+
+/**
  * Replaces personalization tokens ({{name}}, {{first_name}}, {{department}}, {{semester}}).
  * Always uses the complete student name.
  */
@@ -155,8 +184,9 @@ export function buildOnboardingReminderEmail(params: {
   semester?: number
   customSubject?: string
   customIntro?: string
+  ctaText?: string
+  ctaUrl?: string
 }): { subject: string; html: string } {
-  const appUrl = getAppBaseUrl()
   const fullName = params.studentName.trim()
 
   const subject = params.customSubject?.trim()
@@ -168,23 +198,26 @@ export function buildOnboardingReminderEmail(params: {
     : `${fullName} — Complete your FYPMate account setup`
 
   const introHtml = params.customIntro?.trim()
-    ? `<p style="margin: 0 0 16px 0; color: #334155; font-size: 14px; line-height: 1.6;">${escapeHtml(
+    ? `<p style="margin: 0 0 16px 0; color: #334155; font-size: 14px; line-height: 1.6;">${formatEmailBodyHtml(
         interpolatePersonalization(params.customIntro.trim(), {
           name: fullName,
           department: params.department,
           semester: params.semester,
         })
-      ).replace(/\n/g, "<br/>")}</p>`
+      )}</p>`
     : `<p style="margin: 0 0 16px 0; color: #334155; font-size: 14px; line-height: 1.6;">
         You signed in to FYPMate with your PAF-IAST account, but your initial profile setup is still incomplete. Please select your FYP status, skills, and preferred role so classmates in your department can find you.
       </p>`
+
+  const resolvedUrl = resolveCtaUrl(params.ctaUrl, "/dashboard/discovery")
+  const resolvedText = params.ctaText?.trim() || "Complete Account Setup"
 
   const bodyHtml = `
     <p style="margin: 0 0 14px 0; color: #0f172a; font-size: 15px; font-weight: 600;">
       Hi ${escapeHtml(fullName)},
     </p>
     ${introHtml}
-    ${buildCtaButton("Complete Account Setup", `${appUrl}/dashboard/discovery`)}
+    ${buildCtaButton(resolvedText, resolvedUrl)}
   `
 
   return {
@@ -201,8 +234,9 @@ export function buildProfileReminderEmail(params: {
   completenessPercent?: number
   customSubject?: string
   customIntro?: string
+  ctaText?: string
+  ctaUrl?: string
 }): { subject: string; html: string } {
-  const appUrl = getAppBaseUrl()
   const fullName = params.studentName.trim()
   const missingSections =
     params.missingSections.length > 0
@@ -227,13 +261,13 @@ export function buildProfileReminderEmail(params: {
     .join("")
 
   const introParagraph = params.customIntro?.trim()
-    ? `<p style="margin: 0 0 14px 0; color: #334155; font-size: 14px; line-height: 1.6;">${escapeHtml(
+    ? `<p style="margin: 0 0 14px 0; color: #334155; font-size: 14px; line-height: 1.6;">${formatEmailBodyHtml(
         interpolatePersonalization(params.customIntro.trim(), {
           name: fullName,
           department: params.department,
           semester: params.semester,
         })
-      ).replace(/\n/g, "<br/>")}</p>`
+      )}</p>`
     : `<p style="margin: 0 0 14px 0; color: #334155; font-size: 14px; line-height: 1.6;">
         Your FYPMate profile is missing the following information${
           params.completenessPercent !== undefined
@@ -241,6 +275,9 @@ export function buildProfileReminderEmail(params: {
             : ""
         }. Updating these fields helps classmates in your department review your background before sending partner requests:
       </p>`
+
+  const resolvedUrl = resolveCtaUrl(params.ctaUrl, "/dashboard/profile")
+  const resolvedText = params.ctaText?.trim() || "Update Profile"
 
   const bodyHtml = `
     <p style="margin: 0 0 14px 0; color: #0f172a; font-size: 15px; font-weight: 600;">
@@ -253,7 +290,7 @@ export function buildProfileReminderEmail(params: {
     <p style="margin: 0 0 16px 0; color: #64748b; font-size: 13px; line-height: 1.5;">
       If you have already formed your FYP group offline, you can also update your status to &ldquo;Not Looking&rdquo; on your profile page.
     </p>
-    ${buildCtaButton("Update Profile", `${appUrl}/dashboard/profile`)}
+    ${buildCtaButton(resolvedText, resolvedUrl)}
   `
 
   return {
@@ -274,7 +311,6 @@ export function buildAnnouncementEmail(params: {
   ctaText?: string
   ctaUrl?: string
 }): { subject: string; html: string } {
-  const appUrl = getAppBaseUrl()
   const fullName = params.recipientName.trim()
   const vars = {
     name: fullName,
@@ -293,17 +329,13 @@ export function buildAnnouncementEmail(params: {
     .split(/\n\s*\n/)
     .map(
       (para) =>
-        `<p style="margin: 0 0 14px 0; color: #334155; font-size: 14px; line-height: 1.6;">${escapeHtml(
+        `<p style="margin: 0 0 14px 0; color: #334155; font-size: 14px; line-height: 1.6;">${formatEmailBodyHtml(
           para.trim()
-        ).replace(/\n/g, "<br/>")}</p>`
+        )}</p>`
     )
     .join("")
 
-  const resolvedCtaUrl = params.ctaUrl?.trim()
-    ? params.ctaUrl.trim().startsWith("http")
-      ? params.ctaUrl.trim()
-      : `${appUrl}${params.ctaUrl.trim().startsWith("/") ? "" : "/"}${params.ctaUrl.trim()}`
-    : `${appUrl}/dashboard/discovery`
+  const resolvedCtaUrl = resolveCtaUrl(params.ctaUrl, "/dashboard/discovery")
 
   const bodyHtml = `
     <p style="margin: 0 0 12px 0; color: #0f172a; font-size: 15px; font-weight: 600;">
@@ -336,7 +368,6 @@ export function buildGeneralNotificationEmail(params: {
   ctaText?: string
   ctaUrl?: string
 }): { subject: string; html: string } {
-  const appUrl = getAppBaseUrl()
   const fullName = params.recipientName.trim()
   const vars = {
     name: fullName,
@@ -355,17 +386,13 @@ export function buildGeneralNotificationEmail(params: {
     .split(/\n\s*\n/)
     .map(
       (para) =>
-        `<p style="margin: 0 0 14px 0; color: #334155; font-size: 14px; line-height: 1.6;">${escapeHtml(
+        `<p style="margin: 0 0 14px 0; color: #334155; font-size: 14px; line-height: 1.6;">${formatEmailBodyHtml(
           para.trim()
-        ).replace(/\n/g, "<br/>")}</p>`
+        )}</p>`
     )
     .join("")
 
-  const resolvedCtaUrl = params.ctaUrl?.trim()
-    ? params.ctaUrl.trim().startsWith("http")
-      ? params.ctaUrl.trim()
-      : `${appUrl}${params.ctaUrl.trim().startsWith("/") ? "" : "/"}${params.ctaUrl.trim()}`
-    : `${appUrl}/dashboard/profile`
+  const resolvedCtaUrl = resolveCtaUrl(params.ctaUrl, "/dashboard/profile")
 
   const bodyHtml = `
     <p style="margin: 0 0 12px 0; color: #0f172a; font-size: 15px; font-weight: 600;">
