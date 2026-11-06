@@ -231,7 +231,6 @@ export default function FYPManagementPage() {
           meta={meta}
           isLocked={isGroupLocked}
           onEdit={() => setShowEditProject(true)}
-          onAddMember={openAddMember}
           onOpenSupervisor={() => setActiveTab("supervisor")}
         />
 
@@ -264,6 +263,12 @@ export default function FYPManagementPage() {
             groupId={group.id}
             milestones={milestones}
             onOpenStages={() => setShowStages(true)}
+            selectedMilestoneId={selectedMilestoneId}
+            onSelectMilestone={(id) => {
+              setSelectedMilestoneId(id);
+              if (id !== "ALL")
+                toast.info("Showing tasks for the selected stage");
+            }}
           />
 
           <KanbanBoard
