@@ -1,18 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Plus,
-  LayoutGrid,
-  List,
-  ExternalLink,
-  Calendar,
-  User,
-  Trash2,
-  ClipboardList,
   Check,
-  X,
-  Flag,
+  ChevronDown,
+  ChevronRight,
+  ClipboardList,
+  ExternalLink,
+  LayoutGrid,
+  List as ListIcon,
+  SlidersHorizontal,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import {
@@ -23,14 +21,28 @@ import {
   useDeleteTask,
   type FYPTask,
   type FYPMilestoneItem,
-  type TaskPriority,
 } from "@/services/workspace.service";
-import { TaskCard } from "./TaskCard";
+import {
+  TaskCard,
+  StatusControl,
+  STATUS_LABELS,
+  isTaskOverdue,
+  formatTaskDate,
+} from "./TaskCard";
 import { TaskDetailModal } from "./TaskDetailModal";
+import { STARTER_CHECKLIST_PACKS } from "./starterChecklists";
+import {
+  Sheet,
+  btnPrimary,
+  btnSecondary,
+  btnGhost,
+  inputCls,
+} from "./workspaceUi";
 
 interface KanbanBoardProps {
   groupId: string;
   members: any[];
+  currentStudentId?: string;
   milestones?: FYPMilestoneItem[];
   selectedMilestoneId?: string;
   onSelectMilestone?: (milestoneId: string) => void;
@@ -43,183 +55,29 @@ interface KanbanBoardProps {
   previewMode?: boolean;
 }
 
-const COLUMNS = [
-  {
-    id: "TODO",
-    title: "To Do",
-    shortTitle: "To Do",
-    bg: "bg-slate-100/70 dark:bg-slate-800/40 border border-slate-200/70 dark:border-slate-800/60",
-  },
-  {
-    id: "IN_PROGRESS",
-    title: "In Progress",
-    shortTitle: "Doing",
-    bg: "bg-sky-50/50 dark:bg-sky-950/20 border border-sky-100 dark:border-sky-900/30",
-  },
-  {
-    id: "REVIEW",
-    title: "Under Review",
-    shortTitle: "Review",
-    bg: "bg-amber-50/50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/30",
-  },
-  {
-    id: "DONE",
-    title: "Done",
-    shortTitle: "Done",
-    bg: "bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30",
-  },
+const COLUMNS: Array<{ id: FYPTask["status"]; title: string }> = [
+  { id: "TODO", title: "To do" },
+  { id: "IN_PROGRESS", title: "In progress" },
+  { id: "REVIEW", title: "In review" },
+  { id: "DONE", title: "Done" },
 ];
 
-interface StarterChecklistPack {
-  id: string;
-  title: string;
-  subtitle: string;
-  defaultMilestoneIndex: number;
-  items: Array<{
-    title: string;
-    description: string;
-    priority: TaskPriority;
-  }>;
-}
-
-const STARTER_CHECKLIST_PACKS: StarterChecklistPack[] = [
-  {
-    id: "pack-proposal",
-    title: "1. Proposal & Literature Review",
-    subtitle: "Problem scoping, literature matrix, and supervisor alignment",
-    defaultMilestoneIndex: 0,
-    items: [
-      {
-        title: "Define Problem Statement, Objectives & Scope",
-        description:
-          "Document the core problem, target users, measurable objectives, and explicit project boundaries.",
-        priority: "HIGH",
-      },
-      {
-        title: "Literature Review & Comparative Matrix (10–15 Papers)",
-        description:
-          "Summarize recent research papers/existing systems, their limitations, and how our FYP addresses the gap.",
-        priority: "HIGH",
-      },
-      {
-        title: "Select Tech Stack, Dataset & Hardware/Cloud Tools",
-        description:
-          "Finalize frameworks, database, APIs, or datasets required for feasibility.",
-        priority: "MEDIUM",
-      },
-      {
-        title: "Prepare Proposal Document & Defense Slides",
-        description:
-          "Draft the proposal report and presentation deck for supervisor and committee review.",
-        priority: "HIGH",
-      },
-    ],
-  },
-  {
-    id: "pack-srs",
-    title: "2. SRS & System Design",
-    subtitle: "Requirements specification, architecture diagrams, and database schema",
-    defaultMilestoneIndex: 1,
-    items: [
-      {
-        title: "Functional & Non-Functional Requirements Specification",
-        description:
-          "List user roles, user stories, functional modules, and performance/security constraints.",
-        priority: "HIGH",
-      },
-      {
-        title: "System Architecture & Data Flow Diagrams",
-        description:
-          "Create high-level architecture, use case diagrams, and sequence/activity diagrams.",
-        priority: "HIGH",
-      },
-      {
-        title: "Database Schema (ERD) & API Route Contracts",
-        description:
-          "Design entity relationships, tables, and backend API request/response schemas.",
-        priority: "MEDIUM",
-      },
-      {
-        title: "UI Wireframes & Interactive Prototype",
-        description:
-          "Design key user screens and navigation flows before full implementation.",
-        priority: "MEDIUM",
-      },
-    ],
-  },
-  {
-    id: "pack-prototype",
-    title: "3. Prototype & Midterm Evaluation",
-    subtitle: "Core implementation, integration, and midterm demonstration",
-    defaultMilestoneIndex: 2,
-    items: [
-      {
-        title: "Setup GitHub Repository, Branch Rules & Environment",
-        description:
-          "Initialize project repository, README, environment variables, and base project structure.",
-        priority: "HIGH",
-      },
-      {
-        title: "Build Core Backend / AI Model Pipeline",
-        description:
-          "Implement primary business logic, database operations, or model training/inference pipeline.",
-        priority: "HIGH",
-      },
-      {
-        title: "Integrate Frontend UI with Core Workflows",
-        description:
-          "Connect primary user-facing screens with live data for the end-to-end prototype.",
-        priority: "HIGH",
-      },
-      {
-        title: "Midterm Demo Rehearsal & Progress Presentation",
-        description:
-          "Test end-to-end demo scenario and prepare midterm evaluation slides.",
-        priority: "MEDIUM",
-      },
-    ],
-  },
-  {
-    id: "pack-final",
-    title: "4. Final Thesis & Defense",
-    subtitle: "Testing, evaluation metrics, final report chapters, and defense",
-    defaultMilestoneIndex: 3,
-    items: [
-      {
-        title: "End-to-End Testing, Bug Fixing & Performance Benchmarks",
-        description:
-          "Execute test cases, record accuracy/latency metrics, and resolve edge-case bugs.",
-        priority: "HIGH",
-      },
-      {
-        title: "Write Final Thesis / Report Chapters (Methodology & Results)",
-        description:
-          "Complete all thesis chapters, figures, tables, and IEEE/APA citations.",
-        priority: "HIGH",
-      },
-      {
-        title: "Supervisor Thesis Review & Plagiarism Check",
-        description:
-          "Incorporate final supervisor corrections and verify formatting/similarity compliance.",
-        priority: "MEDIUM",
-      },
-      {
-        title: "Final Defense Presentation, Live Demo & Code Handover",
-        description:
-          "Prepare final defense deck, backup demo video, and clean repository documentation.",
-        priority: "HIGH",
-      },
-    ],
-  },
+// Order in which groups appear in the List view (most active work first).
+const LIST_GROUPS: Array<FYPTask["status"]> = [
+  "IN_PROGRESS",
+  "REVIEW",
+  "TODO",
+  "DONE",
 ];
+
+const VIEW_STORAGE_KEY = "fypmate-task-view";
 
 const PREVIEW_TASKS: FYPTask[] = [
   {
     id: "preview-1",
     groupId: "preview-group",
     title: "Literature Review & Research Paper Survey",
-    description:
-      "Survey 10-15 peer-reviewed papers on transformer architectures and defense benchmarks.",
+    description: null,
     status: "TODO",
     priority: "HIGH",
     milestoneId: "m-1",
@@ -233,8 +91,7 @@ const PREVIEW_TASKS: FYPTask[] = [
     id: "preview-2",
     groupId: "preview-group",
     title: "System Architecture & API Schema Design",
-    description:
-      "Draft system architecture diagrams and PostgreSQL schema for midterm review.",
+    description: null,
     status: "IN_PROGRESS",
     priority: "HIGH",
     milestoneId: "m-2",
@@ -246,11 +103,21 @@ const PREVIEW_TASKS: FYPTask[] = [
   },
 ];
 
+function sortByDue(a: FYPTask, b: FYPTask) {
+  if (a.dueDate && b.dueDate) {
+    return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+  }
+  if (a.dueDate) return -1;
+  if (b.dueDate) return 1;
+  return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+}
+
 export function KanbanBoard({
   groupId,
   members,
+  currentStudentId,
   milestones = [],
-  selectedMilestoneId = "ALL",
+  selectedMilestoneId,
   onSelectMilestone,
   externalTaskPrefill,
   onClearExternalPrefill,
@@ -274,13 +141,16 @@ export function KanbanBoard({
   } | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [defaultStatus, setDefaultStatus] = useState("TODO");
-  const [viewMode, setViewMode] = useState<"board" | "list">("board");
-  const [mobileActiveColumn, setMobileActiveColumn] = useState<string>("TODO");
-  const [assigneeFilter, setAssigneeFilter] = useState<string>("ALL");
-  const [, setDraggedTaskId] = useState<string | null>(null);
 
-  // Starter Checklists Modal state
-  const [showChecklistsModal, setShowChecklistsModal] = useState(false);
+  // List is the default; the student's last choice is remembered on this device.
+  const [viewMode, setViewMode] = useState<"list" | "board">("list");
+  const [mobileColumn, setMobileColumn] = useState<FYPTask["status"]>("TODO");
+  const [assigneeFilter, setAssigneeFilter] = useState<string>("ALL");
+  const [localStage, setLocalStage] = useState<string>("ALL");
+  const [showFilters, setShowFilters] = useState(false);
+  const [showDone, setShowDone] = useState(false);
+
+  const [showChecklists, setShowChecklists] = useState(false);
   const [activePackId, setActivePackId] = useState<string>(
     STARTER_CHECKLIST_PACKS[0].id
   );
@@ -288,20 +158,46 @@ export function KanbanBoard({
     0, 1, 2, 3,
   ]);
 
-  // Open task modal automatically when triggered from Supervisor Action Item conversion
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(VIEW_STORAGE_KEY);
+      if (saved === "board" || saved === "list") setViewMode(saved);
+    } catch {
+      /* ignore storage errors */
+    }
+  }, []);
+
+  const changeView = (mode: "list" | "board") => {
+    setViewMode(mode);
+    try {
+      window.localStorage.setItem(VIEW_STORAGE_KEY, mode);
+    } catch {
+      /* ignore storage errors */
+    }
+  };
+
+  const stageFilter = onSelectMilestone
+    ? selectedMilestoneId ?? "ALL"
+    : localStage;
+  const setStageFilter = (id: string) => {
+    if (onSelectMilestone) onSelectMilestone(id);
+    else setLocalStage(id);
+  };
+
+  // Open the task dialog when a supervisor action item is converted to a task
   useEffect(() => {
     if (externalTaskPrefill) {
       setActiveTask(null);
       setModalPrefill({
         title: externalTaskPrefill.title,
         description: externalTaskPrefill.description,
-        milestoneId:
-          selectedMilestoneId !== "ALL" ? selectedMilestoneId : undefined,
+        milestoneId: stageFilter !== "ALL" ? stageFilter : undefined,
       });
       setDefaultStatus("TODO");
       setIsModalOpen(true);
     }
-  }, [externalTaskPrefill, selectedMilestoneId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [externalTaskPrefill]);
 
   const allTasks = previewMode ? previewTasks : serverTasks;
 
@@ -316,26 +212,34 @@ export function KanbanBoard({
     milestones.map((m) => [m.id, m.title])
   );
 
-  const filteredTasks = allTasks.filter((t) => {
-    if (assigneeFilter === "UNASSIGNED" && t.assignedToId) return false;
-    if (
-      assigneeFilter !== "ALL" &&
-      assigneeFilter !== "UNASSIGNED" &&
-      t.assignedToId !== assigneeFilter
-    ) {
-      return false;
-    }
-    if (selectedMilestoneId !== "ALL") {
-      if (selectedMilestoneId === "UNLINKED") return !t.milestoneId;
-      return t.milestoneId === selectedMilestoneId;
-    }
-    return true;
-  });
+  const filteredTasks = allTasks
+    .filter((t) => {
+      if (assigneeFilter === "MINE") {
+        if (!currentStudentId || t.assignedToId !== currentStudentId)
+          return false;
+      } else if (assigneeFilter === "UNASSIGNED") {
+        if (t.assignedToId) return false;
+      } else if (assigneeFilter !== "ALL") {
+        if (t.assignedToId !== assigneeFilter) return false;
+      }
+      if (stageFilter === "UNLINKED") return !t.milestoneId;
+      if (stageFilter !== "ALL") return t.milestoneId === stageFilter;
+      return true;
+    })
+    .sort(sortByDue);
 
-  const totalTasks = filteredTasks.length;
-  const doneTasks = filteredTasks.filter((t) => t.status === "DONE").length;
-  const progressPercent =
-    totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
+  const totalTasks = allTasks.length;
+  const doneTasks = allTasks.filter((t) => t.status === "DONE").length;
+
+  const advancedFilterCount =
+    (assigneeFilter !== "ALL" && assigneeFilter !== "MINE" ? 1 : 0) +
+    (stageFilter !== "ALL" ? 1 : 0);
+  const hasAnyFilter = assigneeFilter !== "ALL" || stageFilter !== "ALL";
+
+  const clearFilters = () => {
+    setAssigneeFilter("ALL");
+    setStageFilter("ALL");
+  };
 
   const handleInlineStatusChange = (task: FYPTask, newStatus: string) => {
     if (previewMode) {
@@ -353,27 +257,17 @@ export function KanbanBoard({
 
   const handleDragStart = (e: React.DragEvent, taskId: string) => {
     e.dataTransfer.setData("taskId", taskId);
-    setDraggedTaskId(taskId);
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
   };
 
   const handleDrop = (e: React.DragEvent, status: string) => {
     e.preventDefault();
     const taskId = e.dataTransfer.getData("taskId");
-    setDraggedTaskId(null);
-
-    if (taskId) {
-      const task = allTasks.find((t) => t.id === taskId);
-      if (task) {
-        handleInlineStatusChange(task, status);
-      }
-    }
+    if (!taskId) return;
+    const task = allTasks.find((t) => t.id === taskId);
+    if (task) handleInlineStatusChange(task, status);
   };
 
-  const openNewTaskModal = (status: string) => {
+  const openNewTaskModal = (status = "TODO") => {
     if (previewMode) {
       toast.info("Initialize your project space to assign live tasks.");
       return;
@@ -408,6 +302,7 @@ export function KanbanBoard({
           closeModal();
           toast.success("Task updated");
         },
+        onError: (err: any) => toast.error(err?.message || "Failed to update task"),
       });
     } else {
       createTask.mutate(data, {
@@ -418,10 +313,11 @@ export function KanbanBoard({
           closeModal();
           toast.success(
             data.assignedToId
-              ? "Task created & notification email sent to assignee"
+              ? "Task created and assignee notified by email"
               : "Task created"
           );
         },
+        onError: (err: any) => toast.error(err?.message || "Failed to create task"),
       });
     }
   };
@@ -431,17 +327,16 @@ export function KanbanBoard({
       closeModal();
       return;
     }
-
-    deleteTask.mutate(taskId, {
-      onSuccess: () => closeModal(),
-    });
+    deleteTask.mutate(taskId, { onSuccess: () => closeModal() });
   };
 
   const activePack =
     STARTER_CHECKLIST_PACKS.find((p) => p.id === activePackId) ||
     STARTER_CHECKLIST_PACKS[0];
 
-  const handleSelectPack = (pack: StarterChecklistPack) => {
+  const handleSelectPack = (packId: string) => {
+    const pack = STARTER_CHECKLIST_PACKS.find((p) => p.id === packId);
+    if (!pack) return;
     setActivePackId(pack.id);
     setSelectedPackIndices(pack.items.map((_, idx) => idx));
   };
@@ -456,7 +351,6 @@ export function KanbanBoard({
     if (previewMode) return;
     const targetMilestone =
       milestones[activePack.defaultMilestoneIndex] || milestones[0] || null;
-
     const existingTitles = new Set(
       allTasks.map((t) => t.title.trim().toLowerCase())
     );
@@ -472,277 +366,419 @@ export function KanbanBoard({
       }));
 
     if (itemsToCreate.length === 0) {
-      toast.info("Selected starter tasks are already on your board");
-      setShowChecklistsModal(false);
+      toast.info("Selected tasks are already on your board");
+      setShowChecklists(false);
       return;
     }
 
     createBatchTasks.mutate(itemsToCreate, {
       onSuccess: (created) => {
-        toast.success(`Added ${created.length} starter tasks to your board`);
-        setShowChecklistsModal(false);
+        toast.success(`Added ${created.length} tasks`);
+        setShowChecklists(false);
       },
-      onError: (err: any) => {
-        toast.error(err?.message || "Failed to add starter tasks");
-      },
+      onError: (err: any) => toast.error(err?.message || "Failed to add tasks"),
     });
   };
 
   if (!previewMode && isLoading) {
     return (
-      <div className="flex h-48 items-center justify-center">
+      <div className="flex h-40 items-center justify-center">
         <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-900 dark:border-white border-t-transparent" />
       </div>
     );
   }
 
+  // Stage name is shown on a task only when it is not already implied by the active stage filter.
+  const stageLabelFor = (task: FYPTask) =>
+    stageFilter === "ALL" && task.milestoneId
+      ? milestoneMap.get(task.milestoneId) || null
+      : null;
+
+  const segBase =
+    "inline-flex h-10 items-center justify-center px-3.5 text-sm font-medium rounded-md transition-colors cursor-pointer";
+  const segOn =
+    "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm";
+  const segOff = "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white";
+
   return (
-    <div className="rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900/60 space-y-4">
-      {/* Header Bar with Starter Checklists & Assign Task Buttons */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
-        <div>
-          <h3 className="text-base font-bold text-slate-900 dark:text-white">
-            Team Task Board
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Assign tasks with target dates, link them to academic milestones, or load starter checklists.
+    <section className="space-y-4">
+      {/* Section header: title + primary action (always in the page flow, never floating) */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+            Tasks
+          </h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            {totalTasks === 0
+              ? "Nothing here yet"
+              : `${doneTasks} of ${totalTasks} done`}
           </p>
         </div>
-
-        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
-          <div className="inline-flex items-center rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 p-0.5">
-            <button
-              type="button"
-              onClick={() => setViewMode("board")}
-              className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors cursor-pointer ${
-                viewMode === "board"
-                  ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-2xs"
-                  : "text-slate-500 hover:text-slate-900 dark:text-slate-400"
-              }`}
-            >
-              <LayoutGrid className="w-3.5 h-3.5" />
-              Board
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode("list")}
-              className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors cursor-pointer ${
-                viewMode === "list"
-                  ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-2xs"
-                  : "text-slate-500 hover:text-slate-900 dark:text-slate-400"
-              }`}
-            >
-              <List className="w-3.5 h-3.5" />
-              List
-            </button>
-          </div>
-
+        <div className="flex items-center gap-1.5 shrink-0">
           {!previewMode && (
             <button
               type="button"
-              onClick={() => setShowChecklistsModal(true)}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+              onClick={() => setShowChecklists(true)}
+              className={`${btnGhost} hidden sm:inline-flex`}
             >
-              <ClipboardList className="w-3.5 h-3.5" />
-              <span>Starter Checklists</span>
+              <ClipboardList className="h-4 w-4" />
+              Checklists
             </button>
           )}
-
           <button
             type="button"
             onClick={() => openNewTaskModal("TODO")}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-3.5 py-2 text-xs font-semibold text-white hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 transition-colors shadow-xs cursor-pointer"
+            className={btnPrimary}
           >
-            <Plus className="w-3.5 h-3.5" />
-            Assign Task
+            <Plus className="h-4 w-4" />
+            New task
           </button>
         </div>
       </div>
 
-      {/* Filter Pills (Assignee & Milestone Stage) & Progress */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-1.5">
+      {/* Controls: scope toggle, filters, view */}
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="inline-flex rounded-lg bg-slate-100 dark:bg-slate-800 p-1">
           <button
             type="button"
             onClick={() => setAssigneeFilter("ALL")}
-            className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
-              assigneeFilter === "ALL"
-                ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
-                : "bg-slate-100/80 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200/70"
-            }`}
+            className={`${segBase} ${assigneeFilter === "ALL" ? segOn : segOff}`}
           >
-            All ({allTasks.length})
+            Everyone
           </button>
-          {effectiveMembers.map((member) => {
-            const memberTasks = allTasks.filter(
-              (t) => t.assignedToId === member.id
-            );
-            const memberDone = memberTasks.filter(
-              (t) => t.status === "DONE"
-            ).length;
-            return (
-              <button
-                key={member.id}
-                type="button"
-                onClick={() => setAssigneeFilter(member.id)}
-                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
-                  assigneeFilter === member.id
-                    ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
-                    : "bg-slate-100/80 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200/70"
-                }`}
-              >
-                <span>{member.name}</span>
-                <span className="text-[10px] opacity-75">
-                  {memberDone}/{memberTasks.length}
-                </span>
-              </button>
-            );
-          })}
-          <button
-            type="button"
-            onClick={() => setAssigneeFilter("UNASSIGNED")}
-            className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
-              assigneeFilter === "UNASSIGNED"
-                ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
-                : "bg-slate-100/80 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200/70"
-            }`}
-          >
-            Unassigned ({allTasks.filter((t) => !t.assignedToId).length})
-          </button>
+          {currentStudentId && (
+            <button
+              type="button"
+              onClick={() => setAssigneeFilter("MINE")}
+              className={`${segBase} ${
+                assigneeFilter === "MINE" ? segOn : segOff
+              }`}
+            >
+              Mine
+            </button>
+          )}
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
-          {milestones.length > 0 && onSelectMilestone && (
-            <select
-              value={selectedMilestoneId}
-              onChange={(e) => onSelectMilestone(e.target.value)}
-              aria-label="Filter by academic milestone"
-              className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-700 dark:text-slate-200 outline-none"
-            >
-              <option value="ALL">All Academic Stages</option>
-              {milestones.map((ms) => (
-                <option key={ms.id} value={ms.id}>
-                  Stage: {ms.title}
-                </option>
-              ))}
-              <option value="UNLINKED">Unlinked Tasks</option>
-            </select>
+        <button
+          type="button"
+          onClick={() => setShowFilters((v) => !v)}
+          aria-expanded={showFilters}
+          className={btnSecondary}
+        >
+          <SlidersHorizontal className="h-4 w-4" />
+          Filter
+          {advancedFilterCount > 0 && (
+            <span className="text-slate-900 dark:text-white">
+              ({advancedFilterCount})
+            </span>
           )}
+        </button>
 
-          <span className="text-xs text-slate-500 dark:text-slate-400">
-            Completed:{" "}
-            <strong className="text-slate-900 dark:text-white">
-              {doneTasks}/{totalTasks}
-            </strong>{" "}
-            ({progressPercent}%)
-          </span>
+        <div className="ml-auto inline-flex rounded-lg bg-slate-100 dark:bg-slate-800 p-1">
+          <button
+            type="button"
+            onClick={() => changeView("list")}
+            aria-label="List view"
+            className={`${segBase} gap-1.5 ${viewMode === "list" ? segOn : segOff}`}
+          >
+            <ListIcon className="h-4 w-4" />
+            <span className="hidden sm:inline">List</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => changeView("board")}
+            aria-label="Board view"
+            className={`${segBase} gap-1.5 ${viewMode === "board" ? segOn : segOff}`}
+          >
+            <LayoutGrid className="h-4 w-4" />
+            <span className="hidden sm:inline">Board</span>
+          </button>
         </div>
       </div>
 
-      {/* Empty Board Starter Prompt */}
-      {!previewMode && allTasks.length === 0 && (
-        <div className="rounded-xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white">
-              Starting a new FYP workspace?
-            </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Load a curated starter checklist for Proposal, SRS, Prototype, or Final Thesis and adapt it to your project.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setShowChecklistsModal(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-semibold shrink-0 cursor-pointer"
-          >
-            <ClipboardList className="w-3.5 h-3.5" />
-            Browse Starter Checklists
-          </button>
+      {showFilters && (
+        <div className="grid grid-cols-1 gap-3 rounded-xl border border-slate-200 dark:border-slate-800 p-4 sm:grid-cols-2">
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+              Assigned to
+            </span>
+            <select
+              value={assigneeFilter}
+              onChange={(e) => setAssigneeFilter(e.target.value)}
+              className={inputCls}
+            >
+              <option value="ALL">Everyone</option>
+              {currentStudentId && <option value="MINE">Me</option>}
+              <option value="UNASSIGNED">Unassigned</option>
+              {effectiveMembers.map((m: any) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+              Academic stage
+            </span>
+            <select
+              value={stageFilter}
+              onChange={(e) => setStageFilter(e.target.value)}
+              className={inputCls}
+            >
+              <option value="ALL">All stages</option>
+              {milestones.map((ms) => (
+                <option key={ms.id} value={ms.id}>
+                  {ms.title}
+                </option>
+              ))}
+              <option value="UNLINKED">Not linked to a stage</option>
+            </select>
+          </label>
+          {hasAnyFilter && (
+            <div className="sm:col-span-2">
+              <button type="button" onClick={clearFilters} className={btnGhost}>
+                Clear filters
+              </button>
+            </div>
+          )}
         </div>
       )}
 
-      {/* BOARD VIEW */}
-      {viewMode === "board" ? (
-        <>
-          {/* MOBILE (<640px): Compact 4-Column Tab Switcher to eliminate 1000px vertical scroll */}
-          <div className="grid grid-cols-4 gap-1 rounded-xl bg-slate-100/90 dark:bg-slate-800/80 p-1 sm:hidden">
+      {/* Empty workspace */}
+      {!previewMode && totalTasks === 0 ? (
+        <div className="rounded-xl border border-dashed border-slate-300 dark:border-slate-700 px-5 py-8 text-center">
+          <p className="text-sm font-medium text-slate-900 dark:text-white">
+            No tasks yet
+          </p>
+          <p className="mx-auto mt-1 max-w-sm text-sm text-slate-500 dark:text-slate-400">
+            Add your first task, or start from a suggested checklist for each
+            phase of your project and adapt it.
+          </p>
+          <div className="mt-4 flex flex-col items-stretch justify-center gap-2 sm:flex-row sm:items-center">
+            <button
+              type="button"
+              onClick={() => openNewTaskModal("TODO")}
+              className={btnPrimary}
+            >
+              <Plus className="h-4 w-4" />
+              New task
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowChecklists(true)}
+              className={btnSecondary}
+            >
+              Browse checklists
+            </button>
+          </div>
+        </div>
+      ) : filteredTasks.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-slate-300 dark:border-slate-700 px-5 py-8 text-center">
+          <p className="text-sm text-slate-600 dark:text-slate-400">
+            No tasks match these filters.
+          </p>
+          <button type="button" onClick={clearFilters} className={`${btnGhost} mt-2`}>
+            Clear filters
+          </button>
+        </div>
+      ) : viewMode === "list" ? (
+        /* LIST VIEW (default) — grouped by status, done tasks collapsed */
+        <div className="space-y-6">
+          {LIST_GROUPS.map((status) => {
+            const items = filteredTasks.filter((t) => t.status === status);
+            if (items.length === 0) return null;
+            const isDoneGroup = status === "DONE";
+            const collapsed = isDoneGroup && !showDone;
+
+            return (
+              <div key={status}>
+                {isDoneGroup ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowDone((v) => !v)}
+                    aria-expanded={!collapsed}
+                    className="mb-2 inline-flex h-10 items-center gap-1.5 text-sm font-semibold text-slate-600 dark:text-slate-300 cursor-pointer"
+                  >
+                    {collapsed ? (
+                      <ChevronRight className="h-4 w-4" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4" />
+                    )}
+                    {STATUS_LABELS[status]}
+                    <span className="font-normal text-slate-500">
+                      {items.length}
+                    </span>
+                  </button>
+                ) : (
+                  <h3 className="mb-2 text-sm font-semibold text-slate-600 dark:text-slate-300">
+                    {STATUS_LABELS[status]}{" "}
+                    <span className="font-normal text-slate-500">
+                      {items.length}
+                    </span>
+                  </h3>
+                )}
+
+                {!collapsed && (
+                  <ul className="divide-y divide-slate-100 dark:divide-slate-800 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40">
+                    {items.map((task) => {
+                      const overdue = isTaskOverdue(task);
+                      const stage = stageLabelFor(task);
+                      return (
+                        <li
+                          key={task.id}
+                          onClick={() => openEditTaskModal(task)}
+                          className="flex cursor-pointer items-center gap-2 px-2 py-2 sm:px-3 hover:bg-slate-50 dark:hover:bg-slate-800/40"
+                        >
+                          <StatusControl
+                            status={task.status}
+                            onChange={(s) => handleInlineStatusChange(task, s)}
+                          />
+
+                          <div className="min-w-0 flex-1 py-1">
+                            <p
+                              className={`text-sm font-medium leading-snug ${
+                                task.status === "DONE"
+                                  ? "text-slate-400 line-through"
+                                  : "text-slate-900 dark:text-white"
+                              }`}
+                            >
+                              {task.title}
+                              {task.priority === "HIGH" &&
+                                task.status !== "DONE" && (
+                                  <span className="ml-2 text-xs font-medium text-slate-900 dark:text-white no-underline">
+                                    High priority
+                                  </span>
+                                )}
+                            </p>
+                            <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-400">
+                              <span className="sm:hidden">
+                                {task.assignedTo
+                                  ? task.assignedTo.name
+                                  : "Unassigned"}
+                                {stage ? ` · ${stage}` : ""}
+                              </span>
+                              {stage && (
+                                <span className="hidden sm:inline">{stage}</span>
+                              )}
+                            </p>
+                          </div>
+
+                          <span className="hidden w-40 shrink-0 truncate text-sm text-slate-600 dark:text-slate-300 sm:block">
+                            {task.assignedTo
+                              ? task.assignedTo.name
+                              : "Unassigned"}
+                          </span>
+
+                          <span
+                            className={`w-24 shrink-0 pr-1 text-right text-xs sm:text-sm ${
+                              overdue
+                                ? "font-medium text-red-600 dark:text-red-400"
+                                : "text-slate-500 dark:text-slate-400"
+                            }`}
+                          >
+                            {task.dueDate ? (
+                              <>
+                                {formatTaskDate(task.dueDate)}
+                                {overdue && (
+                                  <span className="block text-xs sm:inline">
+                                    {" "}
+                                    overdue
+                                  </span>
+                                )}
+                              </>
+                            ) : (
+                              "—"
+                            )}
+                          </span>
+
+                          {task.deliverableUrl && (
+                            <a
+                              href={task.deliverableUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              aria-label="Open deliverable link"
+                              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 sm:h-8 sm:w-8"
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                            </a>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        /* BOARD VIEW — neutral columns */
+        <div className="space-y-3">
+          {/* Mobile: one column at a time */}
+          <div className="grid grid-cols-4 gap-1 rounded-lg bg-slate-100 dark:bg-slate-800 p-1 sm:hidden">
             {COLUMNS.map((col) => {
-              const count = filteredTasks.filter(
-                (t) => t.status === col.id
-              ).length;
-              const isActive = mobileActiveColumn === col.id;
+              const count = filteredTasks.filter((t) => t.status === col.id).length;
               return (
                 <button
                   key={col.id}
                   type="button"
-                  onClick={() => setMobileActiveColumn(col.id)}
-                  className={`flex items-center justify-center gap-1 rounded-lg py-1.5 px-1 text-[11px] font-semibold transition-colors ${
-                    isActive
-                      ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs"
-                      : "text-slate-500 dark:text-slate-400"
+                  onClick={() => setMobileColumn(col.id)}
+                  className={`h-10 rounded-md px-1 text-xs font-medium ${
+                    mobileColumn === col.id ? segOn : segOff
                   }`}
                 >
-                  <span className="truncate">{col.shortTitle}</span>
-                  <span className="text-[10px] opacity-75">({count})</span>
+                  {col.title}
+                  <span className="ml-1 text-slate-500">{count}</span>
                 </button>
               );
             })}
           </div>
 
-          <div className="grid h-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {COLUMNS.map((col) => {
-              const columnTasks = filteredTasks.filter(
-                (t) => t.status === col.id
-              );
-              const isHiddenOnMobile = mobileActiveColumn !== col.id;
-
+              const columnTasks = filteredTasks.filter((t) => t.status === col.id);
               return (
                 <div
                   key={col.id}
-                  onDragOver={handleDragOver}
+                  onDragOver={(e) => e.preventDefault()}
                   onDrop={(e) => handleDrop(e, col.id)}
                   className={`${
-                    isHiddenOnMobile ? "hidden sm:flex" : "flex"
-                  } h-full flex-col rounded-2xl p-4 ${col.bg} transition-colors`}
+                    mobileColumn === col.id ? "block" : "hidden"
+                  } sm:block rounded-xl bg-slate-50 dark:bg-slate-900/40 p-3`}
                 >
-                  <div className="mb-3.5 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-semibold text-slate-900 dark:text-white text-sm">
-                        {col.title}
-                      </h4>
-                      <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-white/80 dark:bg-slate-900/80 text-slate-600 dark:text-slate-300 border border-slate-200/50 dark:border-slate-700/50">
+                  <div className="mb-3 flex items-center justify-between">
+                    <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                      {col.title}{" "}
+                      <span className="font-normal text-slate-500">
                         {columnTasks.length}
                       </span>
-                    </div>
+                    </h3>
                     <button
+                      type="button"
                       onClick={() => openNewTaskModal(col.id)}
-                      title="Add Task to Column"
-                      className="rounded-lg p-1 text-slate-500 transition hover:bg-white hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white cursor-pointer"
+                      aria-label={`Add task to ${col.title}`}
+                      className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-500 hover:bg-white dark:hover:bg-slate-800 sm:h-8 sm:w-8 cursor-pointer"
                     >
                       <Plus className="h-4 w-4" />
                     </button>
                   </div>
 
-                  <div className="flex-1 space-y-3 overflow-y-auto min-h-[180px] pr-0.5">
+                  <div className="min-h-[96px] space-y-2.5">
                     {columnTasks.length === 0 ? (
-                      <div className="flex h-28 items-center justify-center rounded-xl border border-dashed border-slate-200/80 dark:border-slate-800 text-xs text-slate-400">
-                        No tasks in {col.title}
-                      </div>
+                      <p className="px-1 py-6 text-center text-sm text-slate-400">
+                        Nothing here
+                      </p>
                     ) : (
                       columnTasks.map((task) => (
                         <TaskCard
                           key={task.id}
                           task={task}
-                          milestoneTitle={
-                            task.milestoneId
-                              ? milestoneMap.get(task.milestoneId) || null
-                              : null
-                          }
+                          milestoneTitle={stageLabelFor(task)}
                           onClick={() => openEditTaskModal(task)}
                           onDragStart={(e) => handleDragStart(e, task.id)}
-                          onStatusChange={(newStatus) =>
-                            handleInlineStatusChange(task, newStatus)
-                          }
+                          onStatusChange={(s) => handleInlineStatusChange(task, s)}
                         />
                       ))
                     )}
@@ -751,244 +787,35 @@ export function KanbanBoard({
               );
             })}
           </div>
-        </>
-      ) : (
-        /* LIST VIEW */
-        <div className="overflow-x-auto rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/50">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                <th className="py-2.5 px-4">Task</th>
-                <th className="py-2.5 px-3">Stage</th>
-                <th className="py-2.5 px-3">Assignee</th>
-                <th className="py-2.5 px-3">Due Date</th>
-                <th className="py-2.5 px-3">Priority</th>
-                <th className="py-2.5 px-3">Status</th>
-                <th className="py-2.5 px-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200/60 dark:divide-slate-800/60 text-xs">
-              {filteredTasks.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="py-10 text-center text-slate-400">
-                    No tasks match the current filter.
-                  </td>
-                </tr>
-              ) : (
-                filteredTasks.map((task) => (
-                  <tr
-                    key={task.id}
-                    onClick={() => openEditTaskModal(task)}
-                    className="cursor-pointer hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors"
-                  >
-                    <td className="py-3 px-4 max-w-xs">
-                      <div className="font-medium text-slate-900 dark:text-white">
-                        {task.title}
-                      </div>
-                      {task.description && (
-                        <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                          {task.description}
-                        </div>
-                      )}
-                    </td>
-                    <td className="py-3 px-3 whitespace-nowrap text-slate-600 dark:text-slate-400">
-                      {task.milestoneId &&
-                      milestoneMap.get(task.milestoneId) ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-[11px] font-medium text-slate-700 dark:text-slate-300">
-                          <Flag className="w-2.5 h-2.5 text-slate-400" />
-                          {milestoneMap.get(task.milestoneId)}
-                        </span>
-                      ) : (
-                        <span className="text-slate-400">—</span>
-                      )}
-                    </td>
-                    <td className="py-3 px-3 text-slate-700 dark:text-slate-300 whitespace-nowrap">
-                      {task.assignedTo ? (
-                        <span className="inline-flex items-center gap-1.5 font-medium">
-                          <User className="w-3 h-3 text-slate-400" />
-                          {task.assignedTo.name}
-                        </span>
-                      ) : (
-                        <span className="text-slate-400">Unassigned</span>
-                      )}
-                    </td>
-                    <td className="py-3 px-3 whitespace-nowrap text-slate-600 dark:text-slate-400">
-                      {task.dueDate ? (
-                        <span className="inline-flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {new Date(task.dueDate).toLocaleDateString(undefined, {
-                            month: "short",
-                            day: "numeric",
-                          })}
-                        </span>
-                      ) : (
-                        <span className="text-slate-400">—</span>
-                      )}
-                    </td>
-                    <td className="py-3 px-3 whitespace-nowrap">
-                      <span className="inline-flex px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
-                        {task.priority || "MEDIUM"}
-                      </span>
-                    </td>
-                    <td
-                      className="py-3 px-3 whitespace-nowrap"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <select
-                        value={task.status}
-                        onChange={(e) =>
-                          handleInlineStatusChange(task, e.target.value)
-                        }
-                        className="px-2 py-1 rounded-md text-[11px] font-semibold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"
-                      >
-                        <option value="TODO">To Do</option>
-                        <option value="IN_PROGRESS">In Progress</option>
-                        <option value="REVIEW">Under Review</option>
-                        <option value="DONE">Done</option>
-                      </select>
-                    </td>
-                    <td
-                      className="py-3 px-3 text-right whitespace-nowrap"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <div className="inline-flex items-center gap-2">
-                        {task.deliverableUrl && (
-                          <a
-                            href={task.deliverableUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
-                          >
-                            <ExternalLink className="w-3.5 h-3.5" />
-                          </a>
-                        )}
-                        {!previewMode && (
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(task.id)}
-                            className="text-slate-400 hover:text-red-600 dark:hover:text-red-400 p-1"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
         </div>
       )}
 
-      {/* Starter Checklists Modal */}
-      {showChecklistsModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-2xl rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xl overflow-hidden max-h-[90vh] flex flex-col">
-            <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800 px-5 py-4 shrink-0">
-              <div>
-                <h2 className="text-base font-bold text-slate-900 dark:text-white">
-                  FYP Starter Task Checklists
-                </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Select a project phase and choose tasks to add to your board. You can edit or assign them anytime.
-                </p>
-              </div>
+      {/* Checklists are reachable on mobile too (the toolbar button is hidden there to save space) */}
+      {!previewMode && totalTasks > 0 && (
+        <div className="sm:hidden">
+          <button
+            type="button"
+            onClick={() => setShowChecklists(true)}
+            className={btnGhost}
+          >
+            <ClipboardList className="h-4 w-4" />
+            Starter checklists
+          </button>
+        </div>
+      )}
+
+      {showChecklists && (
+        <Sheet
+          title="Starter checklists"
+          description="Suggested starting points. Pick a phase, choose the tasks you want, and edit them afterwards."
+          onClose={() => setShowChecklists(false)}
+          wide
+          footer={
+            <>
               <button
                 type="button"
-                onClick={() => setShowChecklistsModal(false)}
-                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="p-5 space-y-4 overflow-y-auto flex-1">
-              {/* Phase Selector Tabs */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {STARTER_CHECKLIST_PACKS.map((pack) => {
-                  const isSelected = pack.id === activePack.id;
-                  return (
-                    <button
-                      key={pack.id}
-                      type="button"
-                      onClick={() => handleSelectPack(pack)}
-                      className={`text-left rounded-xl border p-3 transition-colors cursor-pointer ${
-                        isSelected
-                          ? "border-slate-900 bg-slate-900 text-white dark:border-white dark:bg-white dark:text-slate-900"
-                          : "border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 text-slate-800 dark:text-slate-200 hover:bg-slate-100/80"
-                      }`}
-                    >
-                      <div className="text-xs font-bold">{pack.title}</div>
-                      <div
-                        className={`text-[11px] mt-0.5 line-clamp-1 ${
-                          isSelected
-                            ? "text-slate-200 dark:text-slate-600"
-                            : "text-slate-500 dark:text-slate-400"
-                        }`}
-                      >
-                        {pack.subtitle}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Tasks in Selected Pack */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-                  <span>
-                    Tasks in <strong>{activePack.title}</strong>
-                  </span>
-                  <span>
-                    {selectedPackIndices.length} of {activePack.items.length}{" "}
-                    selected
-                  </span>
-                </div>
-
-                <div className="divide-y divide-slate-200/70 dark:divide-slate-800 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900">
-                  {activePack.items.map((item, idx) => {
-                    const checked = selectedPackIndices.includes(idx);
-                    return (
-                      <label
-                        key={idx}
-                        onClick={() => toggleChecklistItem(idx)}
-                        className="flex items-start gap-3 p-3.5 cursor-pointer hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors"
-                      >
-                        <div
-                          className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors ${
-                            checked
-                              ? "border-slate-900 bg-slate-900 text-white dark:border-white dark:bg-white dark:text-slate-900"
-                              : "border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
-                          }`}
-                        >
-                          {checked && <Check className="h-3 w-3" />}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="text-xs font-semibold text-slate-900 dark:text-white">
-                              {item.title}
-                            </span>
-                            <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 shrink-0">
-                              {item.priority}
-                            </span>
-                          </div>
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                            {item.description}
-                          </p>
-                        </div>
-                      </label>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end gap-2 border-t border-slate-200/80 dark:border-slate-800 px-5 py-3.5 shrink-0">
-              <button
-                type="button"
-                onClick={() => setShowChecklistsModal(false)}
-                className="rounded-xl border border-slate-200 dark:border-slate-800 px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
+                onClick={() => setShowChecklists(false)}
+                className={btnSecondary}
               >
                 Cancel
               </button>
@@ -998,15 +825,72 @@ export function KanbanBoard({
                 disabled={
                   selectedPackIndices.length === 0 || createBatchTasks.isPending
                 }
-                className="rounded-xl bg-slate-900 dark:bg-white px-4 py-2 text-xs font-semibold text-white dark:text-slate-900 hover:opacity-90 disabled:opacity-50 cursor-pointer"
+                className={btnPrimary}
               >
                 {createBatchTasks.isPending
                   ? "Adding..."
-                  : `Add ${selectedPackIndices.length} Tasks to Board`}
+                  : `Add ${selectedPackIndices.length} task${
+                      selectedPackIndices.length === 1 ? "" : "s"
+                    }`}
               </button>
-            </div>
+            </>
+          }
+        >
+          <div className="space-y-4">
+            <label className="block">
+              <span className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                Phase
+              </span>
+              <select
+                value={activePack.id}
+                onChange={(e) => handleSelectPack(e.target.value)}
+                className={inputCls}
+              >
+                {STARTER_CHECKLIST_PACKS.map((pack, idx) => (
+                  <option key={pack.id} value={pack.id}>
+                    {idx + 1}. {pack.title}
+                  </option>
+                ))}
+              </select>
+              <span className="mt-1.5 block text-sm text-slate-500 dark:text-slate-400">
+                {activePack.subtitle}
+              </span>
+            </label>
+
+            <ul className="divide-y divide-slate-100 dark:divide-slate-800 rounded-xl border border-slate-200 dark:border-slate-800">
+              {activePack.items.map((item, idx) => {
+                const checked = selectedPackIndices.includes(idx);
+                return (
+                  <li key={idx}>
+                    <button
+                      type="button"
+                      onClick={() => toggleChecklistItem(idx)}
+                      className="flex w-full items-start gap-3 p-3.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800/40 cursor-pointer"
+                    >
+                      <span
+                        className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
+                          checked
+                            ? "border-slate-900 bg-slate-900 text-white dark:border-white dark:bg-white dark:text-slate-900"
+                            : "border-slate-300 dark:border-slate-600"
+                        }`}
+                      >
+                        {checked && <Check className="h-3.5 w-3.5" />}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-sm font-medium text-slate-900 dark:text-white">
+                          {item.title}
+                        </span>
+                        <span className="mt-0.5 block text-sm text-slate-500 dark:text-slate-400">
+                          {item.description}
+                        </span>
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
-        </div>
+        </Sheet>
       )}
 
       {isModalOpen && (
@@ -1014,7 +898,7 @@ export function KanbanBoard({
           task={activeTask || undefined}
           prefill={modalPrefill}
           defaultStatus={defaultStatus}
-          defaultMilestoneId={selectedMilestoneId}
+          defaultMilestoneId={stageFilter}
           members={effectiveMembers}
           milestones={milestones}
           onClose={closeModal}
@@ -1025,6 +909,6 @@ export function KanbanBoard({
           isReadOnly={previewMode}
         />
       )}
-    </div>
+    </section>
   );
 }
